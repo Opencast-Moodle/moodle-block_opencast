@@ -29,7 +29,10 @@ class upload_helper {
 
     const OC_FILEAREA = 'videotoupload';
     const STATUS_READY_TO_UPLOAD = 10;
-    const STATUS_UPLOADING = 20;
+    const STATUS_CREATING_GROUP = 21;
+    const STATUS_CREATING_SERIES = 22;
+    const STATUS_CREATING_EVENT = 25;
+    const STATUS_UPLOADED = 27;
     const STATUS_TRANSFERRED = 40;
 
     private $apibridge;
@@ -43,8 +46,14 @@ class upload_helper {
         switch ($statuscode) {
             case self::STATUS_READY_TO_UPLOAD :
                 return get_string('mstatereadytoupload', 'block_opencast');
-            case self::STATUS_UPLOADING :
-                return get_string('mstatesuploading', 'block_opencast');
+            case self::STATUS_CREATING_GROUP :
+                return get_string('mstatecreatinggroup', 'block_opencast');
+            case self::STATUS_CREATING_SERIES :
+                return get_string('mstatecreatingseries', 'block_opencast');
+            case self::STATUS_CREATING_EVENT :
+                return get_string('mstatecreatingevent', 'block_opencast');
+            case self::STATUS_UPLOADED :
+                return get_string('mstateuploaded', 'block_opencast');
             case self::STATUS_TRANSFERRED :
                 return get_string('mstatetransferred', 'block_opencast');
             default :
@@ -219,19 +228,41 @@ class upload_helper {
     }
 
     /**
-     *
-     * @param type $job
-     * @return type
+     * Updates the status of a job and sets the time values accordingly.
+     * @param object $job job to be updated.
+     * @param int $status the new status of the job. See the predefined constants of the class for available choices.
+     * @param bool $setmodified if true, the value timemodified of the job is set to the current time.
+     * @param bool $setstarted if true, the value timestarted of the job is set to the current time.
+     * @param bool $setsucceeded if true, the value timesucceeded of the job is set to the current time.
+     */
+    protected function update_status(&$job, $status, $setmodified = true, $setstarted = false, $setsucceeded = false) {
+        global $DB;
+        $time = time();
+        if ($setstarted) {
+            $job->timestarted = $time;
+        }
+        if ($setmodified) {
+            $job->timemodified = $time;
+        }
+        if ($setsucceeded) {
+            $job->timesucceeded = $time;
+        }
+        $job->status = $status;
+
+        $DB->update_record('block_opencast_uploadjob', $job);
+    }
+
+    /**
+     * Processes the different work packages of the upload job. Since there are some tasks, which are processed by
+     * opencast in an asynchronous fashion, this method can either return the created opencast event or false. In case
+     * of false, the cronjob has to rerun this task later.
+     * @param object $job represents the upload job.
+     * @return false | object either false -> rerun later or object -> upload successful.
      * @throws \moodle_exception
      */
     protected function process_upload_job($job) {
         global $DB;
-
-        $job->status = self::STATUS_UPLOADING;
-        if (empty($job->timestarted)) {
-            $job->timestarted = time();
-        }
-        $DB->update_record('block_opencast_uploadjob', $job);
+        $stepsuccessful = false;
 
         // If executing from unittest change courseid to avoid collision with real uploads.
         if (PHPUNIT_TEST) {
@@ -239,64 +270,129 @@ class upload_helper {
             $job->courseid = 'oc_utest';
         }
 
-        // Check if role and series exists.
-        $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
-        mtrace('... group exists');
+        switch ($job->status) {
+            case self::STATUS_READY_TO_UPLOAD:
+                $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
+            case self::STATUS_CREATING_GROUP:
+                try {
+                    // Check if group exists.
+                    $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
+                    if ($group) {
+                        $stepsuccessful = true;
+                        mtrace('... group exists');
+                        // Move on to next status.
+                        $this->update_status($job, self::STATUS_CREATING_SERIES);
+                    }
+                } catch (\moodle_exception $e) {
+                    mtrace('... group creation still in progress');
+                }
+                break;
 
-        $series = $this->apibridge->ensure_course_series_exists($job->courseid);
-        mtrace('... series exists');
+            case self::STATUS_CREATING_SERIES:
+                try {
+                    // Check if series exists.
+                    $series = $this->apibridge->ensure_course_series_exists($job->courseid);
+                    if ($series) {
+                        $stepsuccessful = true;
+                        mtrace('... series exists');
+                        // Move on to next status.
+                        $this->update_status($job, self::STATUS_CREATING_EVENT);
+                    }
+                } catch (\moodle_exception $e) {
+                    mtrace('... series creation still in progress');
+                }
+                break;
 
-        // Check, whether this file was uploaded any time before.
-        $params = array(
-            'contenthash' => $job->contenthash
-        );
+            case self::STATUS_CREATING_EVENT:
 
-        // Search for files already uploaded to opencast.
-        $sql = "SELECT opencasteventid
-                FROM {block_opencast_uploadjob}
-                WHERE contenthash = :contenthash
-                GROUP BY opencasteventid ";
+                $eventids = array();
 
-        $eventids = $DB->get_records_sql($sql, $params);
-        if ($eventids) {
-            $eventids = array_keys($eventids);
+                if ($job->opencasteventid) {
+                    array_push($eventids, $job->opencasteventid);
+                } else if (get_config('block_opencast', 'reuseexistingupload')) {
+                    // Check, whether this file was uploaded any time before.
+                    $params = array(
+                        'contenthash' => $job->contenthash
+                    );
+
+                    // Search for files already uploaded to opencast.
+                    $sql = "SELECT opencasteventid
+                        FROM {block_opencast_uploadjob}
+                        WHERE contenthash = :contenthash
+                        GROUP BY opencasteventid ";
+
+                    $eventids = $DB->get_records_sql($sql, $params);
+                    if ($eventids) {
+                        $eventids = array_keys($eventids);
+                    }
+                }
+
+                $series = $this->apibridge->get_course_series($job->courseid);
+                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
+
+                // Check result.
+                if (!isset($event->identifier)) {
+                    throw new \moodle_exception('missingevent', 'block_opencast');
+                } else {
+                    mtrace('... video uploaded');
+                    $this->update_status($job, self::STATUS_UPLOADED);
+                    $stepsuccessful = true;
+
+                    // Update eventid;
+                    $job->opencasteventid = $event->identifier;
+                    $DB->update_record('block_opencast_uploadjob', $job);
+                }
+                break;
+
+            case self::STATUS_UPLOADED:
+
+                // Continue with post-upload tasks.
+
+                // Verify the upload.
+                if (!$job->opencasteventid) {
+                    throw new \moodle_exception('missingeventidentifier', 'block_opencast');
+                }
+
+                if (!($event = $this->apibridge->get_already_existing_event(array($job->opencasteventid)))) {
+                    break;
+                }
+
+                // Mark the job as uploaded.
+                $job->opencasteventid = $event->identifier;
+
+                // For a new event do acl and series are already set, event will be processed
+                // in opencast, so it is not possible to modify event at this state.
+                if ($event->newlycreated) {
+                    return $event;
+                }
+
+                // Ensure the assignment of a suitable role.
+                if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
+                    mtrace('... group not yet assigned.');
+                    break;
+                }
+                mtrace('... group assigned');
+
+                // Ensure the assignment of a series.
+                $series = $this->apibridge->get_course_series($job->courseid);
+                if (!$this->apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
+                    mtrace('... series not yet assigned.');
+                    break;
+                }
+                mtrace('... series assigned');
+
+                // If a event was created, the upload is finished and the event can be returned.
+                return $event;
         }
 
-        $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
-        mtrace('... video uploaded');
-
-        // Check result.
-        if (!isset($event->identifier)) {
-            throw new \moodle_exception('missingevent', 'block_opencast');
+        // If the current step (creation of group or series) was successful, the function process_upload_job can be
+        // called recursively to continue with the next bit of work.
+        if ($stepsuccessful) {
+            return $this->process_upload_job($job);
+        } else {
+            // Otherwise, false is returned, which causes to cronjob to try again later.
+            return false;
         }
-
-        // Verify the upload.
-        if (!$this->apibridge->get_already_existing_event(array($event->identifier))) {
-            throw new \moodle_exception('missingeventidentifier', 'block_opencast');
-        }
-
-        // Mark the job as uploaded.
-        $job->opencasteventid = $event->identifier;
-
-        // For a new event do acl and series are already set, event will be processed
-        // in opencast, so it is not possible to modify event at this state.
-        if ($event->newlycreated) {
-            return $event;
-        }
-
-        // Ensure the assignment of a suitable role.
-        if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
-            throw new \moodle_exception('missingaclassignment', 'block_opencast');
-        }
-        mtrace('... group assigned');
-
-        // Ensure the assignment of a series.
-        if (!$this->apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
-            throw new \moodle_exception('missingseriesassignment', 'block_opencast');
-        }
-        mtrace('... series assigned');
-
-        return $event;
     }
 
     /**
@@ -307,11 +403,11 @@ class upload_helper {
 
         // Get all waiting jobs.
         $sql = "SELECT * FROM {block_opencast_uploadjob}
-                WHERE status = ? ORDER BY timemodified ASC ";
+                WHERE status < ? ORDER BY timemodified ASC ";
 
         $limituploadjobs = get_config('block_opencast', 'limituploadjobs');
 
-        $jobs = $DB->get_records_sql($sql, array(self::STATUS_READY_TO_UPLOAD), 0, $limituploadjobs);
+        $jobs = $DB->get_records_sql($sql, array(self::STATUS_TRANSFERRED), 0, $limituploadjobs);
 
         if (!$jobs) {
             mtrace('...no jobs to proceed');
@@ -321,8 +417,13 @@ class upload_helper {
             mtrace('proceed: ' . $job->id);
             try {
                 $event = $this->process_upload_job($job);
-                $this->upload_succeeded($job, $event->identifier);
+                if ($event) {
+                    $this->upload_succeeded($job, $event->identifier);
+                } else {
+                    mtrace('job ' . $job->id . ' is postponed');
+                }
             } catch (\moodle_exception $e) {
+                mtrace('Job failed due to: ' . $e);
                 $this->upload_failed($job, $e->getMessage());
             }
         }
