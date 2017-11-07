@@ -81,6 +81,9 @@ $string['pluginname'] = 'Opencast Videos';
 $string['processupload'] = 'Process upload';
 $string['publishtoengage'] = 'Publish to Engage';
 $string['publishtoengagedesc'] = 'Select this option to publish the video after upload to engage player. Setup workflow must support this.';
+$string['reuseexistingupload'] = 'Reuse existing uploads';
+$string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
+This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
 $string['ocstatesucceeded'] = 'Succeeded';
