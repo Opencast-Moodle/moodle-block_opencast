@@ -62,6 +62,10 @@ if ($ADMIN->fulltree) {
         new lang_string('publishtoengage', 'block_opencast'),
         new lang_string('publishtoengagedesc', 'block_opencast'), 0));
 
+    $settings->add(new admin_setting_configcheckbox('block_opencast/reuseexistingupload',
+        new lang_string('reuseexistingupload', 'block_opencast'),
+        new lang_string('reuseexistinguploaddesc', 'block_opencast'), 0));
+
     $settings->add(new admin_setting_heading('block_opencast/overviewsettings',
         new lang_string('overviewsettings', 'block_opencast'), ''));
 
