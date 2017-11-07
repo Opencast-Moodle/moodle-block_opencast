@@ -66,10 +66,10 @@ Steps to upload a video:
 3. Saving the form creates an upload job, which is registered to the Upload Job Queue.
 <img src="https://user-images.githubusercontent.com/9437254/32501133-7da4fd56-c3d7-11e7-9c1f-fe242345e2c7.png" width="500"></br>
 4. The processing of a video is done during a cron job and contain the following steps:
-    i. A new series is created in opencast with the name "Course_Series_[ID of the course]", if it is not yet created.
-    ii. A new group is created in opencast with the name "ROLE_GROUP_MOODLE_COURSE_[ID of the course]", if it is not yet created.
+    1. A new series is created in opencast with the name "Course_Series_[ID of the course]", if it is not yet created.
+    2. A new group is created in opencast with the name "ROLE_GROUP_MOODLE_COURSE_[ID of the course]", if it is not yet created.
     This group control the access to the video.
-    iii. The video is uploaded to opencast, if it does not yet exist or the config *reuseexistingupload* is false.
-    iv. The group is assigned to the video.
+    3. The video is uploaded to opencast, if it does not yet exist or the config *reuseexistingupload* is false.
+    4. The group is assigned to the video.
     
 Since most operations in the upload process are done by opencast in an asynchronous fashion, uploading a video can take multiple runs of the cronjob to finish.
