@@ -203,10 +203,22 @@ class apibridge {
     protected function get_acl_group($courseid) {
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
-        $groupidentifier = api::get_course_acl_group_identifier($courseid);
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name', $courseid));
+        $groupidentifier = $this->get_course_acl_group_identifier($groupname);
+
         $group = $api->oc_get($this->config->apiurl . '/api/groups/' . $groupidentifier);
 
         return json_decode($group);
+    }
+
+    /**
+     * Returns the group identifier from a group name.
+     * @param String $groupname
+     * @return mixed
+     */
+    private function get_course_acl_group_identifier($groupname) {
+        $groupidentifier = mb_strtolower($groupname, 'UTF-8');
+        return preg_replace('/[^a-zA-Z0-9_]/', '_', $groupidentifier);
     }
 
     /**
@@ -220,7 +232,7 @@ class apibridge {
         $api = new api($this->config->apiusername, $this->config->apipassword);
 
         $params = [];
-        $params['name'] = api::get_course_acl_group_name($courseid);
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name', $courseid));
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -262,14 +274,26 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     public function get_course_series($courseid) {
+        $seriestitle = $this->replace_placeholders(get_config('block_opencast', 'series_name'), $courseid);
 
-        $seriestitle = api::get_courses_series_title($courseid);
         $url = $this->config->apiurl . '/api/series?filter=title:' . $seriestitle;
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $series = $api->oc_get($url);
 
         return json_decode($series);
+    }
+
+    /**
+     * Replaces the placeholders [COURSENAME] and [COURSEID]
+     * @param string $seriesname
+     * @param int $courseid
+     * @return mixed
+     */
+    private function replace_placeholders($name, $courseid) {
+        $coursename = get_course($courseid)->fullname;
+        $title = str_replace('[COURSENAME]', $coursename, $name);
+        return str_replace('[COURSEID]', $courseid, $title);
     }
 
     /**
@@ -286,7 +310,8 @@ class apibridge {
         $metadata['label'] = "Opencast Series Dublincore";
         $metadata['flavor'] = "dublincore/series";
         $metadata['fields'] = [];
-        $metadata['fields'][] = array('id' => 'title', 'value' => api::get_courses_series_title($courseid));
+        $title = get_config('block_opencast', 'series_name');
+        $metadata['fields'][] = array('id' => 'title', 'value' => $this->replace_placeholders($title, $courseid));
 
         $params['metadata'] = json_encode(array($metadata));
         $params['acl'] = '[]';

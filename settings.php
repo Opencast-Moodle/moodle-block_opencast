@@ -79,6 +79,15 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('block_opencast/group_creation',
         new lang_string('groupcreation', 'block_opencast'),
         new lang_string('groupcreationdesc', 'block_opencast'), 1));
+
+    $settings->add(new admin_setting_configtext('block_opencast/group_name',
+        new lang_string('groupname', 'block_opencast'),
+        new lang_string('groupnamedesc', 'block_opencast'), 'Moodle_course_[COURSEID]', PARAM_TEXT));
+
+    $settings->add(new admin_setting_configtext('block_opencast/series_name',
+        new lang_string('seriesname', 'block_opencast'),
+        new lang_string('seriesnamedesc', 'block_opencast'), 'Course_Series_[COURSEID]', PARAM_TEXT));
+
 }
 
 
