@@ -274,17 +274,19 @@ class upload_helper {
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                try {
-                    // Check if group exists.
-                    $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
-                    if ($group) {
-                        $stepsuccessful = true;
-                        mtrace('... group exists');
-                        // Move on to next status.
-                        $this->update_status($job, self::STATUS_CREATING_SERIES);
+                if(get_config('block_opencast', 'group_creation')) {
+                    try {
+                        // Check if group exists.
+                        $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
+                        if ($group) {
+                            $stepsuccessful = true;
+                            mtrace('... group exists');
+                            // Move on to next status.
+                            $this->update_status($job, self::STATUS_CREATING_SERIES);
+                        }
+                    } catch (\moodle_exception $e) {
+                        mtrace('... group creation still in progress');
                     }
-                } catch (\moodle_exception $e) {
-                    mtrace('... group creation still in progress');
                 }
                 break;
 

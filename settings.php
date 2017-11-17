@@ -73,6 +73,12 @@ if ($ADMIN->fulltree) {
         new lang_string('limitvideos', 'block_opencast'),
         new lang_string('limitvideosdesc', 'block_opencast'), 5, PARAM_INT));
 
+    $settings->add(new admin_setting_heading('block_opencast/accesspolicies',
+        new lang_string('accesspolicies', 'block_opencast'), ''));
+
+    $settings->add(new admin_setting_configcheckbox('block_opencast/group_creation',
+        new lang_string('groupcreation', 'block_opencast'),
+        new lang_string('groupcreationdesc', 'block_opencast'), 1));
 }
 
 

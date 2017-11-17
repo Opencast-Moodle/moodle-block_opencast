@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
+$string['accesspolicies'] = 'Access Policies';
 $string['addvideo'] = 'Add video';
 $string['apipassword'] = 'Password for API user';
 $string['apipassworddesc'] = 'Setup a password for the super user, who does the api calls.';
@@ -50,6 +51,8 @@ $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';
 $string['gotooverview'] = 'Go to overview...';
+$string['groupcreation'] = 'Create a group';
+$string['groupcreationdesc'] = 'If checked, a group is created during the upload otherwise not.';
 $string['hstart_date'] = 'Date';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';

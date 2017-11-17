@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Der Zugriff auf das Video {$a->title} wurde gelöscht';
+$string['accesspolicies'] = 'Zugangsrichtlinien';
 $string['addvideo'] = 'Video hinzufügen';
 $string['apipassword'] = 'Passwort for API user';
 $string['apipassworddesc'] = 'Geben sie das Opencast-Passwort für den Super-User (Stellvertreter Nutzer) ein mit dem die Anfragen an Opencast ausgeführt werden sollen.';
@@ -51,6 +52,8 @@ $string['eventuploadsucceeded'] = 'Upload erfolgreich';
 $string['eventuploadfailed'] = 'Upload fehlgeschlagen';
 $string['errorgetblockvideos'] = 'Die Liste der Videos kann nicht geladen werden (Error: {$a})';
 $string['gotooverview'] = 'Zur Übersicht...';
+$string['groupcreation'] = 'Gruppe erstellen';
+$string['groupcreationdesc'] = 'Wenn die Checkbox markiert ist, wird während des Uploads eine Gruppe erstellt.';
 $string['hstart_date'] = 'Datum';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';
