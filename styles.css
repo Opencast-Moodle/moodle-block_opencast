@@ -17,3 +17,11 @@
 .opencast-more-wrap {
     text-align: right;
 }
+
+#page-admin-blocks-opencast-adminsettings #roles_table .fitemtitle {
+    width: 0;
+}
+
+#page-admin-blocks-opencast-adminsettings #roles_table .felement {
+    margin-left: 0;
+}
