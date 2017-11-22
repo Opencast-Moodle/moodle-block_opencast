@@ -203,7 +203,7 @@ class apibridge {
     protected function get_acl_group($courseid) {
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name', $courseid));
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $group = $api->oc_get($this->config->apiurl . '/api/groups/' . $groupidentifier);
@@ -232,7 +232,7 @@ class apibridge {
         $api = new api($this->config->apiusername, $this->config->apipassword);
 
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name', $courseid));
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -385,6 +385,11 @@ class apibridge {
         $event->add_acl(true, 'read', 'ROLE_ADMIN');
         $event->add_acl(true, 'write', 'ROLE_ADMIN');
         $event->add_acl(true, 'read', $grouprole);
+        $roles = $this->getroles();
+        foreach($roles as $role) {
+            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+        }
+
 
         $event->set_presentation($job->fileid);
         $storedfile = $event->get_presentation();
@@ -403,6 +408,16 @@ class apibridge {
         }
 
         return $result;
+    }
+
+    /**
+     * Returns acl roles.
+     * @return array
+     */
+    private function getroles() {
+        global $DB;
+        $roles = $DB->get_records('block_opencast_roles');
+        return $roles;
     }
 
     /**
@@ -455,6 +470,10 @@ class apibridge {
         $event->add_acl(true, 'read', 'ROLE_ADMIN');
         $event->add_acl(true, 'write', 'ROLE_ADMIN');
         $event->add_acl(true, 'read', $grouprole);
+        $roles = $this->getroles();
+        foreach($roles as $role) {
+            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+        }
 
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
@@ -494,6 +513,10 @@ class apibridge {
         $grouprole = api::get_course_acl_role($courseid);
         $event->add_acl(true, 'read', 'ROLE_ADMIN');
         $event->add_acl(true, 'write', 'ROLE_ADMIN');
+        $roles = $this->getroles();
+        foreach($roles as $role) {
+            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+        }
         $event->remove_acl('read', $grouprole);
 
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';

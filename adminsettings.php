@@ -17,7 +17,7 @@
 /**
  * Settings for the opencast block
  *
- * @package block_evasys_sync
+ * @package block_opencast
  * @copyright 2017 Tamara Gunkel
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -25,6 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');;
 $delrole = optional_param('d', 0, PARAM_INT);
+$confirm = optional_param('c', 0, PARAM_INT);
 require_login();
 
 // Set the URL that should be used to return to this page.
@@ -35,14 +36,24 @@ if (has_capability('moodle/site:config', context_system::instance())) {
 
     $mform = new block_opencast\admin_form();
 
-    if (!empty($delrole)) {
+    if (!empty($delrole) && !empty($confirm)) {
         // Role is deleted.
         $DB->delete_records('block_opencast_roles', array('id' => $delrole));
         redirect($PAGE->url);
         exit();
     }
 
-    if ($data = $mform->get_data()) {
+    if (!empty($delrole)) {
+        // Deletion has to be confirmed.
+        // Print a confirmation message.
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('settings', 'block_opencast'));
+        echo $OUTPUT->confirm(get_string("delete_confirm", 'block_opencast'),
+            "adminsettings.php?d=$delrole&c=$delrole",
+            'adminsettings.php');
+        echo $OUTPUT->footer();
+        exit();
+    } else if ($data = $mform->get_data()) {
         // Form is submitted.
         // Added course category.
         if (isset($data->addrolebutton)) {
@@ -90,6 +101,23 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             }
             if (isset($data->series_name)) {
                 set_config('series_name', $data->series_name, 'block_opencast');
+            }
+
+            // Update roles
+            $roles = $DB->get_records('block_opencast_roles');
+            foreach ($roles as $role) {
+                $rname = 'role_'.$role->id;
+                $aname = 'action_'.$role->id;
+
+                // Update db entry.
+                if ($data->$rname != $role->rolename || $data->$aname != $role->actionname) {
+                    $record = new \stdClass();
+                    $record->id = $role->id;
+                    $record->rolename = $data->rname;
+                    $record->actionname = $data->aname;
+
+                    $DB->update_record('block_opencast_roles', $record);
+                }
             }
         }
     }

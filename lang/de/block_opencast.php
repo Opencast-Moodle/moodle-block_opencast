@@ -28,7 +28,7 @@ $string['accesspolicies'] = 'Zugangsrichtlinien';
 $string['aclrolesname'] = 'Rollen';
 $string['actionname'] = 'Aktionsname';
 $string['addvideo'] = 'Video hinzufügen';
-$string['addrole'] = 'Rolle hinzufügen';
+$string['addrole'] = 'Neue Rolle hinzufügen';
 $string['apipassword'] = 'Passwort for API user';
 $string['apipassworddesc'] = 'Geben sie das Opencast-Passwort für den Super-User (Stellvertreter Nutzer) ein mit dem die Anfragen an Opencast ausgeführt werden sollen.';
 $string['apipasswordempty'] = 'Das Passwort für den Super-User ist nicht korrekt konfiguriert. Korrgieren sie das Passwort in den Einstellungen des Plugins';
@@ -46,6 +46,7 @@ $string['countfailed'] = 'Fehlgeschlagen';
 $string['createdby'] = 'Erstellt von';
 $string['cronsettings'] = 'Einstellungen für die Uploads';
 $string['deleteaclgroup'] = 'Video von der Liste löschen';
+$string['delete_confirm'] = 'Möchten Sie diese Rolle wirklich löschen?';
 $string['deletegroupacldesc'] = 'Sie wollen den Zugriff auf das Video löschen. Wenn sie das tun,
     wird das Video ab sofort weder im Dateiauswahl-Dialog noch in der Liste der verfügbaren Videos angezeigt. Bereits eingebettete Videos bleiben erhalten.
     Das Video wird nicht in Opencast gelöscht.';

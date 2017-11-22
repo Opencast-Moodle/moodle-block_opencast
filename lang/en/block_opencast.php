@@ -28,7 +28,7 @@ $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['actionname'] = 'Action name';
 $string['addvideo'] = 'Add video';
-$string['addrole'] = 'Add role';
+$string['addrole'] = 'Add new role';
 $string['apipassword'] = 'Password for API user';
 $string['apipassworddesc'] = 'Setup a password for the super user, who does the api calls.';
 $string['apipasswordempty'] = 'Password for API user is not setup correctly, go to settings of block opencast to fix this';
@@ -45,6 +45,7 @@ $string['countfailed'] = 'Failed';
 $string['createdby'] = 'Created by';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
+$string['delete_confirm'] = 'Are you sure you want to delete this role?';
 $string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.
     If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.
     The video will not be deleted in Opencast.';
