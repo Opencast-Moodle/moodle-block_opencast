@@ -264,18 +264,12 @@ class upload_helper {
         global $DB;
         $stepsuccessful = false;
 
-        // If executing from unittest change courseid to avoid collision with real uploads.
-        if (PHPUNIT_TEST) {
-            $job = clone($job);
-            $job->courseid = 'oc_utest';
-        }
-
         switch ($job->status) {
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if(get_config('block_opencast', 'group_creation')) {
-                    try {
+                if(get_config('block_opencast', 'group_creation')==1) {
+                   try {
                         // Check if group exists.
                         $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
                         if ($group) {
@@ -356,6 +350,7 @@ class upload_helper {
                 }
 
                 if (!($event = $this->apibridge->get_already_existing_event(array($job->opencasteventid)))) {
+                    mtrace('... event does not exist');
                     break;
                 }
 

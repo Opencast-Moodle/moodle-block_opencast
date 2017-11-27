@@ -472,7 +472,7 @@ class apibridge {
         $event->add_acl(true, 'read', $grouprole);
         $roles = $this->getroles();
         foreach($roles as $role) {
-            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $courseid));
         }
 
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';
