@@ -268,7 +268,7 @@ class upload_helper {
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if(get_config('block_opencast', 'group_creation')==1) {
+                if(get_config('block_opencast', 'group_creation')) {
                    try {
                         // Check if group exists.
                         $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
@@ -281,8 +281,12 @@ class upload_helper {
                     } catch (\moodle_exception $e) {
                         mtrace('... group creation still in progress');
                     }
+                    break;
                 }
-                break;
+                else {
+                    // Move on to next status.
+                    $this->update_status($job, self::STATUS_CREATING_SERIES);
+                }
 
             case self::STATUS_CREATING_SERIES:
                 try {
@@ -324,7 +328,7 @@ class upload_helper {
                 }
 
                 $series = $this->apibridge->get_course_series($job->courseid);
-                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
+                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series[0]->identifier);
 
                 // Check result.
                 if (!isset($event->identifier)) {
@@ -359,16 +363,18 @@ class upload_helper {
 
                 // For a new event do acl and series are already set, event will be processed
                 // in opencast, so it is not possible to modify event at this state.
-                if ($event->newlycreated) {
+                if (isset($event->newlycreated) && $event->newlycreated) {
                     return $event;
                 }
 
-                // Ensure the assignment of a suitable role.
-                if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
-                    mtrace('... group not yet assigned.');
-                    break;
+                if(get_config('block_opencast', 'group_creation')) {
+                    // Ensure the assignment of a suitable role.                }
+                    if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
+                        mtrace('... group not yet assigned.');
+                        break;
+                    }
+                    mtrace('... group assigned');
                 }
-                mtrace('... group assigned');
 
                 // Ensure the assignment of a series.
                 $series = $this->apibridge->get_course_series($job->courseid);

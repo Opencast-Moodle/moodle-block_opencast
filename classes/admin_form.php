@@ -160,6 +160,7 @@ class admin_form extends moodleform {
 
         // Acl roles
         $mform->addElement('html', '<h5>'.get_string('aclrolesname', 'block_opencast').'</h5>');
+        $mform->addElement('html', '<p>'.get_string('aclrolesnamedesc', 'block_opencast').'</p>');
 
         $name = 'rolename';
         $title =   get_string('rolename', 'block_opencast');
