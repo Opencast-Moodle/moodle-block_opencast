@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
-$string['aclrolesname'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
+$string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
 $string['actionname'] = 'Action name';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';

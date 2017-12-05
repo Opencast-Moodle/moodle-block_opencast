@@ -378,7 +378,7 @@ class upload_helper {
 
                 // Ensure the assignment of a series.
                 $series = $this->apibridge->get_course_series($job->courseid);
-                if (!$this->apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
+                if (!$this->apibridge->ensure_series_assigned($event->identifier, $series[0]->identifier)) {
                     mtrace('... series not yet assigned.');
                     break;
                 }

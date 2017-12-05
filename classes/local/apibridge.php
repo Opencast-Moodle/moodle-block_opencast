@@ -478,6 +478,11 @@ class apibridge {
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
 
+        // Acl roles have not changed
+        if($params['acl'] == ($jsonacl)) {
+        	return true;
+        }
+
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $api->oc_put($url, $params);
 

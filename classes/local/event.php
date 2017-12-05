@@ -100,7 +100,7 @@ class event {
     public function add_acl($allow, $action, $role) {
 
         $this->remove_acl($action, $role);
-        $this->acl[] = (object) array('allow' => $allow, 'action' => $action, 'role' => $role);
+        $this->acl[] = (object) array('allow' => $allow, 'role' => $role, 'action' => $action);
     }
 
     /**

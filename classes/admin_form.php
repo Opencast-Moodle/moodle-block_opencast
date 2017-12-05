@@ -120,7 +120,7 @@ class admin_form extends moodleform {
         $mform->addElement('html', '<h3>'.get_string('overviewsettings', 'block_opencast').'</h3>');
 
         // Limit videos
-        $name = 'uploadworkflow';
+        $name = 'limitvideos';
         $title =  get_string('limitvideos', 'block_opencast');
         $description =  get_string('limitvideos', 'block_opencast');
         $mform->addElement('text', $name, $title);
