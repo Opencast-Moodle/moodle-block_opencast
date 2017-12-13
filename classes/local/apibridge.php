@@ -378,18 +378,12 @@ class apibridge {
      * @return object series object of NULL, if group does not exist.
      */
     public function create_event($job, $seriesidentifier) {
-
         $event = new \block_opencast\local\event();
 
-        $grouprole = api::get_course_acl_role($job->courseid);
-        $event->add_acl(true, 'read', 'ROLE_ADMIN');
-        $event->add_acl(true, 'write', 'ROLE_ADMIN');
-        $event->add_acl(true, 'read', $grouprole);
         $roles = $this->getroles();
         foreach($roles as $role) {
             $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
         }
-
 
         $event->set_presentation($job->fileid);
         $storedfile = $event->get_presentation();
@@ -466,10 +460,6 @@ class apibridge {
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
-        $grouprole = api::get_course_acl_role($courseid);
-        $event->add_acl(true, 'read', 'ROLE_ADMIN');
-        $event->add_acl(true, 'write', 'ROLE_ADMIN');
-        $event->add_acl(true, 'read', $grouprole);
         $roles = $this->getroles();
         foreach($roles as $role) {
             $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $courseid));
@@ -507,7 +497,6 @@ class apibridge {
      * @return boolean true if succeeded
      */
     public function delete_acl_group_assigned($eventidentifier, $courseid) {
-
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($url);
@@ -516,11 +505,9 @@ class apibridge {
         $event->set_json_acl($jsonacl);
 
         $grouprole = api::get_course_acl_role($courseid);
-        $event->add_acl(true, 'read', 'ROLE_ADMIN');
-        $event->add_acl(true, 'write', 'ROLE_ADMIN');
         $roles = $this->getroles();
         foreach($roles as $role) {
-            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $courseid));
         }
         $event->remove_acl('read', $grouprole);
 
