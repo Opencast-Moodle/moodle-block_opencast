@@ -91,6 +91,15 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 1);
         $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
 
+        // Upload file limit.
+        $name = 'uploadfilelimit';
+        $title =   get_string('uploadfilelimit', 'block_opencast');
+        $description =   get_string('uploadfilelimitdesc', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->setDefault($name, 1000000);
+        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+
         // Upload workflow
         $name = 'uploadworkflow';
         $title =   get_string('uploadworkflow', 'block_opencast');

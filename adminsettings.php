@@ -130,6 +130,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         $entry = new stdClass;
         $entry->id = 0;
     }
+    var_dump($CFG);
 
     // Section API settings
     $entry->apiurl = get_config('block_opencast', 'apiurl');

@@ -48,7 +48,11 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $data = new stdClass();
-$options = array('subdirs' => 0, 'maxfiles' => -1, 'accepted_types' => 'video', 'return_types' => FILE_INTERNAL);
+$options = array('subdirs' => 0,
+                 'maxfiles' => -1,
+                 'accepted_types' => 'video',
+                 'return_types' => FILE_INTERNAL,
+                 'maxbytes' => get_config('moodleoverflow', 'uploadfilelimit') );
 file_prepare_standard_filemanager($data, 'videos', $options, $coursecontext, 'block_opencast', upload_helper::OC_FILEAREA, 0);
 
 $addvideoform = new \block_opencast\local\addvideo_form(null, array('data' => $data, 'courseid' => $courseid));
