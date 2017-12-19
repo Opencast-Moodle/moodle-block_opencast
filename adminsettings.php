@@ -81,6 +81,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->limituploadjobs)) {
                 set_config('limituploadjobs', $data->limituploadjobs, 'block_opencast');
             }
+            if (isset($data->uploadfilelimit)) {
+                set_config('uploadfilelimit', $data->uploadfilelimit, 'block_opencast');
+            }
             if (isset($data->uploadworkflow)) {
                 set_config('uploadworkflow', $data->uploadworkflow, 'block_opencast');
             }
@@ -130,7 +133,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         $entry = new stdClass;
         $entry->id = 0;
     }
-    var_dump($CFG);
 
     // Section API settings
     $entry->apiurl = get_config('block_opencast', 'apiurl');
@@ -140,6 +142,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
 
     // Section cron settings
     $entry->limituploadjobs = get_config('block_opencast', 'limituploadjobs');
+    $entry->uploadfilelimit = get_config('block_opencast', 'uploadfilelimit');
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
     $entry->publishtoengage = get_config('block_opencast', 'puplishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
