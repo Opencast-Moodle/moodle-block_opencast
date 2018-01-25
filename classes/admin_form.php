@@ -289,12 +289,20 @@ class admin_form extends moodleform {
      */
     function validation($data, $files) {
         $error = array();
-        // Validate that role and actions are not empty
-        foreach ($data as $key => $value) {
-            if ((substr( $key, 0, 5 ) === "role_" ||
-                substr( $key, 0, 7 ) === "action_") &&
-                $value === "") {
-                $error[$key] = get_string('required');
+        if (array_key_exists('addrolebutton', $data)) {
+            foreach (['rolename', 'actions'] as $key) {
+                if ($data[$key] === "") {
+                    $error[$key] = get_string('required');
+                }
+            }
+        } else if (array_key_exists('submitbutton', $data)) {
+            // Validate that role and actions are not empty
+            foreach ($data as $key => $value) {
+                if ((substr($key, 0, 5) === "role_" ||
+                        substr($key, 0, 7) === "action_") &&
+                    $value === "") {
+                    $error[$key] = get_string('required');
+                }
             }
         }
         return $error;
