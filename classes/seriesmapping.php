@@ -14,16 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace block_opencast;
+
 /**
- * Version details
+ * Persistable of seriesmapping
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @copyright  2018 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018012501;
-$plugin->requires = 2015051109;
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('repository_opencast' => ANY_VERSION);
+class seriesmapping extends \core\persistent {
+
+    /** Table name for the persistent. */
+    const TABLE = 'block_opencast_series';
+
+    /**
+     * Return the definition of the properties of this model.
+     *
+     * @return array
+     */
+    protected static function define_properties() {
+        return array(
+            'id' => array(
+                'type' => PARAM_INT,
+            ),
+            'courseid' => array(
+                'type' => PARAM_INT,
+            ),
+            'series' => array(
+                'type' => PARAM_ALPHAEXT,
+            ),
+        );
+    }
+}
