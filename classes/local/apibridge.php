@@ -145,7 +145,7 @@ class apibridge {
 
         $series = $this->get_course_series($courseid);
 
-        if (isset($series)) {
+        if (!isset($series)) {
             return $result;
         }
         $seriesfilter = "series:" . $series->identifier;
