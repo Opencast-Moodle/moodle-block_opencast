@@ -314,7 +314,16 @@ class apibridge {
         $metadata['fields'][] = array('id' => 'title', 'value' => $this->replace_placeholders($title, $courseid));
 
         $params['metadata'] = json_encode(array($metadata));
-        $params['acl'] = '[]';
+
+	    $acl = array();
+        $roles = $this->getroles();
+        foreach($roles as $role) {
+            foreach ($role->actions as $acion) {
+                $acl[] = (object)array('allow' => true, 'action' => $role->actionname, 'role' => $this->replace_placeholders($role->rolename, $courseid));
+            }
+        }
+
+        $params['acl'] = json_encode(array_values($acl));
         $params['theme'] = '';
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
