@@ -336,8 +336,8 @@ class apibridge {
 	    $acl = array();
         $roles = $this->getroles();
         foreach($roles as $role) {
-            foreach ($role->actions as $acion) {
-                $acl[] = (object)array('allow' => true, 'action' => $role->actionname, 'role' => $this->replace_placeholders($role->rolename, $courseid));
+            foreach ($role->actions as $action) {
+                $acl[] = (object)array('allow' => true, 'action' => $action, 'role' => $this->replace_placeholders($role->rolename, $courseid));
             }
         }
 
