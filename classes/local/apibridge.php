@@ -25,6 +25,7 @@
 
 namespace block_opencast\local;
 
+use block_opencast\seriesmapping;
 use repository_opencast\local\api;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
@@ -146,10 +147,6 @@ class apibridge {
 
         $api = new api($this->config->apiusername, $this->config->apipassword, $this->config->connecttimeout);
         $videos = $api->oc_get($url, $withroles);
-
-        $result = new \stdClass();
-        $result->videos = array();
-        $result->error = 0;
 
         if ($api->get_http_code() != 200) {
             $result->error = $api->get_http_code();
@@ -274,9 +271,13 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     public function get_course_series($courseid) {
-        $seriestitle = $this->replace_placeholders(get_config('block_opencast', 'series_name'), $courseid);
+        $seriesid = seriesmapping::get_record(array('courseid' => $courseid));
 
-        $url = $this->config->apiurl . '/api/series?filter=title:' . $seriestitle;
+        if (!$seriesid) {
+            return null;
+        }
+
+        $url = $this->config->apiurl . '/api/series/'.$seriesid;
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $series = $api->oc_get($url);
@@ -300,9 +301,15 @@ class apibridge {
      * API call to create a series for given course.
      *
      * @param int $courseid
-     * @return object series object of NULL, if group does not exist.
      */
     public function create_course_series($courseid) {
+
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $seriesid = $mapping->get('series');
+
+        if (isset($seriesid)) {
+            throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
+        }
 
         $params = [];
 
@@ -329,7 +336,14 @@ class apibridge {
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $result = $api->oc_post($this->config->apiurl . '/api/series/', $params);
 
-        return $result;
+        $series = json_decode($result);
+        if (isset($series) && object_property_exists($series, 'identifier')) {
+            $mapping = new seriesmapping();
+            $mapping->set('courseid', $courseid);
+            $mapping->set('series', $series->identifier);
+            $mapping->create();
+        }
+
     }
 
     /**
@@ -344,17 +358,17 @@ class apibridge {
 
         $series = $this->get_course_series($courseid);
 
-        if (!isset($series) or ( count($series) == 0)) {
+        if (!isset($series)) {
             $this->create_course_series($courseid);
             // Check success.
             $series = $this->get_course_series($courseid);
         }
 
-        if (!is_array($series)) {
+        if (!isset($series)) {
             throw new \moodle_exception('missingseries', 'block_opencast');
         }
 
-        return $series[0];
+        return $series;
     }
 
     /**
