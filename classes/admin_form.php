@@ -36,10 +36,8 @@ class admin_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('html', '<div id="adminsettings">');
-
         // Section API settings
-        $mform->addElement('html', '<h3>'.get_string('apisettings', 'block_opencast').'</h3>');
+        $mform->addElement('header', 'api_header', get_string('apisettings', 'block_opencast'));
 
         // API url
         $name = 'apiurl';
@@ -48,7 +46,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_URL);
         $mform->setDefault($name, 'moodle-proxy.rz.tu-ilmenau.de');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // API username
         $name = 'apiusername';
@@ -57,7 +55,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, '');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // API password
         $name = 'apipassword';
@@ -66,7 +64,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, '');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Connect timeout
         $name = 'connecttimeout';
@@ -75,10 +73,10 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 1);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Section cron settings
-        $mform->addElement('html', '<h3>'.get_string('cronsettings', 'block_opencast').'</h3>');
+        $mform->addElement('header', 'cron_header', get_string('cronsettings', 'block_opencast'));
 
         // Limit upload jobs
         $url = new moodle_url('/admin/tool/task/scheduledtasks.php');
@@ -89,7 +87,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 1);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Upload file limit.
         $name = 'uploadfilelimit';
@@ -105,7 +103,7 @@ class admin_form extends moodleform {
         $mform->addElement('select', $name, $title, $filesizes);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 2147483648);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Upload workflow
         $name = 'uploadworkflow';
@@ -114,7 +112,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, 'ng-schedule-and-upload');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Publish to engage
         $name = 'publishtoengage';
@@ -122,7 +120,7 @@ class admin_form extends moodleform {
         $description =   get_string('publishtoengagedesc', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 0);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Reuse existing upload
         $name = 'reuseexistingupload';
@@ -130,10 +128,10 @@ class admin_form extends moodleform {
         $description =    get_string('reuseexistinguploaddesc', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 0);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Section overview settings
-        $mform->addElement('html', '<h3>'.get_string('overviewsettings', 'block_opencast').'</h3>');
+        $mform->addElement('header', 'overview_header', get_string('overviewsettings', 'block_opencast'));
 
         // Limit videos
         $name = 'limitvideos';
@@ -142,10 +140,10 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 5);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Section access policies
-        $mform->addElement('html', '<h3>'.get_string('accesspolicies', 'block_opencast').'</h3>');
+        $mform->addElement('header', 'accesspolicies_header', get_string('accesspolicies', 'block_opencast'));
 
         // Group creation
         $name = 'group_creation';
@@ -153,7 +151,7 @@ class admin_form extends moodleform {
         $description =  get_string('groupcreationdesc', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 1);
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
 
         // Group name
@@ -163,7 +161,7 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name,'Moodle_course_[COURSEID]');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Series name
         $name = 'series_name';
@@ -172,11 +170,11 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, 'Course_Series_[COURSEID]');
-        $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         // Acl roles
-        $mform->addElement('html', '<h5>'.get_string('aclrolesname', 'block_opencast').'</h5>');
-        $mform->addElement('html', '<p>'.get_string('aclrolesnamedesc', 'block_opencast').'</p>');
+        $mform->addElement('header', 'roles_header', get_string('aclrolesname', 'block_opencast'));
+        $mform->setExpanded('roles_header');
 
         $name = 'rolename';
         $title =   get_string('rolename', 'block_opencast');
@@ -187,6 +185,8 @@ class admin_form extends moodleform {
         $title =   get_string('actions', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
+
+        $mform->addElement('static', 'descriptionacl', '', get_string('aclrolesnamedesc', 'block_opencast'));
 
         // Add Button.
         $mform->addElement('submit', 'addrolebutton', get_string('addrole', 'block_opencast'));
