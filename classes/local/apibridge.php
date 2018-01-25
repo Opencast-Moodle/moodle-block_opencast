@@ -283,13 +283,13 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     public function get_course_series($courseid) {
-        $seriesid = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
         if (!$seriesid) {
             return null;
         }
 
-        $url = $this->config->apiurl . '/api/series/'.$seriesid;
+        $url = $this->config->apiurl . '/api/series/' . $mapping->get('series');
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $series = $api->oc_get($url);
