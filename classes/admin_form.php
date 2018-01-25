@@ -219,7 +219,7 @@ class admin_form extends moodleform {
         $attributes = array();
         $attributes['class'] = 'header c1';
         $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_action', 'block_opencast'), $attributes);
+        $output .= html_writer::tag('th', get_string('heading_actions', 'block_opencast'), $attributes);
         $attributes = array();
         $attributes['class'] = 'header c2 lastcol';
         $attributes['scope'] = 'col';
