@@ -139,7 +139,19 @@ class apibridge {
         $sortcolums = $table->get_sort_columns();
         $sort = api::get_sort_param($sortcolums);
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1' . $sort;
+        $result = new \stdClass();
+        $result->videos = array();
+        $result->error = 0;
+
+        $series = $this->get_course_series($courseid);
+
+        if (isset($series)) {
+            return $result;
+        }
+        $seriesfilter = "series:" . $series->identifier;
+
+        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&filter='. urlencode($seriesfilter) . $sort;
+
         $url = $this->config->apiurl . '/api/events?' . $query;
 
         $withroles = array();
