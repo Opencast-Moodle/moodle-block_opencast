@@ -279,4 +279,24 @@ class admin_form extends moodleform {
         $roles = $DB->get_records('block_opencast_roles');
         return $roles;
     }
+
+    /**
+     * Validates, if all role and action fields are filled.
+     * @param array $data
+     * @param array $files
+     * @return array
+     * @throws \coding_exception
+     */
+    function validation($data, $files) {
+        $error = array();
+        // Validate that role and actions are not empty
+        foreach ($data as $key => $value) {
+            if ((substr( $key, 0, 5 ) === "role_" ||
+                substr( $key, 0, 7 ) === "action_") &&
+                $value === "") {
+                $error[$key] = get_string('required');
+            }
+        }
+        return $error;
+    }
 }
