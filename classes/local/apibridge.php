@@ -257,7 +257,7 @@ class apibridge {
      *
      * @param int $courseid
      * @return object group object.
-     * @throws \moodle_exception
+     * @throws \opencast_state_exception
      */
     public function ensure_acl_group_exists($courseid) {
 
@@ -270,7 +270,7 @@ class apibridge {
         }
 
         if (!isset($group->identifier)) {
-            throw new \moodle_exception('missinggroup', 'block_opencast');
+            throw new \opencast_state_exception('missinggroup', 'block_opencast');
         }
 
         return $group;
@@ -363,7 +363,7 @@ class apibridge {
      *
      * @param int $courseid
      * @return object series object.
-     * @throws \moodle_exception
+     * @throws \opencast_state_exception
      */
     public function ensure_course_series_exists($courseid) {
 
@@ -376,7 +376,7 @@ class apibridge {
         }
 
         if (!isset($series)) {
-            throw new \moodle_exception('missingseries', 'block_opencast');
+            throw new \opencast_state_exception('missingseries', 'block_opencast');
         }
 
         return $series;
@@ -465,7 +465,7 @@ class apibridge {
      *
      * @param int $courseid
      * @return object series object.
-     * @throws \moodle_exception
+     * @throws \opencast_state_exception
      */
     public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
 
@@ -480,7 +480,7 @@ class apibridge {
         $event = $this->create_event($job, $seriesidentifier);
         // Check success.
         if (!$event) {
-            throw new \moodle_exception('uploadingeventfailed', 'block_opencast');
+            throw new \opencast_state_exception('uploadingeventfailed', 'block_opencast');
         }
 
         $event = json_decode($event);

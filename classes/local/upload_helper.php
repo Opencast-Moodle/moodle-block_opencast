@@ -278,7 +278,7 @@ class upload_helper {
                             // Move on to next status.
                             $this->update_status($job, self::STATUS_CREATING_SERIES);
                         }
-                    } catch (\moodle_exception $e) {
+                    } catch (\opencast_state_exception $e) {
                         mtrace('... group creation still in progress');
                     }
                     break;
@@ -298,7 +298,7 @@ class upload_helper {
                         // Move on to next status.
                         $this->update_status($job, self::STATUS_CREATING_EVENT);
                     }
-                } catch (\moodle_exception $e) {
+                } catch (\opencast_state_exception $e) {
                     mtrace('... series creation still in progress');
                 }
                 break;
