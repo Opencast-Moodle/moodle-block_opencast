@@ -39,7 +39,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     if (!empty($delrole) && !empty($confirm)) {
         // Role is deleted.
         $DB->delete_records('block_opencast_roles', array('id' => $delrole));
-        redirect($PAGE->url);
+        redirect($PAGE->url . '#id_roles_header');
         exit();
     }
 
@@ -63,7 +63,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
 
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);
-            redirect($PAGE->url);
+            redirect($PAGE->url . '#id_roles_header');
             exit();
         } else if (isset($data->submitbutton)) {
             if (isset($data->apiurl)) {
