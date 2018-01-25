@@ -255,7 +255,7 @@ class admin_form extends moodleform {
             $name = 'action_'.$role->id;
             $mform->addElement('text', $name, null);
             $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, implode(',', $role->actions));
+            $mform->setDefault($name, $role->actions);
 
             $mform->addElement('html', '</td><td class="cell c2 lastcol">');
             $pix = $OUTPUT->action_icon(
