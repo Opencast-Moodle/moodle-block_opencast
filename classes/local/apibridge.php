@@ -317,9 +317,8 @@ class apibridge {
     public function create_course_series($courseid) {
 
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-        $seriesid = $mapping->get('series');
 
-        if (isset($seriesid)) {
+        if ($mapping && $seriesid = $mapping->get('series')) {
             throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
         }
 
