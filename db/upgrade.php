@@ -60,5 +60,20 @@ function xmldb_block_opencast_upgrade($oldversion) {
         // Opencast savepoint reached.
         upgrade_block_savepoint(true, 2017110708, 'opencast');
     }
+    if ($oldversion < 2018012500) {
+
+        // Rename field actions on table block_opencast_roles to actions.
+        $table = new xmldb_table('block_opencast_roles');
+        $field = new xmldb_field('actionname', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'rolename');
+
+        // Launch change of type for field actions.
+        $dbman->change_field_type($table, $field);
+        // Launch rename field actions.
+        $dbman->rename_field($table, $field, 'actions');
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2018012500, 'opencast');
+    }
+
     return true;
 }

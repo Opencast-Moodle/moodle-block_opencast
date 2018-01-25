@@ -183,8 +183,8 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
-        $name = 'actionname';
-        $title =   get_string('actionname', 'block_opencast');
+        $name = 'actions';
+        $title =   get_string('actions', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
@@ -255,7 +255,7 @@ class admin_form extends moodleform {
             $name = 'action_'.$role->id;
             $mform->addElement('text', $name, null);
             $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, $role->actionname);
+            $mform->setDefault($name, implode(',', $role->actions));
 
             $mform->addElement('html', '</td><td class="cell c2 lastcol">');
             $pix = $OUTPUT->action_icon(

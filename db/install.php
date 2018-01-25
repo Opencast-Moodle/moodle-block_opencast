@@ -38,15 +38,11 @@ function xmldb_block_opencast_install() {
     $record = array();
     $record[0] = new \stdClass();
     $record[0]->rolename = 'ROLE_ADMIN';
-    $record[0]->actionname = 'read';
+    $record[0]->actions = 'write,read';
 
     $record[1] = new \stdClass();
-    $record[1]->rolename = 'ROLE_ADMIN';
-    $record[1]->actionname = 'write';
-
-    $record[2] = new \stdClass();
-    $record[2]->rolename =  'ROLE_GROUP_MOODLE_COURSE_[COURSEID]';
-    $record[2]->actionname = 'read';
+    $record[1]->rolename =  'ROLE_GROUP_MOODLE_COURSE_[COURSEID]';
+    $record[1]->actions = 'read';
 
     // Insert new record.
     $DB->insert_records('block_opencast_roles', $record);

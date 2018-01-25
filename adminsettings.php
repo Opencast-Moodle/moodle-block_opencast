@@ -59,7 +59,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         if (isset($data->addrolebutton)) {
             $record = new \stdClass();
             $record->rolename = $data->rolename;
-            $record->actionname = $data->actionname;
+            $record->actions = $data->actions;
 
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);
@@ -113,11 +113,11 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $aname = 'action_'.$role->id;
 
                 // Update db entry.
-                if ($data->$rname != $role->rolename || $data->$aname != $role->actionname) {
+                if ($data->$rname != $role->rolename || $data->$aname != $role->actions) {
                     $record = new \stdClass();
                     $record->id = $role->id;
                     $record->rolename = $data->$rname;
-                    $record->actionname = $data->$aname;
+                    $record->actions = $data->$aname;
 
                     $DB->update_record('block_opencast_roles', $record);
                 }

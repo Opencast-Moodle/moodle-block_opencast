@@ -14,16 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details
- *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018012500;
-$plugin->requires = 2015051109;
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('repository_opencast' => ANY_VERSION);
+class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
+
+    /**
+     * For basic testcases connection parameters are not necessary.
+     * block_opencast_apibridge_testable constructor.
+     */
+    public function __construct() {
+
+    }
+
+    /**
+     * Test access for the protected getroles function.
+     * @return array
+     * @throws dml_exception
+     */
+    public function getroles_testable() {
+        return parent::getroles();
+    }
+}

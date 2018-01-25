@@ -382,7 +382,9 @@ class apibridge {
 
         $roles = $this->getroles();
         foreach($roles as $role) {
-            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $job->courseid));
+            foreach($role->actions as $action) {
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid));
+            }
         }
 
         $event->set_presentation($job->fileid);
@@ -405,12 +407,21 @@ class apibridge {
     }
 
     /**
-     * Returns acl roles.
-     * @return array
+     * Returns an array of acl roles. The actions field of each entry contains an array of trimmed action names
+     * for the specific role.
+     * @return array of acl roles.
+     * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
-    private function getroles() {
+    protected function getroles() {
         global $DB;
         $roles = $DB->get_records('block_opencast_roles');
+        foreach ($roles as $id => $role) {
+            $actions = explode(',', $role->actions);
+            $roles[$id]->actions = array();
+            foreach ($actions as $action) {
+                $roles[$id]->actions []= trim($action);
+            }
+        }
         return $roles;
     }
 
@@ -462,7 +473,9 @@ class apibridge {
 
         $roles = $this->getroles();
         foreach($roles as $role) {
-            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $courseid));
+            foreach($role->actions as $action) {
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+            }
         }
 
         $url = $this->config->apiurl . '/api/events/' . $eventidentifier . '/acl';
@@ -507,7 +520,9 @@ class apibridge {
         $grouprole = api::get_course_acl_role($courseid);
         $roles = $this->getroles();
         foreach($roles as $role) {
-            $event->add_acl(true, $role->actionname, $this->replace_placeholders($role->rolename, $courseid));
+            foreach($role->actions as $action) {
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+            }
         }
         $event->remove_acl('read', $grouprole);
 
