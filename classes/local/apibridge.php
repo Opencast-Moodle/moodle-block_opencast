@@ -284,12 +284,13 @@ class apibridge {
      */
     public function get_course_series($courseid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $seriesid = $mapping->get('series');
 
         if (!$seriesid) {
             return null;
         }
 
-        $url = $this->config->apiurl . '/api/series/' . $mapping->get('series');
+        $url = $this->config->apiurl . '/api/series/' . $seriesid;
 
         $api = new api($this->config->apiusername, $this->config->apipassword);
         $series = $api->oc_get($url);
