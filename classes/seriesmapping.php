@@ -43,7 +43,7 @@ class seriesmapping extends \core\persistent {
                 'type' => PARAM_INT,
             ),
             'series' => array(
-                'type' => PARAM_ALPHAEXT,
+                'type' => PARAM_ALPHANUMEXT,
             ),
         );
     }
