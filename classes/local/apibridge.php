@@ -284,9 +284,8 @@ class apibridge {
      */
     public function get_course_series($courseid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-        $seriesid = $mapping->get('series');
 
-        if (!$seriesid) {
+        if (!$mapping || !($seriesid = $mapping->get('series'))) {
             return null;
         }
 
