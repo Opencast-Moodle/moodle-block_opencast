@@ -116,8 +116,8 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 if ($data->$rname != $role->rolename || $data->$aname != $role->actionname) {
                     $record = new \stdClass();
                     $record->id = $role->id;
-                    $record->rolename = $data->rname;
-                    $record->actionname = $data->aname;
+                    $record->rolename = $data->$rname;
+                    $record->actionname = $data->$aname;
 
                     $DB->update_record('block_opencast_roles', $record);
                 }
