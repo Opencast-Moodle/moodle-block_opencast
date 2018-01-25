@@ -79,7 +79,21 @@ class apibridge {
      */
     public function get_block_videos($courseid) {
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC';
+        $result = new \stdClass();
+        $result->count = 0;
+        $result->more = false;
+        $result->videos = array();
+        $result->error = 0;
+
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+
+        if (!$mapping || !($seriesid = $mapping->get('series'))) {
+            return null;
+        }
+
+        $seriesfilter = "series:" . $seriesid;
+
+        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter='. urlencode($seriesfilter);
 
         if ($this->config->limitvideos > 0) {
             // Try to fetch one more to decide whether display "more link" is necessary.
@@ -94,11 +108,7 @@ class apibridge {
         $api = new api($this->config->apiusername, $this->config->apipassword, $this->config->connecttimeout);
         $videos = $api->oc_get($url, $withroles);
 
-        $result = new \stdClass();
-        $result->count = 0;
-        $result->more = false;
-        $result->videos = array();
-        $result->error = 0;
+
 
         if ($api->get_http_code() != 200) {
             $result->error = $api->get_http_code();
@@ -106,9 +116,6 @@ class apibridge {
         }
 
         if (!$videos = json_decode($videos)) {
-            $result->count = 0;
-            $result->more = false;
-            $result->videos = array();
             return $result;
         }
 
