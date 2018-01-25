@@ -95,9 +95,16 @@ class admin_form extends moodleform {
         $name = 'uploadfilelimit';
         $title =   get_string('uploadfilelimit', 'block_opencast');
         $description =   get_string('uploadfilelimitdesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name, 0);
+        // Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB
+        $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1073741824,
+            536870912, 268435456, 134217728, 67108864);
+        $filesizes = array();
+        foreach ($sizelist as $sizebytes) {
+            $filesizes[(string)intval($sizebytes)] = display_size($sizebytes);
+        }
+        $mform->addElement('select', $name, $title, $filesizes);
+        $mform->setType($name, PARAM_INT);
+        $mform->setDefault($name, 2147483648);
         $mform->addElement('html', '<div class="fitem"><p class="felement">'.$description.'</p></div>');
 
         // Upload workflow
