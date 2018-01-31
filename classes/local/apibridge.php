@@ -25,8 +25,8 @@
 
 namespace block_opencast\local;
 
-use block_opencast\seriesmapping;
-use repository_opencast\local\api;
+use tool_opencast\seriesmapping;
+use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
@@ -40,15 +40,15 @@ class apibridge {
         $this->config = get_config('block_opencast');
 
         if (empty($this->config->apiurl)) {
-            throw new \moodle_exception('apiurlempty', 'block_opencast');
+            throw new \moodle_exception('apiurlempty', 'tool_opencast');
         }
 
         if (empty($this->config->apiusername)) {
-            throw new \moodle_exception('apiusernameempty', 'block_opencast');
+            throw new \moodle_exception('apiusernameempty', 'tool_opencast');
         }
 
         if (empty($this->config->apipassword)) {
-            throw new \moodle_exception('apipasswordempty', 'block_opencast');
+            throw new \moodle_exception('apipasswordempty', 'tool_opencast');
         }
     }
 

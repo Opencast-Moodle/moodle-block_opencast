@@ -40,7 +40,7 @@ class upload_helper {
     private $apibridge;
 
     public function __construct() {
-        $this->apibridge = \block_opencast\local\apibridge::get_instance();
+        $this->apibridge = apibridge::get_instance();
     }
 
     public static function get_status_string($statuscode) {

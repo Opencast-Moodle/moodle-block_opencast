@@ -36,45 +36,6 @@ class admin_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
-        // Section API settings
-        $mform->addElement('header', 'api_header', get_string('apisettings', 'block_opencast'));
-
-        // API url
-        $name = 'apiurl';
-        $title = get_string('apiurl', 'block_opencast');
-        $description = get_string('apiurldesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_URL);
-        $mform->setDefault($name, 'moodle-proxy.rz.tu-ilmenau.de');
-        $mform->addElement('static', 'description' . $name, '', $description);
-
-        // API username
-        $name = 'apiusername';
-        $title = get_string('apiusername', 'block_opencast');
-        $description = get_string('apiusernamedesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name, '');
-        $mform->addElement('static', 'description' . $name, '', $description);
-
-        // API password
-        $name = 'apipassword';
-        $title = get_string('apipassword', 'block_opencast');
-        $description = get_string('apipassworddesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name, '');
-        $mform->addElement('static', 'description' . $name, '', $description);
-
-        // Connect timeout
-        $name = 'connecttimeout';
-        $title =  get_string('connecttimeout', 'block_opencast');
-        $description =  get_string('connecttimeoutdesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_INT);
-        $mform->setDefault($name, 1);
-        $mform->addElement('static', 'description' . $name, '', $description);
-
         // Section cron settings
         $mform->addElement('header', 'cron_header', get_string('cronsettings', 'block_opencast'));
 
