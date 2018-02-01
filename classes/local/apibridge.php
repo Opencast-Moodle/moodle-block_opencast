@@ -92,7 +92,7 @@ class apibridge {
         $url = '/api/events?' . $query;
 
         $withroles = array();
-        $withroles[] = api::get_course_acl_role($courseid);
+//        $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -150,7 +150,7 @@ class apibridge {
         $resource = '/api/events?' . $query;
 
         $withroles = array();
-        $withroles[] = api::get_course_acl_role($courseid);
+//        $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -176,7 +176,7 @@ class apibridge {
         $resource = '/api/events/' . $identifier;
 
         $withroles = array();
-        $withroles[] = api::get_course_acl_role($courseid);
+//        $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
