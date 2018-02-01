@@ -79,7 +79,7 @@ class apibridge {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
-            return null;
+            return $result;
         }
 
         $seriesfilter = "series:" . $seriesid;
