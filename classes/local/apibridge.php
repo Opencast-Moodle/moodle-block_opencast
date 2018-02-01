@@ -295,7 +295,7 @@ class apibridge {
 
         $api = new api();
 
-        $series = $this->api->oc_get($url);
+        $series = $api->oc_get($url);
 
         return json_decode($series);
     }
