@@ -34,12 +34,10 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 class apibridge {
 
     private $config;
-    private $api;
 
     private function __construct() {
 
         $this->config = get_config('block_opencast');
-        $this->api = new api();
     }
 
     /**
@@ -96,12 +94,12 @@ class apibridge {
         $withroles = array();
         $withroles[] = api::get_course_acl_role($courseid);
 
-        $videos = $this->api->oc_get($url, $withroles);
+        $api = new api();
 
+        $videos = $api->oc_get($url, $withroles);
 
-
-        if ($this->api->get_http_code() != 200) {
-            $result->error = $this->api->get_http_code();
+        if ($api->get_http_code() != 200) {
+            $result->error = $api->get_http_code();
             return $result;
         }
 
@@ -154,10 +152,12 @@ class apibridge {
         $withroles = array();
         $withroles[] = api::get_course_acl_role($courseid);
 
-        $videos = $this->api->oc_get($resource, $withroles);
+        $api = new api();
 
-        if ($this->api->get_http_code() != 200) {
-            $result->error = $this->api->get_http_code();
+        $videos = $api->oc_get($resource, $withroles);
+
+        if ($api->get_http_code() != 200) {
+            $result->error = $api->get_http_code();
             return $result;
         }
 
@@ -178,14 +178,16 @@ class apibridge {
         $withroles = array();
         $withroles[] = api::get_course_acl_role($courseid);
 
-        $video = $this->api->oc_get($resource, $withroles);
+        $api = new api();
+
+        $video = $api->oc_get($resource, $withroles);
 
         $result = new \stdClass();
         $result->video = false;
         $result->error = 0;
 
-        if ($this->api->get_http_code() != 200) {
-            $result->error = $this->api->get_http_code();
+        if ($api->get_http_code() != 200) {
+            $result->error = $api->get_http_code();
             return $result;
         }
 
@@ -209,7 +211,8 @@ class apibridge {
         $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
-        $group = $this->api->oc_get('/api/groups/' . $groupidentifier);
+        $api = new api();
+        $group = $api->oc_get('/api/groups/' . $groupidentifier);
 
         return json_decode($group);
     }
@@ -239,7 +242,13 @@ class apibridge {
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
 
-        $result = $this->api->oc_post('/api/groups/', $params);
+        $api = new api();
+
+        $result = $api->oc_post('/api/groups/', $params);
+
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
 
         return $result;
     }
@@ -283,6 +292,8 @@ class apibridge {
         }
 
         $url = '/api/series/' . $seriesid;
+
+        $api = new api();
 
         $series = $this->api->oc_get($url);
 
@@ -336,7 +347,13 @@ class apibridge {
         $params['acl'] = json_encode(array_values($acl));
         $params['theme'] = '';
 
-        $result = $this->api->oc_post('/api/series/', $params);
+        $api = new api();
+
+        $result = $api->oc_post('/api/series/', $params);
+
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
 
         $series = json_decode($result);
         if (isset($series) && object_property_exists($series, 'identifier')) {
@@ -385,7 +402,9 @@ class apibridge {
 
             $resource = '/api/events/' . $opencastid;
 
-            $event = $this->api->oc_get($resource);
+            $api = new api();
+
+            $event = $api->oc_get($resource);
             $event = json_decode($event);
 
             if (isset($event) && isset($event->identifier)) {
@@ -418,12 +437,12 @@ class apibridge {
         $event->add_meta_data('isPartOf', $seriesidentifier);
         $params = $event->get_form_params();
 
-        $resource = '/api/events/';
+        $api = new api();
 
-        $result = $this->api->oc_post($resource, $params);
+        $result = $api->oc_post('/api/events/', $params);
 
-        if ($this->api->get_http_code() != 201) {
-            return false;
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
         return $result;
@@ -487,8 +506,9 @@ class apibridge {
      */
     public function ensure_acl_group_assigned($eventidentifier, $courseid) {
 
+        $api = new api();
         $resource = '/api/events/' . $eventidentifier . '/acl';
-        $jsonacl = $this->api->oc_get($resource);
+        $jsonacl = $api->oc_get($resource);
 
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
@@ -508,9 +528,11 @@ class apibridge {
         	return true;
         }
 
-        $this->api->oc_put($resource, $params);
+        $api = new api();
 
-        return ($this->api->get_http_code() == 204);
+        $api->oc_put($resource, $params);
+
+        return ($api->get_http_code() == 204);
     }
 
     /**
@@ -532,7 +554,8 @@ class apibridge {
      */
     public function delete_acl_group_assigned($eventidentifier, $courseid) {
         $resource = '/api/events/' . $eventidentifier . '/acl';
-        $jsonacl = $this->api->oc_get($resource);
+        $api = new api();
+        $jsonacl = $api->oc_get($resource);
 
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
@@ -549,9 +572,10 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
 
-        $this->api->oc_put($resource, $params);
+        $api = new api();
+        $api->oc_put($resource, $params);
 
-        if ($this->api->get_http_code() != 204) {
+        if ($api->get_http_code() != 204) {
             return false;
         }
 
@@ -576,9 +600,10 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));
-        $this->api->oc_put($resource, $params);
+        $api = new api();
+        $api->oc_put($resource, $params);
 
-        return ($this->api->get_http_code() == 204);
+        return ($api->get_http_code() == 204);
     }
 
 }
