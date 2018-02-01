@@ -244,7 +244,7 @@ class apibridge {
 
         $api = new api();
 
-        $result = $api->oc_post('/api/groups/', $params);
+        $result = $api->oc_post('/api/groups', $params);
 
         if ($api->get_http_code() >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
@@ -349,7 +349,7 @@ class apibridge {
 
         $api = new api();
 
-        $result = $api->oc_post('/api/series/', $params);
+        $result = $api->oc_post('/api/series', $params);
 
         if ($api->get_http_code() >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
@@ -439,7 +439,7 @@ class apibridge {
 
         $api = new api();
 
-        $result = $api->oc_post('/api/events/', $params);
+        $result = $api->oc_post('/api/events', $params);
 
         if ($api->get_http_code() >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
