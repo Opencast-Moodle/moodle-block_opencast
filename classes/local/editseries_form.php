@@ -15,15 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Upload video form.
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @copyright  2018 Tamara Gunkel
+ * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_opencast\local;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018013004;
-$plugin->requires = 2015051109;
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2018013002);
+global $CFG;
+
+require_once($CFG->dirroot . '/lib/formslib.php');
+
+class editseries_form extends \moodleform {
+
+    public function definition() {
+        $mform = $this->_form;
+        // TODO
+    }
+
+}

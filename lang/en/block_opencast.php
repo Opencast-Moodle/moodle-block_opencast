@@ -43,6 +43,7 @@ $string['deletegroupacldesc'] = 'You are about to delete the access to this vide
     The video will not be deleted in Opencast.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
 $string['edituploadjobs'] = 'Edit video upload jobs';
+$string['editseriesforcourse'] = 'Edit serie';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';

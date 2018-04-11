@@ -106,6 +106,12 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     echo html_writer::div($addvideobutton);
 }
 
+if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+    $editseriesurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+    $editseriesbutton = $OUTPUT->single_button($editseriesurl, get_string('editseriesforcourse', 'block_opencast'));
+    echo html_writer::div($editseriesbutton);
+}
+
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 
 if ($videodata->error == 0) {
