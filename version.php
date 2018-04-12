@@ -23,7 +23,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018013004;
+$plugin->version = 2018013006;
 $plugin->requires = 2015051109;
 $plugin->component = 'block_opencast';
 $plugin->dependencies = array('tool_opencast' => 2018013002);

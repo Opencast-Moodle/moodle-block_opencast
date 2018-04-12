@@ -39,11 +39,29 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('edituploadjobs', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('editseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
-$editseriesform = new \block_opencast\local\editseries_form(null, array('data' => $data, 'courseid' => $courseid));
-// TODO
+$editseriesform = new \block_opencast\local\editseries_form(null, array('courseid' => $courseid));
+
+if ($editseriesform->is_cancelled()) {
+    redirect($redirecturl);
+}
+
+if ($data = $editseriesform->get_data()) {
+    $apibridge = \block_opencast\local\apibridge::get_instance();
+    $apibridge->ensure_series_is_valid($data->seriesid);
+    $apibridge->update_course_series($courseid, $data->seriesid);
+    // Update course series
+    redirect($redirecturl, get_string('seriesidsaved', 'block_opencast'));
+}
+
+$renderer = $PAGE->get_renderer('block_opencast');
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('editseriesforcourse', 'block_opencast'));
+$editseriesform->display();
+echo $OUTPUT->footer();
