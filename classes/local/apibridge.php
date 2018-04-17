@@ -336,21 +336,25 @@ class apibridge {
      *
      * @param int $courseid
      */
-    public function create_course_series($courseid) {
-
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-
-        if ($mapping && $seriesid = $mapping->get('series')) {
-            throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
-        }
-
+    public function create_course_series($courseid, $seriestitle = null) {
         $params = [];
 
         $metadata = array();
         $metadata['label'] = "Opencast Series Dublincore";
         $metadata['flavor'] = "dublincore/series";
         $metadata['fields'] = [];
-        $title = get_config('block_opencast', 'series_name');
+
+        if (is_null($seriestitle)) {
+            $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+            if ($mapping && $seriesid = $mapping->get('series')) {
+                throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
+            }
+
+            $title = get_config('block_opencast', 'series_name');
+        } else {
+            $title = $seriestitle;
+        }
+
         $metadata['fields'][] = array('id' => 'title', 'value' => $this->replace_placeholders($title, $courseid));
 
         $params['metadata'] = json_encode(array($metadata));
@@ -376,12 +380,20 @@ class apibridge {
 
         $series = json_decode($result);
         if (isset($series) && object_property_exists($series, 'identifier')) {
+            if (!is_null($seriestitle)) {
+                $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+                if ($mapping) {
+                    $mapping->set('series', $series->identifier);
+                    $mapping->update();
+                    return;
+                }
+            }
+
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
             $mapping->create();
         }
-
     }
 
     /**
@@ -412,6 +424,7 @@ class apibridge {
 
     /**
      * Defines a new series ID for a course.
+     *
      * @param $courseid Course ID
      * @param $seriesid Series ID
      */

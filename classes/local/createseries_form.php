@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course series form.
+ * Create series form.
  *
  * @package    block_opencast
  * @copyright  2018 Tamara Gunkel
@@ -27,29 +27,21 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class editseries_form extends \moodleform {
+class createseries_form extends \moodleform {
 
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast', array('size' => '40')));
-        $mform->setType('seriesid', PARAM_TEXT);
-
-        $apibridge = apibridge::get_instance();
-        $seriesid = $apibridge->get_course_series($this->_customdata['courseid']);
-
-        if (!$seriesid) {
-            $mform->setDefault('seriesid',  get_string('noseriesid', 'block_opencast'));
-        }
-        else {
-            $mform->setDefault('seriesid',  $seriesid->identifier);
-        }
-        $mform->addElement('html', '<a href="' . (new \moodle_url('/blocks/opencast/createseries.php', array('courseid' => $this->_customdata['courseid'])))->out() . '">' . get_string('createseriesforcourse', 'block_opencast') . '</a>');
-
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+
+        $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
+        $mform->setType('seriestitle', PARAM_TEXT);
+        $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
