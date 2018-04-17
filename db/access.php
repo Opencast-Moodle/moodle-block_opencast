@@ -67,5 +67,13 @@ $capabilities = array(
         'archetypes' => array(
             'manager' => CAP_ALLOW
         )
+    ),
+    'block/opencast:createseriesforcourse' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
     )
 );

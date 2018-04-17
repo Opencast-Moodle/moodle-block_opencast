@@ -31,7 +31,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $baseurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 
 require_login($courseid, false);
 
@@ -43,7 +43,7 @@ $PAGE->navbar->add(get_string('createseriesforcourse', 'block_opencast'), $baseu
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:defineseriesforcourse', $coursecontext);
+require_capability('block/opencast:createseriesforcourse', $coursecontext);
 
 $createseriesform = new \block_opencast\local\createseries_form(null, array('courseid' => $courseid));
 
@@ -52,6 +52,7 @@ if ($createseriesform->is_cancelled()) {
 }
 
 if ($data = $createseriesform->get_data()) {
+    // Create new series
     $apibridge = \block_opencast\local\apibridge::get_instance();
     $apibridge->create_course_series($courseid, $data->seriestitle);
     redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);

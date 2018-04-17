@@ -337,6 +337,11 @@ class apibridge {
      * @param int $courseid
      */
     public function create_course_series($courseid, $seriestitle = null) {
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        if ($mapping && $seriesid = $mapping->get('series')) {
+            throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
+        }
+
         $params = [];
 
         $metadata = array();
@@ -345,11 +350,6 @@ class apibridge {
         $metadata['fields'] = [];
 
         if (is_null($seriestitle)) {
-            $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-            if ($mapping && $seriesid = $mapping->get('series')) {
-                throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
-            }
-
             $title = get_config('block_opencast', 'series_name');
         } else {
             $title = $seriestitle;
@@ -380,15 +380,6 @@ class apibridge {
 
         $series = json_decode($result);
         if (isset($series) && object_property_exists($series, 'identifier')) {
-            if (!is_null($seriestitle)) {
-                $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-                if ($mapping) {
-                    $mapping->set('series', $series->identifier);
-                    $mapping->update();
-                    return;
-                }
-            }
-
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
@@ -432,6 +423,44 @@ class apibridge {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
         $mapping->set('series', $seriesid);
         $mapping->update();
+
+        // Update Acl roles
+        $api = new api();
+        $resource = '/api/series/' . $seriesid . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        $acl = json_decode($jsonacl);
+
+        if (!is_array($acl)) {
+            throw new \moodle_exception('invalidacldata', 'block_opencast');
+        }
+
+        $roles = $this->getroles();
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+
+                foreach ($acl as $key => $aclval) {
+                    if (($aclval->action == $action) && ($aclval->role == $role)) {
+                        unset($acl[$key]);
+                    }
+                }
+
+                $acl[] = (object) array('allow' => true, 'role' => $this->replace_placeholders($role->rolename, $courseid), 'action' => $action);
+            }
+        }
+
+        $params['acl'] =  json_encode(array_values($acl));
+
+        // Acl roles have not changed
+        if ($params['acl'] == ($jsonacl)) {
+            return true;
+        }
+
+        $api = new api();
+
+        $api->oc_put($resource, $params);
+
+        return ($api->get_http_code() == 204);
     }
 
     public function ensure_series_is_valid($seriesid) {

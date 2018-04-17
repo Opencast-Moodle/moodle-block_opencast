@@ -46,7 +46,6 @@ class editseries_form extends \moodleform {
         else {
             $mform->setDefault('seriesid',  $seriesid->identifier);
         }
-        $mform->addElement('html', '<a href="' . (new \moodle_url('/blocks/opencast/createseries.php', array('courseid' => $this->_customdata['courseid'])))->out() . '">' . get_string('createseriesforcourse', 'block_opencast') . '</a>');
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);

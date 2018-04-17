@@ -44,7 +44,7 @@ $string['deletegroupacldesc'] = 'You are about to delete the access to this vide
     The video will not be deleted in Opencast.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
 $string['edituploadjobs'] = 'Edit video upload jobs';
-$string['editseriesforcourse'] = 'Edit series';
+$string['editseriesforcourse'] = 'Edit series mapping';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';
@@ -97,7 +97,7 @@ $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the sam
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
 $string['seriescreated'] = 'Series was created.';
-$string['seriesidsaved'] = 'The series was saved.';
+$string['seriesidsaved'] = 'The series ID was saved.';
 $string['seriesidnotvalid'] = 'The series does not exist.';
 $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast. Please contact your system administrator.';
 $string['seriesname'] = 'Series name';
