@@ -317,6 +317,31 @@ class apibridge {
     }
 
     /**
+     * API call to check, whether the course related series exists in opencast system.
+     *
+     * @param int $courseid
+     *
+     * @return object group object of NULL, if group does not exist.
+     */
+    public function get_series() {
+        $url = '/api/series';
+
+        $api = new api();
+
+        $series = $api->oc_get($url);
+
+        $series = json_decode($series);
+
+        $listofseries = array();
+
+        foreach ($series as $item) {
+            $listofseries[$item->identifier] = $item->title;
+        }
+
+        return $listofseries;
+    }
+
+    /**
      * Replaces the placeholders [COURSENAME] and [COURSEID]
      *
      * @param string $seriesname

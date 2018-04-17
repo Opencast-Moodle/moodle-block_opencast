@@ -48,7 +48,6 @@ $string['editseriesforcourse'] = 'Edit series mapping';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';
-$string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
 $string['gotooverview'] = 'Go to overview...';
 $string['groupcreation'] = 'Create a group';
