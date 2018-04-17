@@ -417,15 +417,13 @@ class apibridge {
      */
     public function update_course_series($courseid, $seriesid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-        $mapping->set('courseid', $courseid);
         $mapping->set('series', $seriesid);
-        $mapping->create();
-
+        $mapping->update();
     }
 
     public function ensure_series_is_valid($seriesid) {
         $api = new api();
-        $api->oc_get('/api/series?seriesid=' . $seriesid);
+        $api->oc_get('/api/series/' . $seriesid);
 
         if ($api->get_http_code() === 404) {
             return false;

@@ -53,10 +53,14 @@ if ($editseriesform->is_cancelled()) {
 
 if ($data = $editseriesform->get_data()) {
     $apibridge = \block_opencast\local\apibridge::get_instance();
-    $apibridge->ensure_series_is_valid($data->seriesid);
-    $apibridge->update_course_series($courseid, $data->seriesid);
-    // Update course series
-    redirect($redirecturl, get_string('seriesidsaved', 'block_opencast'));
+    if ($apibridge->ensure_series_is_valid($data->seriesid)) {
+        $apibridge->update_course_series($courseid, $data->seriesid);
+        // Update course series
+        redirect($redirecturl, get_string('seriesidsaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
+    } else {
+        // Invalid series id
+        redirect($redirecturl, get_string('seriesidnotvalid', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    }
 }
 
 $renderer = $PAGE->get_renderer('block_opencast');

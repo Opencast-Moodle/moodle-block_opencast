@@ -94,6 +94,8 @@ $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
+$string['seriesidsaved'] = 'The series was saved.';
+$string['seriesidnotvalid'] = 'The series does not exist.';
 $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast. Please contact your system administrator.';
 $string['seriedidsaved'] = 'Series ID saved.';
 $string['seriesname'] = 'Series name';
