@@ -104,6 +104,17 @@ class event {
     }
 
     /**
+     * Returns true if a given acl role exists.
+     * @param $allow
+     * @param $action
+     * @param $role
+     */
+    public function has_acl($allow, $action, $role) {
+        $role = (object) array('allow' => $allow, 'role' => $role, 'action' => $action);
+        return in_array($role, $this->acl);
+    }
+
+    /**
      * Add a acl rule.
      *
      * @param boolean $allow

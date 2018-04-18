@@ -538,14 +538,16 @@ class apibridge {
     }
 
     /**
+     *
      * Returns an array of acl roles. The actions field of each entry contains an array of trimmed action names
      * for the specific role.
+     * @param null $conditions
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
-    protected function getroles() {
+    protected function getroles($conditions = null) {
         global $DB;
-        $roles = $DB->get_records('block_opencast_roles');
+        $roles = $DB->get_records('block_opencast_roles', $conditions);
         foreach ($roles as $id => $role) {
             $actions = explode(',', $role->actions);
             $roles[$id]->actions = array();
@@ -701,6 +703,83 @@ class apibridge {
         $api->oc_put($resource, $params);
 
         return ($api->get_http_code() == 204);
+    }
+
+    /**
+     * Deletes acl roles that have been marked as not permanent.
+     * @param $eventidentifier
+     * @param $courseid
+     *
+     * @return bool
+     */
+    public function delete_not_permanent_acl_roles($eventidentifier, $courseid) {
+        $api = new api();
+
+        $success = true;
+
+        $roles = $this->getroles(array('permanent' => 0));
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+                $resource = '/api/events/' . $eventidentifier . '/acl/'. $action . '/' . $this->replace_placeholders($role->rolename, $courseid);
+                $api->oc_delete($resource);
+
+                if($api->get_http_code() !== 204) {
+                    $success = false;
+                }
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Adds acl roles that have been marked as not permanent.
+     * @param $eventidentifier
+     * @param $courseid
+     *
+     * @return bool
+     */
+    public function add_not_permanent_acl_roles($eventidentifier, $courseid) {
+        $api = new api();
+
+        $success = true;
+        $roles = $this->getroles(array('permanent' => 0));
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+                $resource = '/api/events/' . $eventidentifier . '/acl/'. $action;
+                $params = array();
+                $params['role'] = $this->replace_placeholders($role->rolename, $courseid);
+                $api->oc_post($resource, $params);
+
+                if($api->get_http_code() !== 204) {
+                    $success = false;
+                }
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Checks if momentarily not permanent roles are added or not.
+     * @param $eventidentifier
+     * @param $courseid
+     */
+    public function is_event_visible($eventidentifier, $courseid) {
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $api = new api();
+        $jsonacl = $api->oc_get($resource);
+
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+
+        $roles = $this->getroles(array('permanent' => 0));
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+                if( $event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

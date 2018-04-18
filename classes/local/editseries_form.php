@@ -34,7 +34,7 @@ class editseries_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast', array('size' => '40')));
+        $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast'), array('size' => '40'));
         $mform->setType('seriesid', PARAM_TEXT);
 
         $apibridge = apibridge::get_instance();
