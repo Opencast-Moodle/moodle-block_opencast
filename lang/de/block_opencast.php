@@ -66,6 +66,7 @@ $string['groupnamedesc'] = 'Gruppe, zu welcher das Video hinzugefügt wird. Wich
 $string['heading_role'] = 'Rolle';
 $string['heading_actions'] = 'Aktions';
 $string['heading_delete'] = 'Löschen';
+$string['heading_permanent'] = 'Permanent';
 $string['hstart_date'] = 'Datum';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';

@@ -111,13 +111,15 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             foreach ($roles as $role) {
                 $rname = 'role_'.$role->id;
                 $aname = 'action_'.$role->id;
+                $pname = 'permanent_'.$role->id;
 
                 // Update db entry.
-                if ($data->$rname != $role->rolename || $data->$aname != $role->actions) {
+                if ($data->$rname !== $role->rolename || $data->$aname !== $role->actions || $data->$pname !== $role->permanent) {
                     $record = new \stdClass();
                     $record->id = $role->id;
                     $record->rolename = $data->$rname;
                     $record->actions = $data->$aname;
+                    $record->permanent = $data->$pname;
 
                     $DB->update_record('block_opencast_roles', $record);
                 }
