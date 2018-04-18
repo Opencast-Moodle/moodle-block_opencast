@@ -34,16 +34,17 @@ class editseries_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $apibridge = apibridge::get_instance();
-        $series = $apibridge->get_series();
-
-        $select = $mform->addElement('select', 'seriesid', get_string('form_seriestitle', 'block_opencast'), $series);
+        $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast', array('size' => '40')));
         $mform->setType('seriesid', PARAM_TEXT);
 
+        $apibridge = apibridge::get_instance();
         $seriesid = $apibridge->get_course_series($this->_customdata['courseid']);
 
-        if ($seriesid) {
-            $select->setSelected($seriesid->identifier);
+        if (!$seriesid) {
+            $mform->setDefault('seriesid',  get_string('noseriesid', 'block_opencast'));
+        }
+        else {
+            $mform->setDefault('seriesid',  $seriesid->identifier);
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
