@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
+use block_opencast\local\apibridge;
 
 global $PAGE, $OUTPUT, $CFG;
-
-require_once($CFG->dirroot . '/lib/tablelib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 
@@ -104,6 +104,22 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('edituploadjobs', 'block_opencast'));
     echo html_writer::div($addvideobutton);
+}
+
+if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+    $editseriesurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+    $editseriesbutton = $OUTPUT->single_button($editseriesurl, get_string('editseriesforcourse', 'block_opencast'));
+    echo html_writer::div($editseriesbutton);
+}
+
+$apibridge = apibridge::get_instance();
+if (!$apibridge->get_course_series($courseid) &&
+    has_capability('block/opencast:createseriesforcourse', $coursecontext)
+) {
+
+    $createseriesurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
+    $createseriesbutton = $OUTPUT->single_button($createseriesurl, get_string('createseriesforcourse', 'block_opencast'));
+    echo html_writer::div($createseriesbutton);
 }
 
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
