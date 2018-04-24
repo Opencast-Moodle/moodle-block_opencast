@@ -52,7 +52,7 @@ if (confirm_sesskey()) {
                 $status = \core\notification::ERROR;
             }
         } else {
-            if ($opencast->add_not_permanent_acl_roles($video->video->identifier, $courseid)) {
+            if ($opencast->ensure_acl_group_assigned($video->video->identifier, $courseid)) {
                 $message = get_string('aclrolesadded', 'block_opencast', $video->video);
                 $status = \core\notification::SUCCESS;
             } else {

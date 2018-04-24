@@ -601,7 +601,6 @@ class apibridge {
      * @return boolean true if succeeded
      */
     public function ensure_acl_group_assigned($eventidentifier, $courseid) {
-
         $api = new api();
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
@@ -714,48 +713,33 @@ class apibridge {
      */
     public function delete_not_permanent_acl_roles($eventidentifier, $courseid) {
         $api = new api();
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
 
-        $success = true;
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
 
+        // Remove roles
         $roles = $this->getroles(array('permanent' => 0));
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $resource = '/api/events/' . $eventidentifier . '/acl/'. $action . '/' . $this->replace_placeholders($role->rolename, $courseid);
-                $api->oc_delete($resource);
-
-                if($api->get_http_code() !== 204) {
-                    $success = false;
-                }
+                $event->remove_acl($action, $this->replace_placeholders($role->rolename, $courseid));
             }
         }
-        return $success;
-    }
 
-    /**
-     * Adds acl roles that have been marked as not permanent.
-     * @param $eventidentifier
-     * @param $courseid
-     *
-     * @return bool
-     */
-    public function add_not_permanent_acl_roles($eventidentifier, $courseid) {
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $params['acl'] = $event->get_json_acl();
+
+        // Acl roles have not changed
+        if ($params['acl'] == ($jsonacl)) {
+            return true;
+        }
+
         $api = new api();
 
-        $success = true;
-        $roles = $this->getroles(array('permanent' => 0));
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $resource = '/api/events/' . $eventidentifier . '/acl/'. $action;
-                $params = array();
-                $params['role'] = $this->replace_placeholders($role->rolename, $courseid);
-                $api->oc_post($resource, $params);
+        $api->oc_put($resource, $params);
 
-                if($api->get_http_code() !== 204) {
-                    $success = false;
-                }
-            }
-        }
-        return $success;
+        return ($api->get_http_code() == 204);
     }
 
     /**

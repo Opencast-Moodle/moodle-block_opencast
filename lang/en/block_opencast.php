@@ -24,10 +24,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
-$string['aclrolesadded'] = 'Not permanent acl roles added for video: {$a->title}';
+$string['aclrolesadded'] = 'Not permanent acl roles added for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
 $string['aclrolesaddederror'] = 'Error during adding not permanent acl roles for video: {$a->title}
 Some roles might have not been added.';
-$string['aclrolesdeleted'] = 'Not permanent acl roles deleted for video: {$a->title}';
+$string['aclrolesdeleted'] = 'Not permanent acl roles were deleted for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
 $string['aclrolesdeletederror'] = 'Error during deleting not permanent acl roles for video: {$a->title}
 Some roles might have not been deleted.';
 $string['accesspolicies'] = 'Access Policies';
