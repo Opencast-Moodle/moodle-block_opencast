@@ -182,7 +182,11 @@ class admin_form extends moodleform {
         $attributes['scope'] = 'col';
         $output .= html_writer::tag('th', get_string('heading_actions', 'block_opencast'), $attributes);
         $attributes = array();
-        $attributes['class'] = 'header c2 lastcol';
+        $attributes['class'] = 'header c2';
+        $attributes['scope'] = 'col';
+        $output .= html_writer::tag('th', get_string('heading_permanent', 'block_opencast'), $attributes);
+        $attributes = array();
+        $attributes['class'] = 'header c3 lastcol';
         $attributes['scope'] = 'col';
         $output .= html_writer::tag('th', get_string('heading_delete', 'block_opencast'), $attributes);
 
@@ -204,21 +208,25 @@ class admin_form extends moodleform {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             $mform->addElement('html', '<tr>');
-            $mform->addElement('html', '<td class="cell c0">');
 
+            $mform->addElement('html', '<td class="cell c0">');
             $name = 'role_'.$role->id;
             $mform->addElement('text', $name, null, array('size' => 50));
             $mform->setType($name, PARAM_TEXT);
             $mform->setDefault($name, $role->rolename);
 
             $mform->addElement('html', '</td><td class="cell c1">');
-
             $name = 'action_'.$role->id;
             $mform->addElement('text', $name, null);
             $mform->setType($name, PARAM_TEXT);
             $mform->setDefault($name, $role->actions);
 
-            $mform->addElement('html', '</td><td class="cell c2 lastcol">');
+            $mform->addElement('html', '</td><td class="cell c2">');
+            $name = 'permanent_'.$role->id;
+            $mform->addElement('advcheckbox', $name, null);
+            $mform->setDefault($name, $role->permanent);
+
+            $mform->addElement('html', '</td><td class="cell c3 lastcol">');
             $pix = $OUTPUT->action_icon(
                 new moodle_url('/blocks/opencast/adminsettings.php', array('d' => $role->id)),
                 new \pix_icon('t/delete', get_string('delete')),

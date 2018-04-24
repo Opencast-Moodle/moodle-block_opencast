@@ -24,6 +24,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Der Zugriff auf das Video {$a->title} wurde gelöscht';
+$string['aclrolesadded'] = 'Der Zugriff für die nicht permanenten Rollen auf das Video {$a->title} wurde gelöscht.';
+$string['aclrolesdeleted'] = 'Der Zugriff für die nicht permanenten Rollen auf das Video {$a->title} wurde hinzugefügt.';
 $string['accesspolicies'] = 'Zugangsrichtlinien';
 $string['aclrolesname'] = 'Rollen';
 $string['aclrolesnamedesc'] = 'Sie können den Platzhalter [COURSEID] in dem Rollennamen nutzen, der automatisch durch die Kurs-ID ersetzt wird..';
@@ -66,6 +68,7 @@ $string['groupnamedesc'] = 'Gruppe, zu welcher das Video hinzugefügt wird. Wich
 $string['heading_role'] = 'Rolle';
 $string['heading_actions'] = 'Aktions';
 $string['heading_delete'] = 'Löschen';
+$string['heading_permanent'] = 'Permanent';
 $string['hstart_date'] = 'Datum';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';

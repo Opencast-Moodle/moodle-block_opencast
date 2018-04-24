@@ -183,6 +183,27 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
+    /**
+     * Render the link to change the visibility of a video.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
+        global $USER;
+        $url = new \moodle_url('/blocks/opencast/changevisibility.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
+        $text = get_string('changevisibility', 'block_opencast');
+
+        if($visible) {
+            $icon = $this->output->pix_icon('t/show', $text);
+        }
+        else {
+            $icon = $this->output->pix_icon('t/hide', $text);
+        }
+
+        return \html_writer::link($url, $icon);
+    }
+
     public function render_video_info($courseid, $video) {
 
         if (!$video) {

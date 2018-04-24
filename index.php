@@ -55,8 +55,8 @@ $table->set_attribute('cellpadding', '3');
 $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
-$columns = array('start_date', 'title', 'published', 'workflow_state', 'action');
-$headers = array('start_date', 'title', 'published', 'workflow_state', '');
+$columns = array('start_date', 'title', 'published', 'workflow_state', 'visibility', 'action');
+$headers = array('start_date', 'title', 'published', 'workflow_state', '', '');
 
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
@@ -134,6 +134,9 @@ if ($videodata->error == 0) {
         $row[] = $video->title;
         $row[] = $renderer->render_publication_status($video->publication_status);
         $row[] = $renderer->render_processing_state_icon($video->processing_state);
+
+        $visible = $apibridge->is_event_visible($video->identifier, $courseid);
+        $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
 
         if ($opencast->can_delete_acl_group_assignment($video)) {
             $row[] = $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);

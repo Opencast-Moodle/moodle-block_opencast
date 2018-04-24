@@ -24,6 +24,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
+$string['aclrolesadded'] = 'Not permanent acl roles added for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
+$string['aclrolesaddederror'] = 'Error during adding not permanent acl roles for video: {$a->title}
+Some roles might have not been added.';
+$string['aclrolesdeleted'] = 'Not permanent acl roles were deleted for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
+$string['aclrolesdeletederror'] = 'Error during deleting not permanent acl roles for video: {$a->title}
+Some roles might have not been deleted.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
@@ -33,6 +43,7 @@ $string['addrole'] = 'Add new role';
 $string['apipasswordempty'] = 'Password for API user is not setup correctly, go to settings of block opencast to fix this';
 $string['apipasswordempty'] = 'Url for Opencast API is not setup correctly, go to settings of block opencast to fix this';
 $string['apiusernameempty'] = 'Username for Opencast API user is not setup correctly, go to settings of block opencast to fix this';
+$string['changevisibility'] = 'Change visibility';
 $string['countfailed'] = 'Failed';
 $string['createdby'] = 'Created by';
 $string['createseriesforcourse'] = 'Create new series';
@@ -58,6 +69,7 @@ $string['groupnamedesc'] = 'Group to which the video is added. Important: The gr
 $string['heading_role'] = 'Role';
 $string['heading_actions'] = 'Actions';
 $string['heading_delete'] = 'Delete';
+$string['heading_permanent'] = 'Permanent';
 $string['hstart_date'] = 'Date';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';
