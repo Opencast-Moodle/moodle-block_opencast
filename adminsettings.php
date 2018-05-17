@@ -110,7 +110,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 set_config('workflow_roles', $data->workflow_roles, 'block_opencast');
             }
 
-            // Update roles
+            // Update roles.
             $roles = $DB->get_records('block_opencast_roles');
             foreach ($roles as $role) {
                 $rname = 'role_'.$role->id;
@@ -140,23 +140,23 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         $entry->id = 0;
     }
 
-    // Section API settings
+    // Section API settings.
     $entry->apiurl = get_config('block_opencast', 'apiurl');
     $entry->apiusername = get_config('block_opencast', 'apiusername');
     $entry->apipassword = get_config('block_opencast', 'apipassword');
     $entry->connecttimeout = get_config('block_opencast', 'connecttimeout');
 
-    // Section cron settings
+    // Section cron settings.
     $entry->limituploadjobs = get_config('block_opencast', 'limituploadjobs');
     $entry->uploadfilelimit = get_config('block_opencast', 'uploadfilelimit');
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
     $entry->publishtoengage = get_config('block_opencast', 'publishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
 
-    // Section overview settings
+    // Section overview settings.
     $entry->limitvideos = get_config('block_opencast', 'limitvideos');
 
-    // Section access policies
+    // Section access policies.
     $entry->group_creation = get_config('block_opencast', 'group_creation');
     $entry->group_name = get_config('block_opencast', 'group_name');
     $entry->series_name = get_config('block_opencast', 'series_name');

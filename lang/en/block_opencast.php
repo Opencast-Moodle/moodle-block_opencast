@@ -150,3 +150,5 @@ $string['privacy:metadata:block_opencast_uploadjob:courseid'] = 'ID of the cours
 $string['privacy:metadata:block_opencast_uploadjob:timecreated'] = 'The date the upload job was created.';
 $string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date the upload job was last modified.';
 $string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
+$string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
+$string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';

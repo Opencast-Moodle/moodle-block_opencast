@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+defined('MOODLE_INTERNAL') || die();
+
 class event {
 
     private $acl = array();            // Access control.

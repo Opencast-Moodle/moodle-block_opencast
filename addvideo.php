@@ -62,7 +62,8 @@ if ($addvideoform->is_cancelled()) {
 }
 
 if ($data = $addvideoform->get_data()) {
-    file_save_draft_area_files($data->videos_filemanager, $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, 0, $options);
+    file_save_draft_area_files($data->videos_filemanager,
+        $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, 0, $options);
     // Update all upload jobs.
     \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'));

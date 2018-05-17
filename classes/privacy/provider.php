@@ -52,7 +52,6 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _get_metadata(collection $collection) {
         $collection->add_database_table('block_opencast_uploadjob', [
             'fileid' => 'privacy:metadata:block_opencast_uploadjob:fileid',
-            'opencasteventid' => 'privacy:metadata:block_opencast_uploadjob:opencasteventid',
             'userid' => 'privacy:metadata:block_opencast_uploadjob:userid',
             'status' => 'privacy:metadata:block_opencast_uploadjob:status',
             'courseid' => 'privacy:metadata:block_opencast_uploadjob:courseid',
@@ -60,8 +59,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'timemodified' => 'privacy:metadata:block_opencast_uploadjob:timemodified'
         ], 'privacy:metadata:block_opencast_uploadjob');
 
-       // TODO
-     //   $collection->add_external_location_link('');
+        // Uploads files to opencast.
+        $collection->add_external_location_link('opencast', [
+            'file' => 'privacy:metadata:opencast:file'
+        ], 'privacy:metadata:opencast');
 
         return $collection;
     }
@@ -74,45 +75,20 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @return contextlist $contextlist The list of contexts used in this plugin.
      */
     public static function _get_contexts_for_userid($userid) {
-        // Fetch all forum discussions, forum posts, ratings, tracking settings and subscriptions.
+        $contextlist = new \core_privacy\local\request\contextlist();
+
+        // The block_opencast data is associated at the user context level, so retrieve the user's context id.
         $sql = "SELECT c.id
-                FROM {context} c
-                INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
-                INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
-                INNER JOIN {moodleoverflow} mof ON mof.id = cm.instance
-                LEFT JOIN {moodleoverflow_discussions} d ON d.moodleoverflow = mof.id
-                LEFT JOIN {moodleoverflow_posts} p ON p.discussion = d.id
-                LEFT JOIN {moodleoverflow_read} r ON r.moodleoverflowid = mof.id
-                LEFT JOIN {moodleoverflow_subscriptions} s ON s.moodleoverflow = mof.id
-                LEFT JOIN {moodleoverflow_discuss_subs} ds ON ds.moodleoverflow = mof.id
-                LEFT JOIN {moodleoverflow_ratings} ra ON ra.moodleoverflowid = mof.id
-                LEFT JOIN {moodleoverflow_tracking} track ON track.moodleoverflowid = mof.id
-                WHERE (
-                    d.userid = :duserid OR
-                    d.usermodified = :dmuserid OR
-                    p.userid = :puserid OR
-                    r.userid = :ruserid OR
-                    s.userid = :suserid OR
-                    ds.userid = :dsuserid OR
-                    ra.userid = :rauserid OR
-                    track.userid = :userid
-                )
-         ";
+                  FROM {block_opencast_uploadjob} bo
+                  JOIN {context} c ON c.instanceid = bo.userid AND c.contextlevel = :contextuser
+                 WHERE bo.userid = :userid
+              GROUP BY c.id";
 
         $params = [
-            'modname'      => 'moodleoverflow',
-            'contextlevel' => CONTEXT_MODULE,
-            'duserid'      => $userid,
-            'dmuserid'     => $userid,
-            'puserid'      => $userid,
-            'ruserid'      => $userid,
-            'suserid'      => $userid,
-            'dsuserid'     => $userid,
-            'rauserid'     => $userid,
-            'userid'       => $userid
+            'contextuser'   => CONTEXT_USER,
+            'userid'        => $userid
         ];
 
-        $contextlist = new \core_privacy\local\request\contextlist();
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
@@ -126,67 +102,45 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _export_user_data(approved_contextlist $contextlist) {
         global $DB;
 
-        if (empty($contextlist)) {
+        // If the user has block_opencast data, then only the User context should be present so get the first context.
+        $contexts = $contextlist->get_contexts();
+        if (count($contexts) == 0) {
             return;
         }
+        $context = reset($contexts);
 
-        $user = $contextlist->get_user();
-        $userid = $user->id;
+        // Sanity check that context is at the User context level, then get the userid.
+        if ($context->contextlevel !== CONTEXT_USER) {
+            return;
+        }
+        $userid = $context->instanceid;
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
-
-        $sql = "SELECT
-                    c.id AS contextid,
-                    mof.*,
-                    cm.id AS cmid,
-                    s.userid AS subscribed,
-                    track.userid AS tracked
-                FROM {context} c
-                INNER JOIN {course_modules} cm ON cm.id = c.instanceid
-                INNER JOIN {modules} m ON m.id = cm.module
-                INNER JOIN {moodleoverflow} mof ON mof.id = cm.instance
-                LEFT JOIN {moodleoverflow_subscriptions} s ON s.moodleoverflow = mof.id AND s.userid = :suserid
-                LEFT JOIN {moodleoverflow_ratings} ra ON ra.moodleoverflowid = mof.id AND ra.userid = :rauserid
-                LEFT JOIN {moodleoverflow_tracking} track ON track.moodleoverflowid = mof.id AND track.userid = :userid
-                WHERE (
-                    c.id {$contextsql}
-                )
-                ";
+        $sql = "SELECT bo.id as id,
+                       bo.courseid as courseid,
+                       bo.fileid as fileid,
+                       bo.status as status,
+                       bo.timecreated as creation_time,
+                       bo.timemodified as last_modified
+                  FROM {block_opencast_uploadjob} bo
+                 WHERE bo.userid = :userid
+              ORDER BY bo.status";
 
         $params = [
-            'suserid'  => $userid,
-            'rauserid' => $userid,
-            'userid'   => $userid
+            'userid' => $userid
         ];
-        $params += $contextparams;
 
-        // Keep a mapping of moodleoverflowid to contextid.
-        $mappings = [];
+        $jobs = $DB->get_records_sql($sql, $params);
 
-        $forums = $DB->get_recordset_sql($sql, $params);
-        foreach ($forums as $forum) {
-            $mappings[$forum->id] = $forum->contextid;
+        $data = (object) [
+            'upload_jobs' => $jobs
+        ];
 
-            $context = \context::instance_by_id($mappings[$forum->id]);
+        // The block_opencast data export is organised in: {User Context}/Opencast/data.json.
+        $subcontext = [
+            get_string('pluginname', 'block_opencast')
+        ];
 
-            // Store the main moodleoverflow data.
-            $data = request_helper::get_context_data($context, $user);
-            writer::with_context($context)->export_data([], $data);
-            request_helper::export_context_files($context, $user);
-
-            // Store relevant metadata about this forum instance.
-            data_export_helper::export_subscription_data($forum);
-            data_export_helper::export_tracking_data($forum);
-        }
-
-        $forums->close();
-
-        if (!empty($mappings)) {
-            // Store all discussion data for this moodleoverflow.
-            data_export_helper::export_discussion_data($userid, $mappings);
-            // Store all post data for this moodleoverflow.
-            data_export_helper::export_all_posts($userid, $mappings);
-        }
+        writer::with_context($context)->export_data($subcontext, $data);
     }
 
     /**
@@ -196,32 +150,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      */
     public static function _delete_data_for_all_users_in_context(\context $context) {
         global $DB;
-        // Check that this is a context_module.
-        if (!$context instanceof \context_module) {
-            throw new \coding_exception('Unable to perform this deletion.');
+
+        // Sanity check that context is at the User context level, then get the userid.
+        if ($context->contextlevel !== CONTEXT_USER) {
+            return;
         }
+        $userid = $context->instanceid;
 
-        // Get the course module.
-        $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
-        $forum = $DB->get_record('moodleoverflow', ['id' => $cm->instance]);
-
-        $DB->delete_records('moodleoverflow_subscriptions', ['moodleoverflow' => $forum->id]);
-        $DB->delete_records('moodleoverflow_read', ['moodleoverflowid' => $forum->id]);
-        $DB->delete_records('moodleoverflow_tracking', ['moodleoverflowid' => $forum->id]);
-        $DB->delete_records('moodleoverflow_ratings', ['moodleoverflowid' => $forum->id]);
-        $DB->delete_records('moodleoverflow_discuss_subs', ['moodleoverflow' => $forum->id]);
-        $DB->delete_records_select(
-            'moodleoverflow_posts',
-            "discussion IN (SELECT id FROM {moodleoverflow_discussions} WHERE moodleoverflow = :forum)",
-            [
-                'forum' => $forum->id,
-            ]
-        );
-        $DB->delete_records('moodleoverflow_discussions', ['moodleoverflow' => $forum->id]);
-
-        // Delete all files from the posts.
-        $fs = get_file_storage();
-        $fs->delete_area_files($context->id, 'mod_moodleoverflow', 'attachment');
+        $DB->delete_records('block_opencast_uploadjob', ['userid' => $userid]);
     }
 
     /**
@@ -231,62 +167,20 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      */
     public static function _delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
-        $userid = $contextlist->get_user()->id;
-        foreach ($contextlist as $context) {
-            // Get the course module.
-            $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
-            $forum = $DB->get_record('moodleoverflow', ['id' => $cm->instance]);
 
-            $DB->delete_records('moodleoverflow_read', [
-                'moodleoverflowid' => $forum->id,
-                'userid'           => $userid]);
-
-            $DB->delete_records('moodleoverflow_subscriptions', [
-                'moodleoverflow' => $forum->id,
-                'userid'         => $userid]);
-
-            $DB->delete_records('moodleoverflow_discuss_subs', [
-                'moodleoverflow' => $forum->id,
-                'userid'         => $userid]);
-
-            $DB->delete_records('moodleoverflow_tracking', [
-                'moodleoverflowid' => $forum->id,
-                'userid'           => $userid]);
-
-            // Do not delete ratings but reset userid.
-            $ratingsql = "userid = :userid AND discussionid IN
-            (SELECT id FROM {moodleoverflow_discussions} WHERE moodleoverflow = :forum)";
-            $ratingparams = [
-                'forum'  => $forum->id,
-                'userid' => $userid
-            ];
-            $DB->set_field_select('moodleoverflow_ratings', 'userid', 0, $ratingsql, $ratingparams);
-
-            // Do not delete forum posts.
-            // Update the user id to reflect that the content has been deleted.
-            $postsql = "userid = :userid AND discussion IN
-            (SELECT id FROM {moodleoverflow_discussions} WHERE moodleoverflow = :forum)";
-            $postparams = [
-                'forum'  => $forum->id,
-                'userid' => $userid
-            ];
-
-            $DB->set_field_select('moodleoverflow_posts', 'message', '', $postsql, $postparams);
-            $DB->set_field_select('moodleoverflow_posts', 'messageformat', FORMAT_PLAIN, $postsql, $postparams);
-            $DB->set_field_select('moodleoverflow_posts', 'userid', 0, $postsql, $postparams);
-
-            // Do not delete discussions but reset userid.
-            $discussionselect = "moodleoverflow = :forum AND userid = :userid";
-            $disuccsionsparams = ['forum' => $forum->id, 'userid' => $userid];
-            $DB->set_field_select('moodleoverflow_discussions', 'name', '', $discussionselect, $disuccsionsparams);
-            $DB->set_field_select('moodleoverflow_discussions', 'userid', 0, $discussionselect, $disuccsionsparams);
-            $discussionselect = "moodleoverflow = :forum AND usermodified = :userid";
-            $disuccsionsparams = ['forum' => $forum->id, 'userid' => $userid];
-            $DB->set_field_select('moodleoverflow_discussions', 'usermodified', 0, $discussionselect, $disuccsionsparams);
-
-            // Delete attachments.
-            $fs = get_file_storage();
-            $fs->delete_area_files($context->id, 'mod_moodleoverflow', 'attachment');
+        // If the user has block_opencast data, then only the User context should be present so get the first context.
+        $contexts = $contextlist->get_contexts();
+        if (count($contexts) == 0) {
+            return;
         }
+        $context = reset($contexts);
+
+        // Sanity check that context is at the User context level, then get the userid.
+        if ($context->contextlevel !== CONTEXT_USER) {
+            return;
+        }
+        $userid = $context->instanceid;
+
+        $DB->delete_records('block_opencast_uploadjob', ['userid' => $userid]);
     }
 }

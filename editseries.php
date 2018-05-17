@@ -65,6 +65,7 @@ if ($data = $editseriesform->get_data()) {
     } else {
         $apibridge->unset_course_series($courseid);
         redirect($redirecturl, get_string('seriesidunset', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
+
     }
 }
 

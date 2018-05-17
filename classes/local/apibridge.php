@@ -25,7 +25,8 @@
 
 namespace block_opencast\local;
 
-use core_availability\result;
+defined('MOODLE_INTERNAL') || die();
+
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
@@ -97,7 +98,7 @@ class apibridge {
         $url = '/api/events?' . $query;
 
         $withroles = array();
-//        $withroles[] = api::get_course_acl_role($courseid);
+        // $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -157,7 +158,7 @@ class apibridge {
         $resource = '/api/events?' . $query;
 
         $withroles = array();
-//        $withroles[] = api::get_course_acl_role($courseid);
+        // $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -184,7 +185,7 @@ class apibridge {
         $resource = '/api/events/' . $identifier;
 
         $withroles = array();
-//        $withroles[] = api::get_course_acl_role($courseid);
+        // withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -248,8 +249,6 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     protected function create_acl_group($courseid) {
-
-
         $params = [];
         $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
@@ -364,7 +363,8 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $acl[] = (object) array('allow' => true, 'action' => $action, 'role' => $this->replace_placeholders($role->rolename, $courseid));
+                $acl[] = (object) array('allow' => true, 'action' => $action,
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid));
             }
         }
 
@@ -436,7 +436,7 @@ class apibridge {
             $mapping->update();
         }
 
-        // Update Acl roles
+        // Update Acl roles.
         $api = new api();
         $resource = '/api/series/' . $seriesid . '/acl';
         $jsonacl = $api->oc_get($resource);
@@ -457,13 +457,15 @@ class apibridge {
                     }
                 }
 
-                $acl[] = (object) array('allow' => true, 'role' => $this->replace_placeholders($role->rolename, $courseid), 'action' => $action);
+                $acl[] = (object) array('allow' => true,
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid),
+                                        'action' => $action);
             }
         }
 
         $params['acl'] = json_encode(array_values($acl));
 
-        // Acl roles have not changed
+        // Acl roles have not changed.
         if ($params['acl'] == ($jsonacl)) {
             return true;
         }
@@ -653,7 +655,7 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
 
-        // Acl roles have not changed
+        // Acl roles have not changed.
         if ($params['acl'] == ($jsonacl)) {
             return true;
         }
@@ -760,7 +762,7 @@ class apibridge {
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
-        // Remove roles
+        // Remove roles.
         $roles = $this->getroles(array('permanent' => 0));
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
@@ -771,7 +773,7 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
 
-        // Acl roles have not changed
+        // Acl roles have not changed.
         if ($params['acl'] == ($jsonacl)) {
             return true;
         }
@@ -793,6 +795,7 @@ class apibridge {
      *
      * @param $eventidentifier
      * @param $courseid
+     * @return int state of the visibility (0 hidden, 1 mixed visibility, 2 visible)
      */
     public function is_event_visible($eventidentifier, $courseid) {
         $resource = '/api/events/' . $eventidentifier . '/acl';
@@ -857,4 +860,5 @@ class apibridge {
 
         return true;
     }
+
 }

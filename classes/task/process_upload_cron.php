@@ -20,6 +20,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace block_opencast\task;
+defined('MOODLE_INTERNAL') || die();
 
 class process_upload_cron extends \core\task\scheduled_task {
 
