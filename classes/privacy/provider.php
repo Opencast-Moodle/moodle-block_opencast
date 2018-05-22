@@ -151,13 +151,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
-        // Sanity check that context is at the User context level, then get the userid.
-        if ($context->contextlevel !== CONTEXT_USER) {
+        if ($context->contextlevel != CONTEXT_BLOCK) {
             return;
         }
-        $userid = $context->instanceid;
 
-        $DB->delete_records('block_opencast_uploadjob', ['userid' => $userid]);
+        $coursecontext = $context->get_course_context();
+        $course = $coursecontext->instanceid;
+
+        $DB->delete_records('block_opencast_uploadjob', ['courseid' => $course]);
     }
 
     /**
