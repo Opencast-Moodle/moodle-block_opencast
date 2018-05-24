@@ -40,7 +40,7 @@ class editseries_form extends \moodleform {
 
         $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast'),
             $attributes);
-        $mform->setType('seriesid', PARAM_TEXT);
+        $mform->setType('seriesid', PARAM_ALPHANUMEXT);
 
         $apibridge = apibridge::get_instance();
         $seriesid = $apibridge->get_course_series($this->_customdata['courseid']);
