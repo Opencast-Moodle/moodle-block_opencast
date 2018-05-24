@@ -102,6 +102,7 @@ $string['publishtoengage'] = 'Nach Engage veröffentlicht';
 $string['publishtoengagedesc'] = 'Wählen sie diese Option, wenn das Video nach dem Upload über den Engage-Player veröffentlicht werden soll. Der festgelegt Workflow muss dies unterstützen.';
 $string['rolename'] = 'Rollenname';
 $string['seriescreated'] = 'Die Serie wurde erstellt.';
+$string['seriesnotcreated'] = 'Die Serie konnte nicht erstellt werden.';
 $string['seriesidsaved'] = 'Die Serien ID wurde gespeichert.';
 $string['seriesidnotvalid'] = 'Die Serie existiert nicht.';
 $string['series_exists'] = 'Die Serie mit der ID \'{$a}\' konnte nicht in Opencast gefunden werden. Bitte kontaktieren Sie Ihren Systemadministrator.';

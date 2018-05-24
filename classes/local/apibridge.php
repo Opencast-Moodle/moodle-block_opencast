@@ -335,6 +335,7 @@ class apibridge {
      * API call to create a series for given course.
      *
      * @param int $courseid
+     * @return bool tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $seriestitle = null) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
@@ -384,7 +385,9 @@ class apibridge {
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
             $mapping->create();
+            return true;
         }
+        return false;
     }
 
     /**

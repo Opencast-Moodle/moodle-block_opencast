@@ -112,6 +112,7 @@ $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the sam
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
 $string['seriescreated'] = 'Series was created.';
+$string['seriesnotcreated'] = 'Series could not be was created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
 $string['seriesidnotvalid'] = 'The series does not exist.';
 $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast. Please contact your system administrator.';
