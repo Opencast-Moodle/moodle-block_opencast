@@ -374,7 +374,7 @@ class apibridge {
 
         $result = $api->oc_post('/api/series', $params);
 
-        if ($api->get_http_code() >= 400) {
+        if ($api->get_http_code() >= 400 | $api->get_http_code() < 200) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
