@@ -545,7 +545,7 @@ class apibridge {
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
-    protected function getroles($conditions = null) {
+    public function getroles($conditions = null) {
         global $DB;
         $roles = $DB->get_records('block_opencast_roles', $conditions);
         foreach ($roles as $id => $role) {
@@ -626,6 +626,11 @@ class apibridge {
         $api = new api();
 
         $api->oc_put($resource, $params);
+
+        // Trigger workflow
+        $this->start_workflow(get_config('block_opencast', 'workflow_roles'), $eventidentifier);
+
+        // TODO check workflow status
 
         return ($api->get_http_code() == 204);
     }
@@ -738,8 +743,14 @@ class apibridge {
         $api = new api();
 
         $api->oc_put($resource, $params);
+        $success = ($api->get_http_code() == 204);
 
-        return ($api->get_http_code() == 204);
+        // Trigger workflow
+        $this->start_workflow(get_config('block_opencast', 'workflow_roles'), $eventidentifier);
+
+        // TODO check workflow
+
+        return $success;
     }
 
     /**
@@ -764,6 +775,22 @@ class apibridge {
             }
         }
         return false;
+    }
+
+    private function start_workflow(string $name, string $event) {
+        // Get mediapackage xml
+        $resource = '/recordings/' . $event . './mediapackage.xml';
+        $api = new api();
+        $mediapackage = $api->oc_get($resource);
+
+        // Start workflow
+        $resource = '/workflow/start';
+        $params = [
+            'definition' => $name,
+            'mediapackage' => $mediapackage
+        ];
+        $api = new api();
+        $mediapackage = $api->oc_post($resource, $params);
     }
 
 }

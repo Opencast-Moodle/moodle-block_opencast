@@ -23,6 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
+define('VISIBLE', 2);
+define('MIXED_VISIBLITY', 1);
+define('HIDDEN', 0);
 
 /**
  * Renderer class for block opencast.
@@ -32,11 +35,11 @@ defined('MOODLE_INTERNAL') || die;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
-
     /**
      * Render the opencast timestamp in moodle standard format.
      *
      * @param string $opencastcreated the timestamp delivered by opencast api call.
+     *
      * @return string
      */
     public function render_created($opencastcreated) {
@@ -47,10 +50,10 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the icon for opencast processing state
      *
      * @param string $processingstate
+     *
      * @return string HTML code for icon
      */
     public function render_processing_state_icon($processingstate) {
-
         switch ($processingstate) {
 
             case 'SUCCEEDED' :
@@ -81,6 +84,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         if ($videodata->error) {
             $html .= html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');
+
             return $html;
         }
 
@@ -114,6 +118,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the opencast publication status.
      *
      * @param array $publicationstatus
+     *
      * @return string
      */
     public function render_publication_status($publicationstatus) {
@@ -129,6 +134,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the opencast processing status.
      *
      * @param string $statuscode
+     *
      * @return string
      */
     protected function render_status($statuscode) {
@@ -139,6 +145,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the tabel of upload jobs.
      *
      * @param  array uploadjobs array of uploadjob objects
+     *
      * @return string
      */
     public function render_upload_jobs($uploadjobs) {
@@ -192,12 +199,15 @@ class block_opencast_renderer extends plugin_renderer_base {
         global $USER;
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
-        $text = get_string('changevisibility', 'block_opencast');
 
-        if($visible) {
+        if ($visible === VISIBLE) {
+            $text = get_string('changevisibility_visible', 'block_opencast');
             $icon = $this->output->pix_icon('t/show', $text);
-        }
-        else {
+        } else if ($visible === MIXED_VISIBLITY) {
+            $text = get_string('changevisibility_mixed', 'block_opencast');
+            $icon = $this->output->pix_icon('i/warning', $text);
+        } else {
+            $text = get_string('changevisibility_hidden', 'block_opencast');
             $icon = $this->output->pix_icon('t/hide', $text);
         }
 
@@ -218,7 +228,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('htitle', 'block_opencast'),
             get_string('hpublished', 'block_opencast'),
             get_string('hworkflow_state', 'block_opencast')
-            );
+        );
 
         $row = array();
 
@@ -234,8 +244,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $label = get_string('dodeleteaclgroup', 'block_opencast');
         $params = array(
             'identifier' => $video->identifier,
-            'courseid' => $courseid,
-            'action' => 'delete'
+            'courseid'   => $courseid,
+            'action'     => 'delete'
         );
         $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', $params);
         $html .= $this->output->single_button($url, $label);

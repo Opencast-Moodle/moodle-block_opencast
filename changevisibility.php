@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
+require_once('./renderer.php');
 
 global $PAGE, $OUTPUT, $CFG;
 
@@ -33,7 +34,6 @@ require_login($courseid, false);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 
-
 // Capability check.
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
@@ -43,7 +43,7 @@ $video = $opencast->get_opencast_video($courseid, $identifier);
 
 if (confirm_sesskey()) {
     if ($video->video) {
-        if ($visible) {
+        if ($visible === VISIBLE || $visible == MIXED_VISIBLITY) {
             if ($opencast->delete_not_permanent_acl_roles($video->video->identifier, $courseid)) {
                 $message = get_string('aclrolesdeleted', 'block_opencast', $video->video);
                 $status = \core\notification::SUCCESS;

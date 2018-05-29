@@ -105,6 +105,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->series_name)) {
                 set_config('series_name', $data->series_name, 'block_opencast');
             }
+            if (isset($data->workflow_roles)) {
+                set_config('workflow_roles', $data->workflow_roles, 'block_opencast');
+            }
 
             // Update roles
             $roles = $DB->get_records('block_opencast_roles');
@@ -157,6 +160,8 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->group_name = get_config('block_opencast', 'group_name');
     $entry->series_name = get_config('block_opencast', 'series_name');
 
+    // Section roles
+    $entry->workflow_roles = get_config('block_opencast', 'workflow_roles');
 
     $mform->set_data($entry);
     $mform->display();

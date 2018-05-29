@@ -137,11 +137,21 @@ class admin_form extends moodleform {
         $mform->addElement('header', 'roles_header', get_string('aclrolesname', 'block_opencast'));
         $mform->setExpanded('roles_header');
 
+        // Workflow adding/deleting non-permanent roles.
+        $name = 'workflow_roles';
+        $title =   get_string('workflowrolesname', 'block_opencast');
+        $description =  get_string('workflowrolesdesc', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // New role name.
         $name = 'rolename';
         $title =   get_string('rolename', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
+        // New role action.
         $name = 'actions';
         $title =   get_string('actions', 'block_opencast');
         $mform->addElement('text', $name, $title);
