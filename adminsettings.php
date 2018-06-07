@@ -60,6 +60,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             $record = new \stdClass();
             $record->rolename = $data->rolename;
             $record->actions = $data->actions;
+            $record->permanent = $data->permanent;
 
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);
@@ -105,19 +106,24 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->series_name)) {
                 set_config('series_name', $data->series_name, 'block_opencast');
             }
+            if (isset($data->workflow_roles)) {
+                set_config('workflow_roles', $data->workflow_roles, 'block_opencast');
+            }
 
             // Update roles
             $roles = $DB->get_records('block_opencast_roles');
             foreach ($roles as $role) {
                 $rname = 'role_'.$role->id;
                 $aname = 'action_'.$role->id;
+                $pname = 'permanent_'.$role->id;
 
                 // Update db entry.
-                if ($data->$rname != $role->rolename || $data->$aname != $role->actions) {
+                if ($data->$rname !== $role->rolename || $data->$aname !== $role->actions || $data->$pname !== $role->permanent) {
                     $record = new \stdClass();
                     $record->id = $role->id;
                     $record->rolename = $data->$rname;
                     $record->actions = $data->$aname;
+                    $record->permanent = $data->$pname;
 
                     $DB->update_record('block_opencast_roles', $record);
                 }
@@ -155,6 +161,8 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->group_name = get_config('block_opencast', 'group_name');
     $entry->series_name = get_config('block_opencast', 'series_name');
 
+    // Section roles
+    $entry->workflow_roles = get_config('block_opencast', 'workflow_roles');
 
     $mform->set_data($entry);
     $mform->display();

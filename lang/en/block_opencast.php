@@ -24,6 +24,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
+$string['aclrolesadded'] = 'Not permanent acl roles added for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
+$string['aclrolesaddederror'] = 'Error during adding not permanent acl roles for video: {$a->title}
+Some roles might have not been added.';
+$string['aclrolesdeleted'] = 'Not permanent acl roles were deleted for video: {$a->title}
+
+Please refresh the site to see the current visibility status.';
+$string['aclrolesdeletederror'] = 'Error during deleting not permanent acl roles for video: {$a->title}
+Some roles might have not been deleted.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
@@ -33,8 +43,12 @@ $string['addrole'] = 'Add new role';
 $string['apipasswordempty'] = 'Password for API user is not setup correctly, go to settings of block opencast to fix this';
 $string['apipasswordempty'] = 'Url for Opencast API is not setup correctly, go to settings of block opencast to fix this';
 $string['apiusernameempty'] = 'Username for Opencast API user is not setup correctly, go to settings of block opencast to fix this';
+$string['changevisibility_visible'] = 'Revoke access by students.';
+$string['changevisibility_mixed'] = 'The video is hidden for a few nonpermanent ACL roles but not for all. Clicking the icon, will hide the video for all nonpermanent ACL roles.';
+$string['changevisibility_hidden'] = 'Show the video. It is currently hidden for nonpermanent ACL roles.';
 $string['countfailed'] = 'Failed';
 $string['createdby'] = 'Created by';
+$string['createseriesforcourse'] = 'Create new series';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm'] = 'Are you sure you want to delete this role?';
@@ -43,9 +57,12 @@ $string['deletegroupacldesc'] = 'You are about to delete the access to this vide
     The video will not be deleted in Opencast.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
 $string['edituploadjobs'] = 'Edit video upload jobs';
+$string['editseriesforcourse'] = 'Edit series mapping';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';
+$string['form_seriesid'] = 'Series ID';
+$string['form_seriestitle'] = 'Series title';
 $string['gotooverview'] = 'Go to overview...';
 $string['groupcreation'] = 'Create a group';
 $string['groupcreationdesc'] = 'If checked, a group is created during the upload.';
@@ -54,10 +71,12 @@ $string['groupnamedesc'] = 'Group to which the video is added. Important: The gr
 $string['heading_role'] = 'Role';
 $string['heading_actions'] = 'Actions';
 $string['heading_delete'] = 'Delete';
+$string['heading_permanent'] = 'Permanent';
 $string['hstart_date'] = 'Date';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';
 $string['hpublished'] = 'Published';
+$string['hvisibility'] = 'Visibility';
 $string['invalidacldata'] = 'Invalid acl data';
 $string['limituploadjobs'] = 'Limit upload job by cron';
 $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cronjob. The cronjob can be scheduled here: {$a}';
@@ -75,6 +94,7 @@ $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
+$string['noseriesid'] = 'Series ID is not defined yet.';
 $string['notpublished'] = 'Not published';
 $string['novideosavailable'] = 'No videos available';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';
@@ -91,10 +111,14 @@ $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
+$string['seriescreated'] = 'Series was created.';
+$string['seriesidsaved'] = 'The series ID was saved.';
+$string['seriesidnotvalid'] = 'The series does not exist.';
 $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast. Please contact your system administrator.';
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
 $string['settings'] = 'Opencast Videos';
+$string['setting_permanent'] = 'Is permanent';
 $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
@@ -110,3 +134,8 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
 $string['videosavailable'] = 'Opencast videos released for this course';
 $string['videonotfound'] = 'Video not found';
 $string['videostoupload'] = 'Videos to upload to opencast';
+$string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
+$string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
+$string['workflowrolesname'] = 'Workflow for changing the ACL rules';
+$string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added.';
+
