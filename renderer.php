@@ -23,9 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
-define('VISIBLE', 2);
-define('MIXED_VISIBLITY', 1);
-define('HIDDEN', 0);
 
 /**
  * Renderer class for block opencast.
@@ -35,6 +32,11 @@ define('HIDDEN', 0);
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
+    const VISIBLE = 2;
+    const MIXED_VISIBLITY = 1;
+    const HIDDEN = 0;
+
+
     /**
      * Render the opencast timestamp in moodle standard format.
      *
@@ -200,15 +202,15 @@ class block_opencast_renderer extends plugin_renderer_base {
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
 
-        if ($visible === VISIBLE) {
+        if ($visible === self::VISIBLE) {
             $text = get_string('changevisibility_visible', 'block_opencast');
-            $icon = $this->output->pix_icon('t/show', $text);
-        } else if ($visible === MIXED_VISIBLITY) {
+            $icon = $this->output->pix_icon('t/hide', $text);
+        } else if ($visible === self::MIXED_VISIBLITY) {
             $text = get_string('changevisibility_mixed', 'block_opencast');
             $icon = $this->output->pix_icon('i/warning', $text);
         } else {
             $text = get_string('changevisibility_hidden', 'block_opencast');
-            $icon = $this->output->pix_icon('t/hide', $text);
+            $icon = $this->output->pix_icon('t/show', $text);
         }
 
         return \html_writer::link($url, $icon);

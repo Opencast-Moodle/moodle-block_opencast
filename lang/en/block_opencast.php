@@ -118,6 +118,7 @@ $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
 $string['settings'] = 'Opencast Videos';
+$string['setting_permanent'] = 'Is permanent';
 $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
@@ -133,6 +134,8 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
 $string['videosavailable'] = 'Opencast videos released for this course';
 $string['videonotfound'] = 'Video not found';
 $string['videostoupload'] = 'Videos to upload to opencast';
+$string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
+$string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';
 $string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added.';
 

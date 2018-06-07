@@ -421,8 +421,17 @@ class apibridge {
      */
     public function update_course_series($courseid, $seriesid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-        $mapping->set('series', $seriesid);
-        $mapping->update();
+
+        if(!$mapping) {
+            $mapping = new seriesmapping();
+            $mapping->set('courseid', $courseid);
+            $mapping->set('series', $seriesid);
+            $mapping->create();
+        }
+        else {
+            $mapping->set('series', $seriesid);
+            $mapping->update();
+        }
 
         // Update Acl roles
         $api = new api();
@@ -449,7 +458,7 @@ class apibridge {
             }
         }
 
-        $params['acl'] =  json_encode(array_values($acl));
+        $params['acl'] = json_encode(array_values($acl));
 
         // Acl roles have not changed
         if ($params['acl'] == ($jsonacl)) {
@@ -541,7 +550,9 @@ class apibridge {
      *
      * Returns an array of acl roles. The actions field of each entry contains an array of trimmed action names
      * for the specific role.
+     *
      * @param null $conditions
+     *
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
@@ -627,12 +638,12 @@ class apibridge {
 
         $api->oc_put($resource, $params);
 
+        if ($api->get_http_code() != 204) {
+            return false;
+        }
+
         // Trigger workflow
-        $this->start_workflow(get_config('block_opencast', 'workflow_roles'), $eventidentifier);
-
-        // TODO check workflow status
-
-        return ($api->get_http_code() == 204);
+        return $this->update_metadata($eventidentifier);
     }
 
     /**
@@ -711,6 +722,7 @@ class apibridge {
 
     /**
      * Deletes acl roles that have been marked as not permanent.
+     *
      * @param $eventidentifier
      * @param $courseid
      *
@@ -743,18 +755,18 @@ class apibridge {
         $api = new api();
 
         $api->oc_put($resource, $params);
-        $success = ($api->get_http_code() == 204);
+
+        if ($api->get_http_code() >= 400) {
+            return false;
+        }
 
         // Trigger workflow
-        $this->start_workflow(get_config('block_opencast', 'workflow_roles'), $eventidentifier);
-
-        // TODO check workflow
-
-        return $success;
+        return $this->update_metadata($eventidentifier);
     }
 
     /**
      * Checks if momentarily not permanent roles are added or not.
+     *
      * @param $eventidentifier
      * @param $courseid
      */
@@ -766,31 +778,46 @@ class apibridge {
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
+        $numroles = 0;
         $roles = $this->getroles(array('permanent' => 0));
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                if( $event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
-                    return true;
+                if ($event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
+                    $numroles++;
                 }
             }
         }
-        return false;
+
+        if ($numroles === count($roles)) {
+            return \block_opencast_renderer::VISIBLE;
+        } else if ($numroles === 0) {
+            return \block_opencast_renderer::HIDDEN;
+        } else {
+            return \block_opencast_renderer::MIXED_VISIBLITY;
+        }
     }
 
-    private function start_workflow(string $name, string $event) {
+    private function update_metadata(string $event) {
+        $workflow = get_config('block_opencast', 'workflow_roles');
+
         // Get mediapackage xml
-        $resource = '/recordings/' . $event . './mediapackage.xml';
+        $resource = '/assets/episode/' . $event;
         $api = new api();
         $mediapackage = $api->oc_get($resource);
 
         // Start workflow
         $resource = '/workflow/start';
         $params = [
-            'definition' => $name,
+            'definition'   => $workflow,
             'mediapackage' => $mediapackage
         ];
         $api = new api();
-        $mediapackage = $api->oc_post($resource, $params);
-    }
+        $api->oc_post($resource, $params);
 
+        if ($api->get_http_code() != 200) {
+            return false;
+        }
+
+        return true;
+    }
 }

@@ -60,6 +60,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             $record = new \stdClass();
             $record->rolename = $data->rolename;
             $record->actions = $data->actions;
+            $record->permanent = $data->permanent;
 
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);

@@ -157,6 +157,12 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
+        // New role visibility.
+        $name = 'permanent';
+        $title = get_string('setting_permanent', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 1);
+
         $mform->addElement('static', 'descriptionacl', '', get_string('aclrolesnamedesc', 'block_opencast'));
 
         // Add Button.
