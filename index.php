@@ -56,7 +56,7 @@ $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
 $apibridge = apibridge::get_instance();
-$toggleAclRoles = (count($apibridge->getroles(array('permanent' => 0))) !== 0);
+$toggleAclRoles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) && (get_config('block_opencast', 'workflow_roles') != "");
 
 if($toggleAclRoles) {
     $columns = array('start_date', 'title', 'published', 'workflow_state', 'visibility', 'action');
@@ -146,8 +146,13 @@ if ($videodata->error == 0) {
         $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
         if($toggleAclRoles) {
-            $visible = $apibridge->is_event_visible($video->identifier, $courseid);
-            $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
+            if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED") {
+                $row[] = "-";
+            }
+            else {
+                $visible = $apibridge->is_event_visible($video->identifier, $courseid);
+                $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
+            }
         }
 
         if ($opencast->can_delete_acl_group_assignment($video)) {

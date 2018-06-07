@@ -42,8 +42,20 @@ $opencast = \block_opencast\local\apibridge::get_instance();
 $video = $opencast->get_opencast_video($courseid, $identifier);
 
 if (confirm_sesskey()) {
+    // workflow is not set
+    if(get_config('block_opencast', 'workflow_roles') == "") {
+        $message = get_string('workflownotdefined', 'block_opencast', $video->video);
+        redirect($redirecturl, $message, null, \core\notification::ERROR);
+    }
+
     if ($video->video) {
-        if ($visible === VISIBLE || $visible == MIXED_VISIBLITY) {
+        // A workflow is currently running
+        if($video->video->processing_state !== "SUCCEEDED" && $video->video->processing_state !== "FAILED") {
+            $message = get_string('workflowisrunning', 'block_opencast', $video->video);
+            redirect($redirecturl, $message, null, \core\notification::ERROR);
+        }
+
+        if ($visible === block_opencast_renderer::VISIBLE || $visible == block_opencast_renderer::MIXED_VISIBLITY) {
             if ($opencast->delete_not_permanent_acl_roles($video->video->identifier, $courseid)) {
                 $message = get_string('aclrolesdeleted', 'block_opencast', $video->video);
                 $status = \core\notification::SUCCESS;
