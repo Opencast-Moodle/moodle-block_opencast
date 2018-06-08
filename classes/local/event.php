@@ -131,7 +131,7 @@ class event {
             return false;
         }
 
-        $filter = "/".\repository_opencast\local\api::get_course_acl_role_prefix()."([0-9]*)/";
+        $filter = "/".\tool_opencast\local\api::get_course_acl_role_prefix()."([0-9]*)/";
 
         foreach ($this->acl as $acl) {
             $matches = array();
