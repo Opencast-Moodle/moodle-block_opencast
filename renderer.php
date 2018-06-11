@@ -62,6 +62,8 @@ class block_opencast_renderer extends plugin_renderer_base {
                 return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
             case 'FAILED' :
                 return $this->output->pix_icon('failed', get_string('ocstatefailed', 'block_opencast'), 'block_opencast');
+            case 'PLANNED' :
+                return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
             default :
                 return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast');
         }

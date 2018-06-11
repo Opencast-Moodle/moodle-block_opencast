@@ -103,6 +103,7 @@ $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboar
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not pusblished';
 $string['overview'] = 'Overview';
 $string['overviewsettings'] = 'Settings for overview page';
+$string['planned'] = 'Planned';
 $string['pluginname'] = 'Opencast Videos';
 $string['processupload'] = 'Process upload';
 $string['publishtoengage'] = 'Publish to Engage';
