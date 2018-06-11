@@ -121,6 +121,19 @@ class apibridge {
         if ($result->more) {
             array_pop($videos);
         }
+
+        if ($result->error == 0) {
+            foreach ($videos as $video) {
+                $resource = '/recordings/'. $video->identifier .'/technical.json';
+                $api = new api();
+                $plannedvideo = json_decode($api->oc_get($resource));
+
+                if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
+                    $video->processing_state = "PLANNED";
+                }
+            }
+        }
+
         $result->videos = $videos;
 
         return $result;
