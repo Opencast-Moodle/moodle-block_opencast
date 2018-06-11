@@ -96,14 +96,22 @@ class admin_form extends moodleform {
 
         // Limit videos.
         $name = 'limitvideos';
-        $title = get_string('limitvideos', 'block_opencast');
-        $description = get_string('limitvideos', 'block_opencast');
+        $title =  get_string('limitvideos', 'block_opencast');
+        $description =  get_string('limitvideosdesc', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 5);
         $mform->addElement('static', 'description' . $name, '', $description);
 
-        // Section access policies.
+        // Show publication channels
+        $name = "showpublicationchannels";
+        $title = get_string('show_public_channels', 'block_opencast');
+        $description = get_string('show_public_channels_desc', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 1);
+        $mform->addElement('static', 'description'. $name, '', $description);
+
+        // Section access policies
         $mform->addElement('header', 'accesspolicies_header', get_string('accesspolicies', 'block_opencast'));
 
         // Group creation.
