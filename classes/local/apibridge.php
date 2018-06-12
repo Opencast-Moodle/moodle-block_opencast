@@ -809,7 +809,7 @@ class apibridge {
         $resource = '/workflow/start';
         $params = [
             'definition'   => $workflow,
-            'mediapackage' => $mediapackage
+            'mediapackage' => rawurlencode($mediapackage)
         ];
         $api = new api();
         $api->oc_post($resource, $params);
