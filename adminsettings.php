@@ -17,9 +17,9 @@
 /**
  * Settings for the opencast block
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
@@ -109,8 +109,8 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             // Update roles
             $roles = $DB->get_records('block_opencast_roles');
             foreach ($roles as $role) {
-                $rname = 'role_'.$role->id;
-                $aname = 'action_'.$role->id;
+                $rname = 'role_' . $role->id;
+                $aname = 'action_' . $role->id;
 
                 // Update db entry.
                 if ($data->$rname != $role->rolename || $data->$aname != $role->actions) {
