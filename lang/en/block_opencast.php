@@ -154,3 +154,5 @@ $string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date th
 $string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
 $string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
 $string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
+
+$string['workflow_not_existing'] = 'This workflow does not exist.';

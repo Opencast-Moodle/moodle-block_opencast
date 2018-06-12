@@ -284,6 +284,7 @@ class admin_form extends moodleform {
      */
     public function validation($data, $files) {
         $error = array();
+
         if (array_key_exists('addrolebutton', $data)) {
             foreach (['rolename', 'actions'] as $key) {
                 if ($data[$key] === "") {
@@ -298,6 +299,24 @@ class admin_form extends moodleform {
                     $value === ""
                 ) {
                     $error[$key] = get_string('required');
+                }
+            }
+
+            $apibridge = \block_opencast\local\apibridge::get_instance();
+
+            // Validate upload workflow
+            if ($data['uploadworkflow'] !== "") {
+                // Verify workflow
+                if(!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
+                    $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
+                }
+            }
+
+            // Validate roles workflow.
+            if ( $data['workflow_roles'] !== "" ) {
+                // Verify workflow.
+                if ( ! $apibridge->check_if_workflow_exists( $data['workflow_roles'] ) ) {
+                    $error['workflow_roles'] = get_string( 'workflow_not_existing', 'block_opencast' );
                 }
             }
         }
