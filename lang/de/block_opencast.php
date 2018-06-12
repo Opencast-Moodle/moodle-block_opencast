@@ -116,5 +116,6 @@ $string['uploadworkflowdesc'] = 'Tragen sie hier die Kurzbezeichnung eines Workf
 $string['videosavailable'] = 'Opencast Videos, die für diesen Kurs freigegeben sind';
 $string['videonotfound'] = 'Video nicht gefunden';
 $string['videostoupload'] = 'Videos, die nach Opencast hochgeladen werden sollen';
+$string['workflow_not_existing'] = 'Dieser Workflow existiert nicht.';
 $string['wrongmimetypedetected'] = 'Beim Hochladen von {$a->filename} aus dem Kurs {$a->coursename} wurde ein ungültiger Mimetype verwendet.
     Es können nur Videodateien hochgeladen werden!';

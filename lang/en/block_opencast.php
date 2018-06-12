@@ -110,3 +110,4 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
 $string['videosavailable'] = 'Opencast videos released for this course';
 $string['videonotfound'] = 'Video not found';
 $string['videostoupload'] = 'Videos to upload to opencast';
+$string['workflow_not_existing'] = 'This workflow does not exist.';

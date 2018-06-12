@@ -250,6 +250,7 @@ class admin_form extends moodleform {
      */
     function validation($data, $files) {
         $error = array();
+
         if (array_key_exists('addrolebutton', $data)) {
             foreach (['rolename', 'actions'] as $key) {
                 if ($data[$key] === "") {
@@ -263,6 +264,16 @@ class admin_form extends moodleform {
                         substr($key, 0, 7) === "action_") &&
                     $value === "") {
                     $error[$key] = get_string('required');
+                }
+            }
+
+            $apibridge = \block_opencast\local\apibridge::get_instance();
+
+            // Validate upload workflow
+            if ($data['uploadworkflow'] !== "") {
+                // Verify workflow
+                if(!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
+                    $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
                 }
             }
         }
