@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
+require_once($CFG->dirroot . "/blocks/opencast/form/filemanager_opencast.php");
 
 class addvideo_form extends \moodleform {
 
@@ -37,11 +38,18 @@ class addvideo_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $mform->addElement('filemanager', 'videos_filemanager', get_string('videostoupload', 'block_opencast'), null, array('accepted_types' => array('video'),
-            'subdirs' => 0, 'maxbytes' => get_config('block_opencast', 'uploadfilelimit')));
+
+
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+
+        $element = $mform->createElement('filemanager_opencast', 'videos_filemanager', get_string('videostoupload', 'block_opencast'), null, array('accepted_types' => array('video'),
+            'subdirs' => 0));
+
+        $element->setMaxBytes(get_config('block_opencast', 'uploadfilelimit'));
+
+        $mform->insertElementBefore($element, 'courseid');
 
         $this->add_action_buttons(true, get_string('savechanges'));
         $this->set_data($this->_customdata['data']);

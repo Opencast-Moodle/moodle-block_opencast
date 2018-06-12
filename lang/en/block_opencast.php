@@ -51,6 +51,7 @@ $string['groupcreation'] = 'Create a group';
 $string['groupcreationdesc'] = 'If checked, a group is created during the upload.';
 $string['groupname'] = 'Group name';
 $string['groupnamedesc'] = 'Group to which the video is added. Important: The group name length is restricted to 128 Bytes. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
+$string['group_name_empty'] = 'The group name must not be empty if a group should be created.';
 $string['heading_role'] = 'Role';
 $string['heading_actions'] = 'Actions';
 $string['heading_delete'] = 'Delete';

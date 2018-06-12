@@ -61,6 +61,7 @@ $string['groupcreation'] = 'Gruppe erstellen';
 $string['groupcreationdesc'] = 'Wenn die Checkbox markiert ist, wird während des Uploads eine Gruppe erstellt.';
 $string['groupname'] = 'Gruppenname';
 $string['groupnamedesc'] = 'Gruppe, zu welcher das Video hinzugefügt wird. Wichtig: Die Länge des Gruppennamens ist auf 128 Bytes beschränkt!';
+$string['group_name_empty'] = 'Der Gruppennname darf nicht leer sein, wenn eine Gruppe erstellt werden soll.';
 $string['heading_role'] = 'Rolle';
 $string['heading_actions'] = 'Aktions';
 $string['heading_delete'] = 'Löschen';
