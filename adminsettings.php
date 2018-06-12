@@ -144,7 +144,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->limituploadjobs = get_config('block_opencast', 'limituploadjobs');
     $entry->uploadfilelimit = get_config('block_opencast', 'uploadfilelimit');
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
-    $entry->publishtoengage = get_config('block_opencast', 'puplishtoengage');
+    $entry->publishtoengage = get_config('block_opencast', 'publishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
 
     // Section overview settings
