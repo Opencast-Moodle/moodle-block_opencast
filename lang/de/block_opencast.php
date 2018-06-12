@@ -100,6 +100,7 @@ $string['rolename'] = 'Rollenname';
 $string['series_exists'] = 'Die Serie mit der ID \'{$a}\' konnte nicht in Opencast gefunden werden. Bitte kontaktieren Sie Ihren Systemadministrator.';
 $string['seriesname'] = 'Serienname';
 $string['seriesnamedesc'] = 'Serie, zu welcher das Video hinzugefügt wird.';
+$string['series_name_empty'] = 'Der Serienname darf nicht leer sein.';
 $string['settings'] = 'Opencast Videos';
 $string['submit'] = 'Speichern';
 $string['ocstatefailed'] = 'Fehlgeschlagen';

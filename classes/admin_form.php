@@ -285,6 +285,12 @@ class admin_form extends moodleform {
                 }
             }
 
+            // Validate series name.
+            if($data['series_name'] === "") {
+                // Series name must not be empty.
+                $error['series_name'] = get_string('series_name_empty', 'block_opencast');
+            }
+
         }
         return $error;
     }

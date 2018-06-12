@@ -95,6 +95,7 @@ $string['rolename'] = 'Role name';
 $string['series_exists'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast. Please contact your system administrator.';
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
+$string['series_name_empty'] = 'Series name must not be empty.';
 $string['settings'] = 'Opencast Videos';
 $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
