@@ -489,6 +489,13 @@ class apibridge {
         }
     }
 
+    /**
+     * Checks if the series ID exists in the Opencast system.
+     * @param $seriesid
+     * @return bool true, if the series exists. Otherwise false.
+     * @throws \dml_exception
+     * @throws \moodle_exception if there is no connection to the server.
+     */
     public function ensure_series_is_valid($seriesid) {
         $api = new api();
         $api->oc_get('/api/series/' . $seriesid);
@@ -814,7 +821,16 @@ class apibridge {
         }
     }
 
-    private function update_metadata(string $event) {
+    /**
+     * Triggers the workflow to update the metadata in opencast.
+     * This is necessary, when ACL rules of an event were updated in order to republish the video with the correct
+     * access rights.
+     * @param string $event id of the event the metadata should be updated for.
+     * @return bool true, if the workflow was successfully started.
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    private function update_metadata($event) {
         $workflow = get_config('block_opencast', 'workflow_roles');
 
         // Get mediapackage xml
