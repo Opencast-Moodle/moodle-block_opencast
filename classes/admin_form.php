@@ -137,15 +137,31 @@ class admin_form extends moodleform {
         $mform->addElement('header', 'roles_header', get_string('aclrolesname', 'block_opencast'));
         $mform->setExpanded('roles_header');
 
+        // Workflow adding/deleting non-permanent roles.
+        $name = 'workflow_roles';
+        $title =   get_string('workflowrolesname', 'block_opencast');
+        $description =  get_string('workflowrolesdesc', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // New role name.
         $name = 'rolename';
         $title =   get_string('rolename', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
+        // New role action.
         $name = 'actions';
         $title =   get_string('actions', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
+
+        // New role visibility.
+        $name = 'permanent';
+        $title = get_string('setting_permanent', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 1);
 
         $mform->addElement('static', 'descriptionacl', '', get_string('aclrolesnamedesc', 'block_opencast'));
 
@@ -182,7 +198,11 @@ class admin_form extends moodleform {
         $attributes['scope'] = 'col';
         $output .= html_writer::tag('th', get_string('heading_actions', 'block_opencast'), $attributes);
         $attributes = array();
-        $attributes['class'] = 'header c2 lastcol';
+        $attributes['class'] = 'header c2';
+        $attributes['scope'] = 'col';
+        $output .= html_writer::tag('th', get_string('heading_permanent', 'block_opencast'), $attributes);
+        $attributes = array();
+        $attributes['class'] = 'header c3 lastcol';
         $attributes['scope'] = 'col';
         $output .= html_writer::tag('th', get_string('heading_delete', 'block_opencast'), $attributes);
 
@@ -204,21 +224,25 @@ class admin_form extends moodleform {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             $mform->addElement('html', '<tr>');
-            $mform->addElement('html', '<td class="cell c0">');
 
+            $mform->addElement('html', '<td class="cell c0">');
             $name = 'role_'.$role->id;
             $mform->addElement('text', $name, null, array('size' => 50));
             $mform->setType($name, PARAM_TEXT);
             $mform->setDefault($name, $role->rolename);
 
             $mform->addElement('html', '</td><td class="cell c1">');
-
             $name = 'action_'.$role->id;
             $mform->addElement('text', $name, null);
             $mform->setType($name, PARAM_TEXT);
             $mform->setDefault($name, $role->actions);
 
-            $mform->addElement('html', '</td><td class="cell c2 lastcol">');
+            $mform->addElement('html', '</td><td class="cell c2">');
+            $name = 'permanent_'.$role->id;
+            $mform->addElement('advcheckbox', $name, null);
+            $mform->setDefault($name, $role->permanent);
+
+            $mform->addElement('html', '</td><td class="cell c3 lastcol">');
             $pix = $OUTPUT->action_icon(
                 new moodle_url('/blocks/opencast/adminsettings.php', array('d' => $role->id)),
                 new \pix_icon('t/delete', get_string('delete')),

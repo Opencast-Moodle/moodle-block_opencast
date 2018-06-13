@@ -24,6 +24,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['aclgroupdeleted'] = 'Der Zugriff auf das Video {$a->title} wurde gelöscht';
+$string['aclrolesadded'] = 'Der Zugriff für die nicht permanenten Rollen auf das Video {$a->title} wurde gelöscht.';
+$string['aclrolesdeleted'] = 'Der Zugriff für die nicht permanenten Rollen auf das Video {$a->title} wurde hinzugefügt.';
 $string['accesspolicies'] = 'Zugangsrichtlinien';
 $string['aclrolesname'] = 'Rollen';
 $string['aclrolesnamedesc'] = 'Sie können den Platzhalter [COURSEID] in dem Rollennamen nutzen, der automatisch durch die Kurs-ID ersetzt wird..';
@@ -56,6 +58,8 @@ $string['edituploadjobs'] = 'Bearbeite die Aufträge zum Hochladen von Videos';
 $string['eventuploadsucceeded'] = 'Upload erfolgreich';
 $string['eventuploadfailed'] = 'Upload fehlgeschlagen';
 $string['errorgetblockvideos'] = 'Die Liste der Videos kann nicht geladen werden (Error: {$a})';
+$string['form_seriesid'] = 'Serien ID';
+$string['form_seriestitle'] = 'Serientitel';
 $string['gotooverview'] = 'Zur Übersicht...';
 $string['groupcreation'] = 'Gruppe erstellen';
 $string['groupcreationdesc'] = 'Wenn die Checkbox markiert ist, wird während des Uploads eine Gruppe erstellt.';
@@ -64,6 +68,7 @@ $string['groupnamedesc'] = 'Gruppe, zu welcher das Video hinzugefügt wird. Wich
 $string['heading_role'] = 'Rolle';
 $string['heading_actions'] = 'Aktions';
 $string['heading_delete'] = 'Löschen';
+$string['heading_permanent'] = 'Permanent';
 $string['hstart_date'] = 'Datum';
 $string['htitle'] = 'Name';
 $string['hworkflow_state'] = 'Status';
@@ -96,6 +101,11 @@ $string['processupload'] = 'Upload starten';
 $string['publishtoengage'] = 'Nach Engage veröffentlicht';
 $string['publishtoengagedesc'] = 'Wählen sie diese Option, wenn das Video nach dem Upload über den Engage-Player veröffentlicht werden soll. Der festgelegt Workflow muss dies unterstützen.';
 $string['rolename'] = 'Rollenname';
+$string['seriescreated'] = 'Die Serie wurde erstellt.';
+$string['seriesnotcreated'] = 'Die Serie konnte nicht erstellt werden.';
+$string['seriesidsaved'] = 'Die Serien ID wurde gespeichert.';
+$string['seriesidunset'] = 'Die Serien ID wurde entfernt.';
+$string['seriesidnotvalid'] = 'Die Serie existiert nicht.';
 $string['series_exists'] = 'Die Serie mit der ID \'{$a}\' konnte nicht in Opencast gefunden werden. Bitte kontaktieren Sie Ihren Systemadministrator.';
 $string['seriesname'] = 'Serienname';
 $string['seriesnamedesc'] = 'Serie, zu welcher das Video hinzugefügt wird.';

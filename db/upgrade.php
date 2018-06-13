@@ -103,5 +103,20 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2018013003, 'opencast');
     }
 
+    if ($oldversion < 2018041800) {
+
+        // Define field permanent to be added to block_opencast_roles.
+        $table = new xmldb_table('block_opencast_roles');
+        $field = new xmldb_field('permanent', XMLDB_TYPE_INTEGER, 1, true, XMLDB_NOTNULL, null, 1, 'actions');
+
+        // Conditionally launch add field permanent.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2018041800, 'opencast');
+    }
+
     return true;
 }
