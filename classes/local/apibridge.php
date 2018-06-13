@@ -833,6 +833,10 @@ class apibridge {
     private function update_metadata($event) {
         $workflow = get_config('block_opencast', 'workflow_roles');
 
+        if (!$workflow) {
+            return false;
+        }
+
         // Get mediapackage xml
         $resource = '/assets/episode/' . $event;
         $api = new api();
