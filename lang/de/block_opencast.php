@@ -104,6 +104,7 @@ $string['rolename'] = 'Rollenname';
 $string['seriescreated'] = 'Die Serie wurde erstellt.';
 $string['seriesnotcreated'] = 'Die Serie konnte nicht erstellt werden.';
 $string['seriesidsaved'] = 'Die Serien ID wurde gespeichert.';
+$string['seriesidunset'] = 'Die Serien ID wurde entfernt.';
 $string['seriesidnotvalid'] = 'Die Serie existiert nicht.';
 $string['series_exists'] = 'Die Serie mit der ID \'{$a}\' konnte nicht in Opencast gefunden werden. Bitte kontaktieren Sie Ihren Systemadministrator.';
 $string['seriesname'] = 'Serienname';

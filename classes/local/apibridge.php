@@ -475,6 +475,20 @@ class apibridge {
         return ($api->get_http_code() == 204);
     }
 
+    /**
+     * Remove course series ID, because it was set blank.
+     * No changes in Opencast are done, due to this action.
+     *
+     * @param $courseid Course ID
+     */
+    public function unset_course_series($courseid) {
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+
+        if($mapping) {
+            $mapping->delete();
+        }
+    }
+
     public function ensure_series_is_valid($seriesid) {
         $api = new api();
         $api->oc_get('/api/series/' . $seriesid);
