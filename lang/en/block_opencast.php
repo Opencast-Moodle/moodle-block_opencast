@@ -139,5 +139,5 @@ $string['videostoupload'] = 'Videos to upload to opencast';
 $string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';
-$string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added.';
+$string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added. If not set, it will not be possible to change the visibility of uploaded videos through the block.';
 
