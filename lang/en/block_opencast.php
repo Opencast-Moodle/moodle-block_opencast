@@ -141,3 +141,14 @@ $string['worklowisrunning'] = 'A workflow is running. You cannot change the visi
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';
 $string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added. If not set, it will not be possible to change the visibility of uploaded videos through the block.';
 
+$string['privacy:metadata:block_opencast_uploadjob'] = 'Information about video uploads.';
+$string['privacy:metadata:block_opencast_uploadjob:fileid'] = 'ID of the file/video which is uploaded';
+$string['privacy:metadata:block_opencast_uploadjob:opencasteventid'] = 'ID of the opencast event that was created during upload';
+$string['privacy:metadata:block_opencast_uploadjob:userid'] = 'ID of the user who uploaded the video';
+$string['privacy:metadata:block_opencast_uploadjob:status'] = 'Status of upload process';
+$string['privacy:metadata:block_opencast_uploadjob:courseid'] = 'ID of the course where the video is uploaded';
+$string['privacy:metadata:block_opencast_uploadjob:timecreated'] = 'The date the upload job was created.';
+$string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date the upload job was last modified.';
+$string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
+$string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
+$string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';

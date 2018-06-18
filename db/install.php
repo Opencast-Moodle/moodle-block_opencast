@@ -17,9 +17,9 @@
 /**
  * Opencast block installation.
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -28,9 +28,9 @@ defined('MOODLE_INTERNAL') || die();
  * Opencast block installation.
  * Creates default ACL roles.
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 function xmldb_block_opencast_install() {
     global $DB;
@@ -41,7 +41,7 @@ function xmldb_block_opencast_install() {
     $record[0]->actions = 'write,read';
 
     $record[1] = new \stdClass();
-    $record[1]->rolename =  'ROLE_GROUP_MOODLE_COURSE_[COURSEID]';
+    $record[1]->rolename = 'ROLE_GROUP_MOODLE_COURSE_[COURSEID]';
     $record[1]->actions = 'read';
 
     // Insert new record.

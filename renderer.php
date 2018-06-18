@@ -139,7 +139,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    protected function render_status($statuscode) {
+    public function render_status($statuscode) {
         return \block_opencast\local\upload_helper::get_status_string($statuscode);
     }
 
@@ -184,7 +184,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_delete_acl_group_assignment_icon($courseid, $videoidentifier) {
 
-        $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid));
         $text = get_string('deleteaclgroup', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);

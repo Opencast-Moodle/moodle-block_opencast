@@ -45,8 +45,10 @@ class editseries_form extends \moodleform {
         $apibridge = apibridge::get_instance();
         $seriesid = $apibridge->get_course_series($this->_customdata['courseid']);
 
-        if ($seriesid) {
-            $mform->setDefault('seriesid',  $seriesid->identifier);
+        if (!$seriesid) {
+            $mform->setDefault('seriesid', get_string('noseriesid', 'block_opencast'));
+        } else {
+            $mform->setDefault('seriesid', $seriesid->identifier);
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
