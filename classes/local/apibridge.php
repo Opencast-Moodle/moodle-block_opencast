@@ -584,6 +584,10 @@ class apibridge {
         $event->set_presentation($job->fileid);
         $storedfile = $event->get_presentation();
 
+        if(!$storedfile) {
+            return false;
+        }
+
         $event->add_meta_data('title', $storedfile->get_filename());
         $event->add_meta_data('isPartOf', $seriesidentifier);
         $params = $event->get_form_params();
