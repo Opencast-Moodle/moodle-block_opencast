@@ -9,16 +9,12 @@ System requirements
 
 Min. Version: Moodle 3.1
 
-Installed plugin: <a href="https://github.com/unirz-tu-ilmenau/moodle-repository_opencast">repository_opencast</a>
+Installed plugin: <a href="https://github.com/unirz-tu-ilmenau/moodle-tool_opencast">tool_opencast</a>
 
 Configuration
 -------------
 
 In the settings of the block you need to insert the required data for uploading a video in the opencast system:
-
-<img src="https://user-images.githubusercontent.com/9437254/32501590-b203b33e-c3d8-11e7-8ee7-5431d1e838c6.png" width="500"></br>
-
-Make sure that the API user you define here has the necessary access rights in opencast to actually access the API endpoints for *events*, *groups* and *series*.
 
 After uploading a video file to moodle, the video has to be transferred to opencast.
 This is done via a cronjob, which processes all Upload Jobs in a first in first out fashion.
@@ -32,10 +28,6 @@ If activated, videos are uploaded only once. This saves storage and processing p
 Please make sure that the *Maximum Time limit* for cron execution in *Site administration*->*Server*->*Performance* is not restricted (value of 0 means no timelimit).
 Then the cron job is not terminated early.
 
-<img src="https://user-images.githubusercontent.com/9437254/32499675-87784c6a-c3d3-11e7-8ae9-56257b53653c.png" width="500"></br>
-
-Please visit <a href="https://github.com/unirz-tu-ilmenau/moodle-repository_opencast">repository_opencast</a> for the configuration of the repository plugin.
-
 Capabilities
 ------------
 
@@ -43,11 +35,22 @@ Capabilities
 |--------------------------------------|-------------------------------|------------------------------------------------------------------------------------------------------|
 | block/opencast:addvideo              | editingteacher, manager       | Add a video via moodle to opencast                                                                   |
 | block/opencast:viewunpublishedvideos | editingteacher, manager       | View the list of all videos of the course, which are available in opencast (even not published ones) |
+| block/opencast:defineseriesforcourse | manager       | Change the series ID which is associated with the block instance or rather course |
+| block/opencast:createseriesforcourse | manager       | Create a new series if block/course is not yet associated with one |
 
 Logging
 -------
 The execution of upload jobs are being logged, which can be viewed at *Site administration*->*Reports*->*Logs*.
 View the setting "Site Errors" instead of "All activities" you can view only those upload jobs, which failed.
+
+Block overview
+--------------
+The block has a detail view which displays two lists of videos.
+The first list shows the upload jobs which are not completed yet. The current status of the videos is shown in a column.
+
+The second table shows all videos of the series which is associated with the block. It is possible that the videos were uploaded by the block or that they were uploaded otherwise.
+The table shows the upload date as well as the status. 
+Moreover, the publication channels and the visibility of a video can be displayed.
 
 Usage scenarios
 ---------------
