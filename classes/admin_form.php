@@ -17,9 +17,9 @@
 /**
  * Opencast block admin form.
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_opencast;
@@ -28,255 +28,285 @@ use moodleform;
 use html_writer;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die;
+defined( 'MOODLE_INTERNAL' ) || die;
 
-require_once($CFG->libdir . '/formslib.php');
+require_once( $CFG->libdir . '/formslib.php' );
 
 class admin_form extends moodleform {
-    protected function definition() {
-        $mform = $this->_form;
+	protected function definition() {
+		$mform = $this->_form;
 
-        // Section cron settings
-        $mform->addElement('header', 'cron_header', get_string('cronsettings', 'block_opencast'));
+		// Section cron settings
+		$mform->addElement( 'header', 'cron_header', get_string( 'cronsettings', 'block_opencast' ) );
 
-        // Limit upload jobs
-        $url = new moodle_url('/admin/tool/task/scheduledtasks.php');
-        $link = html_writer::link($url, get_string('pluginname', 'tool_task'), array('target' => '_blank'));
-        $name = 'limituploadjobs';
-        $title = get_string('limituploadjobs', 'block_opencast');
-        $description = get_string('limituploadjobsdesc', 'block_opencast', $link);
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_INT);
-        $mform->setDefault($name, 1);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Limit upload jobs
+		$url         = new moodle_url( '/admin/tool/task/scheduledtasks.php' );
+		$link        = html_writer::link( $url, get_string( 'pluginname', 'tool_task' ), array( 'target' => '_blank' ) );
+		$name        = 'limituploadjobs';
+		$title       = get_string( 'limituploadjobs', 'block_opencast' );
+		$description = get_string( 'limituploadjobsdesc', 'block_opencast', $link );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_INT );
+		$mform->setDefault( $name, 1 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Upload file limit.
-        $name = 'uploadfilelimit';
-        $title =   get_string('uploadfilelimit', 'block_opencast');
-        $description =   get_string('uploadfilelimitdesc', 'block_opencast');
-        // Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB
-        $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1073741824,
-            536870912, 268435456, 134217728, 67108864);
-        $filesizes = array();
-        foreach ($sizelist as $sizebytes) {
-            $filesizes[(string)intval($sizebytes)] = display_size($sizebytes);
-        }
-        $mform->addElement('select', $name, $title, $filesizes);
-        $mform->setType($name, PARAM_INT);
-        $mform->setDefault($name, 2147483648);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Upload file limit.
+		$name        = 'uploadfilelimit';
+		$title       = get_string( 'uploadfilelimit', 'block_opencast' );
+		$description = get_string( 'uploadfilelimitdesc', 'block_opencast' );
+		// Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB
+		$sizelist  = array(
+			- 1,
+			53687091200,
+			21474836480,
+			10737418240,
+			5368709120,
+			2147483648,
+			1073741824,
+			536870912,
+			268435456,
+			134217728,
+			67108864
+		);
+		$filesizes = array();
+		foreach ( $sizelist as $sizebytes ) {
+			$filesizes[ (string) intval( $sizebytes ) ] = display_size( $sizebytes );
+		}
+		$mform->addElement( 'select', $name, $title, $filesizes );
+		$mform->setType( $name, PARAM_INT );
+		$mform->setDefault( $name, 2147483648 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Upload workflow
-        $name = 'uploadworkflow';
-        $title =   get_string('uploadworkflow', 'block_opencast');
-        $description =   get_string('uploadworkflowdesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name, 'ng-schedule-and-upload');
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Upload workflow
+		$name        = 'uploadworkflow';
+		$title       = get_string( 'uploadworkflow', 'block_opencast' );
+		$description = get_string( 'uploadworkflowdesc', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_TEXT );
+		$mform->setDefault( $name, 'ng-schedule-and-upload' );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Publish to engage
-        $name = 'publishtoengage';
-        $title =    get_string('publishtoengage', 'block_opencast');
-        $description =   get_string('publishtoengagedesc', 'block_opencast');
-        $mform->addElement('advcheckbox', $name, $title);
-        $mform->setDefault($name, 0);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Publish to engage
+		$name        = 'publishtoengage';
+		$title       = get_string( 'publishtoengage', 'block_opencast' );
+		$description = get_string( 'publishtoengagedesc', 'block_opencast' );
+		$mform->addElement( 'advcheckbox', $name, $title );
+		$mform->setDefault( $name, 0 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Reuse existing upload
-        $name = 'reuseexistingupload';
-        $title =   get_string('reuseexistingupload', 'block_opencast');
-        $description =    get_string('reuseexistinguploaddesc', 'block_opencast');
-        $mform->addElement('advcheckbox', $name, $title);
-        $mform->setDefault($name, 0);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Reuse existing upload
+		$name        = 'reuseexistingupload';
+		$title       = get_string( 'reuseexistingupload', 'block_opencast' );
+		$description = get_string( 'reuseexistinguploaddesc', 'block_opencast' );
+		$mform->addElement( 'advcheckbox', $name, $title );
+		$mform->setDefault( $name, 0 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Section overview settings
-        $mform->addElement('header', 'overview_header', get_string('overviewsettings', 'block_opencast'));
+		// Section overview settings
+		$mform->addElement( 'header', 'overview_header', get_string( 'overviewsettings', 'block_opencast' ) );
 
-        // Limit videos
-        $name = 'limitvideos';
-        $title =  get_string('limitvideos', 'block_opencast');
-        $description =  get_string('limitvideos', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_INT);
-        $mform->setDefault($name, 5);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Limit videos
+		$name        = 'limitvideos';
+		$title       = get_string( 'limitvideos', 'block_opencast' );
+		$description = get_string( 'limitvideos', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_INT );
+		$mform->setDefault( $name, 5 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Section access policies
-        $mform->addElement('header', 'accesspolicies_header', get_string('accesspolicies', 'block_opencast'));
+		// Section access policies
+		$mform->addElement( 'header', 'accesspolicies_header', get_string( 'accesspolicies', 'block_opencast' ) );
 
-        // Group creation
-        $name = 'group_creation';
-        $title =   get_string('groupcreation', 'block_opencast');
-        $description =  get_string('groupcreationdesc', 'block_opencast');
-        $mform->addElement('advcheckbox', $name, $title);
-        $mform->setDefault($name, 1);
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Group creation
+		$name        = 'group_creation';
+		$title       = get_string( 'groupcreation', 'block_opencast' );
+		$description = get_string( 'groupcreationdesc', 'block_opencast' );
+		$mform->addElement( 'advcheckbox', $name, $title );
+		$mform->setDefault( $name, 1 );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
 
-        // Group name
-        $name = 'group_name';
-        $title =   get_string('groupname', 'block_opencast');
-        $description =  get_string('groupnamedesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name,'Moodle_course_[COURSEID]');
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Group name
+		$name        = 'group_name';
+		$title       = get_string( 'groupname', 'block_opencast' );
+		$description = get_string( 'groupnamedesc', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_TEXT );
+		$mform->setDefault( $name, 'Moodle_course_[COURSEID]' );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Series name
-        $name = 'series_name';
-        $title =   get_string('seriesname', 'block_opencast');
-        $description =  get_string('seriesnamedesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->setDefault($name, 'Course_Series_[COURSEID]');
-        $mform->addElement('static', 'description' . $name, '', $description);
+		// Series name
+		$name        = 'series_name';
+		$title       = get_string( 'seriesname', 'block_opencast' );
+		$description = get_string( 'seriesnamedesc', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_TEXT );
+		$mform->setDefault( $name, 'Course_Series_[COURSEID]' );
+		$mform->addElement( 'static', 'description' . $name, '', $description );
 
-        // Acl roles
-        $mform->addElement('header', 'roles_header', get_string('aclrolesname', 'block_opencast'));
-        $mform->setExpanded('roles_header');
+		// Acl roles
+		$mform->addElement( 'header', 'roles_header', get_string( 'aclrolesname', 'block_opencast' ) );
+		$mform->setExpanded( 'roles_header' );
 
-        $name = 'rolename';
-        $title =   get_string('rolename', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
+		$name  = 'rolename';
+		$title = get_string( 'rolename', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_TEXT );
 
-        $name = 'actions';
-        $title =   get_string('actions', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
+		$name  = 'actions';
+		$title = get_string( 'actions', 'block_opencast' );
+		$mform->addElement( 'text', $name, $title );
+		$mform->setType( $name, PARAM_TEXT );
 
-        $mform->addElement('static', 'descriptionacl', '', get_string('aclrolesnamedesc', 'block_opencast'));
+		$mform->addElement( 'static', 'descriptionacl', '', get_string( 'aclrolesnamedesc', 'block_opencast' ) );
 
-        // Add Button.
-        $mform->addElement('submit', 'addrolebutton', get_string('addrole', 'block_opencast'));
+		// Add Button.
+		$mform->addElement( 'submit', 'addrolebutton', get_string( 'addrole', 'block_opencast' ) );
 
-        // Add Table.
-        $mform->addElement('html', $this->tablehead());
-        $this->table_body();
+		// Add Table.
+		$mform->addElement( 'html', $this->tablehead() );
+		$this->table_body();
 
-        $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
+		$mform->addElement( 'submit', 'submitbutton', get_string( 'submit', 'block_opencast' ) );
 
-        $mform->addElement('html', '</div>');
-    }
+		$mform->addElement( 'html', '</div>' );
+	}
 
-    /**
-     * Prints the table head (e.g. column names).
-     * @return string
-     */
-    public function tablehead() {
-        $attributes['class'] = 'generaltable';
-        $attributes['id'] = 'roles_table';
-        $output = html_writer::start_tag('table', $attributes);
+	/**
+	 * Prints the table head (e.g. column names).
+	 * @return string
+	 */
+	public function tablehead() {
+		$attributes['class'] = 'generaltable';
+		$attributes['id']    = 'roles_table';
+		$output              = html_writer::start_tag( 'table', $attributes );
 
-        $output .= html_writer::start_tag('thead', array());
-        $output .= html_writer::start_tag('tr', array());
+		$output .= html_writer::start_tag( 'thead', array() );
+		$output .= html_writer::start_tag( 'tr', array() );
 
-        $attributes = array();
-        $attributes['class'] = 'header c0';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_role', 'block_opencast'), $attributes);
-        $attributes = array();
-        $attributes['class'] = 'header c1';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_actions', 'block_opencast'), $attributes);
-        $attributes = array();
-        $attributes['class'] = 'header c2 lastcol';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_delete', 'block_opencast'), $attributes);
+		$attributes          = array();
+		$attributes['class'] = 'header c0';
+		$attributes['scope'] = 'col';
+		$output              .= html_writer::tag( 'th', get_string( 'heading_role', 'block_opencast' ), $attributes );
+		$attributes          = array();
+		$attributes['class'] = 'header c1';
+		$attributes['scope'] = 'col';
+		$output              .= html_writer::tag( 'th', get_string( 'heading_actions', 'block_opencast' ), $attributes );
+		$attributes          = array();
+		$attributes['class'] = 'header c2 lastcol';
+		$attributes['scope'] = 'col';
+		$output              .= html_writer::tag( 'th', get_string( 'heading_delete', 'block_opencast' ), $attributes );
 
-        $output .= html_writer::end_tag('tr');
-        $output .= html_writer::end_tag('thead');
+		$output .= html_writer::end_tag( 'tr' );
+		$output .= html_writer::end_tag( 'thead' );
 
-        return $output;
-    }
+		return $output;
+	}
 
-    /**
-     * Prints course categories and assigned moodle users.
-     * @return string
-     */
-    private function table_body() {
-        global $OUTPUT;
-        $mform = $this->_form;
+	/**
+	 * Prints course categories and assigned moodle users.
+	 * @return string
+	 */
+	private function table_body() {
+		global $OUTPUT;
+		$mform = $this->_form;
 
-        $mform->addElement('html', '<tbody>');
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            $mform->addElement('html', '<tr>');
-            $mform->addElement('html', '<td class="cell c0">');
+		$mform->addElement( 'html', '<tbody>' );
+		$roles = $this->getroles();
+		foreach ( $roles as $role ) {
+			$mform->addElement( 'html', '<tr>' );
+			$mform->addElement( 'html', '<td class="cell c0">' );
 
-            $name = 'role_'.$role->id;
-            $mform->addElement('text', $name, null, array('size' => 50));
-            $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, $role->rolename);
+			$name = 'role_' . $role->id;
+			$mform->addElement( 'text', $name, null, array( 'size' => 50 ) );
+			$mform->setType( $name, PARAM_TEXT );
+			$mform->setDefault( $name, $role->rolename );
 
-            $mform->addElement('html', '</td><td class="cell c1">');
+			$mform->addElement( 'html', '</td><td class="cell c1">' );
 
-            $name = 'action_'.$role->id;
-            $mform->addElement('text', $name, null);
-            $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, $role->actions);
+			$name = 'action_' . $role->id;
+			$mform->addElement( 'text', $name, null );
+			$mform->setType( $name, PARAM_TEXT );
+			$mform->setDefault( $name, $role->actions );
 
-            $mform->addElement('html', '</td><td class="cell c2 lastcol">');
-            $pix = $OUTPUT->action_icon(
-                new moodle_url('/blocks/opencast/adminsettings.php', array('d' => $role->id)),
-                new \pix_icon('t/delete', get_string('delete')),
-                null,
-                array('class' => 'action-delete')
-            );
-            $mform->addElement('html', $pix);
-        }
-        $mform->addElement('html', '</tbody>');
-        $mform->addElement('html', '</table>');
-    }
+			$mform->addElement( 'html', '</td><td class="cell c2 lastcol">' );
+			$pix = $OUTPUT->action_icon(
+				new moodle_url( '/blocks/opencast/adminsettings.php', array( 'd' => $role->id ) ),
+				new \pix_icon( 't/delete', get_string( 'delete' ) ),
+				null,
+				array( 'class' => 'action-delete' )
+			);
+			$mform->addElement( 'html', $pix );
+		}
+		$mform->addElement( 'html', '</tbody>' );
+		$mform->addElement( 'html', '</table>' );
+	}
 
-    /**
-     * Returns acl roles.
-     * @return array
-     */
-    private function getroles() {
-        global $DB;
-        $roles = $DB->get_records('block_opencast_roles');
-        return $roles;
-    }
+	/**
+	 * Returns acl roles.
+	 * @return array
+	 */
+	private function getroles() {
+		global $DB;
+		$roles = $DB->get_records( 'block_opencast_roles' );
 
-    /**
-     * Validates, if all role and action fields are filled.
-     * @param array $data
-     * @param array $files
-     * @return array
-     * @throws \coding_exception
-     */
-    function validation($data, $files) {
-        $error = array();
+		return $roles;
+	}
 
-        if (array_key_exists('addrolebutton', $data)) {
-            foreach (['rolename', 'actions'] as $key) {
-                if ($data[$key] === "") {
-                    $error[$key] = get_string('required');
-                }
-            }
-        } else if (array_key_exists('submitbutton', $data)) {
-            // Validate that role and actions are not empty
-            foreach ($data as $key => $value) {
-                if ((substr($key, 0, 5) === "role_" ||
-                        substr($key, 0, 7) === "action_") &&
-                    $value === "") {
-                    $error[$key] = get_string('required');
-                }
-            }
+	/**
+	 * Validates the settings..
+	 *
+	 * @param array $data
+	 * @param array $files
+	 *
+	 * @return array
+	 * @throws \coding_exception
+	 */
+	function validation( $data, $files ) {
+		$error = array();
 
-            $apibridge = \block_opencast\local\apibridge::get_instance();
+		if ( array_key_exists( 'addrolebutton', $data ) ) {
+			foreach ( [ 'rolename', 'actions' ] as $key ) {
+				if ( $data[ $key ] === "" ) {
+					$error[ $key ] = get_string( 'required' );
+				}
+			}
+		} else if ( array_key_exists( 'submitbutton', $data ) ) {
+			// Validate that role and actions are not empty.
+			foreach ( $data as $key => $value ) {
+				if ( ( substr( $key, 0, 5 ) === "role_" ||
+				       substr( $key, 0, 7 ) === "action_" ) &&
+				     $value === ""
+				) {
+					$error[ $key ] = get_string( 'required' );
+				}
+			}
 
-            // Validate upload workflow
-            if ($data['uploadworkflow'] !== "") {
-                // Verify workflow
-                if(!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
-                    $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
-                }
-            }
-        }
-        return $error;
-    }
+			$apibridge = \block_opencast\local\apibridge::get_instance();
+
+			// Validate upload workflow.
+			if ( $data['uploadworkflow'] !== "" ) {
+				// Verify workflow.
+				if ( ! $apibridge->check_if_workflow_exists( $data['uploadworkflow'] ) ) {
+					$error['uploadworkflow'] = get_string( 'workflow_not_existing', 'block_opencast' );
+				}
+			}
+
+			// Validate group name if a group should be created.
+			if ( $data['group_creation'] === "1" ) {
+				// Group name must not be empty.
+				if ( $data['group_name'] === "" ) {
+					$error['group_name'] = get_string( 'group_name_empty', 'block_opencast' );
+				}
+			}
+
+			// Validate series name.
+			if ( $data['series_name'] === "" ) {
+				// Series name must not be empty.
+				$error['series_name'] = get_string( 'series_name_empty', 'block_opencast' );
+			}
+		}
+
+		return $error;
+	}
 }
