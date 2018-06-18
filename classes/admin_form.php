@@ -17,9 +17,9 @@
 /**
  * Opencast block admin form.
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_opencast;
@@ -28,11 +28,12 @@ use moodleform;
 use html_writer;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die;
+defined( 'MOODLE_INTERNAL' ) || die;
 
-require_once($CFG->libdir . '/formslib.php');
+require_once( $CFG->libdir . '/formslib.php' );
 
 class admin_form extends moodleform {
+
     protected function definition() {
         $mform = $this->_form;
 
