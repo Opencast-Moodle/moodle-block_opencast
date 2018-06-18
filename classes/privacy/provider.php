@@ -28,7 +28,7 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\writer;
-use \core_privacy\local\request\helper as request_helper;
+use core_privacy\local\request\helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -77,15 +77,16 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _get_contexts_for_userid($userid) {
         $contextlist = new \core_privacy\local\request\contextlist();
 
-        // The block_opencast data is associated at the user context level, so retrieve the user's context id.
+        // Since we can have only one block instance per course, we can use the course context.
+        // Therefore we take each course, in which the user uploaded a video.
         $sql = "SELECT c.id
                   FROM {block_opencast_uploadjob} bo
-                  JOIN {context} c ON c.instanceid = bo.userid AND c.contextlevel = :contextuser
+                  JOIN {context} c ON c.instanceid = bo.courseid AND c.contextlevel = :contextcourse
                  WHERE bo.userid = :userid
               GROUP BY c.id";
 
         $params = [
-            'contextuser'   => CONTEXT_USER,
+            'contextcourse'   => CONTEXT_COURSE,
             'userid'        => $userid
         ];
 
@@ -100,47 +101,59 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
     public static function _export_user_data(approved_contextlist $contextlist) {
-        global $DB;
+        global $DB, $PAGE;
 
-        // If the user has block_opencast data, then only the User context should be present so get the first context.
+        // If the user has block_opencast data, multiple course contexts can be returned.
         $contexts = $contextlist->get_contexts();
-        if (count($contexts) == 0) {
-            return;
-        }
-        $context = reset($contexts);
 
-        // Sanity check that context is at the User context level, then get the userid.
-        if ($context->contextlevel !== CONTEXT_USER) {
-            return;
-        }
-        $userid = $context->instanceid;
+        $user = $contextlist->get_user();
 
-        $sql = "SELECT bo.id as id,
+        foreach ($contexts as $context) {
+
+            // Sanity check that context is at the Course context level, then get the userid.
+            if ($context->contextlevel !== CONTEXT_COURSE) {
+                return;
+            }
+
+            $courseid = $context->instanceid;
+
+            $sql = "SELECT bo.id as id,
                        bo.courseid as courseid,
-                       bo.fileid as fileid,
+                       f.filename as filename,
                        bo.status as status,
                        bo.timecreated as creation_time,
                        bo.timemodified as last_modified
-                  FROM {block_opencast_uploadjob} bo
-                 WHERE bo.userid = :userid
+                  FROM {block_opencast_uploadjob} bo JOIN
+                       {files} f ON bo.fileid = f.id
+                 WHERE bo.userid = :userid AND 
+                       bo.courseid = :courseid
               ORDER BY bo.status";
 
-        $params = [
-            'userid' => $userid
-        ];
+            $params = [
+                'userid' => $user->id,
+                'courseid' => $courseid
+            ];
 
-        $jobs = $DB->get_records_sql($sql, $params);
+            $jobs = $DB->get_records_sql($sql, $params);
 
-        $data = (object) [
-            'upload_jobs' => $jobs
-        ];
+            // Rewrite status code to human readable string.
+            $renderer = $PAGE->get_renderer('block_opencast');
+            foreach ($jobs as $job) {
+                $job->status = $renderer->render_status($job->status);
+            }
 
-        // The block_opencast data export is organised in: {User Context}/Opencast/data.json.
-        $subcontext = [
-            get_string('pluginname', 'block_opencast')
-        ];
+            $data = (object)[
+                'upload_jobs' => $jobs
+            ];
 
-        writer::with_context($context)->export_data($subcontext, $data);
+            // The block_opencast data export is organised in: {Course Context}/Opencast/data.json.
+            $subcontext = [
+                get_string('pluginname', 'block_opencast')
+            ];
+
+            writer::with_context($context)->export_data($subcontext, $data)
+                ->export_area_files($subcontext, 'block_opencast', 'videotoupload', 0);;
+        }
     }
 
     /**
@@ -151,14 +164,17 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
-        if ($context->contextlevel != CONTEXT_BLOCK) {
+        if ($context->contextlevel != CONTEXT_COURSE) {
             return;
         }
 
-        $coursecontext = $context->get_course_context();
-        $course = $coursecontext->instanceid;
+        $course = $context->instanceid;
 
         $DB->delete_records('block_opencast_uploadjob', ['courseid' => $course]);
+
+        // Delete all uploaded but not processed files.
+        get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
+            0);
     }
 
     /**
@@ -169,19 +185,29 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function _delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
 
-        // If the user has block_opencast data, then only the User context should be present so get the first context.
+        // If the user has block_opencast data, multiple course contexts can be returned.
         $contexts = $contextlist->get_contexts();
-        if (count($contexts) == 0) {
-            return;
-        }
-        $context = reset($contexts);
 
-        // Sanity check that context is at the User context level, then get the userid.
-        if ($context->contextlevel !== CONTEXT_USER) {
-            return;
-        }
-        $userid = $context->instanceid;
+        $user = $contextlist->get_user();
 
-        $DB->delete_records('block_opencast_uploadjob', ['userid' => $userid]);
+        foreach ($contexts as $context) {
+
+            // Sanity check that context is at the Course context level.
+            if ($context->contextlevel !== CONTEXT_COURSE) {
+                return;
+            }
+
+            $courseid = $context->instanceid;
+
+            $DB->delete_records('block_opencast_uploadjob',
+                [
+                    'userid' => $user->id,
+                    'courseid' => $courseid
+                ]);
+
+            // Delete all uploaded but not processed files.
+            get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
+                0, array('userid' => $user->id));
+        }
     }
 }

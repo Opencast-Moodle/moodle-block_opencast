@@ -139,7 +139,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    protected function render_status($statuscode) {
+    public function render_status($statuscode) {
         return \block_opencast\local\upload_helper::get_status_string($statuscode);
     }
 
