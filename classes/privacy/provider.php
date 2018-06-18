@@ -174,7 +174,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         // Delete all uploaded but not processed files.
         get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
-            0);
+            " = 0");
     }
 
     /**
@@ -207,7 +207,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
             // Delete all uploaded but not processed files.
             get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
-                0, array('userid' => $user->id));
+                " = 0 AND userid = :userid", array('userid' => $user->id));
         }
     }
 }
