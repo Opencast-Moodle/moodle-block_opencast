@@ -18,15 +18,33 @@ In the settings of the block you need to insert the required data for uploading 
 
 After uploading a video file to moodle, the video has to be transferred to opencast.
 This is done via a cronjob, which processes all Upload Jobs in a first in first out fashion.
-Within the settings of the block you can define, how many videos are uploaded within one run of the cronjob.
-The interval of the cronjob can be defined as usual at *Site administration*->*Server*->*Scheduled Tasks*.
-The setting *reuseexistingupload* defines, what should happen if the same video is uploaded to moodle twice. 
-If activated, videos are uploaded only once. This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series. 
-
-<img src="https://user-images.githubusercontent.com/9437254/32499428-d523ba18-c3d2-11e7-9516-b1881eb202f7.png" width="500"></br>
 
 Please make sure that the *Maximum Time limit* for cron execution in *Site administration*->*Server*->*Performance* is not restricted (value of 0 means no timelimit).
 Then the cron job is not terminated early.
+
+#### Settings for upload jobs
+In this section you can define the following settings:
+- How many videos are uploaded within one run of the cronjob
+- Limit the file size of uploaded videos.
+- Setup the unique shortname of the workflow that should be started after successfully uploading a video file to opencast.
+- Select whether the videos should be published to engage player (if the setup workflow supports this)
+- Select if multiple videos with the same content hash are uploaded to opencast only once.
+
+#### Settings for overview page
+In this section you can define how many videos should be displayed in the block.
+
+#### Access policies
+These settings define metadata for the uploaded videos, e.g. the group or series name.
+You can use the placeholders [COURSEID] and [COURSENAME] in these settings. They are automatically replaced with the course id/name where the block was added.
+
+#### Roles
+You can define which roles are added to a video. You can add and delete roles and define the actions. Moreover, it is possible to select if roles should be permanent or not.
+Roles which are not permanent will be deleted if the video is hidden in the block overview. 
+
+You can use this mechanism e.g. to hide or show a video for students.
+
+Additionally, you have to define which workflow is triggered after changing the metadata (e.g. when a teacher changes the visibility).
+
 
 Capabilities
 ------------
@@ -69,10 +87,23 @@ Steps to upload a video:
 3. Saving the form creates an upload job, which is registered to the Upload Job Queue.
 <img src="https://user-images.githubusercontent.com/9437254/32501133-7da4fd56-c3d7-11e7-9c1f-fe242345e2c7.png" width="500"></br>
 4. The processing of a video is done during a cron job and contain the following steps:
-    1. A new series is created in opencast with the name "Course_Series_[ID of the course]", if it is not yet created.
-    2. A new group is created in opencast with the name "ROLE_GROUP_MOODLE_COURSE_[ID of the course]", if it is not yet created.
+    1. A new series is created in opencast with the name which was set in the settings, if it is not yet created.
+    2. A new group is created in opencast with the name which was set in the settings, if it is not yet created. This step is skipped if "Create a group" is not selected in the settings.
     This group control the access to the video.
     3. The video is uploaded to opencast, if it does not yet exist or the config *reuseexistingupload* is false.
     4. The group is assigned to the video.
     
 Since most operations in the upload process are done by opencast in an asynchronous fashion, uploading a video can take multiple runs of the cronjob to finish.
+
+
+## Use case 2 - Change the visibility ###
+The teacher of a course wants to hide an uploaded video from the students.
+The (opencast) admin has definded student specific roles.
+
+Steps to change the visiblity:
+
+1. Go to the overview section of the block.
+2. Click on the visiblity icon.
+3. The processing of the video starts:
+    1. The ACL-Roles of the video are changed and updated in Opencast.
+    2. A workflow (must be defined in the settings) is started which refreshes the metadata.
