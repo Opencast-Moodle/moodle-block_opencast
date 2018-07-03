@@ -97,6 +97,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->limitvideos)) {
                 set_config('limitvideos', $data->limitvideos, 'block_opencast');
             }
+            if (isset($data->showpublicationchannels)) {
+                set_config('showpublicationchannels', $data->showpublicationchannels, 'block_opencast');
+            }
             if (isset($data->group_creation)) {
                 set_config('group_creation', $data->group_creation, 'block_opencast');
             }
@@ -155,6 +158,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
 
     // Section overview settings.
     $entry->limitvideos = get_config('block_opencast', 'limitvideos');
+    $entry->showpublicationchannels = get_config('block_opencast', 'showpublicationchannels');
 
     // Section access policies.
     $entry->group_creation = get_config('block_opencast', 'group_creation');
