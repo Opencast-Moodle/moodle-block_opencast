@@ -861,4 +861,18 @@ class apibridge {
         return true;
     }
 
+	/**
+     * Checks whether a workflow exists or not.
+     *
+     * @param $name name of workflow
+     *
+     * @return boolean
+     */
+    public function check_if_workflow_exists($name) {
+        $resource = '/workflow/definition/' . $name . '.json';
+        $api = new api();
+        $api->oc_get($resource);
+
+        return ($api->get_http_code() === 200);
+    }
 }

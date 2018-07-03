@@ -28,9 +28,9 @@ use moodleform;
 use html_writer;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die;
+defined( 'MOODLE_INTERNAL' ) || die;
 
-require_once($CFG->libdir . '/formslib.php');
+require_once( $CFG->libdir . '/formslib.php' );
 
 class admin_form extends moodleform {
     protected function definition() {
@@ -284,6 +284,7 @@ class admin_form extends moodleform {
      */
     public function validation($data, $files) {
         $error = array();
+
         if (array_key_exists('addrolebutton', $data)) {
             foreach (['rolename', 'actions'] as $key) {
                 if ($data[$key] === "") {
@@ -299,6 +300,38 @@ class admin_form extends moodleform {
                 ) {
                     $error[$key] = get_string('required');
                 }
+            }
+
+            $apibridge = \block_opencast\local\apibridge::get_instance();
+
+            // Validate upload workflow
+            if ($data['uploadworkflow'] !== "") {
+                // Verify workflow
+                if(!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
+                    $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
+                }
+            }
+
+            // Validate roles workflow.
+            if ( $data['workflow_roles'] !== "" ) {
+                // Verify workflow.
+                if ( ! $apibridge->check_if_workflow_exists( $data['workflow_roles'] ) ) {
+                    $error['workflow_roles'] = get_string( 'workflow_not_existing', 'block_opencast' );
+                }
+            }
+
+            // Validate group name if a group should be created.
+            if ( $data['group_creation'] === "1" ) {
+                // Group name must not be empty.
+                if ( empty($data['group_name']) ) {
+                    $error['group_name'] = get_string( 'group_name_empty', 'block_opencast' );
+                }
+            }
+
+            // Validate series name.
+            if ( empty($data['series_name']) ) {
+                // Series name must not be empty.
+                $error['series_name'] = get_string( 'series_name_empty', 'block_opencast' );
             }
         }
 

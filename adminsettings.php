@@ -17,9 +17,9 @@
 /**
  * Settings for the opencast block
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
