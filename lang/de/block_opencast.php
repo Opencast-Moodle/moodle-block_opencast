@@ -97,6 +97,7 @@ $string['opencast:myaddinstance'] = 'Den Opencast Block zum Dashboard hinzufüge
 $string['opencast:viewunpublishedvideos'] = 'Alle (auch nicht veröffentlichte) Videos sehen';
 $string['overview'] = 'Übersicht';
 $string['overviewsettings'] = 'Einstellungen für die Übersichtsseite';
+$string['planned'] = 'Geplant';
 $string['pluginname'] = 'Opencast Videos';
 $string['processupload'] = 'Upload starten';
 $string['publishtoengage'] = 'Nach Engage veröffentlicht';

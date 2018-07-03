@@ -121,6 +121,13 @@ class apibridge {
         if ($result->more) {
             array_pop($videos);
         }
+
+        if ($result->error == 0) {
+            foreach ($videos as $video) {
+                $this->check_for_planned_videos($video);
+            }
+        }
+
         $result->videos = $videos;
 
         return $result;
@@ -138,7 +145,6 @@ class apibridge {
      * @return array
      */
     public function get_course_videos($courseid, $table, $perpage, $download) {
-
         $sortcolums = $table->get_sort_columns();
         $sort = api::get_sort_param($sortcolums);
 
@@ -161,7 +167,6 @@ class apibridge {
         // $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
-
         $videos = $api->oc_get($resource, $withroles);
 
         if ($api->get_http_code() != 200) {
@@ -176,7 +181,29 @@ class apibridge {
 
         $result->videos = $videos;
 
+        if ($result->error == 0) {
+            foreach ($videos as $video) {
+                $this->check_for_planned_videos($video);
+            }
+        }
+
+        $result->videos = $videos;
+
         return $result;
+    }
+
+    /**
+     * Check if a video is planned and set the processing state accordingly.
+     * @param $video The video object, which should be checked.
+     */
+    private function check_for_planned_videos(&$video) {
+        $resource = '/recordings/'. $video->identifier .'/technical.json';
+        $api = new api();
+        $plannedvideo = json_decode($api->oc_get($resource));
+
+        if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
+            $video->processing_state = "PLANNED";
+        }
     }
 
     public function get_opencast_video($courseid, $identifier) {
