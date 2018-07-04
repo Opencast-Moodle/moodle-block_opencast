@@ -135,7 +135,7 @@ For this the series id has to be reference in the block.
 
 ## License ##
 
-This plugin is developed in cooperation of TU Ilmenau and WWU Münster.
+This plugin is developed in cooperation with the TU Ilmenau and the WWU Münster.
 
 It is based on 2017 Andreas Wagner, SYNERGY LEARNING
 
