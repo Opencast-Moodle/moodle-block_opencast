@@ -136,7 +136,11 @@ class upload_helper {
         // Delete all jobs with status ready to transfer, where file is missing.
         $sql = "SELECT uj.id
                 FROM {block_opencast_uploadjob} uj
-                LEFT JOIN {files} f ON uj.fileid = f.id AND f.component = :component AND f.filearea = :filearea AND f.filename <> '.'
+                LEFT JOIN {files} f
+                ON uj.fileid = f.id AND
+                  f.component = :component AND
+                  f.filearea = :filearea AND
+                  f.filename <> '.'
                 WHERE f.id IS NULL AND uj.status = :status";
 
         $params = [];

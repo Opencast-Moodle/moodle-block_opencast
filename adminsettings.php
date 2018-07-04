@@ -165,7 +165,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->group_name = get_config('block_opencast', 'group_name');
     $entry->series_name = get_config('block_opencast', 'series_name');
 
-    // Section roles
+    // Section roles.
     $entry->workflow_roles = get_config('block_opencast', 'workflow_roles');
 
     $mform->set_data($entry);

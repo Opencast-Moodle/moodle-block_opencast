@@ -39,18 +39,18 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
-$video = $opencast->get_opencast_video($courseid, $identifier);
+$video = $opencast->get_opencast_video($identifier);
 
 if (confirm_sesskey()) {
-    // workflow is not set
-    if(get_config('block_opencast', 'workflow_roles') == "") {
+    // Workflow is not set.
+    if (get_config('block_opencast', 'workflow_roles') == "") {
         $message = get_string('workflownotdefined', 'block_opencast', $video->video);
         redirect($redirecturl, $message, null, \core\notification::ERROR);
     }
 
     if ($video->video) {
-        // A workflow is currently running
-        if($video->video->processing_state !== "SUCCEEDED" && $video->video->processing_state !== "FAILED") {
+        // A workflow is currently running.
+        if ($video->video->processing_state !== "SUCCEEDED" && $video->video->processing_state !== "FAILED") {
             $message = get_string('workflowisrunning', 'block_opencast', $video->video);
             redirect($redirecturl, $message, null, \core\notification::ERROR);
         }

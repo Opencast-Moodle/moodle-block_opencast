@@ -98,7 +98,6 @@ class apibridge {
         $url = '/api/events?' . $query;
 
         $withroles = array();
-        // $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -164,7 +163,6 @@ class apibridge {
         $resource = '/api/events?' . $query;
 
         $withroles = array();
-        // $withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
         $videos = $api->oc_get($resource, $withroles);
@@ -206,13 +204,11 @@ class apibridge {
         }
     }
 
-    public function get_opencast_video($courseid, $identifier) {
+    public function get_opencast_video($identifier) {
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1';
         $resource = '/api/events/' . $identifier;
 
         $withroles = array();
-        // withroles[] = api::get_course_acl_role($courseid);
 
         $api = new api();
 
@@ -452,13 +448,12 @@ class apibridge {
     public function update_course_series($courseid, $seriesid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
-        if(!$mapping) {
+        if (!$mapping) {
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $seriesid);
             $mapping->create();
-        }
-        else {
+        } else {
             $mapping->set('series', $seriesid);
             $mapping->update();
         }
@@ -513,7 +508,7 @@ class apibridge {
     public function unset_course_series($courseid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
-        if($mapping) {
+        if ($mapping) {
             $mapping->delete();
         }
     }
@@ -584,7 +579,7 @@ class apibridge {
         $event->set_presentation($job->fileid);
         $storedfile = $event->get_presentation();
 
-        if(!$storedfile) {
+        if (!$storedfile) {
             return false;
         }
 
@@ -699,7 +694,7 @@ class apibridge {
             return false;
         }
 
-        // Trigger workflow
+        // Trigger workflow.
         return $this->update_metadata($eventidentifier);
     }
 
@@ -817,7 +812,7 @@ class apibridge {
             return false;
         }
 
-        // Trigger workflow
+        // Trigger workflow.
         return $this->update_metadata($eventidentifier);
     }
 
@@ -871,12 +866,12 @@ class apibridge {
             return false;
         }
 
-        // Get mediapackage xml
+        // Get mediapackage xml.
         $resource = '/assets/episode/' . $event;
         $api = new api();
         $mediapackage = $api->oc_get($resource);
 
-        // Start workflow
+        // Start workflow.
         $resource = '/workflow/start';
         $params = [
             'definition'   => $workflow,
@@ -892,7 +887,7 @@ class apibridge {
         return true;
     }
 
-	/**
+    /**
      * Checks whether a workflow exists or not.
      *
      * @param $name name of workflow

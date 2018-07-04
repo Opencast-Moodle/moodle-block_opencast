@@ -54,7 +54,7 @@ class admin_form extends moodleform {
         $name = 'uploadfilelimit';
         $title = get_string('uploadfilelimit', 'block_opencast');
         $description = get_string('uploadfilelimitdesc', 'block_opencast');
-        // Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB.
+        // In human readable sizes: Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB.
         $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1073741824,
             536870912, 268435456, 134217728, 67108864);
         $filesizes = array();
@@ -96,14 +96,14 @@ class admin_form extends moodleform {
 
         // Limit videos.
         $name = 'limitvideos';
-        $title =  get_string('limitvideos', 'block_opencast');
-        $description =  get_string('limitvideosdesc', 'block_opencast');
+        $title = get_string('limitvideos', 'block_opencast');
+        $description = get_string('limitvideosdesc', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 5);
         $mform->addElement('static', 'description' . $name, '', $description);
 
-        // Show publication channels
+        // Show publication channels.
         $name = "showpublicationchannels";
         $title = get_string('show_public_channels', 'block_opencast');
         $description = get_string('show_public_channels_desc', 'block_opencast');
@@ -111,7 +111,7 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 1);
         $mform->addElement('static', 'description'. $name, '', $description);
 
-        // Section access policies
+        // Section access policies.
         $mform->addElement('header', 'accesspolicies_header', get_string('accesspolicies', 'block_opencast'));
 
         // Group creation.
@@ -146,8 +146,8 @@ class admin_form extends moodleform {
 
         // Workflow adding/deleting non-permanent roles.
         $name = 'workflow_roles';
-        $title =   get_string('workflowrolesname', 'block_opencast');
-        $description =  get_string('workflowrolesdesc', 'block_opencast');
+        $title = get_string('workflowrolesname', 'block_opencast');
+        $description = get_string('workflowrolesdesc', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -302,10 +302,10 @@ class admin_form extends moodleform {
 
             $apibridge = \block_opencast\local\apibridge::get_instance();
 
-            // Validate upload workflow
+            // Validate upload workflow.
             if ($data['uploadworkflow'] !== "") {
-                // Verify workflow
-                if(!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
+                // Verify workflow.
+                if (!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
                     $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
                 }
             }

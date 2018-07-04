@@ -56,23 +56,21 @@ $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
 $apibridge = apibridge::get_instance();
-$toggleAclRoles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) && (get_config('block_opencast', 'workflow_roles') != "");
+$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
+    (get_config('block_opencast', 'workflow_roles') != "");
 
-if($toggleAclRoles && get_config('block_opencast', 'showpublicationchannels')) {
+if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
     $columns = array('start_date', 'title', 'published', 'workflow_state', 'visibility', 'action');
     $headers = array('start_date', 'title', 'published', 'workflow_state', 'visibility', '');
-}
-else if ($toggleAclRoles && !get_config('block_opencast', 'showpublicationchannels')) {
-	$columns = array('start_date', 'title', 'workflow_state', 'visibility', 'action');
-	$headers = array('start_date', 'title', 'workflow_state', 'visibility', '');
-}
-else if (!$toggleAclRoles && get_config('block_opencast', 'showpublicationchannels')) {
-	$columns = array('start_date', 'title', 'published', 'workflow_state', 'action');
-	$headers = array('start_date', 'title', 'published', 'workflow_state', '');
-}
-else {
-	$columns = array('start_date', 'title', 'workflow_state', 'action');
-	$headers = array('start_date', 'title', 'workflow_state', '');
+} else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
+    $columns = array('start_date', 'title', 'workflow_state', 'visibility', 'action');
+    $headers = array('start_date', 'title', 'workflow_state', 'visibility', '');
+} else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
+    $columns = array('start_date', 'title', 'published', 'workflow_state', 'action');
+    $headers = array('start_date', 'title', 'published', 'workflow_state', '');
+} else {
+    $columns = array('start_date', 'title', 'workflow_state', 'action');
+    $headers = array('start_date', 'title', 'workflow_state', '');
 }
 
 foreach ($headers as $i => $header) {
@@ -149,17 +147,16 @@ if ($videodata->error == 0) {
         $row[] = $renderer->render_created($video->start);
         $row[] = $video->title;
 
-        if(get_config('block_opencast', 'showpublicationchannels')) {
+        if (get_config('block_opencast', 'showpublicationchannels')) {
             $row[] = $renderer->render_publication_status($video->publication_status);
         }
 
         $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
-        if($toggleAclRoles) {
+        if ($toggleaclroles) {
             if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED") {
                 $row[] = "-";
-            }
-            else {
+            } else {
                 $visible = $apibridge->is_event_visible($video->identifier, $courseid);
                 $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
             }

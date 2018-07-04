@@ -49,7 +49,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
-$video = $opencast->get_opencast_video($courseid, $identifier);
+$video = $opencast->get_opencast_video($identifier);
 
 if (($action == 'delete') && confirm_sesskey()) {
     // Do action.

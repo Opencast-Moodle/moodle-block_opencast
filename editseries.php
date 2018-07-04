@@ -56,10 +56,10 @@ if ($data = $editseriesform->get_data()) {
     if ($data->seriesid) {
         if ($apibridge->ensure_series_is_valid($data->seriesid)) {
             $apibridge->update_course_series($courseid, $data->seriesid);
-            // Update course series
+            // Update course series.
             redirect($redirecturl, get_string('seriesidsaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
         } else {
-            // Invalid series id
+            // Invalid series id.
             redirect($redirecturl, get_string('seriesidnotvalid', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
         }
     } else {

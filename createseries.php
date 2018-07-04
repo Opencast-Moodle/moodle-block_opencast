@@ -52,7 +52,7 @@ if ($createseriesform->is_cancelled()) {
 }
 
 if ($data = $createseriesform->get_data()) {
-    // Create new series
+    // Create new series.
     $apibridge = \block_opencast\local\apibridge::get_instance();
     if ($apibridge->create_course_series($courseid, $data->seriestitle)) {
         redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);

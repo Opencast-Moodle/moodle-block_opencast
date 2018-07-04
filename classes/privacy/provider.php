@@ -125,7 +125,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                        bo.timemodified as last_modified
                   FROM {block_opencast_uploadjob} bo JOIN
                        {files} f ON bo.fileid = f.id
-                 WHERE bo.userid = :userid AND 
+                 WHERE bo.userid = :userid AND
                        bo.courseid = :courseid
               ORDER BY bo.status";
 
@@ -151,8 +151,11 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 get_string('pluginname', 'block_opencast')
             ];
 
-            writer::with_context($context)->export_data($subcontext, $data)
-                ->export_area_files($subcontext, 'block_opencast', 'videotoupload', 0);;
+            writer::with_context($context)->export_data($subcontext, $data)->export_area_files(
+                $subcontext,
+                'block_opencast',
+                'videotoupload',
+                0);
         }
     }
 
