@@ -36,6 +36,8 @@ class admin_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
         // Section cron settings.
         $mform->addElement('header', 'cron_header', get_string('cronsettings', 'block_opencast'));
 
@@ -70,7 +72,7 @@ class admin_form extends moodleform {
         $name = 'uploadworkflow';
         $title = get_string('uploadworkflow', 'block_opencast');
         $description = get_string('uploadworkflowdesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
+        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows());
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, 'ng-schedule-and-upload');
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -148,7 +150,7 @@ class admin_form extends moodleform {
         $name = 'workflow_roles';
         $title = get_string('workflowrolesname', 'block_opencast');
         $description = get_string('workflowrolesdesc', 'block_opencast');
-        $mform->addElement('text', $name, $title);
+        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows());
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 

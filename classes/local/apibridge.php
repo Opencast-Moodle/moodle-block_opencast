@@ -37,6 +37,8 @@ class apibridge {
 
     private $config;
 
+    private $workflows;
+
     private function __construct() {
 
         $this->config = get_config('block_opencast');
@@ -890,15 +892,44 @@ class apibridge {
     /**
      * Checks whether a workflow exists or not.
      *
-     * @param $name name of workflow
+     * @param $name id of workflow
      *
      * @return boolean
      */
     public function check_if_workflow_exists($name) {
-        $resource = '/workflow/definition/' . $name . '.json';
-        $api = new api();
-        $api->oc_get($resource);
+        $workflows = $this->get_existing_workflows();
 
-        return ($api->get_http_code() === 200);
+        return array_key_exists($name, $workflows);
+    }
+
+    /**
+     * Retrieves all workflows from the OC system and parses them to be easily processable.
+     *
+     * @return array of OC workflows. The keys represent the ID of the workflow,
+     * while the value contains its displayname. This is either the description, if set, or the ID.
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function get_existing_workflows() {
+        if (empty($this->workflows)) {
+            $resource = '/workflow/definitions.json';
+            $api = new api();
+            $result = $api->oc_get($resource);
+
+            if ($api->get_http_code() === 200) {
+                $returnedworkflows = json_decode($result);
+                $this->workflows = array();
+                foreach ($returnedworkflows->definitions->definition as $workflow) {
+                    if (!empty($workflow->description)) {
+                        $this->workflows[$workflow->id] = $workflow->description;
+                    } else {
+                        $this->workflows[$workflow->id] = $workflow->id;
+                    }
+                }
+            } else {
+                return array();
+            }
+        }
+        return $this->workflows;
     }
 }
