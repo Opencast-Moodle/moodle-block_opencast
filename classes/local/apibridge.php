@@ -356,6 +356,17 @@ class apibridge {
     }
 
     /**
+     * Returns the default series name for a course.
+     * @param $courseid int id of the course.
+     * @return string default series title.
+     * @throws \dml_exception
+     */
+    public function get_default_seriestitle($courseid) {
+        $title = get_config('block_opencast', 'series_name');
+        return $this->replace_placeholders($title, $courseid);
+    }
+
+    /**
      * API call to create a series for given course.
      *
      * @param int $courseid
@@ -375,12 +386,12 @@ class apibridge {
         $metadata['fields'] = [];
 
         if (is_null($seriestitle)) {
-            $title = get_config('block_opencast', 'series_name');
+            $title = $this->get_default_seriestitle($courseid);
         } else {
             $title = $seriestitle;
         }
 
-        $metadata['fields'][] = array('id' => 'title', 'value' => $this->replace_placeholders($title, $courseid));
+        $metadata['fields'][] = array('id' => 'title', 'value' => $title);
 
         $params['metadata'] = json_encode(array($metadata));
 
