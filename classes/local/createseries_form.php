@@ -36,12 +36,15 @@ class createseries_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
         $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
         $mform->setType('seriestitle', PARAM_TEXT);
         $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');
+        $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid']));
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
