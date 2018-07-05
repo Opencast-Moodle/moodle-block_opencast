@@ -47,12 +47,13 @@ require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
 $editseriesform = new \block_opencast\local\editseries_form(null, array('courseid' => $courseid));
 
+$apibridge = \block_opencast\local\apibridge::get_instance();
+
 if ($editseriesform->is_cancelled()) {
     redirect($redirecturl);
 }
 
 if ($data = $editseriesform->get_data()) {
-    $apibridge = \block_opencast\local\apibridge::get_instance();
     if ($data->seriesid) {
         if ($apibridge->ensure_series_is_valid($data->seriesid)) {
             $apibridge->update_course_series($courseid, $data->seriesid);
@@ -73,5 +74,6 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('editseriesforcourse', 'block_opencast'));
+
 $editseriesform->display();
 echo $OUTPUT->footer();

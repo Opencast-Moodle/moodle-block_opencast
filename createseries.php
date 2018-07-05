@@ -35,6 +35,12 @@ $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => 
 
 require_login($courseid, false);
 
+$apibridge = \block_opencast\local\apibridge::get_instance();
+
+if ($apibridge->get_stored_seriesid($courseid)) {
+    throw new moodle_exception('series_already_exists', 'block_opencast');
+}
+
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
@@ -53,7 +59,6 @@ if ($createseriesform->is_cancelled()) {
 
 if ($data = $createseriesform->get_data()) {
     // Create new series.
-    $apibridge = \block_opencast\local\apibridge::get_instance();
     if ($apibridge->create_course_series($courseid, $data->seriestitle)) {
         redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
     }
