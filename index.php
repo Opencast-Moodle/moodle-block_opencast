@@ -109,6 +109,17 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 
+
+// Check if series exists in OC system. Show a error otherwise.
+
+$seriesid = $apibridge->get_stored_seriesid($courseid);
+$ocseriesid = $apibridge->get_course_series($courseid);
+
+if ($seriesid && !$ocseriesid) {
+    echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast', $seriesid),
+        \core\output\notification::NOTIFY_ERROR);
+}
+
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
     echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
@@ -127,7 +138,7 @@ if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
     echo html_writer::div($editseriesbutton);
 }
 
-if (!$apibridge->get_course_series($courseid) &&
+if (!$apibridge->get_stored_seriesid($courseid) &&
     has_capability('block/opencast:createseriesforcourse', $coursecontext)
 ) {
 

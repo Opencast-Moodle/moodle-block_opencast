@@ -318,18 +318,30 @@ class apibridge {
     }
 
     /**
-     * API call to check, whether the course related series exists in opencast system.
+     * Retrieves the id of the series, which is stored in the admin tool.
      *
-     * @param int $courseid
+     * @param int $courseid id of the course.
      *
-     * @return object group object of NULL, if group does not exist.
+     * @return string id of the series
      */
-    public function get_course_series($courseid) {
+    public function get_stored_seriesid($courseid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
             return null;
         }
+
+        return $seriesid;
+    }
+
+    /**
+     * API call to check, whether series exists in opencast system.
+     *
+     * @param int $seriesid
+     *
+     * @return null|string id of the series id if it exists in the opencast system.
+     */
+    public function get_series_by_identifier($seriesid) {
 
         $url = '/api/series/' . $seriesid;
 
@@ -338,6 +350,27 @@ class apibridge {
         $series = $api->oc_get($url);
 
         return json_decode($series);
+    }
+
+    /**
+     * API call to check, whether the course related series exists in opencast system.
+     *
+     * @param int $courseid
+     *
+     * @return null|string id of the series id if it exists in the opencast system.
+     */
+    public function get_course_series($courseid) {
+
+        if ($seriesid = $this->get_stored_seriesid($courseid)) {
+            $url = '/api/series/' . $seriesid;
+
+            $api = new api();
+
+            $series = $api->oc_get($url);
+
+            return json_decode($series);
+        }
+        return null;
     }
 
     /**
@@ -375,7 +408,7 @@ class apibridge {
     public function create_course_series($courseid, $seriestitle = null) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
         if ($mapping && $seriesid = $mapping->get('series')) {
-            throw new \moodle_exception(get_string('series_exists', 'block_opencast', $seriesid));
+            throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
         }
 
         $params = [];

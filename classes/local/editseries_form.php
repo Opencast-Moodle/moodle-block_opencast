@@ -43,15 +43,39 @@ class editseries_form extends \moodleform {
         $mform->setType('seriesid', PARAM_ALPHANUMEXT);
 
         $apibridge = apibridge::get_instance();
-        $seriesid = $apibridge->get_course_series($this->_customdata['courseid']);
+        $seriesid = $apibridge->get_stored_seriesid($this->_customdata['courseid']);
 
         if ($seriesid) {
-            $mform->setDefault('seriesid', $seriesid->identifier);
+            $mform->setDefault('seriesid', $seriesid);
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('savechanges'));
+    }
+
+    /**
+     * Validates, if all role and action fields are filled.
+     *
+     * @param array $data
+     * @param array $files
+     *
+     * @return array
+     * @throws \coding_exception
+     */
+    public function validation($data, $files) {
+        $error = array();
+
+        $apibridge = apibridge::get_instance();
+
+        if (!empty($data['seriesid'])) {
+            $seriesid = $apibridge->get_series_by_identifier($data['seriesid']);
+            if (!$seriesid) {
+                $error['seriesid'] = get_string('series_does_not_exist', 'block_opencast', $data['seriesid']);
+            }
+        }
+
+        return $error;
     }
 }
