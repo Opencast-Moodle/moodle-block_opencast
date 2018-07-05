@@ -116,8 +116,11 @@ $seriesid = $apibridge->get_stored_seriesid($courseid);
 $ocseriesid = $apibridge->get_course_series($courseid);
 
 if ($seriesid && !$ocseriesid) {
-    echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast', $seriesid),
-        \core\output\notification::NOTIFY_ERROR);
+    if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+        echo $OUTPUT->notification(get_string('series_does_not_exist_admin', 'block_opencast', $seriesid));
+    } else {
+        echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast'));
+    }
 }
 
 if (has_capability('block/opencast:addvideo', $coursecontext)) {

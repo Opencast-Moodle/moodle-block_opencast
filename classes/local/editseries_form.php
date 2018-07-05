@@ -72,7 +72,7 @@ class editseries_form extends \moodleform {
         if (!empty($data['seriesid'])) {
             $seriesid = $apibridge->get_series_by_identifier($data['seriesid']);
             if (!$seriesid) {
-                $error['seriesid'] = get_string('series_does_not_exist', 'block_opencast', $data['seriesid']);
+                $error['seriesid'] = get_string('series_does_not_exist_admin', 'block_opencast', $data['seriesid']);
             }
         }
 
