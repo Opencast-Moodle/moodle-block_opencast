@@ -37,7 +37,7 @@ class apibridge {
 
     private $config;
 
-    private $workflows;
+    private $workflows = array();
 
     private function __construct() {
 
@@ -949,31 +949,45 @@ class apibridge {
     /**
      * Retrieves all workflows from the OC system and parses them to be easily processable.
      *
+     * @param string $tag if not empty the workflows are filter according to this tag.
+     *
      * @return array of OC workflows. The keys represent the ID of the workflow,
      * while the value contains its displayname. This is either the description, if set, or the ID.
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public function get_existing_workflows() {
-        if (empty($this->workflows)) {
+    public function get_existing_workflows($tag = '') {
+        if (!array_key_exists($tag, $this->workflows)) {
             $resource = '/workflow/definitions.json';
             $api = new api();
             $result = $api->oc_get($resource);
 
             if ($api->get_http_code() === 200) {
                 $returnedworkflows = json_decode($result);
-                $this->workflows = array();
+                $this->workflows[$tag] = array();
                 foreach ($returnedworkflows->definitions->definition as $workflow) {
-                    if (!empty($workflow->description)) {
-                        $this->workflows[$workflow->id] = $workflow->description;
+                    // Filter for specific tag.
+                    if ($tag) {
+                        // Expansion of '-ng' necessary to support OC 4.x.
+                        if (!($workflow->tags &&
+                            ($tag === $workflow->tags->tag ||
+                                $tag . '-ng' === $workflow->tags->tag ||
+                                is_array($workflow->tags->tag) &&
+                                (in_array($tag, $workflow->tags->tag) ||
+                                    in_array($tag . '-ng', $workflow->tags->tag))))) {
+                            continue;
+                        }
+                    }
+                    if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                        $this->workflows[$tag][$workflow->id] = $workflow->title;
                     } else {
-                        $this->workflows[$workflow->id] = $workflow->id;
+                        $this->workflows[$tag][$workflow->id] = $workflow->id;
                     }
                 }
             } else {
                 return array();
             }
         }
-        return $this->workflows;
+        return $this->workflows[$tag];
     }
 }

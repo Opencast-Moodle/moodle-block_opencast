@@ -72,7 +72,7 @@ class admin_form extends moodleform {
         $name = 'uploadworkflow';
         $title = get_string('uploadworkflow', 'block_opencast');
         $description = get_string('uploadworkflowdesc', 'block_opencast');
-        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows());
+        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('upload'));
         $mform->setType($name, PARAM_TEXT);
         $mform->setDefault($name, 'ng-schedule-and-upload');
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -150,7 +150,7 @@ class admin_form extends moodleform {
         $name = 'workflow_roles';
         $title = get_string('workflowrolesname', 'block_opencast');
         $description = get_string('workflowrolesdesc', 'block_opencast');
-        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows());
+        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('archive'));
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 
