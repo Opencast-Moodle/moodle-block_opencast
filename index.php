@@ -60,17 +60,17 @@ $toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &
     (get_config('block_opencast', 'workflow_roles') != "");
 
 if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'title', 'published', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'title', 'published', 'workflow_state', 'visibility', '');
+    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', '');
 } else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'title', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'title', 'workflow_state', 'visibility', '');
+    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', '');
 } else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'title', 'published', 'workflow_state', 'action');
-    $headers = array('start_date', 'title', 'published', 'workflow_state', '');
+    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', '');
 } else {
-    $columns = array('start_date', 'title', 'workflow_state', 'action');
-    $headers = array('start_date', 'title', 'workflow_state', '');
+    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', '');
 }
 
 foreach ($headers as $i => $header) {
@@ -159,7 +159,15 @@ if ($videodata->error == 0) {
         $row = array();
 
         $row[] = $renderer->render_created($video->start);
+        if ($video->duration) {
+            $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
+                get_string('strftimedatetime', 'langconfig'));
+        } else {
+            $row[] = "";
+        }
+
         $row[] = $video->title;
+        $row[] = $video->location;
 
         if (get_config('block_opencast', 'showpublicationchannels')) {
             $row[] = $renderer->render_publication_status($video->publication_status);
@@ -178,6 +186,8 @@ if ($videodata->error == 0) {
 
         if ($opencast->can_delete_acl_group_assignment($video)) {
             $row[] = $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
+        } else {
+            $row[] = "";
         }
 
         $table->add_data($row);
