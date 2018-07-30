@@ -873,17 +873,21 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $api = new api();
         $jsonacl = $api->oc_get($resource);
-
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
         $numroles = 0;
         $roles = $this->getroles(array('permanent' => 0));
         foreach ($roles as $role) {
+            $hasallactions = true;
             foreach ($role->actions as $action) {
-                if ($event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
-                    $numroles++;
+                if (!$event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
+                    $hasallactions = false;
+                    break;
                 }
+            }
+            if ($hasallactions) {
+                $numroles++;
             }
         }
 
