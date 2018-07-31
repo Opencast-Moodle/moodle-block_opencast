@@ -863,7 +863,7 @@ class apibridge {
     }
 
     /**
-     * Checks if momentarily not permanent roles are added or not.
+     * Checks if momentarily not permanent roles have the necessary actions for a event to be visible.
      *
      * @param $eventidentifier
      * @param $courseid
@@ -878,22 +878,27 @@ class apibridge {
 
         $numroles = 0;
         $roles = $this->getroles(array('permanent' => 0));
+        $hassomeactions = false;
+        // The loop counts the number of roles who have all necessary access rights($numroles, $hasallactions) ...
+        // ... and identifies at least one role has the permission for one action ($hassomeaction).
         foreach ($roles as $role) {
             $hasallactions = true;
             foreach ($role->actions as $action) {
                 if (!$event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
                     $hasallactions = false;
-                    break;
+                } else {
+                    $hassomeactions = true;
                 }
             }
             if ($hasallactions) {
                 $numroles++;
             }
         }
-
+        // If all non permanent roles have all necessary actions the event is visible.
         if ($numroles === count($roles)) {
             return \block_opencast_renderer::VISIBLE;
-        } else if ($numroles === 0) {
+        } else if ($numroles === 0 && !$hassomeactions) {
+            // The visibility is hidden if no role has a permission for one of the action.
             return \block_opencast_renderer::HIDDEN;
         } else {
             return \block_opencast_renderer::MIXED_VISIBLITY;
