@@ -125,13 +125,29 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function render_publication_status($publicationstatus) {
+    public function render_publication_status($identifier, $publicationstatus) {
 
         if (empty($publicationstatus)) {
             return get_string('notpublished', 'block_opencast');
         }
 
-        return implode(', ', $publicationstatus);
+        $opencast = \block_opencast\local\apibridge::get_instance();
+        $publications = $opencast->get_opencast_video_publications($identifier);
+        if ($publications->error) {
+            // fall back to text status
+            $result = $publicationsstatus;
+        } else {
+            $result = array();
+            foreach ($publications->publications as $publication) {
+                if ($publication->media) {
+                    // avoid picking an arbitrary one
+                    $result[] = $publication->channel;
+                } else {
+                    $result[] = "<a href='$publication->url'>$publication->channel</a>";
+                }
+            }
+        }
+        return implode(', ', $result);
     }
 
     /**

@@ -170,7 +170,7 @@ if ($videodata->error == 0) {
         $row[] = $video->location;
 
         if (get_config('block_opencast', 'showpublicationchannels')) {
-            $row[] = $renderer->render_publication_status($video->publication_status);
+            $row[] = $renderer->render_publication_status($video->identifier, $video->publication_status);
         }
 
         $row[] = $renderer->render_processing_state_icon($video->processing_state);

@@ -235,6 +235,29 @@ class apibridge {
         return $result;
     }
 
+    public function get_opencast_video_publications($identifier) {
+        $resource = '/api/events/' . $identifier . '/publications';
+        $api = new api();
+
+        $publications = $api->oc_get($resource);
+
+        $result = new \stdClass();
+        $result->publications = false;
+        $result->error = 0;
+
+        if ($api->get_http_code() != 200) {
+            $result->error = $api->get_http_code();
+            return $result;
+        }
+
+        if (!$publications = json_decode($publications)) {
+            return $result;
+        }
+
+        $result->publications = $publications;
+        return $result;
+    }
+
     /**
      * API call to check, whether the course related group exists in opencast system.
      *
