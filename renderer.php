@@ -222,4 +222,65 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * Render the link to delete a group assignment.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_delete_event_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/deleteevent.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('deleteevent', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/delete', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the information about the video before finally delete it.
+     *
+     * @param int $courseid
+     * @param object $video
+     * @return string
+     */
+    public function render_video_deletion_info($courseid, $video) {
+
+        if (!$video) {
+            return get_string('videonotfound', 'block_opencast');
+        }
+
+        $html = $this->output->notification(get_string('deleteeventdesc', 'block_opencast'), 'error');
+
+        $table = new \html_table();
+        $table->head = array(
+            get_string('hstart_date', 'block_opencast'),
+            get_string('htitle', 'block_opencast'),
+            get_string('hpublished', 'block_opencast'),
+            get_string('hworkflow_state', 'block_opencast')
+        );
+
+        $row = array();
+
+        $row[] = $this->render_created($video->start);
+        $row[] = $video->title;
+        $row[] = $this->render_publication_status($video->publication_status);
+        $row[] = $this->render_processing_state_icon($video->processing_state);
+
+        $table->data[] = $row;
+
+        $html .= \html_writer::table($table);
+
+        $label = get_string('dodeleteevent', 'block_opencast');
+        $params = array(
+            'identifier' => $video->identifier,
+            'courseid' => $courseid,
+            'action' => 'delete'
+        );
+        $url = new \moodle_url('/blocks/opencast/deleteevent.php', $params);
+        $html .= $this->output->single_button($url, $label);
+
+        return $html;
+    }
+
 }

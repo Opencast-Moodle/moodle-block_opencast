@@ -624,4 +624,40 @@ class apibridge {
         return ($api->get_http_code() == 204);
     }
 
+    /**
+     * Can delete the event in opencast.
+     *
+     * @param object $video opencast video.
+     */
+    public function can_delete_event_assignment($video, $courseid) {
+
+        if (!isset($video->processing_state) || ($video->processing_state != 'SUCCEEDED')) {
+            return false;
+        }
+
+        $context = \context_course::instance($courseid);
+
+        return has_capability('block/opencast:deleteevent', $context);
+    }
+
+    /**
+     * Delete an event. Verify the video and check capability before.
+     *
+     * @param string $eventidentifier
+     * @return boolean return true when video is deleted after double check.
+     */
+
+    public function delete_event($eventidentifier) {
+
+        $resource = '/api/events/' . $eventidentifier;
+
+        $api = new api();
+        $api->oc_delete($resource);
+
+        if ($api->get_http_code() != 204) {
+            return false;
+        }
+        return true;
+    }
+
 }

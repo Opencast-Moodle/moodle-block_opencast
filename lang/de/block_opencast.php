@@ -56,11 +56,16 @@ $string['createdby'] = 'Erstellt von';
 $string['cronsettings'] = 'Einstellungen für die Uploads';
 $string['deleteaclgroup'] = 'Video von der Liste löschen';
 $string['delete_confirm'] = 'Möchten Sie diese Rolle wirklich löschen?';
+$string['deleteevent'] = 'Ein Video aus Opencast löschen';
+$string['eventdeletedfailed'] = 'Löschen des Videos auf Opencast ist fehlgeschlagen';
+$string['deleteeventdesc'] = 'Wollen Sie dieses Video endgültig löschen? Alle eingebetteten Links zu diesem Video werden dadurch ungültig und müssen angepasst oder gelöscht werden';
 $string['deletegroupacldesc'] = 'Sie wollen den Zugriff auf das Video löschen. Wenn sie das tun,
     wird das Video ab sofort weder im Dateiauswahl-Dialog noch in der Liste der verfügbaren Videos angezeigt. Bereits eingebettete Videos bleiben erhalten.
     Das Video wird nicht in Opencast gelöscht.';
 $string['dodeleteaclgroup'] = 'Zugriff auf das Video löschen';
-$string['edituploadjobs'] = 'Bearbeite die Aufträge zum Hochladen von Videos';
+$string['dodeleteevent'] = 'Video endgültig löschen.';
+$string['edituploadjobs'] = 'Video hinzufügen / Aufträge bearbeiten';
+$string['eventdeleted'] = 'Das Video wurde gelöscht.';
 $string['eventuploadsucceeded'] = 'Upload erfolgreich';
 $string['eventuploadfailed'] = 'Upload fehlgeschlagen';
 $string['errorgetblockvideos'] = 'Die Liste der Videos kann nicht geladen werden (Error: {$a})';
@@ -95,6 +100,7 @@ $string['nothingtodisplay'] = 'Keine Videos vorhanden';
 $string['notpublished'] = 'Nicht veröffentlicht';
 $string['novideosavailable'] = 'Kein Videos vorhanden';
 $string['opencast:addinstance'] = 'Neuen Opencast Block hinzufügen';
+$string['opencast:deleteevent'] = 'Ein Video in Opencast endgültig löschen.';
 $string['opencast:addvideo'] = 'Ein neues Video zu Opencast hinzufügen';
 $string['opencast:myaddinstance'] = 'Den Opencast Block zum Dashboard hinzufügen';
 $string['opencast:unassignevent'] = 'Die Zuordnung eines Videos zu einem Kurs löschen.';

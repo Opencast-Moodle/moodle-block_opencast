@@ -45,11 +45,17 @@ $string['createdby'] = 'Created by';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm'] = 'Are you sure you want to delete this role?';
+$string['deleteevent'] = 'Delete a event in opencast';
+$string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from opencast.
+    All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
 $string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.
     If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.
     The video will not be deleted in Opencast.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
-$string['edituploadjobs'] = 'Edit video upload jobs';
+$string['dodeleteevent'] = 'Delete video permanently';
+$string['edituploadjobs'] = 'Add video / Edit upload tasks';
+$string['eventdeleted'] = 'The video has been deleted.';
+$string['eventdeletedfailed'] = 'Failed to delete the event';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'Videos cannot be retrieved (Error: {$a})';
@@ -87,6 +93,7 @@ $string['notpublished'] = 'Not published';
 $string['novideosavailable'] = 'No videos available';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';
 $string['opencast:addvideo'] = 'Add a new video to opencast upload block';
+$string['opencast:deleteevent'] = 'Finally delete a video (event) in opencast';
 $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboard';
 $string['opencast:unassignevent'] = 'Unassign a video from the course, where the video was uploaded.';
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not pusblished';
