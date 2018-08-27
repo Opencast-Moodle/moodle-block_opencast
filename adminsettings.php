@@ -81,9 +81,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->limituploadjobs)) {
                 set_config('limituploadjobs', $data->limituploadjobs, 'block_opencast');
             }
-            if (isset($data->uploadfilelimit)) {
-                set_config('uploadfilelimit', $data->uploadfilelimit, 'block_opencast');
-            }
             if (isset($data->uploadworkflow)) {
                 set_config('uploadworkflow', $data->uploadworkflow, 'block_opencast');
             }
