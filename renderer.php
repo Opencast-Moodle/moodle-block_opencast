@@ -32,11 +32,16 @@ defined('MOODLE_INTERNAL') || die;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
+    const VISIBLE = 2;
+    const MIXED_VISIBLITY = 1;
+    const HIDDEN = 0;
+
 
     /**
      * Render the opencast timestamp in moodle standard format.
      *
      * @param string $opencastcreated the timestamp delivered by opencast api call.
+     *
      * @return string
      */
     public function render_created($opencastcreated) {
@@ -47,16 +52,18 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the icon for opencast processing state
      *
      * @param string $processingstate
+     *
      * @return string HTML code for icon
      */
     public function render_processing_state_icon($processingstate) {
-
         switch ($processingstate) {
 
             case 'SUCCEEDED' :
                 return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
             case 'FAILED' :
                 return $this->output->pix_icon('failed', get_string('ocstatefailed', 'block_opencast'), 'block_opencast');
+            case 'PLANNED' :
+                return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
             default :
                 return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast');
         }
@@ -81,6 +88,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         if ($videodata->error) {
             $html .= html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');
+
             return $html;
         }
 
@@ -114,6 +122,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the opencast publication status.
      *
      * @param array $publicationstatus
+     *
      * @return string
      */
     public function render_publication_status($publicationstatus) {
@@ -129,9 +138,10 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the opencast processing status.
      *
      * @param string $statuscode
+     *
      * @return string
      */
-    protected function render_status($statuscode) {
+    public function render_status($statuscode) {
         return \block_opencast\local\upload_helper::get_status_string($statuscode);
     }
 
@@ -139,6 +149,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the tabel of upload jobs.
      *
      * @param  array uploadjobs array of uploadjob objects
+     *
      * @return string
      */
     public function render_upload_jobs($uploadjobs) {
@@ -175,10 +186,35 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_delete_acl_group_assignment_icon($courseid, $videoidentifier) {
 
-        $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid));
         $text = get_string('deleteaclgroup', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the link to change the visibility of a video.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
+        global $USER;
+        $url = new \moodle_url('/blocks/opencast/changevisibility.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
+
+        if ($visible === self::VISIBLE) {
+            $text = get_string('changevisibility_visible', 'block_opencast');
+            $icon = $this->output->pix_icon('t/hide', $text);
+        } else if ($visible === self::MIXED_VISIBLITY) {
+            $text = get_string('changevisibility_mixed', 'block_opencast');
+            $icon = $this->output->pix_icon('i/warning', $text);
+        } else {
+            $text = get_string('changevisibility_hidden', 'block_opencast');
+            $icon = $this->output->pix_icon('t/show', $text);
+        }
 
         return \html_writer::link($url, $icon);
     }
@@ -221,8 +257,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $label = get_string('dodeleteaclgroup', 'block_opencast');
         $params = array(
             'identifier' => $video->identifier,
-            'courseid' => $courseid,
-            'action' => 'delete'
+            'courseid'   => $courseid,
+            'action'     => 'delete'
         );
         $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', $params);
         $html .= $this->output->single_button($url, $label);

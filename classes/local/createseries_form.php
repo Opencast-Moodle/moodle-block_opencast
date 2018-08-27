@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upload video form.
+ * Create series form.
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @author     Andreas Wagner
+ * @copyright  2018 Tamara Gunkel
+ * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,21 +31,21 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class addvideo_form extends \moodleform {
+class createseries_form extends \moodleform {
 
     public function definition() {
-
         $mform = $this->_form;
 
-        $mform->addElement('filemanager', 'videos_filemanager',
-            get_string('videostoupload', 'block_opencast'), null, array('accepted_types' => array('video'),
-            'subdirs' => 0));
+        $apibridge = \block_opencast\local\apibridge::get_instance();
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
-        $this->add_action_buttons(true, get_string('savechanges'));
-        $this->set_data($this->_customdata['data']);
-    }
+        $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
+        $mform->setType('seriestitle', PARAM_TEXT);
+        $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');
+        $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid']));
 
+        $this->add_action_buttons(true, get_string('savechanges'));
+    }
 }

@@ -22,12 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
+use block_opencast\local\apibridge;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $courseid = required_param('courseid', PARAM_INT);
-
-require_once($CFG->dirroot . '/lib/tablelib.php');
 
 $baseurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
@@ -55,8 +55,23 @@ $table->set_attribute('cellpadding', '3');
 $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
-$columns = array('start_date', 'title', 'published', 'workflow_state', 'action');
-$headers = array('start_date', 'title', 'published', 'workflow_state', '');
+$apibridge = apibridge::get_instance();
+$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
+    (get_config('block_opencast', 'workflow_roles') != "");
+
+if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
+    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', '');
+} else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
+    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', '');
+} else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
+    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', '');
+} else {
+    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', '');
+}
 
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
@@ -95,6 +110,20 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 
+
+// Check if series exists in OC system. Show a error otherwise.
+
+$seriesid = $apibridge->get_stored_seriesid($courseid);
+$ocseriesid = $apibridge->get_course_series($courseid);
+
+if ($seriesid && !$ocseriesid) {
+    if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+        echo $OUTPUT->notification(get_string('series_does_not_exist_admin', 'block_opencast', $seriesid));
+    } else {
+        echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast'));
+    }
+}
+
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
     echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
@@ -107,6 +136,21 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     echo html_writer::div($addvideobutton);
 }
 
+if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+    $editseriesurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+    $editseriesbutton = $OUTPUT->single_button($editseriesurl, get_string('editseriesforcourse', 'block_opencast'));
+    echo html_writer::div($editseriesbutton);
+}
+
+if (!$apibridge->get_stored_seriesid($courseid) &&
+    has_capability('block/opencast:createseriesforcourse', $coursecontext)
+) {
+
+    $createseriesurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
+    $createseriesbutton = $OUTPUT->single_button($createseriesurl, get_string('createseriesforcourse', 'block_opencast'));
+    echo html_writer::div($createseriesbutton);
+}
+
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 
 if ($videodata->error == 0) {
@@ -116,18 +160,41 @@ if ($videodata->error == 0) {
         $row = array();
 
         $row[] = $renderer->render_created($video->start);
+        if ($video->duration) {
+            $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
+                get_string('strftimedatetime', 'langconfig'));
+        } else {
+            $row[] = "";
+        }
+
         $row[] = $video->title;
-        $row[] = $renderer->render_publication_status($video->publication_status);
+        $row[] = $video->location;
+
+        if (get_config('block_opencast', 'showpublicationchannels')) {
+            $row[] = $renderer->render_publication_status($video->publication_status);
+        }
+
         $row[] = $renderer->render_processing_state_icon($video->processing_state);
+
+        if ($toggleaclroles) {
+            if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED") {
+                $row[] = "-";
+            } else {
+                $visible = $apibridge->is_event_visible($video->identifier, $courseid);
+                $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
+            }
+        }
 
         $actions = '';
         if ($opencast->can_delete_acl_group_assignment($video, $courseid)) {
             $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
         }
 
+
         if ($opencast->can_delete_event_assignment($video, $courseid)) {
             $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
         }
+
         $row[] = $actions;
 
         $table->add_data($row);

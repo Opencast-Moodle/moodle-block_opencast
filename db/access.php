@@ -60,6 +60,22 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'block/opencast:defineseriesforcourse' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
+    'block/opencast:createseriesforcourse' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
     'block/opencast:deleteevent' => array(
         'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',

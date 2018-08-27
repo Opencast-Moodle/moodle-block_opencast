@@ -17,9 +17,9 @@
 /**
  * Settings for the opencast block
  *
- * @package block_opencast
+ * @package   block_opencast
  * @copyright 2017 Tamara Gunkel
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once(__DIR__ . '/../../config.php');
@@ -60,6 +60,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             $record = new \stdClass();
             $record->rolename = $data->rolename;
             $record->actions = $data->actions;
+            $record->permanent = $data->permanent;
 
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);
@@ -99,6 +100,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->limitvideos)) {
                 set_config('limitvideos', $data->limitvideos, 'block_opencast');
             }
+            if (isset($data->showpublicationchannels)) {
+                set_config('showpublicationchannels', $data->showpublicationchannels, 'block_opencast');
+            }
             if (isset($data->group_creation)) {
                 set_config('group_creation', $data->group_creation, 'block_opencast');
             }
@@ -108,19 +112,24 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->series_name)) {
                 set_config('series_name', $data->series_name, 'block_opencast');
             }
+            if (isset($data->workflow_roles)) {
+                set_config('workflow_roles', $data->workflow_roles, 'block_opencast');
+            }
 
-            // Update roles
+            // Update roles.
             $roles = $DB->get_records('block_opencast_roles');
             foreach ($roles as $role) {
                 $rname = 'role_'.$role->id;
                 $aname = 'action_'.$role->id;
+                $pname = 'permanent_'.$role->id;
 
                 // Update db entry.
-                if ($data->$rname != $role->rolename || $data->$aname != $role->actions) {
+                if ($data->$rname !== $role->rolename || $data->$aname !== $role->actions || $data->$pname !== $role->permanent) {
                     $record = new \stdClass();
                     $record->id = $role->id;
                     $record->rolename = $data->$rname;
                     $record->actions = $data->$aname;
+                    $record->permanent = $data->$pname;
 
                     $DB->update_record('block_opencast_roles', $record);
                 }
@@ -137,29 +146,32 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         $entry->id = 0;
     }
 
-    // Section API settings
+    // Section API settings.
     $entry->apiurl = get_config('block_opencast', 'apiurl');
     $entry->apiusername = get_config('block_opencast', 'apiusername');
     $entry->apipassword = get_config('block_opencast', 'apipassword');
     $entry->connecttimeout = get_config('block_opencast', 'connecttimeout');
 
-    // Section cron settings
+    // Section cron settings.
     $entry->limituploadjobs = get_config('block_opencast', 'limituploadjobs');
     $entry->uploadfilelimit = get_config('block_opencast', 'uploadfilelimit');
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
-    $entry->publishtoengage = get_config('block_opencast', 'puplishtoengage');
+    $entry->publishtoengage = get_config('block_opencast', 'publishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
     $entry->allowunassign = get_config('block_opencast', 'allowunassign');
     $entry->adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion');
 
-    // Section overview settings
+    // Section overview settings.
     $entry->limitvideos = get_config('block_opencast', 'limitvideos');
+    $entry->showpublicationchannels = get_config('block_opencast', 'showpublicationchannels');
 
-    // Section access policies
+    // Section access policies.
     $entry->group_creation = get_config('block_opencast', 'group_creation');
     $entry->group_name = get_config('block_opencast', 'group_name');
     $entry->series_name = get_config('block_opencast', 'series_name');
 
+    // Section roles.
+    $entry->workflow_roles = get_config('block_opencast', 'workflow_roles');
 
     $mform->set_data($entry);
     $mform->display();

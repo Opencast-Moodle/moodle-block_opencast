@@ -15,57 +15,59 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Page overview.
  *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * * @package    block_opencast
+ * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
 
-use block_opencast\local\upload_helper;
-
 global $PAGE, $OUTPUT, $CFG;
 
-$identifier = required_param('identifier', PARAM_ALPHANUMEXT);
-$courseid = required_param('courseid', PARAM_INT);
-$action = optional_param('action', '', PARAM_ALPHA);
+require_once($CFG->dirroot . '/repository/lib.php');
 
-$baseurl = new moodle_url('/blocks/opencast/deleteaclgroup.php', array('identifier' => $identifier, 'courseid' => $courseid));
+$courseid = required_param('courseid', PARAM_INT);
+
+$baseurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+
 require_login($courseid, false);
+
+$apibridge = \block_opencast\local\apibridge::get_instance();
+
+if ($apibridge->get_stored_seriesid($courseid)) {
+    throw new moodle_exception('series_already_exists', 'block_opencast');
+}
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
-
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('deleteaclgroup', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('createseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:addvideo', $coursecontext);
+require_capability('block/opencast:createseriesforcourse', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance();
-$video = $opencast->get_opencast_video($identifier);
+$createseriesform = new \block_opencast\local\createseries_form(null, array('courseid' => $courseid));
 
-if (($action == 'delete') && confirm_sesskey()) {
-    // Do action.
-    if ($video->video) {
-        $opencast->delete_acl_group_assigned($video->video->identifier, $courseid);
-        $message = get_string('aclgroupdeleted', 'block_opencast', $video->video);
-        redirect($redirecturl, $message);
+if ($createseriesform->is_cancelled()) {
+    redirect($redirecturl);
+}
+
+if ($data = $createseriesform->get_data()) {
+    // Create new series.
+    if ($apibridge->create_course_series($courseid, $data->seriestitle)) {
+        redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
     }
-
-    $message = get_string('videonotfound', 'block_opencast');
-    redirect($redirecturl, $message);
+    redirect($redirecturl, get_string('seriesnotcreated', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
 }
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('deleteaclgroup', 'block_opencast'));
-echo $renderer->render_video_info($courseid, $video->video);
+echo $OUTPUT->heading(get_string('createseriesforcourse', 'block_opencast'));
+$createseriesform->display();
 echo $OUTPUT->footer();

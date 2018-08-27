@@ -28,12 +28,13 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="rolename" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="actions" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Comma-separated list of actions"/>
+        <FIELD NAME="permanent" TYPE="int" LENGTH="1" UNSIGNED="true" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="Defines wether a role is permanent (e.g. admin access) or not"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-     <TABLE NAME="block_opencast_series" COMMENT="Stores the series identifier for a course.">
+    <TABLE NAME="block_opencast_series" COMMENT="Stores the series identifier for a course.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
