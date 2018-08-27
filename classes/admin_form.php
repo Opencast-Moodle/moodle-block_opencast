@@ -161,7 +161,6 @@ class admin_form extends moodleform {
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
 
-        $mform->addElement('html', '</div>');
     }
 
     /**
