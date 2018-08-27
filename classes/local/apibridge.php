@@ -546,9 +546,21 @@ class apibridge {
      *
      * @param object $video opencast video.
      */
-    public function can_delete_acl_group_assignment($video) {
+    public function can_delete_acl_group_assignment($video, $courseid) {
 
-        return (isset($video->processing_state) && ($video->processing_state == 'SUCCEEDED'));
+        $config = get_config('block_opencast', 'allowunassign');
+
+        if (!$config) {
+            return false;
+        }
+
+        if (!isset($video->processing_state) || ($video->processing_state != 'SUCCEEDED')) {
+            return false;
+        }
+
+        $context = \context_course::instance($courseid);
+
+        return has_capability('block/opencast:unassignevent', $context);
     }
 
     /**

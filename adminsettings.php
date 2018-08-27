@@ -93,6 +93,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->reuseexistingupload)) {
                 set_config('reuseexistingupload', $data->reuseexistingupload, 'block_opencast');
             }
+            if (isset($data->allowunassign)) {
+                set_config('allowunassign', $data->allowunassign, 'block_opencast');
+            }
             if (isset($data->adhocfiledeletion)) {
                 set_config('adhocfiledeletion', $data->adhocfiledeletion, 'block_opencast');
             }
@@ -149,6 +152,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
     $entry->publishtoengage = get_config('block_opencast', 'puplishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
+    $entry->allowunassign = get_config('block_opencast', 'allowunassign');
     $entry->adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion');
 
     // Section overview settings

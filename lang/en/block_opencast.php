@@ -38,6 +38,9 @@ $string['apipasswordempty'] = 'Url for Opencast API is not setup correctly, go t
 $string['apiusernameempty'] = 'Username for Opencast API user is not setup correctly, go to settings of block opencast to fix this';
 $string['countfailed'] = 'Failed';
 $string['blocksettings'] = 'Settings for a block instance';
+$string['allowunassign'] = 'Allow unassign from course';
+$string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
+    when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['createdby'] = 'Created by';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
@@ -84,6 +87,7 @@ $string['novideosavailable'] = 'No videos available';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';
 $string['opencast:addvideo'] = 'Add a new video to opencast upload block';
 $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboard';
+$string['opencast:unassignevent'] = 'Unassign a video from the course, where the video was uploaded.';
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not pusblished';
 $string['overview'] = 'Overview';
 $string['overviewsettings'] = 'Settings for overview page';

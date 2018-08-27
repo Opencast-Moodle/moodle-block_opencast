@@ -119,9 +119,11 @@ if ($videodata->error == 0) {
         $row[] = $renderer->render_publication_status($video->publication_status);
         $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
-        if ($opencast->can_delete_acl_group_assignment($video)) {
-            $row[] = $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
+        $actions = '';
+        if ($opencast->can_delete_acl_group_assignment($video, $courseid)) {
+            $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
         }
+        $row[] = $actions;
 
         $table->add_data($row);
     }

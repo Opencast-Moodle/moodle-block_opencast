@@ -44,6 +44,10 @@ $string['apiusername'] = 'Username des Stellvertreter-Nutzers für API Anfragen'
 $string['apiusernamedesc'] = 'Für alle Anfragen an die Opencast External API verwendet Moodle diesen Nutzer.
     Die Berechtigungen werden über passende Rollenzuweisungen gesteuert.';
 $string['apiusernameempty'] = 'Der Username für den Stellvertreter-Nutzer ist nicht korrekt konfiguriert. Korrgieren sie dies in den Einstellungen des Plugins';
+$string['allowunassign'] = 'Zuordnung eines Videos zur Kursserie löschen';
+$string['allowunassigndesc'] = 'Durch die Zuordnung eines Videos zu einer Kursserie kann die Sichtbarkeit des Videos in kursbezogenen Listen und
+    dem Filepicker Repositorydialog gesteuert werden. Opencast muss dafür so konfiguriert sein, dass Events ohne Serienzuordnung erlaubt sind. Frage sie
+    beim Administrator des Opencastsystems nach, ob dies der Fall ist, bevor sie diese Option nutzen.';
 $string['blocksettings'] = 'Einstellungen der Blockansicht';
 $string['connecttimeout'] = 'Connection timeout';
 $string['connecttimeoutdesc'] = 'Geben sie ein, wie lange Moodle versuchen soll, sich mit Opencast zu verbinden';
@@ -92,6 +96,7 @@ $string['novideosavailable'] = 'Kein Videos vorhanden';
 $string['opencast:addinstance'] = 'Neuen Opencast Block hinzufügen';
 $string['opencast:addvideo'] = 'Ein neues Video zu Opencast hinzufügen';
 $string['opencast:myaddinstance'] = 'Den Opencast Block zum Dashboard hinzufügen';
+$string['opencast:unassignevent'] = 'Die Zuordnung eines Videos zu einem Kurs löschen.';
 $string['opencast:viewunpublishedvideos'] = 'Alle (auch nicht veröffentlichte) Videos sehen';
 $string['overview'] = 'Übersicht';
 $string['overviewsettings'] = 'Einstellungen für die Übersichtsseite';
