@@ -36,11 +36,11 @@ $string['addrole'] = 'Add new role';
 $string['apipasswordempty'] = 'Password for API user is not setup correctly, go to settings of block opencast to fix this';
 $string['apipasswordempty'] = 'Url for Opencast API is not setup correctly, go to settings of block opencast to fix this';
 $string['apiusernameempty'] = 'Username for Opencast API user is not setup correctly, go to settings of block opencast to fix this';
-$string['countfailed'] = 'Failed';
-$string['blocksettings'] = 'Settings for a block instance';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
+$string['blocksettings'] = 'Settings for a block instance';
+$string['countfailed'] = 'Error';
 $string['createdby'] = 'Created by';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
@@ -124,3 +124,5 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
 $string['videosavailable'] = 'Videos available in this course';
 $string['videonotfound'] = 'Video not found';
 $string['videostoupload'] = 'Videos to upload to opencast';
+$string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
+    Only video files are allowed!';

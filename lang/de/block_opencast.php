@@ -111,6 +111,10 @@ $string['pluginname'] = 'Opencast Videos';
 $string['processupload'] = 'Upload starten';
 $string['publishtoengage'] = 'Nach Engage veröffentlicht';
 $string['publishtoengagedesc'] = 'Wählen sie diese Option, wenn das Video nach dem Upload über den Engage-Player veröffentlicht werden soll. Der festgelegt Workflow muss dies unterstützen.';
+$string['reuseexistingupload'] = 'Frühere Uploads wiederverwenden';
+$string['reuseexistinguploaddesc'] = 'Aktivieren sie diese Option um, ein bereits nach Opencast hochgeladenes Video nicht erneut nach Opencast zu übertragen.
+Diese Option spart Speicherplatz und Rechenzeit, allerdings wird das Video dann dem Kurs zugeordnet, aus dem der Uploadauftrag gestartet wird.
+In allen anderen Kursen erscheint das Video nicht mehr im Repository Dialog.';
 $string['rolename'] = 'Rollenname';
 $string['series_exists'] = 'Die Serie mit der ID \'{$a}\' konnte nicht in Opencast gefunden werden. Bitte kontaktieren Sie Ihren Systemadministrator.';
 $string['seriesname'] = 'Serienname';
