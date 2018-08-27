@@ -421,6 +421,8 @@ class apibridge {
      * @return object series object of NULL, if group does not exist.
      */
     public function create_event($job, $seriesidentifier) {
+        global $DB;
+
         $event = new \block_opencast\local\event();
 
         $roles = $this->getroles();
@@ -432,6 +434,10 @@ class apibridge {
 
         $event->set_presentation($job->fileid);
         $storedfile = $event->get_presentation();
+        if (!$storedfile = $event->get_presentation()) {
+            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
+        }
 
         $event->add_meta_data('title', $storedfile->get_filename());
         $event->add_meta_data('isPartOf', $seriesidentifier);
