@@ -439,4 +439,33 @@ class upload_helper {
         }
     }
 
+    /**
+     * The upload form should be called in block context if possible to allow
+     * unlimited upload size for special users.
+     *
+     * Try to find the block context here.
+     *
+     * @param int $courseid
+     * @return object
+     */
+    public static function get_opencast_upload_context($courseid) {
+        global $DB;
+
+        $sql = "SELECT bi.* FROM {block_instances} bi
+                JOIN {context} ctx on ctx.id = bi.parentcontextid AND ctx.contextlevel = :contextlevel
+                WHERE bi.blockname = :blockname AND ctx.instanceid = :instanceid";
+
+        $params = [
+            'contextlevel' => CONTEXT_COURSE,
+            'blockname' => 'opencast',
+            'instanceid' => $courseid
+        ];
+
+        if (!$blockinstance = $DB->get_record_sql($sql, $params)) {
+            return \context_course::instance($courseid);
+        }
+
+        return \context_block::instance($blockinstance->id);
+    }
+
 }

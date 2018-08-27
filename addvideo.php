@@ -37,6 +37,10 @@ $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => 
 
 require_login($courseid, false);
 
+// Use block context for this page to ignore course file upload limit.
+$pagecontext = upload_helper::get_opencast_upload_context($courseid);
+$PAGE->set_context($pagecontext);
+
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
