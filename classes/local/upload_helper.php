@@ -192,6 +192,11 @@ class upload_helper {
 
         // Delete file from files table.
         $file->delete();
+
+        $config = get_config('block_opencast');
+        if (!empty($config->adhocfiledeletion)) {
+            file_deletionmanager::fulldelete_file($file);
+        }
     }
 
     protected function upload_failed($job, $errormessage) {

@@ -28,6 +28,9 @@ $string['accesspolicies'] = 'Zugangsrichtlinien';
 $string['aclrolesname'] = 'Rollen';
 $string['aclrolesnamedesc'] = 'Sie können den Platzhalter [COURSEID] in dem Rollennamen nutzen, der automatisch durch die Kurs-ID ersetzt wird..';
 $string['actions'] = 'Kommagetrennte Liste von Aktionen';
+$string['adhocfiledeletion'] = 'Videodatei löschen';
+$string['adhocfiledeletiondesc'] = 'Die Videodatei wird unmittelbar nach der Übertragung nach Opencast aus dem Dateisystem von Moodle gelöscht, falls die Datei
+    sonst in Moodle nicht mehr verwendet wird.';
 $string['addvideo'] = 'Video hinzufügen';
 $string['addrole'] = 'Neue Rolle hinzufügen';
 $string['apipassword'] = 'Passwort for API user';

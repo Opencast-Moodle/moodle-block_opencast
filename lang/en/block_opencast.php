@@ -28,6 +28,9 @@ $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
 $string['actions'] = 'Comma-separated list of actions';
+$string['adhocfiledeletion'] = 'Delete videofile from moodle';
+$string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
+    Please note that the file will still remain in the file system, if it is used within other places in moodle.';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
 $string['apipasswordempty'] = 'Password for API user is not setup correctly, go to settings of block opencast to fix this';

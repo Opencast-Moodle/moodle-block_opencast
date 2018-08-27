@@ -51,9 +51,11 @@ $data = new stdClass();
 $options = array('subdirs' => 0,
                  'maxfiles' => -1,
                  'accepted_types' => 'video',
-                 'return_types' => FILE_INTERNAL,
-                 'maxbytes' => get_config('block_opencast', 'uploadfilelimit') );
-file_prepare_standard_filemanager($data, 'videos', $options, $coursecontext, 'block_opencast', upload_helper::OC_FILEAREA, 0);
+                 'return_types' => FILE_INTERNAL);
+$data = file_prepare_standard_filemanager($data, 'videos', $options, $coursecontext, 'block_opencast', upload_helper::OC_FILEAREA, 0);
+
+// Record the user draft area in this context.
+\block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->videos_filemanager);
 
 $addvideoform = new \block_opencast\local\addvideo_form(null, array('data' => $data, 'courseid' => $courseid));
 
