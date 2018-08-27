@@ -37,6 +37,7 @@ $string['apipasswordempty'] = 'Password for API user is not setup correctly, go 
 $string['apipasswordempty'] = 'Url for Opencast API is not setup correctly, go to settings of block opencast to fix this';
 $string['apiusernameempty'] = 'Username for Opencast API user is not setup correctly, go to settings of block opencast to fix this';
 $string['countfailed'] = 'Failed';
+$string['blocksettings'] = 'Settings for a block instance';
 $string['createdby'] = 'Created by';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';

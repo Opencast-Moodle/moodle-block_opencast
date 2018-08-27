@@ -44,6 +44,7 @@ $string['apiusername'] = 'Username des Stellvertreter-Nutzers für API Anfragen'
 $string['apiusernamedesc'] = 'Für alle Anfragen an die Opencast External API verwendet Moodle diesen Nutzer.
     Die Berechtigungen werden über passende Rollenzuweisungen gesteuert.';
 $string['apiusernameempty'] = 'Der Username für den Stellvertreter-Nutzer ist nicht korrekt konfiguriert. Korrgieren sie dies in den Einstellungen des Plugins';
+$string['blocksettings'] = 'Einstellungen der Blockansicht';
 $string['connecttimeout'] = 'Connection timeout';
 $string['connecttimeoutdesc'] = 'Geben sie ein, wie lange Moodle versuchen soll, sich mit Opencast zu verbinden';
 $string['countfailed'] = 'Fehlgeschlagen';

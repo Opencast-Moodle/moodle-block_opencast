@@ -102,7 +102,7 @@ class admin_form extends moodleform {
         $mform->addElement('static', 'description' . $name, '', $description);
 
         // Section overview settings
-        $mform->addElement('header', 'overview_header', get_string('overviewsettings', 'block_opencast'));
+        $mform->addElement('header', 'block_header', get_string('blocksettings', 'block_opencast'));
 
         // Limit videos
         $name = 'limitvideos';
