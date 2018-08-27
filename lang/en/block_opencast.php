@@ -82,6 +82,7 @@ $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
+$string['nothingtodisplay'] = 'No videos available';
 $string['notpublished'] = 'Not published';
 $string['novideosavailable'] = 'No videos available';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';

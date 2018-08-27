@@ -91,6 +91,7 @@ $string['mstatesuploading'] = 'Upload läuft...';
 $string['mstatetransferred'] = 'Hochgeladen';
 $string['mstateunknown'] = 'unbekannter Zustand';
 $string['needphp55orhigher'] = 'PHP Version 5.5 oder höher ist erforderlich';
+$string['nothingtodisplay'] = 'Keine Videos vorhanden';
 $string['notpublished'] = 'Nicht veröffentlicht';
 $string['novideosavailable'] = 'Kein Videos vorhanden';
 $string['opencast:addinstance'] = 'Neuen Opencast Block hinzufügen';
