@@ -170,7 +170,7 @@ class upload_helper {
 
         $DB->update_record('block_opencast_uploadjob', $job);
 
-        // Delete from files table.
+        // Trigger upload event.
         $fs = get_file_storage();
         $file = $fs->get_file_by_id($job->fileid);
 
@@ -190,7 +190,7 @@ class upload_helper {
 
         $event->trigger();
 
-        // Delete file from files table.
+        // Delete from files table.
         $file->delete();
 
         $config = get_config('block_opencast');

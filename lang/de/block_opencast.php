@@ -33,17 +33,6 @@ $string['adhocfiledeletiondesc'] = 'Die Videodatei wird unmittelbar nach der Üb
     sonst in Moodle nicht mehr verwendet wird.';
 $string['addvideo'] = 'Video hinzufügen';
 $string['addrole'] = 'Neue Rolle hinzufügen';
-$string['apipassword'] = 'Passwort for API user';
-$string['apipassworddesc'] = 'Geben Sie das Opencast-Passwort für den Super-User (Stellvertreter Nutzer) ein mit dem die Anfragen an Opencast ausgeführt werden sollen.';
-$string['apipasswordempty'] = 'Das Passwort für den Super-User ist nicht korrekt konfiguriert. Korrgieren sie das Passwort in den Einstellungen des Plugins';
-$string['apisettings'] = 'Externe API Verbindung';
-$string['apiurl'] = 'Opencast API url';
-$string['apiurldesc'] = 'Geben Sie die Url zum the Opencast system ein, zum Beispiel: opencast.example.com';
-$string['apipasswordempty'] = 'Die Url zum Opencast System (API-Url) ist nicht korrekt konfiguriert. Korrgieren sie dies in den Einstellungen des Plugins';
-$string['apiusername'] = 'Username des Stellvertreter-Nutzers für API Anfragen';
-$string['apiusernamedesc'] = 'Für alle Anfragen an die Opencast External API verwendet Moodle diesen Nutzer.
-    Die Berechtigungen werden über passende Rollenzuweisungen gesteuert.';
-$string['apiusernameempty'] = 'Der Username für den Stellvertreter-Nutzer ist nicht korrekt konfiguriert. Korrgieren sie dies in den Einstellungen des Plugins';
 $string['allowunassign'] = 'Zuordnung eines Videos zur Kursserie löschen';
 $string['allowunassigndesc'] = 'Durch die Zuordnung eines Videos zu einer Kursserie kann die Sichtbarkeit des Videos in kursbezogenen Listen und
     dem Filepicker Repositorydialog gesteuert werden. Opencast muss dafür so konfiguriert sein, dass Events ohne Serienzuordnung erlaubt sind. Frage sie

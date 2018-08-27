@@ -66,7 +66,6 @@ class block_opencast extends block_base {
             $videos = new \stdClass();
             $videos->error = $e->getmessage();
         }
-
         $this->content->text = $renderer->render_block_content($COURSE->id, $videos);
         return $this->content;
     }

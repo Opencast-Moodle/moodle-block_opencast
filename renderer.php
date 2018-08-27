@@ -183,6 +183,14 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
+    /**
+     * Render the information about the video before deleting the assignment of the event
+     * to the course series.
+     *
+     * @param int $courseid
+     * @param object $video
+     * @return string
+     */
     public function render_video_info($courseid, $video) {
 
         if (!$video) {
@@ -197,7 +205,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('htitle', 'block_opencast'),
             get_string('hpublished', 'block_opencast'),
             get_string('hworkflow_state', 'block_opencast')
-            );
+        );
 
         $row = array();
 

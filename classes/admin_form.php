@@ -100,7 +100,7 @@ class admin_form extends moodleform {
         // Limit videos
         $name = 'limitvideos';
         $title =  get_string('limitvideos', 'block_opencast');
-        $description =  get_string('limitvideos', 'block_opencast');
+        $description =  get_string('limitvideosdesc', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 5);
