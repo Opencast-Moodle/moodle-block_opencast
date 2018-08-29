@@ -1036,13 +1036,17 @@ class apibridge {
      */
     public function can_delete_event_assignment($video, $courseid) {
 
-        if (!isset($video->processing_state) || ($video->processing_state != 'SUCCEEDED')) {
-            return false;
+        if (isset($video->processing_state) &&
+            ($video->processing_state === 'SUCCEEDED' || $video->processing_state === 'PLANNED')) {
+
+            $context = \context_course::instance($courseid);
+
+            return has_capability('block/opencast:deleteevent', $context);
         }
 
-        $context = \context_course::instance($courseid);
+        return false;
+    }
 
-        return has_capability('block/opencast:deleteevent', $context);
     }
 
     /**
