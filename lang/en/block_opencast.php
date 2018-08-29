@@ -69,6 +69,7 @@ $string['editseriesforcourse'] = 'Edit series mapping';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
 $string['dodeleteevent'] = 'Delete video permanently';
+$string['deleting'] = 'Going to be deleted';
 $string['edituploadjobs'] = 'Add video / Edit upload tasks';
 $string['eventdeleted'] = 'The video has been deleted.';
 $string['eventdeletedfailed'] = 'Failed to delete the event';
