@@ -85,6 +85,16 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
 
+        // Delete workflow.
+        $noworkflow = [null => get_string("adminchoice_noworkflow", "block_opencast")];
+        $name = 'deleteworkflow';
+        $title = get_string('deleteworkflow', 'block_opencast');
+        $description = get_string('deleteworkflowdesc', 'block_opencast');
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows('delete')));
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
         // Configurate, whether a videofile should be deleted from moodle's filesystem
         // right after the file was transferred (uploaded) to opencast server.
         // The plugin deletes all files in users draft area, which are related to
