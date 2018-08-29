@@ -230,6 +230,9 @@ class apibridge {
             return $result;
         }
 
+        // Enrich processing state.
+        $this->check_for_planned_videos($video);
+
         $result->video = $video;
 
         return $result;
