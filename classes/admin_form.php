@@ -163,7 +163,8 @@ class admin_form extends moodleform {
         $name = 'workflow_roles';
         $title = get_string('workflowrolesname', 'block_opencast');
         $description = get_string('workflowrolesdesc', 'block_opencast');
-        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('archive'));
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows('archive')));
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 
