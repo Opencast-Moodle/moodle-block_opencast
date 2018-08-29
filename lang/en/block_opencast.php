@@ -72,6 +72,7 @@ $string['dodeleteevent'] = 'Delete video permanently';
 $string['edituploadjobs'] = 'Add video / Edit upload tasks';
 $string['eventdeleted'] = 'The video has been deleted.';
 $string['eventdeletedfailed'] = 'Failed to delete the event';
+$string['eventdeletionstarted'] = 'The video will be deleted shortly.';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'List cannot be loaded (Error: {$a})';

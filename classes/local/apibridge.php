@@ -1047,15 +1047,37 @@ class apibridge {
         return false;
     }
 
+    /**
+     * Triggers the deletion of an event. Dependent on the settings a deletion workflow is started in advance.
+     *
+     * @param string $eventidentifier
+     * @return boolean return true when video deletion is triggerd correctly.
+     */
+    public function trigger_delete_event($eventidentifier) {
+        global $DB;
+        $workflow = get_config("block_opencast", "deleteworkflow");
+        if ($workflow) {
+            $this->start_workflow($eventidentifier, $workflow);
+
+            $record = [
+                "opencasteventid" => $eventidentifier,
+                "failed" => false,
+                "timecreated" => time(),
+                "timemodified" => time()
+            ];
+            $DB->insert_record("block_opencast_deletejob", $record);
+        } else {
+            $this->delete_event($eventidentifier);
+        }
+        return true;
     }
 
     /**
      * Delete an event. Verify the video and check capability before.
      *
      * @param string $eventidentifier
-     * @return boolean return true when video is deleted after double check.
+     * @return boolean return true when video is deleted.
      */
-
     public function delete_event($eventidentifier) {
 
         $resource = '/api/events/' . $eventidentifier;

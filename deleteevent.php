@@ -54,8 +54,8 @@ $video = $opencast->get_opencast_video($identifier);
 if (($action == 'delete') && confirm_sesskey()) {
     // Do action.
     if ($video->video) {
-        if ($opencast->delete_event($video->video->identifier)) {
-            $message = get_string('eventdeleted', 'block_opencast', $video->video);
+        if ($opencast->trigger_delete_event($video->video->identifier)) {
+            $message = get_string('eventdeletionstarted', 'block_opencast', $video->video);
             redirect($redirecturl, $message);
         } else {
             $message = get_string('eventdeletedfailed', 'block_opencast', $video->video);
