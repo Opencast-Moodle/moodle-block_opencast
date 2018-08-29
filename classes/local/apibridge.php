@@ -934,12 +934,24 @@ class apibridge {
     private function update_metadata($event) {
         $workflow = get_config('block_opencast', 'workflow_roles');
 
+        return $this->start_workflow($event, $workflow);
+    }
+
+    /**
+     * Starts a workflow in the opencast system.
+     * @param string $eventid event id in the opencast system.
+     * @param string $workflow identifier of the workflow to be started.
+     * @return bool true, if successfully started.
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    private function start_workflow($eventid, $workflow) {
         if (!$workflow) {
             return false;
         }
 
         // Get mediapackage xml.
-        $resource = '/assets/episode/' . $event;
+        $resource = '/assets/episode/' . $eventid;
         $api = new api();
         $mediapackage = $api->oc_get($resource);
 
