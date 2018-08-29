@@ -126,6 +126,7 @@ $string['overview'] = 'Overview';
 $string['planned'] = 'Planned';
 $string['pluginname'] = 'Opencast Videos';
 $string['processupload'] = 'Process upload';
+$string['processdelete'] = 'Process delete jobs for Opencast';
 $string['publishtoengage'] = 'Publish to Engage';
 $string['publishtoengagedesc'] = 'Select this option to publish the video after upload to engage player. Setup workflow must support this.';
 $string['reuseexistingupload'] = 'Reuse existing uploads';
