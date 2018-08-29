@@ -87,7 +87,7 @@ $table->define_baseurl($baseurl);
 
 $table->no_sorting('action');
 $table->no_sorting('published');
-$table->sortable(true);
+$table->sortable(true, "start_date");
 
 $table->pageable(true);
 $table->is_downloadable(false);
