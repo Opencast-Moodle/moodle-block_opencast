@@ -42,6 +42,7 @@ $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the 
     Please note that the file will still remain in the file system, if it is used within other places in moodle.';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
+$string['adminchoice_noworkflow'] = "-- No workflow-- ";
 $string['changevisibility_visible'] = 'Revoke access by students.';
 $string['changevisibility_mixed'] = 'The video is hidden for a few nonpermanent ACL roles but not for all. Clicking the icon, will hide the video for all nonpermanent ACL roles.';
 $string['changevisibility_hidden'] = 'Show the video. It is currently hidden for nonpermanent ACL roles.';
@@ -61,6 +62,8 @@ $string['deleteeventdesc'] = 'You are about to delete this video permanently and
 $string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.
     If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.
     The video will not be deleted in Opencast.';
+$string['deleteworkflow'] = 'Workflow to start before event is be deleted';
+$string['deleteworkflowdesc'] = 'Before deleting a video, a workflow can be defined, which is called to retract the event from all publication channels.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
 $string['editseriesforcourse'] = 'Edit series mapping';
 $string['form_seriesid'] = 'Series ID';
