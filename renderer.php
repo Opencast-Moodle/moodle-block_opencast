@@ -32,10 +32,10 @@ defined('MOODLE_INTERNAL') || die;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
-    const VISIBLE = 2;
-    const MIXED_VISIBLITY = 1;
+    const VISIBLE = 1;
+    const MIXED_VISIBLITY = 3;
     const HIDDEN = 0;
-
+    const GROUP = 2;
 
     /**
      * Render the opencast timestamp in moodle standard format.
@@ -205,17 +205,25 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
         global $USER;
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
-            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
+            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visibility' => $visible, 'sesskey' => $USER->sesskey));
 
-        if ($visible === self::VISIBLE) {
-            $text = get_string('changevisibility_visible', 'block_opencast');
-            $icon = $this->output->pix_icon('t/hide', $text);
-        } else if ($visible === self::MIXED_VISIBLITY) {
-            $text = get_string('changevisibility_mixed', 'block_opencast');
-            $icon = $this->output->pix_icon('i/warning', $text);
-        } else {
-            $text = get_string('changevisibility_hidden', 'block_opencast');
-            $icon = $this->output->pix_icon('t/show', $text);
+        switch ($visible) {
+            case self::VISIBLE:
+                $text = get_string('changevisibility_visible', 'block_opencast');
+                $icon = $this->output->pix_icon('t/hide', $text);
+                break;
+            case self::MIXED_VISIBLITY:
+                $text = get_string('changevisibility_mixed', 'block_opencast');
+                $icon = $this->output->pix_icon('i/warning', $text);
+                break;
+            case self::GROUP:
+                $text = get_string('changevisibility_group', 'block_opencast');
+                $icon = $this->output->pix_icon('t/groups', $text);
+                break;
+            case self::HIDDEN:
+                $text = get_string('changevisibility_hidden', 'block_opencast');
+                $icon = $this->output->pix_icon('t/show', $text);
+                break;
         }
 
         return \html_writer::link($url, $icon);
