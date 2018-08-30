@@ -321,6 +321,35 @@ class apibridge {
     }
 
     /**
+     * Persist the new groups for the eventid;
+     * @param string $eventid id of the event
+     * @param int[] $groups ids of all groups for which access should be provided.
+     * If $groups is empty the access is not restricted.
+     * @return bool
+     */
+    private function store_group_access($eventid, $groups) {
+        try {
+            $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid));
+            if ($groupaccess) {
+                if (empty($groups)) {
+                    $groupaccess->delete();
+                } else {
+                    $groupaccess->set('groups', implode(',', $groups));
+                    $groupaccess->update();
+                }
+            } else {
+                $groupaccess = new groupaccess();
+                $groupaccess->set('opencasteventid', $eventid);
+                $groupaccess->set('groups', implode(',', $groups));
+                $groupaccess->create();
+            }
+        } catch (\moodle_exception $e){
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Retrieves the id of the series, which is stored in the admin tool.
      *
      * @param int $courseid id of the course.
