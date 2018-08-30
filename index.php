@@ -104,7 +104,8 @@ $table->setup();
 $perpage = optional_param('perpage', 20, PARAM_INT);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
-$videodata = $opencast->get_course_videos($courseid, $table, $perpage, $download);
+$sortcolumns = $table->get_sort_columns();
+$videodata = $opencast->get_course_videos($courseid, $sortcolumns);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 

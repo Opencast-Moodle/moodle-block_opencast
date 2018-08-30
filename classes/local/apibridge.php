@@ -146,9 +146,7 @@ class apibridge {
      *
      * @return array
      */
-    public function get_course_videos($courseid, $table, $perpage, $download) {
-        $sortcolums = $table->get_sort_columns();
-        $sort = api::get_sort_param($sortcolums);
+    public function get_course_videos($courseid, $sortcolumns = null) {
 
         $result = new \stdClass();
         $result->videos = array();
@@ -161,7 +159,11 @@ class apibridge {
         }
         $seriesfilter = "series:" . $series->identifier;
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&filter=' . urlencode($seriesfilter) . $sort;
+        $query = 'sign=1&withacl=1&withmetadata=1withpublications=1&filter=' . urlencode($seriesfilter);
+        if ($sortcolumns) {
+            $sort = api::get_sort_param($sortcolumns);
+            $query .= $sort;
+        }
 
         $resource = '/api/events?' . $query;
 
