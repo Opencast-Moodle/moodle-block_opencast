@@ -27,6 +27,7 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_opencast\groupaccess;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
@@ -247,7 +248,7 @@ class apibridge {
      */
     protected function get_acl_group($courseid) {
 
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $api = new api();
@@ -278,7 +279,7 @@ class apibridge {
      */
     protected function create_acl_group($courseid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -406,18 +407,42 @@ class apibridge {
     }
 
     /**
-     * Replaces the placeholders [COURSENAME] and [COURSEID]
+     * Replaces the placeholders [COURSENAME], [COURSEID] and [COURSEGROUPID].
+     * In case of the last one, there are two cases:
+     *  1. if the event is restricted by group, the function returns one entry per group,
+     *     where the placeholder is replaced by a 'G' followed by the group id.
+     *  2. if the event is not restricted by group, the placeholder is simply replaced by the course id.
      *
-     * @param string $seriesname
-     * @param int    $courseid
+     * @param string $name name of the rule, in which the placeholders should be replaced.
+     * @param int $courseid id of the course, for which acl rules should be genereated.
+     * @param array|null $groups the groups for replacement by [COURSEGROUPID].
      *
-     * @return mixed
+     * @return string[]
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    private function replace_placeholders($name, $courseid) {
+    private function replace_placeholders($name, $courseid, $groups = null) {
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
+        $title = str_replace('[COURSEID]', $courseid, $title);
 
-        return str_replace('[COURSEID]', $courseid, $title);
+        $result = array();
+
+        if (strpos($name, '[COURSEGROUPID]')) {
+            if ($groups) {
+                foreach ($groups as $groupid) {
+                    $result [] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
+                }
+            } else {
+                $result [] = str_replace('[COURSEGROUPID]', $courseid, $title);
+            }
+        } else {
+            $result []= $title;
+        }
+
+        return $result;
+    }
+
     }
 
     /**
@@ -428,7 +453,7 @@ class apibridge {
      */
     public function get_default_seriestitle($courseid) {
         $title = get_config('block_opencast', 'series_name');
-        return $this->replace_placeholders($title, $courseid);
+        return $this->replace_placeholders($title, $courseid)[0];
     }
 
     /**
@@ -465,7 +490,7 @@ class apibridge {
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
                 $acl[] = (object) array('allow' => true, 'action' => $action,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid));
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0]);
             }
         }
 
@@ -558,7 +583,7 @@ class apibridge {
                 }
 
                 $acl[] = (object) array('allow' => true,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid),
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
                                         'action' => $action);
             }
         }
@@ -652,7 +677,7 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid));
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
             }
         }
 
@@ -754,7 +779,9 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
+                    $event->add_acl(true, $action, $acl);
+                }
             }
         }
 
@@ -820,7 +847,9 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
+                    $event->add_acl(true, $action, $acl);
+                }
             }
         }
         $event->remove_acl('read', $grouprole);
