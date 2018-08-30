@@ -23,16 +23,20 @@
  */
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
-$string['aclrolesadded'] = 'Not permanent acl roles added for video: {$a->title}
+$string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}
 
-Please refresh the site to see the current visibility status.';
-$string['aclrolesaddederror'] = 'Error during adding not permanent acl roles for video: {$a->title}
-Some roles might have not been added.';
-$string['aclrolesdeleted'] = 'Not permanent acl roles were deleted for video: {$a->title}
+Please refresh the site after some time to see the current visibility status.';
+$string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}
 
-Please refresh the site to see the current visibility status.';
-$string['aclrolesdeletederror'] = 'Error during deleting not permanent acl roles for video: {$a->title}
-Some roles might have not been deleted.';
+Some changes might have not been saved.
+If this occurs repeatedly, please contact your support team.';
+$string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}
+
+Please refresh the site after some time to see the current visibility status.';
+$string['aclrolesaddedgroup'] = 'The change of visibility has been triggered to allow students of selected groups to access the video: {$a->title}
+
+Please refresh the site after some time to see the current visibility status.';
+$string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
@@ -43,9 +47,12 @@ $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the 
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
 $string['adminchoice_noworkflow'] = "-- No workflow-- ";
-$string['changevisibility_visible'] = 'Revoke access by students.';
-$string['changevisibility_mixed'] = 'The video is hidden for a few nonpermanent ACL roles but not for all. Clicking the icon, will hide the video for all nonpermanent ACL roles.';
-$string['changevisibility_hidden'] = 'Show the video. It is currently hidden for nonpermanent ACL roles.';
+$string['changevisibility_visible'] = 'The video is visible to all students of the course. Click to alter visibility.';
+$string['changevisibility_mixed'] = 'The visibility of the video is in an invalid status. Click to choose the correct visibility.';
+$string['changevisibility_hidden'] = 'The video is visible to no student. Click to alter visibility.';
+$string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
+$string['changevisibility_header'] = 'Change visibility for {$a->title}';
+$string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
@@ -160,6 +167,10 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
 $string['videosavailable'] = 'Videos available in this course';
 $string['videonotfound'] = 'Video not found';
 $string['videostoupload'] = 'Videos to upload to opencast';
+$string['visibility'] = 'Visibility of the video';
+$string['visibility_hide'] = 'Prevent any student from accessing the video';
+$string['visibility_show'] = 'Allow all students of the course to access the video';
+$string['visibility_group'] = 'Allow all students belonging to selected groups to access the video';
 $string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';

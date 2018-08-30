@@ -28,11 +28,13 @@ namespace block_opencast\local;
 defined('MOODLE_INTERNAL') || die();
 
 use block_opencast\groupaccess;
+use block_opencast_renderer;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
+require_once(__DIR__ . '/../../renderer.php');
 
 class apibridge {
 
@@ -445,6 +447,18 @@ class apibridge {
         return $result;
     }
 
+    /**
+     * The function returns a needle for a search among a set of acl. The goal is to check,
+     * if there are any group related acl rules.
+     * @param $name
+     * @param $courseid
+     * @throws \dml_exception
+     */
+    private function get_needle_for_group_placeholder($name, $courseid) {
+        $coursename = get_course($courseid)->fullname;
+        $title = str_replace('[COURSENAME]', $coursename, $name);
+        $title = str_replace('[COURSEID]', $courseid, $title);
+        return str_replace('[COURSEGROUPID]', 'G', $title);
     }
 
     /**
@@ -877,6 +891,97 @@ class apibridge {
     }
 
     /**
+     * @param $eventidentifier
+     * @param $courseid
+     * @param $visibility
+     * @param array|null $groups
+     * @return string identifier of the notification string to be presented to the user.
+     */
+    public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
+        $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('groups')) : array();
+
+        $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
+            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
+        if (!in_array($visibility, $allowedvisibilitystates)) {
+            throw new \coding_exception('Invalid visibility state.');
+        }
+
+        $oldvisibility = $this->is_event_visible($eventidentifier, $courseid);
+
+        // Only use transmitted groups if the status is group.
+        if ($visibility !== \block_opencast_renderer::GROUP) {
+            $groups = array();
+        }
+
+        // If there is no change in the status or in the group arrays, we can stop here.
+        if ($oldvisibility === $visibility) {
+            if ($visibility !== \block_opencast_renderer::GROUP || $groups === $oldgroupsarray) {
+                return 'aclnothingtobesaved';
+            }
+        }
+
+        // Update group access.
+        if ($groups !== $oldgroupsarray) {
+            $this->store_group_access($eventidentifier, $groups);
+        }
+
+        $api = new api();
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+
+        // Remove acls.
+        if ($oldvisibility === block_opencast_renderer::MIXED_VISIBLITY) {
+            $oldacls = array();
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
+                block_opencast_renderer::GROUP, $oldgroupsarray));
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
+                block_opencast_renderer::VISIBLE, $oldgroupsarray));
+        } else {
+            $oldacls = $this->get_non_permanent_acl_rules_for_status($courseid, $oldvisibility, $oldgroupsarray);
+        }
+        foreach ($oldacls as $acl) {
+            $event->remove_acl($acl->action, $acl->role);
+        }
+
+        // Add new acls.
+        $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups);
+        foreach ($newacls as $acl) {
+            $event->add_acl($acl->allow, $acl->action, $acl->role);
+        }
+
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $params['acl'] = $event->get_json_acl();
+
+        // Acl roles have not changed.
+        if ($params['acl'] == ($jsonacl)) {
+            return 'aclnothingtobesaved';
+        }
+
+        $api = new api();
+
+        $api->oc_put($resource, $params);
+
+        if ($api->get_http_code() >= 400) {
+            return false;
+        }
+
+        // Trigger workflow.
+        if ($this->update_metadata($eventidentifier)) {
+            switch ($visibility) {
+                case block_opencast_renderer::VISIBLE: return 'aclrolesadded';
+                case block_opencast_renderer::HIDDEN: return 'aclrolesdeleted';
+                case block_opencast_renderer::GROUP: return 'aclrolesaddedgroup';
+            }
+        }
+        return false;
+
+    }
+
+    /**
      * Assign the given series to a course.
      *
      * @param string $eventidentifier
@@ -896,47 +1001,50 @@ class apibridge {
     }
 
     /**
-     * Deletes acl roles that have been marked as not permanent.
-     *
-     * @param $eventidentifier
-     * @param $courseid
-     *
-     * @return bool
+     * Returns the expected set of non-permanent acl rules for the given status in the context of an event.
+     * Can be used for comparision with the actual set of acl rules.
+     * @param int $courseid id of the course the event belongs to.
+     * @param int $visibility visibility of the event.
+     * @param array|null $groups array of group ids used for replacing the placeholders
+     * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
+     * @throws \dml_exception
+     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
-    public function delete_not_permanent_acl_roles($eventidentifier, $courseid) {
-        $api = new api();
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $jsonacl = $api->oc_get($resource);
-
-        $event = new \block_opencast\local\event();
-        $event->set_json_acl($jsonacl);
-
-        // Remove roles.
+    private function get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
         $roles = $this->getroles(array('permanent' => 0));
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $event->remove_acl($action, $this->replace_placeholders($role->rolename, $courseid));
-            }
+
+        $result = array();
+
+        switch ($visibility) {
+            case block_opencast_renderer::VISIBLE:
+                foreach ($roles as $role) {
+                    foreach ($role->actions as $action) {
+                        $result [] = (object) array(
+                            'allow' => true,
+                            'action' => $action,
+                            'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
+                        );
+                    }
+                }
+                break;
+            case block_opencast_renderer::HIDDEN:
+                break;
+            case block_opencast_renderer::GROUP:
+                foreach ($roles as $role) {
+                    foreach ($role->actions as $action) {
+                        foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule)
+                            $result [] = (object) array(
+                                'allow' => true,
+                                'action' => $action,
+                                'role' => $rule,
+                            );
+                    }
+                }
+                break;
+            default:
+                throw new \coding_exception('The provided visibility status is not valid!');
         }
-
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $params['acl'] = $event->get_json_acl();
-
-        // Acl roles have not changed.
-        if ($params['acl'] == ($jsonacl)) {
-            return true;
-        }
-
-        $api = new api();
-
-        $api->oc_put($resource, $params);
-
-        if ($api->get_http_code() >= 400) {
-            return false;
-        }
-
-        // Trigger workflow.
-        return $this->update_metadata($eventidentifier);
+        return $result;
     }
 
     /**
@@ -953,31 +1061,59 @@ class apibridge {
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
-        $numroles = 0;
-        $roles = $this->getroles(array('permanent' => 0));
-        $hassomeactions = false;
-        // The loop counts the number of roles who have all necessary access rights($numroles, $hasallactions) ...
-        // ... and identifies at least one role has the permission for one action ($hassomeaction).
-        foreach ($roles as $role) {
-            $hasallactions = true;
-            foreach ($role->actions as $action) {
-                if (!$event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
-                    $hasallactions = false;
-                } else {
-                    $hassomeactions = true;
+        $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $groupsarray = $groups ? explode(',', $groups->get('groups')) : array();
+
+        $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::VISIBLE);
+        $groupacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::GROUP, $groupsarray);
+
+        $hasallvisibleacls = true;
+        $hasnovisibleacls = true;
+        $hasaclnotingroup = false;
+        foreach ($visibleacl as $acl) {
+            if (!$event->has_acl($acl->allow, $acl->action, $acl->role)) {
+                $hasallvisibleacls = false;
+            } else {
+                if (!in_array($acl, $groupacl)){
+                    $hasaclnotingroup = true;
                 }
-            }
-            if ($hasallactions) {
-                $numroles++;
+                $hasnovisibleacls = true;
             }
         }
-        // If all non permanent roles have all necessary actions the event is visible.
-        if ($numroles === count($roles)) {
+        $hasallgroupacls = true;
+        if (!empty($groupsarray)) {
+            $hasallgroupacls = true;
+            foreach ($groupacl as $acl) {
+                if (!$event->has_acl($acl->allow, $acl->action, $acl->role)) {
+                    $hasallgroupacls = false;
+                }
+            }
+        }
+
+        $roles = $this->getroles(array('permanent' => 0));
+        $hasnogroupacls = true;
+        foreach ($roles as $role) {
+            $needle = $this->get_needle_for_group_placeholder($role->rolename, $courseid);
+            $eventacls = json_decode($jsonacl);
+            foreach ($eventacls as $acl) {
+                if (strpos($acl->role, $needle) > 0) {
+                    $hasnogroupacls = false;
+                }
+            }
+        }
+        // If all non permanent acls for visibility are set the event is visible.
+        if ($hasallvisibleacls) {
             return \block_opencast_renderer::VISIBLE;
-        } else if ($numroles === 0 && !$hassomeactions) {
-            // The visibility is hidden if no role has a permission for one of the action.
+        } else if (!empty($groupsarray) && $hasallgroupacls && !$hasaclnotingroup) {
+            // If we have groups and the acl rules for each group is present and we do not have non-permanent acls,
+            // which do not belong to group visibility, then visibility is group.
+            return \block_opencast_renderer::GROUP;
+        } else if (empty($groupsarray) && $hasnogroupacls & $hasnovisibleacls) {
+            // The visibility is hidden if we have no groupaccess and
+            // if there is no acl for group or full visibility in the set.
             return \block_opencast_renderer::HIDDEN;
         } else {
+            // In all other cases we have mixed visibility.
             return \block_opencast_renderer::MIXED_VISIBLITY;
         }
     }
