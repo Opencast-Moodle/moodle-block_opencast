@@ -454,11 +454,11 @@ class apibridge {
      * @param $courseid
      * @throws \dml_exception
      */
-    private function get_needle_for_group_placeholder($name, $courseid) {
+    private function get_pattern_for_group_placeholder($name, $courseid) {
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
         $title = str_replace('[COURSEID]', $courseid, $title);
-        return str_replace('[COURSEGROUPID]', 'G', $title);
+        return '/' . str_replace('[COURSEGROUPID]', 'G\\d*', $title) . '/' ;
     }
 
     /**
@@ -1093,10 +1093,10 @@ class apibridge {
         $roles = $this->getroles(array('permanent' => 0));
         $hasnogroupacls = true;
         foreach ($roles as $role) {
-            $needle = $this->get_needle_for_group_placeholder($role->rolename, $courseid);
+            $pattern = $this->get_pattern_for_group_placeholder($role->rolename, $courseid);
             $eventacls = json_decode($jsonacl);
             foreach ($eventacls as $acl) {
-                if (strpos($acl->role, $needle) > 0) {
+                if (preg_match($pattern, $acl->role)) {
                     $hasnogroupacls = false;
                 }
             }
