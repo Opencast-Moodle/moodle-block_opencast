@@ -432,7 +432,7 @@ class apibridge {
 
         $result = array();
 
-        if (strpos($name, '[COURSEGROUPID]')) {
+        if (strpos($name, '[COURSEGROUPID]') >= 0) {
             if ($groups) {
                 foreach ($groups as $groupid) {
                     $result [] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
