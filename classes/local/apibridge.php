@@ -203,8 +203,8 @@ class apibridge {
      */
     private function check_for_planned_videos(&$video) {
 
-        $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
-        if ($compatibilitymode == 5) {
+        $api = new api();
+        if (!$api->supports_api_level('v1.1.0')) {
             $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
             $api = new api();
             $plannedvideo = json_decode($api->oc_get($resourceopencast5));
@@ -1161,8 +1161,8 @@ class apibridge {
             return false;
         }
 
-        $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
-        if ($compatibilitymode == 5) {
+        $api = new api();
+        if (!$api->supports_api_level('v1.1.0')) {
             // Get mediapackage xml.
             $resourceopencast5 = '/assets/episode/' . $eventid;
             $api = new api();
@@ -1224,8 +1224,8 @@ class apibridge {
     public function get_existing_workflows($tag = '') {
         if (!array_key_exists($tag, $this->workflows)) {
 
-            $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
-            if ($compatibilitymode == 5) {
+            $api = new api();
+            if (!$api->supports_api_level('v1.1.0')) {
                 $resourceopencast5 = '/workflow/definitions.json';
                 $api = new api();
                 $result = $api->oc_get($resourceopencast5);
