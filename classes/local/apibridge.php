@@ -205,9 +205,9 @@ class apibridge {
 
         $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
         if ($compatibilitymode == 5) {
-            $resource = '/recordings/' . $video->identifier . '/technical.json';
+            $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
             $api = new api();
-            $plannedvideo = json_decode($api->oc_get($resource));
+            $plannedvideo = json_decode($api->oc_get($resourceopencast5));
 
             if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
                 $video->processing_state = "PLANNED";
@@ -1164,18 +1164,18 @@ class apibridge {
         $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
         if ($compatibilitymode == 5) {
             // Get mediapackage xml.
-            $resource = '/assets/episode/' . $eventid;
+            $resourceopencast5 = '/assets/episode/' . $eventid;
             $api = new api();
-            $mediapackage = $api->oc_get($resource);
+            $mediapackage = $api->oc_get($resourceopencast5);
 
             // Start workflow.
-            $resource = '/workflow/start';
+            $resourceopencast5 = '/workflow/start';
             $params = [
                 'definition'   => $workflow,
                 'mediapackage' => rawurlencode($mediapackage)
             ];
             $api = new api();
-            $api->oc_post($resource, $params);
+            $api->oc_post($resourceopencast5, $params);
 
             if ($api->get_http_code() != 200) {
                 return false;
@@ -1226,9 +1226,9 @@ class apibridge {
 
             $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
             if ($compatibilitymode == 5) {
-                $resource = '/workflow/definitions.json';
+                $resourceopencast5 = '/workflow/definitions.json';
                 $api = new api();
-                $result = $api->oc_get($resource);
+                $result = $api->oc_get($resourceopencast5);
 
                 if ($api->get_http_code() === 200) {
                     $returnedworkflows = json_decode($result);
