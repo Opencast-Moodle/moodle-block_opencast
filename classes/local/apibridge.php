@@ -202,12 +202,27 @@ class apibridge {
      * @param $video The video object, which should be checked.
      */
     private function check_for_planned_videos(&$video) {
-        $resource = '/recordings/'. $video->identifier .'/technical.json';
-        $api = new api();
-        $plannedvideo = json_decode($api->oc_get($resource));
 
-        if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
-            $video->processing_state = "PLANNED";
+        $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
+        if ($compatibilitymode == 5) {
+            $resource = '/recordings/' . $video->identifier . '/technical.json';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resource));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
+                $video->processing_state = "PLANNED";
+            }
+        } else {
+            $resource = '/api/events/' . $video->identifier . '/scheduling';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resource));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->end) {
+                $endtime = strtotime($plannedvideo->end);
+                if ($endtime > time()) {
+                    $video->processing_state = "PLANNED";
+                }
+            }
         }
     }
 
