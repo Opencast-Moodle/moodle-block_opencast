@@ -1202,13 +1202,10 @@ class apibridge {
                 foreach ($returnedworkflows->definitions->definition as $workflow) {
                     // Filter for specific tag.
                     if ($tag) {
-                        // Expansion of '-ng' necessary to support OC 4.x.
                         if (!($workflow->tags &&
                             ($tag === $workflow->tags->tag ||
-                                $tag . '-ng' === $workflow->tags->tag ||
                                 is_array($workflow->tags->tag) &&
-                                (in_array($tag, $workflow->tags->tag) ||
-                                    in_array($tag . '-ng', $workflow->tags->tag))))) {
+                                in_array($tag, $workflow->tags->tag)))) {
                             continue;
                         }
                     }
