@@ -1146,22 +1146,38 @@ class apibridge {
             return false;
         }
 
-        // Get mediapackage xml.
-        $resource = '/assets/episode/' . $eventid;
-        $api = new api();
-        $mediapackage = $api->oc_get($resource);
+        $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
+        if ($compatibilitymode == 5) {
+            // Get mediapackage xml.
+            $resource = '/assets/episode/' . $eventid;
+            $api = new api();
+            $mediapackage = $api->oc_get($resource);
 
-        // Start workflow.
-        $resource = '/workflow/start';
-        $params = [
-            'definition'   => $workflow,
-            'mediapackage' => rawurlencode($mediapackage)
-        ];
-        $api = new api();
-        $api->oc_post($resource, $params);
+            // Start workflow.
+            $resource = '/workflow/start';
+            $params = [
+                'definition'   => $workflow,
+                'mediapackage' => rawurlencode($mediapackage)
+            ];
+            $api = new api();
+            $api->oc_post($resource, $params);
 
-        if ($api->get_http_code() != 200) {
-            return false;
+            if ($api->get_http_code() != 200) {
+                return false;
+            }
+        } else {
+            // Start workflow.
+            $resource = '/api/workflows';
+            $params = [
+                'workflow_definition_identifier'    => $workflow,
+                'event_identifier'                  => $eventid
+            ];
+            $api = new api();
+            $api->oc_post($resource, $params);
+
+            if ($api->get_http_code() != 200) {
+                return false;
+            }
         }
 
         return true;
@@ -1192,31 +1208,55 @@ class apibridge {
      */
     public function get_existing_workflows($tag = '') {
         if (!array_key_exists($tag, $this->workflows)) {
-            $resource = '/workflow/definitions.json';
-            $api = new api();
-            $result = $api->oc_get($resource);
 
-            if ($api->get_http_code() === 200) {
-                $returnedworkflows = json_decode($result);
-                $this->workflows[$tag] = array();
-                foreach ($returnedworkflows->definitions->definition as $workflow) {
-                    // Filter for specific tag.
-                    if ($tag) {
-                        if (!($workflow->tags &&
-                            ($tag === $workflow->tags->tag ||
-                                is_array($workflow->tags->tag) &&
-                                in_array($tag, $workflow->tags->tag)))) {
-                            continue;
+            $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
+            if ($compatibilitymode == 5) {
+                $resource = '/workflow/definitions.json';
+                $api = new api();
+                $result = $api->oc_get($resource);
+
+                if ($api->get_http_code() === 200) {
+                    $returnedworkflows = json_decode($result);
+                    $this->workflows[$tag] = array();
+                    foreach ($returnedworkflows->definitions->definition as $workflow) {
+                        // Filter for specific tag.
+                        if ($tag) {
+                            if (!($workflow->tags &&
+                                ($tag === $workflow->tags->tag ||
+                                    is_array($workflow->tags->tag) &&
+                                    in_array($tag, $workflow->tags->tag)))) {
+                                continue;
+                            }
+                        }
+                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                            $this->workflows[$tag][$workflow->id] = $workflow->title;
+                        } else {
+                            $this->workflows[$tag][$workflow->id] = $workflow->id;
                         }
                     }
-                    if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                        $this->workflows[$tag][$workflow->id] = $workflow->title;
-                    } else {
-                        $this->workflows[$tag][$workflow->id] = $workflow->id;
-                    }
+                } else {
+                    return array();
                 }
             } else {
-                return array();
+                $resource = '/api/workflow-definitions';
+                $api = new api();
+                $params = [
+                    'tag'    => $tag,
+                ];
+                $result = $api->oc_get($resource, $params);
+                if ($api->get_http_code() === 200) {
+                    $returnedworkflows = json_decode($result);
+                    $this->workflows[$tag] = array();
+                    foreach ($returnedworkflows as $workflow) {
+                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                            $this->workflows[$tag][$workflow->id] = $workflow->title;
+                        } else {
+                            $this->workflows[$tag][$workflow->id] = $workflow->id;
+                        }
+                    }
+                } else {
+                    return array();
+                }
             }
         }
         return $this->workflows[$tag];
