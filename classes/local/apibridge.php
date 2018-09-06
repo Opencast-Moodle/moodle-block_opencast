@@ -1270,7 +1270,7 @@ class apibridge {
     public function can_delete_event_assignment($video, $courseid) {
 
         if (isset($video->processing_state) &&
-            ($video->processing_state === 'SUCCEEDED' || $video->processing_state === 'PLANNED')) {
+            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
 
             $context = \context_course::instance($courseid);
 
