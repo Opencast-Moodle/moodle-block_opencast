@@ -187,7 +187,7 @@ if ($videodata->error == 0) {
             $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
             if ($toggleaclroles) {
-                if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED") {
+                if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" && $video->processing_state !== "STOPPED") {
                     $row[] = "-";
                 } else {
                     $visible = $apibridge->is_event_visible($video->identifier, $courseid);
