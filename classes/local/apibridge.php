@@ -1190,7 +1190,7 @@ class apibridge {
             $api = new api();
             $api->oc_post($resource, $params);
 
-            if ($api->get_http_code() != 200) {
+            if ($api->get_http_code() != 201) {
                 return false;
             }
         }
