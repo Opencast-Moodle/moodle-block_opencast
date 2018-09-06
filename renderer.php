@@ -58,16 +58,18 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function render_processing_state_icon($processingstate) {
         switch ($processingstate) {
 
-            case 'SUCCEEDED' :
-                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
             case 'FAILED' :
                 return $this->output->pix_icon('failed', get_string('ocstatefailed', 'block_opencast'), 'block_opencast');
             case 'PLANNED' :
                 return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
             case 'DELETING' :
                 return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'));
-            default :
+            case 'RUNNING' :
+            case 'PAUSED' :
                 return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast');
+            case 'SUCCEEDED' :
+            default :
+                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
         }
     }
 
