@@ -1255,18 +1255,16 @@ class apibridge {
             } else {
                 $resource = '/api/workflow-definitions';
                 $api = new api();
-                $params = [
-                    'tag'    => $tag,
-                ];
-                $result = $api->oc_get($resource, $params);
+                $resource .= '?filter=tag:'.$tag;
+                $result = $api->oc_get($resource);
                 if ($api->get_http_code() === 200) {
                     $returnedworkflows = json_decode($result);
                     $this->workflows[$tag] = array();
                     foreach ($returnedworkflows as $workflow) {
                         if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                            $this->workflows[$tag][$workflow->id] = $workflow->title;
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->title;
                         } else {
-                            $this->workflows[$tag][$workflow->id] = $workflow->id;
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->identifier;
                         }
                     }
                 } else {
