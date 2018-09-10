@@ -202,12 +202,27 @@ class apibridge {
      * @param $video The video object, which should be checked.
      */
     private function check_for_planned_videos(&$video) {
-        $resource = '/recordings/'. $video->identifier .'/technical.json';
-        $api = new api();
-        $plannedvideo = json_decode($api->oc_get($resource));
 
-        if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
-            $video->processing_state = "PLANNED";
+        $api = new api();
+        if (!$api->supports_api_level('v1.1.0')) {
+            $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resourceopencast5));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
+                $video->processing_state = "PLANNED";
+            }
+        } else {
+            $resource = '/api/events/' . $video->identifier . '/scheduling';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resource));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->end) {
+                $endtime = strtotime($plannedvideo->end);
+                if ($endtime > time()) {
+                    $video->processing_state = "PLANNED";
+                }
+            }
         }
     }
 
@@ -1146,21 +1161,21 @@ class apibridge {
             return false;
         }
 
-        $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
-        if ($compatibilitymode == 5) {
+        $api = new api();
+        if (!$api->supports_api_level('v1.1.0')) {
             // Get mediapackage xml.
-            $resource = '/assets/episode/' . $eventid;
+            $resourceopencast5 = '/assets/episode/' . $eventid;
             $api = new api();
-            $mediapackage = $api->oc_get($resource);
+            $mediapackage = $api->oc_get($resourceopencast5);
 
             // Start workflow.
-            $resource = '/workflow/start';
+            $resourceopencast5 = '/workflow/start';
             $params = [
                 'definition'   => $workflow,
                 'mediapackage' => rawurlencode($mediapackage)
             ];
             $api = new api();
-            $api->oc_post($resource, $params);
+            $api->oc_post($resourceopencast5, $params);
 
             if ($api->get_http_code() != 200) {
                 return false;
@@ -1175,7 +1190,7 @@ class apibridge {
             $api = new api();
             $api->oc_post($resource, $params);
 
-            if ($api->get_http_code() != 200) {
+            if ($api->get_http_code() != 201) {
                 return false;
             }
         }
@@ -1209,11 +1224,11 @@ class apibridge {
     public function get_existing_workflows($tag = '') {
         if (!array_key_exists($tag, $this->workflows)) {
 
-            $compatibilitymode = get_config('tool_opencast', 'compatibilitymode');
-            if ($compatibilitymode == 5) {
-                $resource = '/workflow/definitions.json';
+            $api = new api();
+            if (!$api->supports_api_level('v1.1.0')) {
+                $resourceopencast5 = '/workflow/definitions.json';
                 $api = new api();
-                $result = $api->oc_get($resource);
+                $result = $api->oc_get($resourceopencast5);
 
                 if ($api->get_http_code() === 200) {
                     $returnedworkflows = json_decode($result);
@@ -1240,18 +1255,16 @@ class apibridge {
             } else {
                 $resource = '/api/workflow-definitions';
                 $api = new api();
-                $params = [
-                    'tag'    => $tag,
-                ];
-                $result = $api->oc_get($resource, $params);
+                $resource .= '?filter=tag:'.$tag;
+                $result = $api->oc_get($resource);
                 if ($api->get_http_code() === 200) {
                     $returnedworkflows = json_decode($result);
                     $this->workflows[$tag] = array();
                     foreach ($returnedworkflows as $workflow) {
                         if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                            $this->workflows[$tag][$workflow->id] = $workflow->title;
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->title;
                         } else {
-                            $this->workflows[$tag][$workflow->id] = $workflow->id;
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->identifier;
                         }
                     }
                 } else {
