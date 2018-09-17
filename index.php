@@ -43,7 +43,7 @@ $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
-$table = new flexible_table('opencast-videos-table');
+$table = new block_opencast\local\flexible_table('opencast-videos-table');
 
 $download = optional_param('download', '', PARAM_ALPHA);
 if ($download) {
@@ -86,7 +86,8 @@ $table->define_columns($columns);
 $table->define_baseurl($baseurl);
 
 $table->no_sorting('action');
-$table->sortable(true, 'start_date', SORT_DESC);
+$table->no_sorting('published');
+$table->sortable(true, "start_date");
 
 $table->pageable(true);
 $table->is_downloadable(false);
@@ -103,7 +104,8 @@ $table->setup();
 $perpage = optional_param('perpage', 20, PARAM_INT);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
-$videodata = $opencast->get_course_videos($courseid, $table, $perpage, $download);
+$sortcolumns = $table->get_sort_columns();
+$videodata = $opencast->get_course_videos($courseid, $sortcolumns);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
@@ -154,6 +156,8 @@ echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 
 if ($videodata->error == 0) {
 
+    $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
+
     foreach ($videodata->videos as $video) {
 
         $row = array();
@@ -173,21 +177,35 @@ if ($videodata->error == 0) {
             $row[] = $renderer->render_publication_status($video->publication_status);
         }
 
-        $row[] = $renderer->render_processing_state_icon($video->processing_state);
+        if (array_key_exists($video->identifier, $deletedvideos)) {
 
-        if ($toggleaclroles) {
-            if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED") {
-                $row[] = "-";
-            } else {
-                $visible = $apibridge->is_event_visible($video->identifier, $courseid);
-                $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
-            }
-        }
-
-        if ($opencast->can_delete_acl_group_assignment($video)) {
-            $row[] = $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
-        } else {
+            $row[] = $renderer->render_processing_state_icon("DELETING");
             $row[] = "";
+
+        } else {
+
+            $row[] = $renderer->render_processing_state_icon($video->processing_state);
+
+            if ($toggleaclroles) {
+                if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" && $video->processing_state !== "STOPPED") {
+                    $row[] = "-";
+                } else {
+                    $visible = $apibridge->is_event_visible($video->identifier, $courseid);
+                    $row[] = $renderer->render_change_visibility_icon($courseid, $video->identifier, $visible);
+                }
+            }
+
+            $actions = '';
+            if ($opencast->can_delete_acl_group_assignment($video, $courseid)) {
+                $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
+            }
+
+
+            if ($opencast->can_delete_event_assignment($video, $courseid)) {
+                $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
+            }
+
+            $row[] = $actions;
         }
 
         $table->add_data($row);

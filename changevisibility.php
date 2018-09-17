@@ -15,67 +15,98 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Changes the visibility of a video.
+ * Page overview.
  *
  * @package    block_opencast
- * @copyright  2018 Tamara Gunkel
+ * @copyright  2018 Tobias Reischmann, WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once('../../config.php');
 require_once('./renderer.php');
+
+use block_opencast\local\apibridge;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$visible = required_param('visible', PARAM_BOOL);
+
+$baseurl = new moodle_url('/blocks/opencast/changevisibility.php', array('identifier' => $identifier, 'courseid' => $courseid));
+$PAGE->set_url($baseurl);
 
 require_login($courseid, false);
 
+$PAGE->set_pagelayout('incourse');
+$PAGE->set_title(get_string('pluginname', 'block_opencast'));
+$PAGE->set_heading(get_string('pluginname', 'block_opencast'));
+
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
+$PAGE->navbar->add(get_string('changevisibility', 'block_opencast'), $baseurl);
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance();
-$video = $opencast->get_opencast_video($identifier);
-
-if (confirm_sesskey()) {
-    // Workflow is not set.
-    if (get_config('block_opencast', 'workflow_roles') == "") {
-        $message = get_string('workflownotdefined', 'block_opencast', $video->video);
-        redirect($redirecturl, $message, null, \core\notification::ERROR);
+$apibridge = apibridge::get_instance();
+$visibility = $apibridge->is_event_visible($identifier, $courseid);
+if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
+    $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier));
+    if ($groups) {
+        $visibility = \block_opencast_renderer::GROUP;
+    } else {
+        $visibility = \block_opencast_renderer::HIDDEN;
     }
+}
 
-    if ($video->video) {
-        // A workflow is currently running.
-        if ($video->video->processing_state !== "SUCCEEDED" && $video->video->processing_state !== "FAILED") {
-            $message = get_string('workflowisrunning', 'block_opencast', $video->video);
-            redirect($redirecturl, $message, null, \core\notification::ERROR);
-        }
+$changevisibilityform = new \block_opencast\local\visibility_form(null, array('courseid' => $courseid,
+    'identifier' => $identifier, 'visibility' => $visibility));
 
-        if ($visible === block_opencast_renderer::VISIBLE || $visible == block_opencast_renderer::MIXED_VISIBLITY) {
-            if ($opencast->delete_not_permanent_acl_roles($video->video->identifier, $courseid)) {
-                $message = get_string('aclrolesdeleted', 'block_opencast', $video->video);
-                $status = \core\notification::SUCCESS;
-            } else {
-                $message = get_string('aclrolesdeletederror', 'block_opencast', $video->video);
-                $status = \core\notification::ERROR;
-            }
-        } else {
-            if ($opencast->ensure_acl_group_assigned($video->video->identifier, $courseid)) {
-                $message = get_string('aclrolesadded', 'block_opencast', $video->video);
-                $status = \core\notification::SUCCESS;
-            } else {
-                $message = get_string('aclrolesaddederror', 'block_opencast', $video->video);
-                $status = \core\notification::ERROR;
-            }
-        }
-
-        redirect($redirecturl, $message, null, $status);
+// Check if video exists.
+$videos = $apibridge->get_course_videos($courseid);
+$video = null;
+foreach ($videos->videos as $v) {
+    if ($v->identifier === $identifier) {
+        $video = $v;
+        break;
     }
-
+}
+if (!$video) {
     $message = get_string('videonotfound', 'block_opencast');
     redirect($redirecturl, $message);
 }
+
+// Workflow is not set.
+if (get_config('block_opencast', 'workflow_roles') == "") {
+    $message = get_string('workflownotdefined', 'block_opencast', $video->video);
+    redirect($redirecturl, $message, null, \core\notification::ERROR);
+}
+
+
+if ($changevisibilityform->is_cancelled()) {
+    redirect($redirecturl);
+}
+
+if ($data = $changevisibilityform->get_data()) {
+    if (confirm_sesskey()) {
+
+        $groups = null;
+        if (property_exists($data, 'groups')) {
+            $groups = $data->groups;
+        }
+        // Alter group access.
+        if ($code = $apibridge->change_visibility($identifier, $courseid, $data->visibility, $groups)) {
+            redirect($redirecturl, get_string($code, 'block_opencast', $video), null, \core\output\notification::NOTIFY_SUCCESS);
+        } else {
+            redirect($redirecturl, get_string('aclroleschangeerror', 'block_opencast', $video), null, \core\output\notification::NOTIFY_ERROR);
+        }
+    }
+}
+
+$renderer = $PAGE->get_renderer('block_opencast');
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('changevisibility_header', 'block_opencast', $video));
+$changevisibilityform->display();
+echo $OUTPUT->footer();

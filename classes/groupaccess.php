@@ -14,18 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace block_opencast;
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * Version details
+ * Persistable of seriesmapping
  *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @package    tool_opencast
+ * @copyright  2018 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018091700;
-$plugin->requires = 2017051500;
-$plugin->maturity  = MATURITY_BETA;
-$plugin->release   = 'v3.4-r1'; // Developed under Moodle 3.4. First release.
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2018091700);
+class groupaccess extends \core\persistent {
+
+    /** Table name for the persistent. */
+    const TABLE = 'block_opencast_groupaccess';
+
+    /**
+     * Return the definition of the properties of this model.
+     *
+     * @return array
+     */
+    protected static function define_properties() {
+        return array(
+            'id' => array(
+                'type' => PARAM_INT,
+            ),
+            'opencasteventid' => array(
+                'type' => PARAM_ALPHANUMEXT,
+            ),
+            'groups' => array(
+                'type' => PARAM_SEQUENCE,
+            ),
+        );
+    }
+}

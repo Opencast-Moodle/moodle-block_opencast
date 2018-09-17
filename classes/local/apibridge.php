@@ -27,11 +27,14 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_opencast\groupaccess;
+use block_opencast_renderer;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
+require_once(__DIR__ . '/../../renderer.php');
 
 class apibridge {
 
@@ -145,9 +148,7 @@ class apibridge {
      *
      * @return array
      */
-    public function get_course_videos($courseid, $table, $perpage, $download) {
-        $sortcolums = $table->get_sort_columns();
-        $sort = api::get_sort_param($sortcolums);
+    public function get_course_videos($courseid, $sortcolumns = null) {
 
         $result = new \stdClass();
         $result->videos = array();
@@ -160,7 +161,11 @@ class apibridge {
         }
         $seriesfilter = "series:" . $series->identifier;
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&filter=' . urlencode($seriesfilter) . $sort;
+        $query = 'sign=1&withacl=1&withmetadata=1withpublications=1&filter=' . urlencode($seriesfilter);
+        if ($sortcolumns) {
+            $sort = api::get_sort_param($sortcolumns);
+            $query .= $sort;
+        }
 
         $resource = '/api/events?' . $query;
 
@@ -197,12 +202,27 @@ class apibridge {
      * @param $video The video object, which should be checked.
      */
     private function check_for_planned_videos(&$video) {
-        $resource = '/recordings/'. $video->identifier .'/technical.json';
-        $api = new api();
-        $plannedvideo = json_decode($api->oc_get($resource));
 
-        if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
-            $video->processing_state = "PLANNED";
+        $api = new api();
+        if (!$api->supports_api_level('v1.1.0')) {
+            $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resourceopencast5));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
+                $video->processing_state = "PLANNED";
+            }
+        } else {
+            $resource = '/api/events/' . $video->identifier . '/scheduling';
+            $api = new api();
+            $plannedvideo = json_decode($api->oc_get($resource));
+
+            if ($api->get_http_code() === 200 && $plannedvideo->end) {
+                $endtime = strtotime($plannedvideo->end);
+                if ($endtime > time()) {
+                    $video->processing_state = "PLANNED";
+                }
+            }
         }
     }
 
@@ -230,6 +250,9 @@ class apibridge {
             return $result;
         }
 
+        // Enrich processing state.
+        $this->check_for_planned_videos($video);
+
         $result->video = $video;
 
         return $result;
@@ -244,7 +267,7 @@ class apibridge {
      */
     protected function get_acl_group($courseid) {
 
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $api = new api();
@@ -275,7 +298,7 @@ class apibridge {
      */
     protected function create_acl_group($courseid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid);
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -315,6 +338,35 @@ class apibridge {
         }
 
         return $group;
+    }
+
+    /**
+     * Persist the new groups for the eventid;
+     * @param string $eventid id of the event
+     * @param int[] $groups ids of all groups for which access should be provided.
+     * If $groups is empty the access is not restricted.
+     * @return bool
+     */
+    private function store_group_access($eventid, $groups) {
+        try {
+            $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid));
+            if ($groupaccess) {
+                if (empty($groups)) {
+                    $groupaccess->delete();
+                } else {
+                    $groupaccess->set('groups', implode(',', $groups));
+                    $groupaccess->update();
+                }
+            } else {
+                $groupaccess = new groupaccess();
+                $groupaccess->set('opencasteventid', $eventid);
+                $groupaccess->set('groups', implode(',', $groups));
+                $groupaccess->create();
+            }
+        } catch (\moodle_exception $e){
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -374,18 +426,54 @@ class apibridge {
     }
 
     /**
-     * Replaces the placeholders [COURSENAME] and [COURSEID]
+     * Replaces the placeholders [COURSENAME], [COURSEID] and [COURSEGROUPID].
+     * In case of the last one, there are two cases:
+     *  1. if the event is restricted by group, the function returns one entry per group,
+     *     where the placeholder is replaced by a 'G' followed by the group id.
+     *  2. if the event is not restricted by group, the placeholder is simply replaced by the course id.
      *
-     * @param string $seriesname
-     * @param int    $courseid
+     * @param string $name name of the rule, in which the placeholders should be replaced.
+     * @param int $courseid id of the course, for which acl rules should be genereated.
+     * @param array|null $groups the groups for replacement by [COURSEGROUPID].
      *
-     * @return mixed
+     * @return string[]
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    private function replace_placeholders($name, $courseid) {
+    private function replace_placeholders($name, $courseid, $groups = null) {
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
+        $title = str_replace('[COURSEID]', $courseid, $title);
 
-        return str_replace('[COURSEID]', $courseid, $title);
+        $result = array();
+
+        if (strpos($name, '[COURSEGROUPID]') >= 0) {
+            if ($groups) {
+                foreach ($groups as $groupid) {
+                    $result [] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
+                }
+            } else {
+                $result [] = str_replace('[COURSEGROUPID]', $courseid, $title);
+            }
+        } else {
+            $result []= $title;
+        }
+
+        return $result;
+    }
+
+    /**
+     * The function returns a needle for a search among a set of acl. The goal is to check,
+     * if there are any group related acl rules.
+     * @param $name
+     * @param $courseid
+     * @throws \dml_exception
+     */
+    private function get_pattern_for_group_placeholder($name, $courseid) {
+        $coursename = get_course($courseid)->fullname;
+        $title = str_replace('[COURSENAME]', $coursename, $name);
+        $title = str_replace('[COURSEID]', $courseid, $title);
+        return '/' . str_replace('[COURSEGROUPID]', 'G\\d*', $title) . '/' ;
     }
 
     /**
@@ -396,7 +484,7 @@ class apibridge {
      */
     public function get_default_seriestitle($courseid) {
         $title = get_config('block_opencast', 'series_name');
-        return $this->replace_placeholders($title, $courseid);
+        return $this->replace_placeholders($title, $courseid)[0];
     }
 
     /**
@@ -433,7 +521,7 @@ class apibridge {
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
                 $acl[] = (object) array('allow' => true, 'action' => $action,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid));
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0]);
             }
         }
 
@@ -526,7 +614,7 @@ class apibridge {
                 }
 
                 $acl[] = (object) array('allow' => true,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid),
+                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
                                         'action' => $action);
             }
         }
@@ -613,20 +701,22 @@ class apibridge {
      * @return object series object of NULL, if group does not exist.
      */
     public function create_event($job, $seriesidentifier) {
+        global $DB;
+
         $event = new \block_opencast\local\event();
 
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid));
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
             }
         }
 
         $event->set_presentation($job->fileid);
-        $storedfile = $event->get_presentation();
 
-        if (!$storedfile) {
-            return false;
+        if (!$storedfile = $event->get_presentation()) {
+            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
 
         $event->add_meta_data('title', $storedfile->get_filename());
@@ -720,7 +810,9 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
+                    $event->add_acl(true, $action, $acl);
+                }
             }
         }
 
@@ -749,9 +841,21 @@ class apibridge {
      *
      * @param object $video opencast video.
      */
-    public function can_delete_acl_group_assignment($video) {
+    public function can_delete_acl_group_assignment($video, $courseid) {
 
-        return (isset($video->processing_state) && ($video->processing_state == 'SUCCEEDED'));
+        $config = get_config('block_opencast', 'allowunassign');
+
+        if (!$config) {
+            return false;
+        }
+
+        if (!isset($video->processing_state) || ($video->processing_state != 'SUCCEEDED')) {
+            return false;
+        }
+
+        $context = \context_course::instance($courseid);
+
+        return has_capability('block/opencast:unassignevent', $context);
     }
 
     /**
@@ -774,7 +878,9 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid));
+                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
+                    $event->add_acl(true, $action, $acl);
+                }
             }
         }
         $event->remove_acl('read', $grouprole);
@@ -800,6 +906,97 @@ class apibridge {
     }
 
     /**
+     * @param $eventidentifier
+     * @param $courseid
+     * @param $visibility
+     * @param array|null $groups
+     * @return string identifier of the notification string to be presented to the user.
+     */
+    public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
+        $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('groups')) : array();
+
+        $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
+            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
+        if (!in_array($visibility, $allowedvisibilitystates)) {
+            throw new \coding_exception('Invalid visibility state.');
+        }
+
+        $oldvisibility = $this->is_event_visible($eventidentifier, $courseid);
+
+        // Only use transmitted groups if the status is group.
+        if ($visibility !== \block_opencast_renderer::GROUP) {
+            $groups = array();
+        }
+
+        // If there is no change in the status or in the group arrays, we can stop here.
+        if ($oldvisibility === $visibility) {
+            if ($visibility !== \block_opencast_renderer::GROUP || $groups === $oldgroupsarray) {
+                return 'aclnothingtobesaved';
+            }
+        }
+
+        // Update group access.
+        if ($groups !== $oldgroupsarray) {
+            $this->store_group_access($eventidentifier, $groups);
+        }
+
+        $api = new api();
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+
+        // Remove acls.
+        if ($oldvisibility === block_opencast_renderer::MIXED_VISIBLITY) {
+            $oldacls = array();
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
+                block_opencast_renderer::GROUP, $oldgroupsarray));
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
+                block_opencast_renderer::VISIBLE, $oldgroupsarray));
+        } else {
+            $oldacls = $this->get_non_permanent_acl_rules_for_status($courseid, $oldvisibility, $oldgroupsarray);
+        }
+        foreach ($oldacls as $acl) {
+            $event->remove_acl($acl->action, $acl->role);
+        }
+
+        // Add new acls.
+        $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups);
+        foreach ($newacls as $acl) {
+            $event->add_acl($acl->allow, $acl->action, $acl->role);
+        }
+
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $params['acl'] = $event->get_json_acl();
+
+        // Acl roles have not changed.
+        if ($params['acl'] == ($jsonacl)) {
+            return 'aclnothingtobesaved';
+        }
+
+        $api = new api();
+
+        $api->oc_put($resource, $params);
+
+        if ($api->get_http_code() >= 400) {
+            return false;
+        }
+
+        // Trigger workflow.
+        if ($this->update_metadata($eventidentifier)) {
+            switch ($visibility) {
+                case block_opencast_renderer::VISIBLE: return 'aclrolesadded';
+                case block_opencast_renderer::HIDDEN: return 'aclrolesdeleted';
+                case block_opencast_renderer::GROUP: return 'aclrolesaddedgroup';
+            }
+        }
+        return false;
+
+    }
+
+    /**
      * Assign the given series to a course.
      *
      * @param string $eventidentifier
@@ -819,51 +1016,54 @@ class apibridge {
     }
 
     /**
-     * Deletes acl roles that have been marked as not permanent.
-     *
-     * @param $eventidentifier
-     * @param $courseid
-     *
-     * @return bool
+     * Returns the expected set of non-permanent acl rules for the given status in the context of an event.
+     * Can be used for comparision with the actual set of acl rules.
+     * @param int $courseid id of the course the event belongs to.
+     * @param int $visibility visibility of the event.
+     * @param array|null $groups array of group ids used for replacing the placeholders
+     * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
+     * @throws \dml_exception
+     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
-    public function delete_not_permanent_acl_roles($eventidentifier, $courseid) {
-        $api = new api();
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $jsonacl = $api->oc_get($resource);
-
-        $event = new \block_opencast\local\event();
-        $event->set_json_acl($jsonacl);
-
-        // Remove roles.
+    private function get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
         $roles = $this->getroles(array('permanent' => 0));
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $event->remove_acl($action, $this->replace_placeholders($role->rolename, $courseid));
-            }
+
+        $result = array();
+
+        switch ($visibility) {
+            case block_opencast_renderer::VISIBLE:
+                foreach ($roles as $role) {
+                    foreach ($role->actions as $action) {
+                        $result [] = (object) array(
+                            'allow' => true,
+                            'action' => $action,
+                            'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
+                        );
+                    }
+                }
+                break;
+            case block_opencast_renderer::HIDDEN:
+                break;
+            case block_opencast_renderer::GROUP:
+                foreach ($roles as $role) {
+                    foreach ($role->actions as $action) {
+                        foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule)
+                            $result [] = (object) array(
+                                'allow' => true,
+                                'action' => $action,
+                                'role' => $rule,
+                            );
+                    }
+                }
+                break;
+            default:
+                throw new \coding_exception('The provided visibility status is not valid!');
         }
-
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $params['acl'] = $event->get_json_acl();
-
-        // Acl roles have not changed.
-        if ($params['acl'] == ($jsonacl)) {
-            return true;
-        }
-
-        $api = new api();
-
-        $api->oc_put($resource, $params);
-
-        if ($api->get_http_code() >= 400) {
-            return false;
-        }
-
-        // Trigger workflow.
-        return $this->update_metadata($eventidentifier);
+        return $result;
     }
 
     /**
-     * Checks if momentarily not permanent roles are added or not.
+     * Checks if momentarily not permanent roles have the necessary actions for a event to be visible.
      *
      * @param $eventidentifier
      * @param $courseid
@@ -873,25 +1073,62 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $api = new api();
         $jsonacl = $api->oc_get($resource);
-
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
-        $numroles = 0;
-        $roles = $this->getroles(array('permanent' => 0));
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                if ($event->has_acl(true, $action, $this->replace_placeholders($role->rolename, $courseid))) {
-                    $numroles++;
+        $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $groupsarray = $groups ? explode(',', $groups->get('groups')) : array();
+
+        $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::VISIBLE);
+        $groupacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::GROUP, $groupsarray);
+
+        $hasallvisibleacls = true;
+        $hasnovisibleacls = true;
+        $hasaclnotingroup = false;
+        foreach ($visibleacl as $acl) {
+            if (!$event->has_acl($acl->allow, $acl->action, $acl->role)) {
+                $hasallvisibleacls = false;
+            } else {
+                if (!in_array($acl, $groupacl)){
+                    $hasaclnotingroup = true;
+                }
+                $hasnovisibleacls = true;
+            }
+        }
+        $hasallgroupacls = true;
+        if (!empty($groupsarray)) {
+            $hasallgroupacls = true;
+            foreach ($groupacl as $acl) {
+                if (!$event->has_acl($acl->allow, $acl->action, $acl->role)) {
+                    $hasallgroupacls = false;
                 }
             }
         }
 
-        if ($numroles === count($roles)) {
+        $roles = $this->getroles(array('permanent' => 0));
+        $hasnogroupacls = true;
+        foreach ($roles as $role) {
+            $pattern = $this->get_pattern_for_group_placeholder($role->rolename, $courseid);
+            $eventacls = json_decode($jsonacl);
+            foreach ($eventacls as $acl) {
+                if (preg_match($pattern, $acl->role)) {
+                    $hasnogroupacls = false;
+                }
+            }
+        }
+        // If all non permanent acls for visibility are set the event is visible.
+        if ($hasallvisibleacls) {
             return \block_opencast_renderer::VISIBLE;
-        } else if ($numroles === 0) {
+        } else if (!empty($groupsarray) && $hasallgroupacls && !$hasaclnotingroup) {
+            // If we have groups and the acl rules for each group is present and we do not have non-permanent acls,
+            // which do not belong to group visibility, then visibility is group.
+            return \block_opencast_renderer::GROUP;
+        } else if (empty($groupsarray) && $hasnogroupacls & $hasnovisibleacls) {
+            // The visibility is hidden if we have no groupaccess and
+            // if there is no acl for group or full visibility in the set.
             return \block_opencast_renderer::HIDDEN;
         } else {
+            // In all other cases we have mixed visibility.
             return \block_opencast_renderer::MIXED_VISIBLITY;
         }
     }
@@ -908,26 +1145,54 @@ class apibridge {
     private function update_metadata($event) {
         $workflow = get_config('block_opencast', 'workflow_roles');
 
+        return $this->start_workflow($event, $workflow);
+    }
+
+    /**
+     * Starts a workflow in the opencast system.
+     * @param string $eventid event id in the opencast system.
+     * @param string $workflow identifier of the workflow to be started.
+     * @return bool true, if successfully started.
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    private function start_workflow($eventid, $workflow) {
         if (!$workflow) {
             return false;
         }
 
-        // Get mediapackage xml.
-        $resource = '/assets/episode/' . $event;
         $api = new api();
-        $mediapackage = $api->oc_get($resource);
+        if (!$api->supports_api_level('v1.1.0')) {
+            // Get mediapackage xml.
+            $resourceopencast5 = '/assets/episode/' . $eventid;
+            $api = new api();
+            $mediapackage = $api->oc_get($resourceopencast5);
 
-        // Start workflow.
-        $resource = '/workflow/start';
-        $params = [
-            'definition'   => $workflow,
-            'mediapackage' => rawurlencode($mediapackage)
-        ];
-        $api = new api();
-        $api->oc_post($resource, $params);
+            // Start workflow.
+            $resourceopencast5 = '/workflow/start';
+            $params = [
+                'definition'   => $workflow,
+                'mediapackage' => rawurlencode($mediapackage)
+            ];
+            $api = new api();
+            $api->oc_post($resourceopencast5, $params);
 
-        if ($api->get_http_code() != 200) {
-            return false;
+            if ($api->get_http_code() != 200) {
+                return false;
+            }
+        } else {
+            // Start workflow.
+            $resource = '/api/workflows';
+            $params = [
+                'workflow_definition_identifier'    => $workflow,
+                'event_identifier'                  => $eventid
+            ];
+            $api = new api();
+            $api->oc_post($resource, $params);
+
+            if ($api->get_http_code() != 201) {
+                return false;
+            }
         }
 
         return true;
@@ -958,36 +1223,118 @@ class apibridge {
      */
     public function get_existing_workflows($tag = '') {
         if (!array_key_exists($tag, $this->workflows)) {
-            $resource = '/workflow/definitions.json';
-            $api = new api();
-            $result = $api->oc_get($resource);
 
-            if ($api->get_http_code() === 200) {
-                $returnedworkflows = json_decode($result);
-                $this->workflows[$tag] = array();
-                foreach ($returnedworkflows->definitions->definition as $workflow) {
-                    // Filter for specific tag.
-                    if ($tag) {
-                        // Expansion of '-ng' necessary to support OC 4.x.
-                        if (!($workflow->tags &&
-                            ($tag === $workflow->tags->tag ||
-                                $tag . '-ng' === $workflow->tags->tag ||
-                                is_array($workflow->tags->tag) &&
-                                (in_array($tag, $workflow->tags->tag) ||
-                                    in_array($tag . '-ng', $workflow->tags->tag))))) {
-                            continue;
+            $api = new api();
+            if (!$api->supports_api_level('v1.1.0')) {
+                $resourceopencast5 = '/workflow/definitions.json';
+                $api = new api();
+                $result = $api->oc_get($resourceopencast5);
+
+                if ($api->get_http_code() === 200) {
+                    $returnedworkflows = json_decode($result);
+                    $this->workflows[$tag] = array();
+                    foreach ($returnedworkflows->definitions->definition as $workflow) {
+                        // Filter for specific tag.
+                        if ($tag) {
+                            if (!($workflow->tags &&
+                                ($tag === $workflow->tags->tag ||
+                                    is_array($workflow->tags->tag) &&
+                                    in_array($tag, $workflow->tags->tag)))) {
+                                continue;
+                            }
+                        }
+                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                            $this->workflows[$tag][$workflow->id] = $workflow->title;
+                        } else {
+                            $this->workflows[$tag][$workflow->id] = $workflow->id;
                         }
                     }
-                    if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                        $this->workflows[$tag][$workflow->id] = $workflow->title;
-                    } else {
-                        $this->workflows[$tag][$workflow->id] = $workflow->id;
-                    }
+                } else {
+                    return array();
                 }
             } else {
-                return array();
+                $resource = '/api/workflow-definitions';
+                $api = new api();
+                $resource .= '?filter=tag:'.$tag;
+                $result = $api->oc_get($resource);
+                if ($api->get_http_code() === 200) {
+                    $returnedworkflows = json_decode($result);
+                    $this->workflows[$tag] = array();
+                    foreach ($returnedworkflows as $workflow) {
+                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->title;
+                        } else {
+                            $this->workflows[$tag][$workflow->identifier] = $workflow->identifier;
+                        }
+                    }
+                } else {
+                    return array();
+                }
             }
         }
         return $this->workflows[$tag];
     }
+
+    /**
+     * Can delete the event in opencast.
+     *
+     * @param object $video opencast video.
+     */
+    public function can_delete_event_assignment($video, $courseid) {
+
+        if (isset($video->processing_state) &&
+            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+
+            $context = \context_course::instance($courseid);
+
+            return has_capability('block/opencast:deleteevent', $context);
+        }
+
+        return false;
+    }
+
+    /**
+     * Triggers the deletion of an event. Dependent on the settings a deletion workflow is started in advance.
+     *
+     * @param string $eventidentifier
+     * @return boolean return true when video deletion is triggerd correctly.
+     */
+    public function trigger_delete_event($eventidentifier) {
+        global $DB;
+        $workflow = get_config("block_opencast", "deleteworkflow");
+        if ($workflow) {
+            $this->start_workflow($eventidentifier, $workflow);
+
+            $record = [
+                "opencasteventid" => $eventidentifier,
+                "failed" => false,
+                "timecreated" => time(),
+                "timemodified" => time()
+            ];
+            $DB->insert_record("block_opencast_deletejob", $record);
+        } else {
+            $this->delete_event($eventidentifier);
+        }
+        return true;
+    }
+
+    /**
+     * Delete an event. Verify the video and check capability before.
+     *
+     * @param string $eventidentifier
+     * @return boolean return true when video is deleted.
+     */
+    public function delete_event($eventidentifier) {
+
+        $resource = '/api/events/' . $eventidentifier;
+
+        $api = new api();
+        $api->oc_delete($resource);
+
+        if ($api->get_http_code() != 204) {
+            return false;
+        }
+        return true;
+    }
+
 }

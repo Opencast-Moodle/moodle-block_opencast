@@ -25,3 +25,15 @@
 #page-admin-blocks-opencast-adminsettings #roles_table .felement {
     margin-left: 0;
 }
+
+#page-blocks-opencast-index h2 ~ .resettable {
+    display: none;
+}
+
+#page-blocks-opencast-addvideo .form-filetypes-descriptions li  {
+    font-size:0
+}
+
+#page-blocks-opencast-addvideo .form-filetypes-descriptions li  .text-muted {
+     font-size:12px
+}
