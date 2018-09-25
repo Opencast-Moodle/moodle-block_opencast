@@ -44,9 +44,9 @@ Prerequisite: The course page already contains an instance of the Block "Opencas
 Steps to upload a video:
 
 1. Clicking on "Add video" leads to an upload form.
-2. Here the teacher can upload a video file to moodle:
+2. Here the teacher can upload a video file to moodle:</br>
 <img src="https://user-images.githubusercontent.com/9437254/32501009-2996085e-c3d7-11e7-9d4e-c957ba28d467.png" width="250"></br>
-3. Saving the form creates an upload job, which is registered to the Upload Job Queue.
+3. Saving the form creates an upload job, which is registered to the Upload Job Queue.</br>
 <img src="https://user-images.githubusercontent.com/9437254/32501133-7da4fd56-c3d7-11e7-9c1f-fe242345e2c7.png" width="500"></br>
 4. The processing of a video is done during a cron job and contain the following steps:
     1. A new series is created in opencast with the name which was set in the settings, if it is not yet created.
@@ -65,10 +65,10 @@ The (opencast) admin has definded student specific roles.
 
 Steps to change the visiblity:
 
-1. Go to the overview section of the block.
+1. Go to the overview section of the block.</br>
 <img src="https://user-images.githubusercontent.com/9437254/46022814-9da8e180-c0e3-11e8-9040-848952089afe.png" width="500"></br>
 2. Click on the visiblity icon.
-3. In the visibility form the teacher can select the needed visibility state.
+3. In the visibility form the teacher can select the needed visibility state.</br>
 <img src="https://user-images.githubusercontent.com/9437254/46023014-01cba580-c0e4-11e8-9fe4-d8688cde1423.png" width="500"></br>
 4. The processing of the video starts:
     1. The ACL-Roles of the video are changed and updated in Opencast.
@@ -80,7 +80,7 @@ A teacher wants to link an existing series to his moodle course and control the 
 For this the series id has to be reference in the block.
 
 1. Go to the overview section of the block.
-2. Go to "Edit series mapping".
+2. Go to "Edit series mapping".</br>
 <img src="https://user-images.githubusercontent.com/9437254/46022815-9da8e180-c0e3-11e8-969c-15e0bbab4417.png" width="500"></br>
 3. Enter the series id and save the form.
 4. Now all videos of the series should be displayed in the block and the visibility of them can be adjusted.
