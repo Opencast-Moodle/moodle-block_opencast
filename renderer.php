@@ -309,18 +309,21 @@ class block_opencast_renderer extends plugin_renderer_base {
         $html = $this->output->notification(get_string('deleteeventdesc', 'block_opencast'), 'error');
 
         $table = new \html_table();
-        $table->head = array(
-            get_string('hstart_date', 'block_opencast'),
-            get_string('htitle', 'block_opencast'),
-            get_string('hpublished', 'block_opencast'),
-            get_string('hworkflow_state', 'block_opencast')
-        );
+        $table->head = array();
+        $table->head []= get_string('hstart_date', 'block_opencast');
+        $table->head []= get_string('htitle', 'block_opencast');
+        if (get_config('block_opencast', 'showpublicationchannels')) {
+            $table->head [] = get_string('hpublished', 'block_opencast');
+        };
+        $table->head []= get_string('hworkflow_state', 'block_opencast');
 
         $row = array();
 
         $row[] = $this->render_created($video->start);
         $row[] = $video->title;
-        $row[] = $this->render_publication_status($video->publication_status);
+        if (get_config('block_opencast', 'showpublicationchannels')) {
+            $row[] = $this->render_publication_status($video->publication_status);
+        }
         $row[] = $this->render_processing_state_icon($video->processing_state);
 
         $table->data[] = $row;
