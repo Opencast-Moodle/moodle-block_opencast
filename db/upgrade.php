@@ -89,7 +89,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2018012501, 'opencast');
     }
 
-    if ($oldversion < 2018013003) {
+    if ($oldversion < 2018082800) {
 
         // Define table block_opencast_series to be created.
         $table = new xmldb_table('block_opencast_series');
@@ -100,10 +100,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2018013003, 'opencast');
+        upgrade_block_savepoint(true, 2018082800, 'opencast');
     }
 
-    if ($oldversion < 2018041800) {
+    if ($oldversion < 2018082800) {
 
         // Define field permanent to be added to block_opencast_roles.
         $table = new xmldb_table('block_opencast_roles');
@@ -115,7 +115,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2018041800, 'opencast');
+        upgrade_block_savepoint(true, 2018082800, 'opencast');
     }
 
     if ($oldversion < 2018080300) {
