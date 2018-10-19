@@ -503,13 +503,21 @@ class upload_helper {
         global $DB;
 
         $sql = "SELECT bi.* FROM {block_instances} bi
-                JOIN {context} ctx on ctx.id = bi.parentcontextid AND ctx.contextlevel = :contextlevel
-                WHERE bi.blockname = :blockname AND ctx.instanceid = :instanceid";
+                JOIN {context} ctx ON ctx.id = bi.parentcontextid
+                WHERE bi.blockname = :blockname
+                AND (
+                    ctx.contextlevel = :contextlevelsystem
+                    OR (
+                        ctx.contextlevel = :contextlevelcourse
+                        AND ctx.instanceid = :courseid
+                    )
+                )";
 
         $params = [
-            'contextlevel' => CONTEXT_COURSE,
+            'contextlevelcourse' => CONTEXT_COURSE,
+            'contextlevelsystem' => CONTEXT_SYSTEM,
             'blockname' => 'opencast',
-            'instanceid' => $courseid
+            'courseid' => $courseid
         ];
 
         if (!$blockinstance = $DB->get_record_sql($sql, $params)) {
