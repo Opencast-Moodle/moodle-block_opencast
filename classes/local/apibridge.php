@@ -189,12 +189,27 @@ class apibridge {
         if ($result->error == 0) {
             foreach ($videos as $video) {
                 $this->check_for_planned_videos($video);
+                $this->check_for_videos_in_cutting($video);
             }
         }
 
         $result->videos = $videos;
 
         return $result;
+    }
+
+    /**
+     * Check if a video is currently in cutting/postproduction.
+     * This is the case if it is currently in state proceeding, but not yet published anywhere but internal.
+     * @param $video The video object, which should be checked.
+     */
+    private function check_for_videos_in_cutting(&$video) {
+
+        if ($video->processing_state == "SUCCEEDED" &&
+                count($video->publication_state) == 1 &&
+                $video->publication_state[0] = 'internal') {
+            $video->processing_state = "CUTTING";
+        }
     }
 
     /**

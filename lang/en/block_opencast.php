@@ -155,6 +155,7 @@ $string['setting_permanent'] = 'Is permanent';
 $string['show_public_channels'] = 'Show publications channels';
 $string['show_public_channels_desc'] = 'If ticked, the users can see the column with the publication channels in the list of the published videos.';
 $string['submit'] = 'Save changes';
+$string['ocstatecutting'] = 'Cutting';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
 $string['ocstatesucceeded'] = 'Succeeded';
