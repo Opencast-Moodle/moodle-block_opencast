@@ -28,9 +28,9 @@ use moodleform;
 use html_writer;
 use moodle_url;
 
-defined( 'MOODLE_INTERNAL' ) || die;
+defined('MOODLE_INTERNAL') || die;
 
-require_once( $CFG->libdir . '/formslib.php' );
+require_once($CFG->libdir . '/formslib.php');
 
 class admin_form extends moodleform {
     protected function definition() {
@@ -50,22 +50,6 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_INT);
         $mform->setDefault($name, 1);
-        $mform->addElement('static', 'description' . $name, '', $description);
-
-        // Upload file limit.
-        $name = 'uploadfilelimit';
-        $title = get_string('uploadfilelimit', 'block_opencast');
-        $description = get_string('uploadfilelimitdesc', 'block_opencast');
-        // In human readable sizes: Unlimted, 20GB, 10GB, 5GB, 2GB, 1GB, 512MB, 256MB, 128MB, 64MB.
-        $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1073741824,
-            536870912, 268435456, 134217728, 67108864);
-        $filesizes = array();
-        foreach ($sizelist as $sizebytes) {
-            $filesizes[(string) intval($sizebytes)] = display_size($sizebytes);
-        }
-        $mform->addElement('select', $name, $title, $filesizes);
-        $mform->setType($name, PARAM_INT);
-        $mform->setDefault($name, 2147483648);
         $mform->addElement('static', 'description' . $name, '', $description);
 
         // Upload workflow.
@@ -93,8 +77,37 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
 
+         // Allow unassign.
+        $name = 'allowunassign';
+        $title =   get_string('allowunassign', 'block_opencast');
+        $description =    get_string('allowunassigndesc', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 0);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // Delete workflow.
+        $noworkflow = [null => get_string("adminchoice_noworkflow", "block_opencast")];
+        $name = 'deleteworkflow';
+        $title = get_string('deleteworkflow', 'block_opencast');
+        $description = get_string('deleteworkflowdesc', 'block_opencast');
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows('delete')));
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // Configurate, whether a videofile should be deleted from moodle's filesystem
+        // right after the file was transferred (uploaded) to opencast server.
+        // The plugin deletes all files in users draft area, which are related to
+        // uploaded video and removes the video file from trash also.
+        $name = 'adhocfiledeletion';
+        $title =   get_string('adhocfiledeletion', 'block_opencast');
+        $description =    get_string('adhocfiledeletiondesc', 'block_opencast');
+        $mform->addElement('selectyesno', $name, $title);
+        $mform->setDefault($name, 0);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
         // Section overview settings.
-        $mform->addElement('header', 'overview_header', get_string('overviewsettings', 'block_opencast'));
+        $mform->addElement('header', 'block_header', get_string('blocksettings', 'block_opencast'));
 
         // Limit videos.
         $name = 'limitvideos';
@@ -150,7 +163,8 @@ class admin_form extends moodleform {
         $name = 'workflow_roles';
         $title = get_string('workflowrolesname', 'block_opencast');
         $description = get_string('workflowrolesdesc', 'block_opencast');
-        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('archive'));
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows('archive')));
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 

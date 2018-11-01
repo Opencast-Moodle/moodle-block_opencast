@@ -32,10 +32,10 @@ defined('MOODLE_INTERNAL') || die;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
-    const VISIBLE = 2;
-    const MIXED_VISIBLITY = 1;
+    const VISIBLE = 1;
+    const MIXED_VISIBLITY = 3;
     const HIDDEN = 0;
-
+    const GROUP = 2;
 
     /**
      * Render the opencast timestamp in moodle standard format.
@@ -58,14 +58,18 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function render_processing_state_icon($processingstate) {
         switch ($processingstate) {
 
-            case 'SUCCEEDED' :
-                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
             case 'FAILED' :
                 return $this->output->pix_icon('failed', get_string('ocstatefailed', 'block_opencast'), 'block_opencast');
             case 'PLANNED' :
                 return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
-            default :
+            case 'DELETING' :
+                return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'));
+            case 'RUNNING' :
+            case 'PAUSED' :
                 return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast');
+            case 'SUCCEEDED' :
+            default :
+                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
         }
     }
 
@@ -219,22 +223,38 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
         global $USER;
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
-            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visible' => $visible, 'sesskey' => $USER->sesskey));
+            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visibility' => $visible, 'sesskey' => $USER->sesskey));
 
-        if ($visible === self::VISIBLE) {
-            $text = get_string('changevisibility_visible', 'block_opencast');
-            $icon = $this->output->pix_icon('t/hide', $text);
-        } else if ($visible === self::MIXED_VISIBLITY) {
-            $text = get_string('changevisibility_mixed', 'block_opencast');
-            $icon = $this->output->pix_icon('i/warning', $text);
-        } else {
-            $text = get_string('changevisibility_hidden', 'block_opencast');
-            $icon = $this->output->pix_icon('t/show', $text);
+        switch ($visible) {
+            case self::VISIBLE:
+                $text = get_string('changevisibility_visible', 'block_opencast');
+                $icon = $this->output->pix_icon('t/hide', $text);
+                break;
+            case self::MIXED_VISIBLITY:
+                $text = get_string('changevisibility_mixed', 'block_opencast');
+                $icon = $this->output->pix_icon('i/warning', $text);
+                break;
+            case self::GROUP:
+                $text = get_string('changevisibility_group', 'block_opencast');
+                $icon = $this->output->pix_icon('t/groups', $text);
+                break;
+            case self::HIDDEN:
+                $text = get_string('changevisibility_hidden', 'block_opencast');
+                $icon = $this->output->pix_icon('t/show', $text);
+                break;
         }
 
         return \html_writer::link($url, $icon);
     }
 
+    /**
+     * Render the information about the video before deleting the assignment of the event
+     * to the course series.
+     *
+     * @param int $courseid
+     * @param object $video
+     * @return string
+     */
     public function render_video_info($courseid, $video) {
 
         if (!$video) {
@@ -269,6 +289,70 @@ class block_opencast_renderer extends plugin_renderer_base {
             'action'     => 'delete'
         );
         $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', $params);
+        $html .= $this->output->single_button($url, $label);
+
+        return $html;
+    }
+
+    /**
+     * Render the link to delete a group assignment.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_delete_event_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/deleteevent.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('deleteevent', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/delete', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the information about the video before finally delete it.
+     *
+     * @param int $courseid
+     * @param object $video
+     * @return string
+     */
+    public function render_video_deletion_info($courseid, $video) {
+
+        if (!$video) {
+            return get_string('videonotfound', 'block_opencast');
+        }
+
+        $html = $this->output->notification(get_string('deleteeventdesc', 'block_opencast'), 'error');
+
+        $table = new \html_table();
+        $table->head = array();
+        $table->head []= get_string('hstart_date', 'block_opencast');
+        $table->head []= get_string('htitle', 'block_opencast');
+        if (get_config('block_opencast', 'showpublicationchannels')) {
+            $table->head [] = get_string('hpublished', 'block_opencast');
+        };
+        $table->head []= get_string('hworkflow_state', 'block_opencast');
+
+        $row = array();
+
+        $row[] = $this->render_created($video->start);
+        $row[] = $video->title;
+        if (get_config('block_opencast', 'showpublicationchannels')) {
+            $row[] = $this->render_publication_status($video->publication_status);
+        }
+        $row[] = $this->render_processing_state_icon($video->processing_state);
+
+        $table->data[] = $row;
+
+        $html .= \html_writer::table($table);
+
+        $label = get_string('dodeleteevent', 'block_opencast');
+        $params = array(
+            'identifier' => $video->identifier,
+            'courseid' => $courseid,
+            'action' => 'delete'
+        );
+        $url = new \moodle_url('/blocks/opencast/deleteevent.php', $params);
         $html .= $this->output->single_button($url, $label);
 
         return $html;

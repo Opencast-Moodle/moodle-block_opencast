@@ -82,9 +82,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->limituploadjobs)) {
                 set_config('limituploadjobs', $data->limituploadjobs, 'block_opencast');
             }
-            if (isset($data->uploadfilelimit)) {
-                set_config('uploadfilelimit', $data->uploadfilelimit, 'block_opencast');
-            }
             if (isset($data->uploadworkflow)) {
                 set_config('uploadworkflow', $data->uploadworkflow, 'block_opencast');
             }
@@ -93,6 +90,15 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             }
             if (isset($data->reuseexistingupload)) {
                 set_config('reuseexistingupload', $data->reuseexistingupload, 'block_opencast');
+            }
+            if (isset($data->allowunassign)) {
+                set_config('allowunassign', $data->allowunassign, 'block_opencast');
+            }
+            if (isset($data->deleteworkflow)) {
+                set_config('deleteworkflow', $data->deleteworkflow, 'block_opencast');
+            }
+            if (isset($data->adhocfiledeletion)) {
+                set_config('adhocfiledeletion', $data->adhocfiledeletion, 'block_opencast');
             }
             if (isset($data->limitvideos)) {
                 set_config('limitvideos', $data->limitvideos, 'block_opencast');
@@ -155,6 +161,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
     $entry->publishtoengage = get_config('block_opencast', 'publishtoengage');
     $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
+    $entry->allowunassign = get_config('block_opencast', 'allowunassign');
+    $entry->deleteworkflow = get_config('block_opencast', 'deleteworkflow');
+    $entry->adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion');
 
     // Section overview settings.
     $entry->limitvideos = get_config('block_opencast', 'limitvideos');

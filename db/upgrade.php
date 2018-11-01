@@ -89,7 +89,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2018012501, 'opencast');
     }
 
-    if ($oldversion < 2018013003) {
+    if ($oldversion < 2018082800) {
 
         // Define table block_opencast_series to be created.
         $table = new xmldb_table('block_opencast_series');
@@ -100,10 +100,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2018013003, 'opencast');
+        upgrade_block_savepoint(true, 2018082800, 'opencast');
     }
 
-    if ($oldversion < 2018041800) {
+    if ($oldversion < 2018082800) {
 
         // Define field permanent to be added to block_opencast_roles.
         $table = new xmldb_table('block_opencast_roles');
@@ -115,7 +115,81 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2018041800, 'opencast');
+        upgrade_block_savepoint(true, 2018082800, 'opencast');
+    }
+
+    if ($oldversion < 2018080300) {
+
+        // Define table block_opencast_draftitemid to be created.
+        $table = new xmldb_table('block_opencast_draftitemid');
+
+        // Adding fields to table block_opencast_draftitemid.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_draftitemid.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Adding indexes to table block_opencast_draftitemid.
+        $table->add_index('ctx-itemid', XMLDB_INDEX_NOTUNIQUE, array('contextid', 'itemid'));
+
+        // Conditionally launch create table for block_opencast_draftitemid.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2018080300, 'opencast');
+    }
+
+    if ($oldversion < 2018082800) {
+
+        // Define table block_opencast_deletejob to be created.
+        $table = new xmldb_table('block_opencast_deletejob');
+
+        // Adding fields to table block_opencast_deletejob.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('opencasteventid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('failed', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_deletejob.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for block_opencast_deletejob.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2018082800, 'opencast');
+    }
+
+    if ($oldversion < 2018082802) {
+
+        // Define table block_opencast_groupaccess to be created.
+        $table = new xmldb_table('block_opencast_groupaccess');
+
+        // Adding fields to table block_opencast_groupaccess.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('opencasteventid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('groups', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_groupaccess.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for block_opencast_groupaccess.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2018082802, 'opencast');
     }
 
     return true;
