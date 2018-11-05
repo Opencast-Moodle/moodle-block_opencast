@@ -35,6 +35,7 @@ use block_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
+require_once($CFG->dirroot.'/blocks/opencast/tests/helper/apibridge_testable.php');
 
 class apibridge {
 
@@ -50,7 +51,7 @@ class apibridge {
     /**
      * Get an instance of an object of this class. Create as a singleton.
      *
-     * @staticvar report_helper $apibridge
+     * @staticvar \apibridge $apibridge
      *
      * @param boolean $forcenewinstance true, when a new instance should be created.
      *
@@ -60,6 +61,12 @@ class apibridge {
         static $apibridge;
 
         if (isset($apibridge) && !$forcenewinstance) {
+            return $apibridge;
+        }
+
+        // Use replacement of api bridge for test cases.
+        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+            $apibridge = new \block_opencast_apibridge_testable();
             return $apibridge;
         }
 
@@ -141,10 +148,8 @@ class apibridge {
      * Get all the videos (events) for a course.
      * Note that they are restricted by course role.
      *
-     * @param int             $courseid
-     * @param \flexible_table $table
-     * @param int             $perpage
-     * @param boolean         $download
+     * @param int $courseid
+     * @param string $sortcolumns
      *
      * @return array
      */
@@ -1156,7 +1161,7 @@ class apibridge {
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    private function start_workflow($eventid, $workflow) {
+    public function start_workflow($eventid, $workflow, $params = array()) {
         if (!$workflow) {
             return false;
         }
@@ -1170,10 +1175,9 @@ class apibridge {
 
             // Start workflow.
             $resourceopencast5 = '/workflow/start';
-            $params = [
-                'definition'   => $workflow,
-                'mediapackage' => rawurlencode($mediapackage)
-            ];
+            $params['definition'] = $workflow;
+            $params['mediapackage'] = rawurlencode($mediapackage);
+
             $api = new api();
             $api->oc_post($resourceopencast5, $params);
 
@@ -1183,10 +1187,9 @@ class apibridge {
         } else {
             // Start workflow.
             $resource = '/api/workflows';
-            $params = [
-                'workflow_definition_identifier'    => $workflow,
-                'event_identifier'                  => $eventid
-            ];
+            $params['workflow_definition_identifier'] = $workflow;
+            $params['event_identifier'] = $eventid;
+
             $api = new api();
             $api->oc_post($resource, $params);
 
@@ -1337,4 +1340,50 @@ class apibridge {
         return true;
     }
 
+    /**
+     * Get course videos for backup. This might retrieve only the videos, that
+     * have a processing state of SUCCEDED.
+     *
+     * @param int $courseid
+     * @param array $processingstates
+     *
+     * @return array list of videos for backup.
+     */
+    public function get_course_videos_for_backup($courseid, $processingstates = ['SUCCEEDED']) {
+
+        if (!$result = $this->get_course_videos($courseid)) {
+            return [];
+        }
+
+        if ($result->error != 0) {
+            return [];
+        }
+
+        $videosforbackup = [];
+        foreach ($result->videos as $video) {
+            if (in_array($video->processing_state, $processingstates)) {
+                $videosforbackup[$video->identifier] = $video;
+            }
+        }
+
+        return $videosforbackup;
+    }
+
+    /**
+     * Check, whether the opencast system supports a given level.
+     *
+     * @param string $level
+     * @return boolean
+     */
+    public function supports_api_level($level) {
+
+        $api = new api();
+        try {
+            return $api->supports_api_level($level);
+        } catch (\moodle_exception $e) {
+            debugging('Api level '.$level.' not supported.');
+            return false;
+        }
+        return false;
+    }
 }
