@@ -106,6 +106,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             if (isset($data->showpublicationchannels)) {
                 set_config('showpublicationchannels', $data->showpublicationchannels, 'block_opencast');
             }
+            if (isset($data->duplicateworkflow)) {
+                set_config('duplicateworkflow', $data->duplicateworkflow, 'block_opencast');
+            }
             if (isset($data->group_creation)) {
                 set_config('group_creation', $data->group_creation, 'block_opencast');
             }
@@ -168,6 +171,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
     // Section overview settings.
     $entry->limitvideos = get_config('block_opencast', 'limitvideos');
     $entry->showpublicationchannels = get_config('block_opencast', 'showpublicationchannels');
+
+    // Section backup and restore.
+    $entry->duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
 
     // Section access policies.
     $entry->group_creation = get_config('block_opencast', 'group_creation');
