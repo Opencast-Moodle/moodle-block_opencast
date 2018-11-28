@@ -12,6 +12,9 @@ addons:
   firefox: "47.0.1"
   postgresql: "9.4"
 
+services:
+  - docker
+
 php:
   - 7.0
   - 7.1
@@ -43,29 +46,34 @@ before_install:
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
+before_install:
+  - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
+  - cd /tmp/opencast-docker
+  - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
+  - docker ps
 
 jobs:
   include:
     # Prechecks against latest Moodle stable only.
     - stage: static
       php: 7.2
-      addons:
-        apt:
-          packages:
-            - oracle-java8-installer
-            - oracle-java8-set-default
+#      addons:
+#        apt:
+#          packages:
+#            - oracle-java8-installer
+#            - oracle-java8-set-default
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
-      - moodle-plugin-ci phplint
-      - moodle-plugin-ci phpcpd
-      - moodle-plugin-ci phpmd
-      - moodle-plugin-ci codechecker
-      - moodle-plugin-ci savepoints
-      - moodle-plugin-ci mustache
-      - moodle-plugin-ci grunt
-      - moodle-plugin-ci validate
+#      - moodle-plugin-ci phplint
+#      - moodle-plugin-ci phpcpd
+#      - moodle-plugin-ci phpmd
+#      - moodle-plugin-ci codechecker
+#      - moodle-plugin-ci savepoints
+#      - moodle-plugin-ci mustache
+#      - moodle-plugin-ci grunt
+#      - moodle-plugin-ci validate
 
     # Smaller build matrix for development builds
     - stage: develop
@@ -85,7 +93,7 @@ script:
 #  - moodle-plugin-ci phpunit --coverage-clover
 #  - moodle-plugin-ci behat
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+#  - bash <(curl -s https://codecov.io/bash)
 
 stages:
   - static
