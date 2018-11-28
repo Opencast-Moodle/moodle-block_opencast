@@ -54,10 +54,10 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
 
         // Test api bridge.
-        set_config('apiurl', $this->apiurl, 'block_opencast');
-        set_config('apiusername', $this->apiusername, 'block_opencast');
-        set_config('apipassword', $this->apipassword, 'block_opencast');
-        set_config('limituploadjobs', 2, 'block_opencast');
+        set_config('apiurl', $this->apiurl, 'tool_opencast');
+        set_config('apiusername', $this->apiusername, 'tool_opencast');
+        set_config('apipassword', $this->apipassword, 'tool_opencast');
+        set_config('limituploadjobs', 2, 'tool_opencast');
 
         // Upload file.
         $plugingenerator = $this->getDataGenerator()->get_plugin_generator('block_opencast');
