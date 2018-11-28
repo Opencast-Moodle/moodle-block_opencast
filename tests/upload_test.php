@@ -25,7 +25,7 @@ global $CFG;
 
 class block_opencast_upload_testcase extends advanced_testcase {
 
-    private $apiurl = 'moodle-proxy.rz.tu-ilmenau.de';
+    private $apiurl = 'localhost:8080';
     private $apiusername = 'opencast_system_account';
     private $apipassword = 'CHANGE_ME';
 
