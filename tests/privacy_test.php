@@ -312,4 +312,189 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $this->assertCount(1, $jobs);
     }
 
+    /**
+     * Test for provider::get_users_in_context().
+     */
+    public function test_get_users_in_context() {
+        global $DB;
+
+        // Test setup.
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+        $this->setUser($teacher1);
+
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Add 3 upload jobs for Teacher 1 in course 1.
+        for ($c = 0; $c < 3; $c++) {
+            $job = new \stdClass();
+            $job->fileid = $c;
+            $job->contenthash = '987654321' . $c;
+            $job->opencasteventid = '';
+            $job->countfailed = 0;
+            $job->timestarted = 0;
+            $job->timesucceeded = 0;
+            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->courseid = $course1->id;
+            $job->userid = $teacher1->id;
+            $job->timecreated = time();
+            $job->timemodified = time();
+
+            $DB->insert_record('block_opencast_uploadjob', $job);
+        }
+
+        // Test the created block_opencast records for Teacher 1 equals test number of jobs specified.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher1->id]);
+        $this->assertCount(3, $jobs);
+
+        // Get data based on context.
+        $coursecontext1 = context_course::instance($course1->id);
+        $coursecontext2 = context_course::instance($course2->id);
+
+        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist);
+        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        provider::get_users_in_context($userlist2);
+        $this->assertCount(0, $userlist2);
+
+        // Add 1 upload jobs for Teacher 2 in course 2.
+        $job = new \stdClass();
+        $job->fileid = 10;
+        $job->contenthash = '987654321';
+        $job->opencasteventid = '';
+        $job->countfailed = 0;
+        $job->timestarted = 0;
+        $job->timesucceeded = 0;
+        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->courseid = $course2->id;
+        $job->userid = $teacher2->id;
+        $job->timecreated = time();
+        $job->timemodified = time();
+
+        $DB->insert_record('block_opencast_uploadjob', $job);
+
+        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(1, $userlist);
+        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        provider::get_users_in_context($userlist2);
+        $this->assertCount(1, $userlist2);
+
+        // Add 1 upload jobs for Teacher 2 in course 1.
+        $job = new \stdClass();
+        $job->fileid = 10;
+        $job->contenthash = '987654321';
+        $job->opencasteventid = '';
+        $job->countfailed = 0;
+        $job->timestarted = 0;
+        $job->timesucceeded = 0;
+        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->courseid = $course1->id;
+        $job->userid = $teacher2->id;
+        $job->timecreated = time();
+        $job->timemodified = time();
+
+        $DB->insert_record('block_opencast_uploadjob', $job);
+
+        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        provider::get_users_in_context($userlist2);
+        $this->assertCount(1, $userlist2);
+    }
+
+    /**
+     * Test for provider::delete_data_for_users().
+     */
+    public function test_delete_data_for_users() {
+        global $DB;
+
+        // Test setup.
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+        $this->setUser($teacher1);
+
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
+        // Add 3 upload jobs for Teacher 1 in course 1.
+        for ($c = 0; $c < 3; $c++) {
+            $job = new \stdClass();
+            $job->fileid = $c;
+            $job->contenthash = '987654321' . $c;
+            $job->opencasteventid = '';
+            $job->countfailed = 0;
+            $job->timestarted = 0;
+            $job->timesucceeded = 0;
+            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->courseid = $course1->id;
+            $job->userid = $teacher1->id;
+            $job->timecreated = time();
+            $job->timemodified = time();
+
+            $DB->insert_record('block_opencast_uploadjob', $job);
+        }
+
+        // Add 1 upload jobs for Teacher 1 in course 2.
+        $job = new \stdClass();
+        $job->fileid = 10;
+        $job->contenthash = '987654321';
+        $job->opencasteventid = '';
+        $job->countfailed = 0;
+        $job->timestarted = 0;
+        $job->timesucceeded = 0;
+        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->courseid = $course2->id;
+        $job->userid = $teacher1->id;
+        $job->timecreated = time();
+        $job->timemodified = time();
+
+        $DB->insert_record('block_opencast_uploadjob', $job);
+
+        // Add 1 upload jobs for Teacher 2 in course 2.
+        $job = new \stdClass();
+        $job->fileid = 10;
+        $job->contenthash = '987654321';
+        $job->opencasteventid = '';
+        $job->countfailed = 0;
+        $job->timestarted = 0;
+        $job->timesucceeded = 0;
+        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->courseid = $course2->id;
+        $job->userid = $teacher2->id;
+        $job->timecreated = time();
+        $job->timemodified = time();
+
+        $DB->insert_record('block_opencast_uploadjob', $job);
+
+        // Test the created block_opencast records for Teacher 1 equals test number of jobs specified.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher1->id]);
+        $this->assertCount(4, $jobs);
+
+
+        // Test the created block_opencast records for Teacher 2 equals test number of jobs specified.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher2->id]);
+        $this->assertCount(1, $jobs);
+
+        // Get data based on context.
+        $coursecontext1 = context_course::instance($course1->id);
+        $coursecontext2 = context_course::instance($course2->id);
+
+        $approveduserlist = new \core_privacy\local\request\approved_userlist($coursecontext2, 'block_opencast',
+            [$teacher1->id]);
+        provider::delete_data_for_users($approveduserlist);
+        $this->assertCount(1, $approveduserlist);
+
+        // Test one uploadjob was removed.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher1->id]);
+        $this->assertCount(3, $jobs);
+
+        // Test that the uploadjobs by other users in the same context are unaffected.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher2->id]);
+        $this->assertCount(1, $jobs);
+    }
+
 }

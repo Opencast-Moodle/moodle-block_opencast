@@ -26,7 +26,9 @@ namespace block_opencast\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\helper;
 
@@ -209,5 +211,56 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
                 " = 0 AND userid = :userid", array('userid' => $user->id));
         }
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!is_a($context, \context_course::class)) {
+            return;
+        }
+
+        $params = [
+            'courseid'   => $context->instanceid
+        ];
+
+        // From uploadjobs.
+        $sql = "SELECT bo.userid as userid
+                  FROM {block_opencast_uploadjob} bo
+                  WHERE bo.courseid = :courseid
+              GROUP BY bo.userid";
+
+        $userlist->add_from_sql('userid', $sql, $params);
+
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_course::class)) {
+            return;
+        }
+
+        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        $params = array_merge(['courseid' => $context->instanceid], $userinparams);
+
+        // Delete Upload jobs.
+        $DB->delete_records_select('block_opencast_uploadjob',
+            "courseid = :courseid AND userid {$userinsql}", $params);
+
+        // Delete all uploaded but not processed files.
+        get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
+            " = 0 AND userid {$userinsql}", $userinparams);
     }
 }
