@@ -75,6 +75,7 @@ jobs:
       php: 7.2
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
       before_install:
+        - cd ../..
         - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
         - cd /tmp/opencast-docker
         - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
