@@ -43,6 +43,11 @@ before_install:
   - composer selfupdate
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
+  - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
+  - cd /tmp/opencast-docker
+  - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
+  - cd -
 
 jobs:
   include:
@@ -79,7 +84,7 @@ jobs:
         - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
         - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
         - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
-        - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
+        - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
         - cd /tmp/opencast-docker
         - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
         - cd -
@@ -94,10 +99,10 @@ install:
   - moodle-plugin-ci install
 
 script:
-#  - moodle-plugin-ci phpunit --coverage-clover
+  - moodle-plugin-ci phpunit --coverage-clover
 #  - moodle-plugin-ci behat
 after_success:
-#  - bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
 
 stages:
   - static
