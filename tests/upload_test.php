@@ -86,6 +86,7 @@ class block_opencast_upload_testcase extends advanced_testcase {
 //        ob_start();
         // Upload the file.
         $uploadhelper->cron();
+        $uploadhelper->cron();
 //        ob_end_clean();
 
         $api = \block_opencast\local\apibridge::get_instance();

@@ -49,7 +49,6 @@ before_install:
   - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
   - cd /tmp/opencast-docker
   - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
-  - sleep 60
   - cd -
 
 jobs:
