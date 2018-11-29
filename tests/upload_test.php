@@ -83,10 +83,10 @@ class block_opencast_upload_testcase extends advanced_testcase {
 
         $uploadhelper = new \block_opencast\local\upload_helper();
         // Prevent mtrace output, which would be considered risky.
-        ob_start();
+//        ob_start();
         // Upload the file.
         $uploadhelper->cron();
-        ob_end_clean();
+//        ob_end_clean();
 
         $api = \block_opencast\local\apibridge::get_instance();
 
