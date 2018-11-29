@@ -46,10 +46,6 @@ before_install:
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
-  - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
-  - cd /tmp/opencast-docker
-  - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
-  - cd -
 
 jobs:
   include:
@@ -78,6 +74,11 @@ jobs:
     - stage: develop
       php: 7.2
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+      before_install:
+        - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker
+        - cd /tmp/opencast-docker
+        - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
+        - cd -
       install:
       - moodle-plugin-ci install
       script:
