@@ -86,6 +86,9 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $teacher = $this->getDataGenerator()->create_user();
         $this->setUser($teacher);
 
+        $course1 = $this->getDataGenerator()->create_course();
+        $course2 = $this->getDataGenerator()->create_course();
+
         // Add two upload jobs for the User.
         $job = new \stdClass();
         $job->fileid = 1;
@@ -95,14 +98,14 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->timestarted = 0;
         $job->timesucceeded = 0;
         $job->status = \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD;
-        $job->courseid = 1;
+        $job->courseid = $course1->id;
         $job->userid = $teacher->id;
         $job->timecreated = time();
         $job->timemodified = time();
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
-        // Add two upload jobs for the User.
+        // Add two upload jobs for the User in another course.
         $job = new \stdClass();
         $job->fileid = 3;
         $job->contenthash = '987654321';
@@ -111,7 +114,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->timestarted = 0;
         $job->timesucceeded = 0;
         $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
-        $job->courseid = 1;
+        $job->courseid = $course2->id;
         $job->userid = $teacher->id;
         $job->timecreated = time();
         $job->timemodified = time();
@@ -121,12 +124,15 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Test the User's retrieved contextlist contains only one context.
         $contextlist = provider::get_contexts_for_userid($teacher->id);
         $contexts = $contextlist->get_contexts();
-        $this->assertCount(1, $contexts);
+        $this->assertCount(2, $contexts);
 
-        // Test the User's contexts equal the User's own context.
-        $context = reset($contexts);
-        $this->assertEquals(CONTEXT_USER, $context->contextlevel);
-        $this->assertEquals($teacher->id, $context->instanceid);
+        // Test the User's contexts equal the course context of both jobs.
+        $context = array_pop($contexts);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals($course2->id, $context->instanceid);
+        $context = array_pop($contexts);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals($course1->id, $context->instanceid);
     }
 
     /**
@@ -166,20 +172,19 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $contexts = $contextlist->get_contexts();
         $this->assertCount(1, $contexts);
 
-        // Test the User's contexts equal the User's own context.
+        // Test the User's contexts equal the course context of the job.
         $context = reset($contexts);
-        $this->assertEquals(CONTEXT_USER, $context->contextlevel);
-        $this->assertEquals($teacher->id, $context->instanceid);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals(1, $context->instanceid);
 
         $approvedcontextlist = new approved_contextlist($teacher, 'block_opencast', $contextlist->get_contextids());
 
         // Retrieve Calendar Event and Subscriptions data only for this user.
         provider::export_user_data($approvedcontextlist);
 
-        // Test the block_opencast data is exported at the User context level.
-        $user = $approvedcontextlist->get_user();
-        $contextuser = context_user::instance($user->id);
-        $writer = writer::with_context($contextuser);
+        // Test the block_opencast data is exported at the Course context level.
+        $contextcourse = context_course::instance(1);
+        $writer = writer::with_context($contextcourse);
         $this->assertTrue($writer->has_any_data());
     }
 
@@ -214,10 +219,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $contexts = $contextlist->get_contexts();
         $this->assertCount(1, $contexts);
 
-        // Test the User's contexts equal the User's own context.
+        // Test the User's contexts equal the course context of the job.
         $context = reset($contexts);
-        $this->assertEquals(CONTEXT_USER, $context->contextlevel);
-        $this->assertEquals($teacher->id, $context->instanceid);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals(1, $context->instanceid);
 
         // Test delete all users content by context.
         provider::delete_data_for_all_users_in_context($context);
@@ -283,10 +288,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $contexts = $contextlist->get_contexts();
         $this->assertCount(1, $contexts);
 
-        // Test the User's contexts equal the User's own context.
+        // Test the User's contexts equal the course context of the job.
         $context = reset($contexts);
-        $this->assertEquals(CONTEXT_USER, $context->contextlevel);
-        $this->assertEquals($teacher1->id, $context->instanceid);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals(1, $context->instanceid);
 
         $approvedcontextlist = new approved_contextlist($teacher1, 'block_opencast', $contextlist->get_contextids());
         provider::delete_data_for_user($approvedcontextlist);
@@ -298,10 +303,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $contexts = $contextlist->get_contexts();
         $this->assertCount(1, $contexts);
 
-        // Test the User's contexts equal the User's own context.
+        // Test the User's contexts equal the course context of the job.
         $context = reset($contexts);
-        $this->assertEquals(CONTEXT_USER, $context->contextlevel);
-        $this->assertEquals($teacher2->id, $context->instanceid);
+        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
+        $this->assertEquals(1, $context->instanceid);
 
         $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher2->id]);
         $this->assertCount(1, $jobs);
