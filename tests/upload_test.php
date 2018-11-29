@@ -93,8 +93,8 @@ class block_opencast_upload_testcase extends advanced_testcase {
         // Check if video was uploaded.
         $videos = $api->get_course_videos($course->id);
 
+        $this->assertEmpty($videos->error, 'There was an error: ' . $videos->error);
         $this->assertCount(1, $videos->videos);
-        $this->assertEmpty($videos->error);
     }
 
 }
