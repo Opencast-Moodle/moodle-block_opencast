@@ -26,7 +26,9 @@ namespace block_opencast\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\helper;
 
@@ -40,16 +42,13 @@ defined('MOODLE_INTERNAL') || die();
  */
 class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
 
-    // This trait must be included.
-    use \core_privacy\local\legacy_polyfill;
-
     /** Return the fields which contain personal data.
      *
      * @param collection $items a reference to the collection to use to store the metadata.
      *
      * @return collection the updated collection of metadata items.
      */
-    public static function _get_metadata(collection $collection) {
+    public static function get_metadata(collection $collection) : collection {
         $collection->add_database_table('block_opencast_uploadjob', [
             'fileid' => 'privacy:metadata:block_opencast_uploadjob:fileid',
             'userid' => 'privacy:metadata:block_opencast_uploadjob:userid',
@@ -74,7 +73,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @return contextlist $contextlist The list of contexts used in this plugin.
      */
-    public static function _get_contexts_for_userid($userid) {
+    public static function get_contexts_for_userid(int $userid) : contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
         // Since we can have only one block instance per course, we can use the course context.
@@ -100,7 +99,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
-    public static function _export_user_data(approved_contextlist $contextlist) {
+    public static function export_user_data(approved_contextlist $contextlist) {
         global $DB, $PAGE;
 
         // If the user has block_opencast data, multiple course contexts can be returned.
@@ -164,7 +163,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @param   context $context The specific context to delete data for.
      */
-    public static function _delete_data_for_all_users_in_context(\context $context) {
+    public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
         if ($context->contextlevel != CONTEXT_COURSE) {
@@ -185,7 +184,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @param   approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
-    public static function _delete_data_for_user(approved_contextlist $contextlist) {
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
 
         // If the user has block_opencast data, multiple course contexts can be returned.
@@ -212,5 +211,56 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
                 " = 0 AND userid = :userid", array('userid' => $user->id));
         }
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!is_a($context, \context_course::class)) {
+            return;
+        }
+
+        $params = [
+            'courseid'   => $context->instanceid
+        ];
+
+        // From uploadjobs.
+        $sql = "SELECT bo.userid as userid
+                  FROM {block_opencast_uploadjob} bo
+                  WHERE bo.courseid = :courseid
+              GROUP BY bo.userid";
+
+        $userlist->add_from_sql('userid', $sql, $params);
+
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_course::class)) {
+            return;
+        }
+
+        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        $params = array_merge(['courseid' => $context->instanceid], $userinparams);
+
+        // Delete Upload jobs.
+        $DB->delete_records_select('block_opencast_uploadjob',
+            "courseid = :courseid AND userid {$userinsql}", $params);
+
+        // Delete all uploaded but not processed files.
+        get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
+            " = 0 AND userid {$userinsql}", $userinparams);
     }
 }
