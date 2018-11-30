@@ -127,12 +127,18 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $this->assertCount(2, $contexts);
 
         // Test the User's contexts equal the course context of both jobs.
-        $context = array_pop($contexts);
-        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
-        $this->assertEquals($course2->id, $context->instanceid);
-        $context = array_pop($contexts);
-        $this->assertEquals(CONTEXT_COURSE, $context->contextlevel);
-        $this->assertEquals($course1->id, $context->instanceid);
+        $context1 = array_pop($contexts);
+        $this->assertEquals(CONTEXT_COURSE, $context1->contextlevel);
+        $contexttemp = array_pop($contexts);
+        $this->assertEquals(CONTEXT_COURSE, $contexttemp->contextlevel);
+        if ($context1->instanceid == $course1->id) {
+            $context2 = $contexttemp;
+        } else {
+            $context2 = $context1;
+            $context1 = $contexttemp;
+        }
+        $this->assertEquals($course1->id, $context1->instanceid);
+        $this->assertEquals($course2->id, $context2->instanceid);
     }
 
     /**
