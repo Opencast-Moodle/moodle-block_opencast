@@ -134,7 +134,7 @@ class admin_form extends moodleform {
         $title = get_string('groupcreation', 'block_opencast');
         $description = get_string('groupcreationdesc', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
-        $mform->setDefault($name, 1);
+        $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
 
         // Group name.
