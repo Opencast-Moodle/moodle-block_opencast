@@ -127,7 +127,7 @@ class admin_form extends moodleform {
         $mform->addElement('static', 'description'. $name, '', $description);
 
         // Section access policies.
-        $mform->addElement('header', 'accesspolicies_header', get_string('accesspolicies', 'block_opencast'));
+        $mform->addElement('header', 'groupseries_header', get_string('groupseries_header', 'block_opencast'));
 
         // Group creation.
         $name = 'group_creation';
