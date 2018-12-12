@@ -92,7 +92,7 @@ jobs:
       - moodle-plugin-ci install
       script:
       - moodle-plugin-ci phpunit --coverage-clover
-#      - moodle-plugin-ci behat
+      - moodle-plugin-ci behat
 
 # Unit tests and behat tests against full matrix.
 install:
@@ -100,7 +100,7 @@ install:
 
 script:
   - moodle-plugin-ci phpunit --coverage-clover
-#  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
