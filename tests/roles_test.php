@@ -42,11 +42,13 @@ class block_opencast_roles_testcase extends advanced_testcase {
 
         $roles = $bridge->getroles_testable();
 
-        self::assertCount(4, $roles, 'More roles present as expected.');
+        self::assertCount(6, $roles, 'More roles present as expected.');
 
         $expected = [
             'ROLE_ADMIN' => ['write', 'read'],
             'ROLE_GROUP_MOODLE_COURSE_[COURSEID]' => ['read'],
+            '[COURSEID]_Instructor' => ['write', 'read'],
+            '[COURSEGROUPID]_Learner' => ['read'],
             'testrole1' => ['action1'],
             'testrole2' => ['action1', 'action2'],
             ];

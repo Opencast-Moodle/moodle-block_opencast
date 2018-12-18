@@ -36,6 +36,23 @@ if (has_capability('moodle/site:config', context_system::instance())) {
 
     $mform = new block_opencast\admin_form();
 
+    $settingsfields = [
+        'limituploadjobs',
+        'uploadworkflow',
+        'publishtoengage',
+        'reuseexistingupload',
+        'allowunassign',
+        'deleteworkflow',
+        'adhocfiledeletion',
+        'limitvideos',
+        'showpublicationchannels',
+        'duplicateworkflow',
+        'group_creation',
+        'group_name',
+        'series_name',
+        'workflow_roles',
+    ];
+
     if (!empty($delrole) && !empty($confirm)) {
         // Role is deleted.
         $DB->delete_records('block_opencast_roles', array('id' => $delrole));
@@ -67,59 +84,11 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             redirect($PAGE->url . '#id_roles_header');
             exit();
         } else if (isset($data->submitbutton)) {
-            if (isset($data->apiurl)) {
-                set_config('apiurl', $data->apiurl, 'block_opencast');
-            }
-            if (isset($data->apiusername)) {
-                set_config('apiusername', $data->apiusername, 'block_opencast');
-            }
-            if (isset($data->apipassword)) {
-                set_config('apipassword', $data->apipassword, 'block_opencast');
-            }
-            if (isset($data->connecttimeout)) {
-                set_config('connecttimeout', $data->connecttimeout, 'block_opencast');
-            }
-            if (isset($data->limituploadjobs)) {
-                set_config('limituploadjobs', $data->limituploadjobs, 'block_opencast');
-            }
-            if (isset($data->uploadworkflow)) {
-                set_config('uploadworkflow', $data->uploadworkflow, 'block_opencast');
-            }
-            if (isset($data->publishtoengage)) {
-                set_config('publishtoengage', $data->publishtoengage, 'block_opencast');
-            }
-            if (isset($data->reuseexistingupload)) {
-                set_config('reuseexistingupload', $data->reuseexistingupload, 'block_opencast');
-            }
-            if (isset($data->allowunassign)) {
-                set_config('allowunassign', $data->allowunassign, 'block_opencast');
-            }
-            if (isset($data->deleteworkflow)) {
-                set_config('deleteworkflow', $data->deleteworkflow, 'block_opencast');
-            }
-            if (isset($data->adhocfiledeletion)) {
-                set_config('adhocfiledeletion', $data->adhocfiledeletion, 'block_opencast');
-            }
-            if (isset($data->limitvideos)) {
-                set_config('limitvideos', $data->limitvideos, 'block_opencast');
-            }
-            if (isset($data->showpublicationchannels)) {
-                set_config('showpublicationchannels', $data->showpublicationchannels, 'block_opencast');
-            }
-            if (isset($data->duplicateworkflow)) {
-                set_config('duplicateworkflow', $data->duplicateworkflow, 'block_opencast');
-            }
-            if (isset($data->group_creation)) {
-                set_config('group_creation', $data->group_creation, 'block_opencast');
-            }
-            if (isset($data->group_name)) {
-                set_config('group_name', $data->group_name, 'block_opencast');
-            }
-            if (isset($data->series_name)) {
-                set_config('series_name', $data->series_name, 'block_opencast');
-            }
-            if (isset($data->workflow_roles)) {
-                set_config('workflow_roles', $data->workflow_roles, 'block_opencast');
+
+            foreach ($settingsfields as $field) {
+                if (isset($data->$field)) {
+                    set_config($field, $data->$field, 'block_opencast');
+                }
             }
 
             // Update roles.
@@ -152,36 +121,12 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         $entry->id = 0;
     }
 
-    // Section API settings.
-    $entry->apiurl = get_config('block_opencast', 'apiurl');
-    $entry->apiusername = get_config('block_opencast', 'apiusername');
-    $entry->apipassword = get_config('block_opencast', 'apipassword');
-    $entry->connecttimeout = get_config('block_opencast', 'connecttimeout');
-
-    // Section cron settings.
-    $entry->limituploadjobs = get_config('block_opencast', 'limituploadjobs');
-    $entry->uploadfilelimit = get_config('block_opencast', 'uploadfilelimit');
-    $entry->uploadworkflow = get_config('block_opencast', 'uploadworkflow');
-    $entry->publishtoengage = get_config('block_opencast', 'publishtoengage');
-    $entry->reuseexistingupload = get_config('block_opencast', 'reuseexistingupload');
-    $entry->allowunassign = get_config('block_opencast', 'allowunassign');
-    $entry->deleteworkflow = get_config('block_opencast', 'deleteworkflow');
-    $entry->adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion');
-
-    // Section overview settings.
-    $entry->limitvideos = get_config('block_opencast', 'limitvideos');
-    $entry->showpublicationchannels = get_config('block_opencast', 'showpublicationchannels');
-
-    // Section backup and restore.
-    $entry->duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
-
-    // Section access policies.
-    $entry->group_creation = get_config('block_opencast', 'group_creation');
-    $entry->group_name = get_config('block_opencast', 'group_name');
-    $entry->series_name = get_config('block_opencast', 'series_name');
-
-    // Section roles.
-    $entry->workflow_roles = get_config('block_opencast', 'workflow_roles');
+    foreach ($settingsfields as $field) {
+        $config = get_config('block_opencast', $field);
+        if ($config !== false) {
+            $entry->$field = $config;
+        }
+    }
 
     $mform->set_data($entry);
     $mform->display();

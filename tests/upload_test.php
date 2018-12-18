@@ -25,9 +25,9 @@ global $CFG;
 
 class block_opencast_upload_testcase extends advanced_testcase {
 
-    private $apiurl = 'moodle-proxy.rz.tu-ilmenau.de';
-    private $apiusername = 'opencast_system_account';
-    private $apipassword = 'CHANGE_ME';
+    private $apiurl = 'http://localhost:8080';
+    private $apiusername = 'admin';
+    private $apipassword = 'opencast';
 
     /**
      * Test, whether the plugin is properly installed.
@@ -38,6 +38,11 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $this->assertNotEmpty($config);
     }
 
+    /**
+     * Uploads a file to the opencast server and checks if it was transmitted.
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function test_upload() {
         global $CFG, $DB;
 
@@ -54,10 +59,11 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
 
         // Test api bridge.
-        set_config('apiurl', $this->apiurl, 'block_opencast');
-        set_config('apiusername', $this->apiusername, 'block_opencast');
-        set_config('apipassword', $this->apipassword, 'block_opencast');
+        set_config('apiurl', $this->apiurl, 'tool_opencast');
+        set_config('apiusername', $this->apiusername, 'tool_opencast');
+        set_config('apipassword', $this->apipassword, 'tool_opencast');
         set_config('limituploadjobs', 2, 'block_opencast');
+        set_config('series_name', '[COURSENAME]', 'block_opencast');
 
         // Upload file.
         $plugingenerator = $this->getDataGenerator()->get_plugin_generator('block_opencast');
@@ -76,7 +82,23 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $this->assertCount(1, $jobs);
 
         $uploadhelper = new \block_opencast\local\upload_helper();
+        // Prevent mtrace output, which would be considered risky.
+        ob_start();
+        // Upload the file.
         $uploadhelper->cron();
+        sleep(10);
+        $uploadhelper->cron();
+        sleep(10);
+        $uploadhelper->cron();
+        ob_end_clean();
+
+        $api = \block_opencast\local\apibridge::get_instance();
+
+        // Check if video was uploaded.
+        $videos = $api->get_course_videos($course->id);
+
+        $this->assertEmpty($videos->error, 'There was an error: ' . $videos->error);
+        $this->assertCount(1, $videos->videos);
     }
 
 }
