@@ -58,3 +58,17 @@ Feature: Add Opencast block as Teacher
     Then I should not see "Ready to upload"
     And I should see "test.mp4"
 
+  @_file_upload @javascript
+  Scenario: Opencast remove Series ID
+    Given I click on "Go to overview..." "link"
+    And I click on "Add video / Edit upload tasks" "button"
+    And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I click on "Save changes" "button"
+    And I run the scheduled task "\block_opencast\task\process_upload_cron"
+    And I click on "Edit series mapping" "button"
+    And I set the field "seriesid" to ""
+    And I click on "Save changes" "button"
+    Then I should see "The series ID was removed."
+    And I should see "Create new series"
+    And I should see "No videos available"
+    And I should not see "test.mp4"
