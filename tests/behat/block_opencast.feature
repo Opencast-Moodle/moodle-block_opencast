@@ -53,7 +53,9 @@ Feature: Add Opencast block as Teacher
     And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
-    And I wait "2" seconds
+    And I wait "10" seconds
+    And I run the scheduled task "\block_opencast\task\process_upload_cron"
+    And I wait "10" seconds
     And I reload the page
     Then I should not see "Ready to upload"
     And I should see "test.mp4"
@@ -65,6 +67,9 @@ Feature: Add Opencast block as Teacher
     And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
+    And I wait "10" seconds
+    And I run the scheduled task "\block_opencast\task\process_upload_cron"
+    And I wait "10" seconds
     And I click on "Edit series mapping" "button"
     And I set the field "seriesid" to ""
     And I click on "Save changes" "button"
