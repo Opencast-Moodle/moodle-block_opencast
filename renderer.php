@@ -64,6 +64,8 @@ class block_opencast_renderer extends plugin_renderer_base {
                 return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
             case 'CAPTURING' :
                 return $this->output->pix_icon('capturing', get_string('ocstatecapturing', 'block_opencast'), 'block_opencast');
+            case 'NEEDSCUTTING' :
+                return $this->output->pix_icon('e/cut', get_string('ocstateneedscutting', 'block_opencast'));
             case 'DELETING' :
                 return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'));
             case 'RUNNING' :

@@ -208,18 +208,24 @@ class apibridge {
             $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
             $api = new api();
             $plannedvideo = json_decode($api->oc_get($resourceopencast5));
-        } else {
-            $resource = '/api/events/' . $video->identifier . '/scheduling';
-            $api = new api();
-            $plannedvideo = json_decode($api->oc_get($resource));
-        }
-        if ($api->get_http_code() === 200) {
-            if ($plannedvideo->end && strtotime($plannedvideo->end) > time() && $plannedvideo->state === "") {
+
+            if ($api->get_http_code() === 200 && $plannedvideo->state === "") {
                 $video->processing_state = "PLANNED";
-            } else if ($plannedvideo->state === "capturing") {
-                $video->processing_state = "CAPTURING";
             }
+        } else {
+                if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
+                        && count($video->publication_status) == 1 && $video->publication_status[0] == "internal") {
+                    $video->processing_state = "NEEDSCUTTING";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.SCHEDULED") {
+                    $video->processing_state = "PLANNED";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.RECORDING") {
+                    $video->processing_state = "CAPTURING";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
+                    $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
+                    $video->processing_state = "RUNNING";
+                }
         }
+
     }
 
     public function get_opencast_video($identifier) {
