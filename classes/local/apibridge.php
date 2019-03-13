@@ -128,7 +128,7 @@ class apibridge {
 
         if ($result->error == 0) {
             foreach ($videos as $video) {
-                $this->check_for_planned_videos($video);
+                $this->extend_video_status($video);
             }
         }
 
@@ -188,7 +188,7 @@ class apibridge {
 
         if ($result->error == 0) {
             foreach ($videos as $video) {
-                $this->check_for_planned_videos($video);
+                $this->extend_video_status($video);
             }
         }
 
@@ -198,10 +198,14 @@ class apibridge {
     }
 
     /**
-     * Check if a video is planned and set the processing state accordingly.
-     * @param $video The video object, which should be checked.
+     * Extend the state of the video and set the processing state accordingly.
+     * Possibilities are the states:
+     * - Planned
+     * - Capturing
+     * - In cutting
+     * @param $video [] The video object, which should be checked.
      */
-    private function check_for_planned_videos(&$video) {
+    private function extend_video_status(&$video) {
         $api = new api();
         $plannedvideo = null;
         if (!$api->supports_api_level('v1.1.0')) {
@@ -253,7 +257,7 @@ class apibridge {
         }
 
         // Enrich processing state.
-        $this->check_for_planned_videos($video);
+        $this->extend_video_status($video);
 
         $result->video = $video;
 
