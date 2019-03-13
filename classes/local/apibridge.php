@@ -202,8 +202,8 @@ class apibridge {
      * @param $video The video object, which should be checked.
      */
     private function check_for_planned_videos(&$video) {
-
         $api = new api();
+        $plannedvideo = null;
         if (!$api->supports_api_level('v1.1.0')) {
             $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
             $api = new api();
@@ -213,17 +213,19 @@ class apibridge {
                 $video->processing_state = "PLANNED";
             }
         } else {
-            $resource = '/api/events/' . $video->identifier . '/scheduling';
-            $api = new api();
-            $plannedvideo = json_decode($api->oc_get($resource));
-
-            if ($api->get_http_code() === 200 && $plannedvideo->end) {
-                $endtime = strtotime($plannedvideo->end);
-                if ($endtime > time()) {
+                if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
+                        && count($video->publication_status) == 1 && $video->publication_status[0] == "internal") {
+                    $video->processing_state = "NEEDSCUTTING";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.SCHEDULED") {
                     $video->processing_state = "PLANNED";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.RECORDING") {
+                    $video->processing_state = "CAPTURING";
+                } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
+                    $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
+                    $video->processing_state = "RUNNING";
                 }
-            }
         }
+
     }
 
     public function get_opencast_video($identifier) {
