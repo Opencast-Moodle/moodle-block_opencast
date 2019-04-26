@@ -43,6 +43,8 @@ class apibridge {
 
     private $workflows = array();
 
+    private static $testing = false;
+
     private function __construct() {
 
         $this->config = get_config('block_opencast');
@@ -65,7 +67,7 @@ class apibridge {
         }
 
         // Use replacement of api bridge for test cases.
-        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
             $apibridge = new \block_opencast_apibridge_testable();
             return $apibridge;
         }
@@ -1391,5 +1393,15 @@ class apibridge {
             return false;
         }
         return false;
+    }
+
+    /**
+     * If testing is set to true and we are in PHP_UNIT environment, a new instance of the apibridge will result in
+     * a testable class. It also resets the current apibridge instance.
+     * @param bool $testing true, if get_instance should return a testable.
+     */
+    public static function set_testing($testing) {
+        self::$testing = $testing;
+        self::get_instance(true);
     }
 }

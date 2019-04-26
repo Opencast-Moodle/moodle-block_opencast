@@ -43,6 +43,16 @@ class block_opencast_backup_testcase extends advanced_testcase {
     /** var string apiurl for the testcase, must NOT be a real server! */
     private $apiurl = 'server.opencast.testcase';
 
+    public function setUp() {
+        parent::setUp();
+        \block_opencast\local\apibridge::set_testing(true);
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        \block_opencast\local\apibridge::set_testing(false);
+    }
+
     private function get_backup_filepath($courseid) {
         global $CFG;
         return $CFG->tempdir . '/backup/core_course_testcase_' . $courseid;
