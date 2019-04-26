@@ -133,6 +133,7 @@ class block_opencast_backup_testcase extends advanced_testcase {
 
         $task->set_lock($lock);
 
+        $this->preventResetByRollback();
         ob_start();
         cron_run_inner_adhoc_task($task);
         return ob_get_clean();
