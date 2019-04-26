@@ -88,10 +88,8 @@ class notifications {
         $renderer = $PAGE->get_renderer('block_opencast');
         $body .= $renderer->render_list($backupeventids);
 
-        $admins = get_admins();
-        foreach ($admins as $admin) {
-            self::send_message('error', $admin, $subject, $body);
-        }
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
     }
 
     /**
@@ -119,10 +117,8 @@ class notifications {
         $renderer = $PAGE->get_renderer('block_opencast');
         $body .= $renderer->render_list($missingevents);
 
-        $admins = get_admins();
-        foreach ($admins as $admin) {
-            self::send_message('error', $admin, $subject, $body);
-        }
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
     }
 
     /**
@@ -144,10 +140,8 @@ class notifications {
 
         $body = get_string('erroremailbody', 'block_opencast', $a);
 
-        $admins = get_admins();
-        foreach ($admins as $admin) {
-            self::send_message('error', $admin, $subject, $body);
-        }
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
     }
 
 }
