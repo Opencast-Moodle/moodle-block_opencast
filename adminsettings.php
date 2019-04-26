@@ -46,6 +46,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'adhocfiledeletion',
         'limitvideos',
         'showpublicationchannels',
+        'duplicateworkflow',
         'group_creation',
         'group_name',
         'series_name',

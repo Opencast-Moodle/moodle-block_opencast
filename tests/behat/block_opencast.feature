@@ -41,7 +41,7 @@ Feature: Add Opencast block as Teacher
   Scenario: Opencast Upload Video
     Given I click on "Go to overview..." "link"
     And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
     And I click on "Save changes" "button"
     Then I should see "test.mp4"
     And I should see "Ready to upload"
@@ -50,7 +50,7 @@ Feature: Add Opencast block as Teacher
   Scenario: Opencast run cronjob
     Given I click on "Go to overview..." "link"
     And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
@@ -64,7 +64,7 @@ Feature: Add Opencast block as Teacher
   Scenario: Opencast remove Series ID
     Given I click on "Go to overview..." "link"
     And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/file/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds

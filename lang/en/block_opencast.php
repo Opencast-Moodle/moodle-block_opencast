@@ -56,8 +56,11 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
+$string['backupopencastvideos'] = 'Backup Opencast videos';
+$string['backupsettings'] = 'Settings for backup and restore';
 $string['blocksettings'] = 'Settings for a block instance';
 $string['countfailed'] = 'Error';
+$string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Created by';
 $string['createseriesforcourse'] = 'Create new series';
 $string['cronsettings'] = 'Settings for upload jobs';
@@ -72,12 +75,39 @@ $string['deletegroupacldesc'] = 'You are about to delete the access to this vide
 $string['deleteworkflow'] = 'Workflow to start before event is be deleted';
 $string['deleteworkflowdesc'] = 'Before deleting a video, a workflow can be defined, which is called to retract the event from all publication channels.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
+$string['duplicateworkflow'] = 'Workflow for duplicating events';
+$string['duplicateworkflowdesc'] = 'This workflow is needed for restoring opencast events from one course into another.
+    If not set, it is not possible to restore Opencast events. A block instance might be restore, but without a series and without events.';
 $string['editseriesforcourse'] = 'Edit series mapping';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
 $string['dodeleteevent'] = 'Delete video permanently';
 $string['deleting'] = 'Going to be deleted';
 $string['edituploadjobs'] = 'Add video / Edit upload tasks';
+$string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
+    Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
+$string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has a course series, that does not match the seriesid of the task.
+    The event ({$a->eventid}) could not be restored.';
+$string['error_seriesid_missing_opencast'] = 'The series of course {$a->coursefullname} (ID: {$a->courseid}) can not be found in the opencast system.
+    The event ({$a->eventid}) could not be restored.';
+$string['error_seriesid_taskdata_missing'] = 'The task data contains no series id.
+    Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_workflow_setup_missing'] = 'The plugin block_opencast is not properly configurated. The duplication workflow is missing!';
+$string['error_workflow_not_exists'] = 'The workflow {$a->duplicateworkflow} can not be found in the opencast system.
+    The event ({$a->eventid}) could not be restored for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_workflow_not_started'] = 'The workflow to copy the video ({$a->eventid}) assigned to course {$a->coursefullname} (ID: {$a->courseid}) could not be started.';
+$string['erroremailsubj'] = 'Error while executing opencast process duplicate task';
+$string['erroremailbody'] = '{$a->errorstr} Details: {$a->message}.';
+$string['errorduplicatetaskretry'] = 'An error occured by executing a task for duplication of an event: {$a} Will try to start the workflow again by the next cron job.';
+$string['errorduplicatetaskterminate'] = 'An error occured by executing a task for duplication of an event: {$a}
+    After trying serveral time the task will be terminated now.';
+$string['errorrestoremissingevents_subj'] = 'Opencast error during restore process';
+$string['errorrestoremissingevents_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
+    The video(s) with the following identifier(s) could not be found in opencast system. This video(s) will not be restored:';
+$string['errorrestoremissingseries_subj'] = 'Opencast error during restore process';
+$string['errorrestoremissingseries_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
+    No opencast series could be created. Therefore, the following eventIDs could not be duplicated:';
 $string['eventdeleted'] = 'The video has been deleted.';
 $string['eventdeletedfailed'] = 'Failed to delete the event';
 $string['eventdeletionstarted'] = 'The video will be deleted shortly.';
@@ -131,7 +161,7 @@ $string['opencast:deleteevent'] = 'Finally delete a video (event) in opencast';
 $string['opencast:defineseriesforcourse'] = 'Link an existing opencast series to a moodle course';
 $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboard';
 $string['opencast:unassignevent'] = 'Unassign a video from the course, where the video was uploaded.';
-$string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not pusblished';
+$string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not published';
 $string['overview'] = 'Overview';
 $string['planned'] = 'Planned';
 $string['pluginname'] = 'Opencast Videos';
@@ -144,7 +174,7 @@ $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the sam
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
 $string['seriescreated'] = 'Series was created.';
-$string['seriesnotcreated'] = 'Series could not be was created.';
+$string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
 $string['seriesidunset'] = 'The series ID was removed.';
 $string['seriesidnotvalid'] = 'The series does not exist.';
@@ -161,6 +191,7 @@ $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
 $string['ocstatesucceeded'] = 'Succeeded';
+$string['restoreopencastvideos'] = 'Restore opencast videos';
 $string['ocstatecapturing'] = 'Capturing';
 $string['ocstateneedscutting'] = 'Needs cutting';
 $string['uploadingeventfailed'] = 'Creating of event failed';

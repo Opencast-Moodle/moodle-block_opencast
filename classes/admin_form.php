@@ -126,6 +126,15 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 1);
         $mform->addElement('static', 'description'. $name, '', $description);
 
+        // Section overview settings.
+        $mform->addElement('header', 'backuprestore_header', get_string('backupsettings', 'block_opencast'));
+        $name = 'duplicateworkflow';
+        $title = get_string('duplicateworkflow', 'block_opencast');
+        $description = get_string('duplicateworkflowdesc', 'block_opencast');
+        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('api'));
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
         // Section access policies.
         $mform->addElement('header', 'groupseries_header', get_string('groupseries_header', 'block_opencast'));
 
@@ -323,6 +332,14 @@ class admin_form extends moodleform {
                 // Verify workflow.
                 if (!$apibridge->check_if_workflow_exists($data['uploadworkflow'])) {
                     $error['uploadworkflow'] = get_string('workflow_not_existing', 'block_opencast');
+                }
+            }
+
+            // Validate duplicate workflow.
+            if ($data['duplicateworkflow'] !== "") {
+                // Verify workflow.
+                if (!$apibridge->check_if_workflow_exists($data['duplicateworkflow'])) {
+                    $error['duplicateworkflow'] = get_string('workflow_not_existing', 'block_opencast');
                 }
             }
 

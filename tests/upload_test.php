@@ -70,7 +70,7 @@ class block_opencast_upload_testcase extends advanced_testcase {
 
         $record = [];
         $record['courseid'] = $course->id;
-        $filename = $CFG->dirroot . '/blocks/opencast/tests/file/test.mp4';
+        $filename = $CFG->dirroot . '/blocks/opencast/tests/fixtures/test.mp4';
         $record['filecontent'] = file_get_contents($filename);
 
         $file = $plugingenerator->create_file($record);

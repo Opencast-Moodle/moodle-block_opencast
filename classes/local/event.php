@@ -208,4 +208,25 @@ class event {
         return $params;
     }
 
+    /**
+     * Create an adhoc task that will start diplication workflows.
+     *
+     * @param string $seriesid
+     * @param string $eventid
+     * @return mixed false if task could not be created, id of inserted task otherwise.
+     */
+    public static function create_duplication_task($courseid, $seriesid, $eventid) {
+
+        $task = new \block_opencast\task\process_duplicate_event();
+
+        $data = (object) [
+                'courseid' => $courseid,
+                'seriesid' => $seriesid,
+                'eventid' => $eventid,
+                'countfailed' => 0
+        ];
+        $task->set_custom_data($data);
+        return \core\task\manager::queue_adhoc_task($task, true);
+    }
+
 }

@@ -346,4 +346,24 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $html;
     }
 
+    /**
+     * Render a unordered list with given items.
+     *
+     * @param array $items to use as list elements
+     * @return string
+     */
+    public function render_list($items) {
+
+        $o = '';
+        if (count($items) == 0) {
+            return $o;
+        }
+
+        foreach ($items as $item) {
+            $o .= html_writer::tag('li', $item);
+        }
+
+        return html_writer::tag('ul', $o);
+    }
+
 }
