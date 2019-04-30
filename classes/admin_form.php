@@ -131,7 +131,8 @@ class admin_form extends moodleform {
         $name = 'duplicateworkflow';
         $title = get_string('duplicateworkflow', 'block_opencast');
         $description = get_string('duplicateworkflowdesc', 'block_opencast');
-        $mform->addElement('select', $name, $title, $apibridge->get_existing_workflows('api'));
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows('api')));
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 
