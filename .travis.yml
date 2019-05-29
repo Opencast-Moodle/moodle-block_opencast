@@ -19,21 +19,37 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
 
 matrix:
- allow_failures:
+  allow_failures:
     - env: DB=pgsql MOODLE_BRANCH=master
-    - env: DB=mysqli MOODLE_BRANCH=master
- fast_finish: true
+    - env: DB=mysqli MOODLE_BRANCH=master  
+  exclude:
+    - php: 7.0
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.0
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.0
+      env: DB=pgsql MOODLE_BRANCH=master
+    - php: 7.0
+      env: DB=mysqli MOODLE_BRANCH=master
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.3
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+  fast_finish: true
 
 
 env:
  matrix:
-  - DB=pgsql MOODLE_BRANCH=MOODLE_34_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_36_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=pgsql MOODLE_BRANCH=master
-  - DB=mysqli MOODLE_BRANCH=MOODLE_34_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=mysqli MOODLE_BRANCH=master
 
 before_install:
@@ -59,7 +75,7 @@ jobs:
 #          packages:
 #            - oracle-java8-installer
 #            - oracle-java8-set-default
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
@@ -75,7 +91,7 @@ jobs:
     # Smaller build matrix for development builds
     - stage: develop
       php: 7.2
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
       before_install:
         - phpenv config-rm xdebug.ini
         - nvm install 8.9.4
