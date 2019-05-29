@@ -24,6 +24,10 @@ php:
 matrix:
   exclude:
     - php: 7.0
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.0
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.0
       env: DB=pgsql MOODLE_BRANCH=master
     - php: 7.0
       env: DB=mysqli MOODLE_BRANCH=master
@@ -38,9 +42,11 @@ env:
  matrix:
   - DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_36_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=pgsql MOODLE_BRANCH=master
   - DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=mysqli MOODLE_BRANCH=master
 
 before_install:
@@ -66,7 +72,7 @@ jobs:
 #          packages:
 #            - oracle-java8-installer
 #            - oracle-java8-set-default
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
@@ -82,7 +88,7 @@ jobs:
     # Smaller build matrix for development builds
     - stage: develop
       php: 7.2
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
       before_install:
         - phpenv config-rm xdebug.ini
         - nvm install 8.9.4
