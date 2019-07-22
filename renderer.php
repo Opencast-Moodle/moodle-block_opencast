@@ -297,6 +297,22 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
+    //metadata
+    /**
+     * Render the link to update metadata.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_update_metadata_event_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/updatemetadata.php', array('video_identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('updatemetadata', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/edit', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
     /**
      * Render the information about the video before finally delete it.
      *

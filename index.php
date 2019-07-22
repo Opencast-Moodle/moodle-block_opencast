@@ -200,6 +200,10 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
             }
 
+            // in order to add metadata config
+            if ($opencast->can_update_event_metadata($video, $courseid)) {
+                $actions .= $renderer->render_update_metadata_event_icon($courseid, $video->identifier);
+            }
 
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);

@@ -25,6 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');;
 $delrole = optional_param('d', 0, PARAM_INT);
+$delcatalog = optional_param('cd', 0, PARAM_INT);
 $confirm = optional_param('c', 0, PARAM_INT);
 require_login();
 
@@ -60,6 +61,13 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         exit();
     }
 
+    if (!empty($delcatalog) && !empty($confirm)) {
+        // Catalog is deleted.
+        $DB->delete_records('block_opencast_catalog', array('id' => $delcatalog));
+        redirect($PAGE->url . '#id_catalog_header');
+        exit();
+    }
+    
     if (!empty($delrole)) {
         // Deletion has to be confirmed.
         // Print a confirmation message.
@@ -67,6 +75,16 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         echo $OUTPUT->heading(get_string('settings', 'block_opencast'));
         echo $OUTPUT->confirm(get_string("delete_confirm", 'block_opencast'),
             "adminsettings.php?d=$delrole&c=$delrole",
+            'adminsettings.php');
+        echo $OUTPUT->footer();
+        exit();
+    } else if (!empty($delcatalog)) {
+        // Deletion has to be confirmed.
+        // Print a confirmation message.
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('settings', 'block_opencast'));
+        echo $OUTPUT->confirm(get_string("delete_confirm", 'block_opencast'),
+            "adminsettings.php?cd=$delcatalog&c=$delcatalog",
             'adminsettings.php');
         echo $OUTPUT->footer();
         exit();
@@ -82,6 +100,18 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             // Insert new record.
             $DB->insert_record('block_opencast_roles', $record, false);
             redirect($PAGE->url . '#id_roles_header');
+            exit();
+        } else if (isset($data->addcatalogbutton)) { //Adding new Metadata Catalog
+            $newcatalog = new \stdClass();
+            $newcatalog->name = $data->catalogname;
+            $newcatalog->datatype = $data->catalogreadonly  == 1 ? 'static' : $data->catalogdatatype;
+            $newcatalog->required = $data->catalogreadonly  == 1 ? 0 : ($data->catalogrequired == 1 ? 1 : 0) ;
+            $newcatalog->readonly = $data->catalogreadonly  == 1 ? 1 : 0;
+            $newcatalog->param_json = $data->catalogparam;
+
+            // Insert new record.
+            $DB->insert_record('block_opencast_catalog', $newcatalog, false);
+            redirect($PAGE->url . '#id_catalog_header');
             exit();
         } else if (isset($data->submitbutton)) {
 
@@ -107,6 +137,33 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                     $record->permanent = $data->$pname;
 
                     $DB->update_record('block_opencast_roles', $record);
+                }
+            }
+
+            //Update Metadata Catalog
+            $catalogs = $DB->get_records('block_opencast_catalog');
+            foreach ($catalogs as $catalog) {
+                $catalog_name = "catalog_name_{$catalog->id}";
+                $catalog_datatype = "catalog_datatype_{$catalog->id}";
+                $catalog_required = "catalog_required_{$catalog->id}";
+                $catalog_readonly = "catalog_readonly_{$catalog->id}";
+                $catalog_params = "catalog_params_{$catalog->id}";
+                // Update db entry.
+                if ($data->$catalog_name !== $catalog->name ||
+                 $data->$catalog_datatype !== $catalog->datatype ||
+                 $data->$catalog_required != $catalog->required ||
+                 $data->$catalog_readonly != $catalog->readonly ||
+                 $data->$catalog_params !== $catalog->param_json
+                 ) {
+                    $newcatalog = new \stdClass();
+                    $newcatalog->id = $catalog->id;
+                    $newcatalog->name = $data->$catalog_name;
+                    $newcatalog->datatype = $data->$catalog_readonly == 1 ? 'static' : $data->$catalog_datatype;
+                    $newcatalog->required = $data->$catalog_readonly == 1 ? 0 : ($data->$catalog_required == 1 ? 1 : 0) ;
+                    $newcatalog->readonly = $data->$catalog_readonly == 1 ? 1 : 0 ;
+                    $newcatalog->param_json = $data->$catalog_params;
+
+                    $DB->update_record('block_opencast_catalog', $newcatalog);
                 }
             }
         }
