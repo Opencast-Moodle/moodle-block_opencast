@@ -64,7 +64,6 @@ class addvideo_form extends \moodleform {
                         'tags' => true
                     ];
                 }
-
                 $mform->addElement($field->datatype, $field->name, get_string($field->name, 'block_opencast'), $param, $attributes);
                 
                 if ($field->required) {
