@@ -173,9 +173,20 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         foreach ($uploadjobs as $uploadjob) {
 
+            $uploadjob->metadata ? $metadata = json_decode($uploadjob->metadata): $metadata = '';
+            $displayname = $uploadjob->filename;
+            if ($metadata) {
+                foreach ($metadata as $ms) {
+                    if ($ms->id == 'title') {
+                        $displayname = $ms->value;
+                        break;
+                    }
+                }
+            }
+
             $row = [];
             $row[] = userdate($uploadjob->timecreated, get_string('strftimedatetime', 'langconfig'));
-            $row[] = $uploadjob->filename;
+            $row[] = $displayname;
             $row[] = $uploadjob->filesize;
             $row[] = $this->render_status($uploadjob->status);
             $row[] = $uploadjob->countfailed;
@@ -293,6 +304,22 @@ class block_opencast_renderer extends plugin_renderer_base {
         $text = get_string('deleteevent', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
+    //metadata
+    /**
+     * Render the link to update metadata.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_update_metadata_event_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/updatemetadata.php', array('video_identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('updatemetadata', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/edit', $text);
 
         return \html_writer::link($url, $icon);
     }

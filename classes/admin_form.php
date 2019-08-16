@@ -204,6 +204,56 @@ class admin_form extends moodleform {
         // Add Table.
         $mform->addElement('html', $this->tablehead());
         $this->table_body();
+        //End Acl Roles
+
+        // Metadata Catalog Setting
+        $mform->addElement('header', 'catalog_header', get_string('metadata', 'block_opencast'));
+        $mform->setExpanded('catalog_header');
+        // New catalog name.
+        $name = 'catalogname';
+        $title = get_string('heading_name', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'descriptionmdfn', '', get_string('descriptionmdfn', 'block_opencast'));
+
+        // New catalog datatype.
+        $name = 'catalogdatatype';
+        $title = get_string('heading_datatype', 'block_opencast');
+        $datatypes = [
+            'text' => 'String (text)',
+            'select' => 'Drop Down (select)',
+            'autocomplete' => 'Arrays (autocomplete)',
+            'textarea' => 'Long Text (textarea)',
+            'date_time_selector' => 'Date Time Selector (datetime)'
+        ];
+        $mform->addElement('select', $name, $title, $datatypes);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->disabledIf($name, 'catalogreadonly', 'checked');
+
+        // New catalog Required.
+        $name = 'catalogrequired';
+        $title = get_string('heading_required', 'block_opencast');
+        $mform->addElement('checkbox', $name, $title);
+        $mform->disabledIf($name, 'catalogreadonly', 'checked');
+
+        // New catalog ReadOnly.
+        $name = 'catalogreadonly';
+        $title = get_string('heading_readonly', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 0);
+
+        // New catalog param json.
+        $name = 'catalogparam';
+        $title = get_string('heading_params', 'block_opencast');
+        $mform->addElement('textarea', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'descriptionmdpj', '', get_string('descriptionmdpj', 'block_opencast'));
+
+        $mform->addElement('submit', 'addcatalogbutton', get_string('addcatalog', 'block_opencast'));
+        // Add Table.
+        $mform->addElement('html', $this->tablehead('catalog'));
+        $this->table_body('catalog');
+        // End Metadata Catalog
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
     }
@@ -212,30 +262,81 @@ class admin_form extends moodleform {
      * Prints the table head (e.g. column names).
      * @return string
      */
-    public function tablehead() {
-        $attributes['class'] = 'generaltable';
-        $attributes['id'] = 'roles_table';
-        $output = html_writer::start_tag('table', $attributes);
+    public function tablehead($field = 'role') {
+        $table_attributes = array();
+        $th_attributes = array();
+        if ($field == 'role') {
+
+            $table_attributes = [
+                'class' => 'generaltable',
+                'id' => 'roles_table'
+            ];
+
+            $th_attributes = [
+                'heading_role' => [
+                    'class' => 'header c0',
+                    'scope' => 'col'
+                ],
+                'heading_actions' => [
+                    'class' => 'header c1',
+                    'scope' => 'col'
+                ],
+                'heading_permanent' => [
+                    'class' => 'header c2',
+                    'scope' => 'col'
+                ],
+                'heading_delete' => [
+                    'class' => 'header c3 lastcol',
+                    'scope' => 'col'
+                ],
+            ];
+
+        } else if ($field == 'catalog') {
+            $table_attributes = [
+                'class' => 'generaltable',
+                'id' => 'catalog_table'
+            ];
+
+            $th_attributes = [
+                'heading_position' => [
+                    'class' => 'header c0',
+                    'scope' => 'col'
+                ],
+                'heading_name' => [
+                    'class' => 'header c1',
+                    'scope' => 'col'
+                ],
+                'heading_datatype' => [
+                    'class' => 'header c2',
+                    'scope' => 'col'
+                ],
+                'heading_required' => [
+                    'class' => 'header c3',
+                    'scope' => 'col'
+                ],
+                'heading_readonly' => [
+                    'class' => 'header c4',
+                    'scope' => 'col'
+                ],
+                'heading_params' => [
+                    'class' => 'header c5',
+                    'scope' => 'col'
+                ],
+                'heading_delete' => [
+                    'class' => 'header c6 lastcol',
+                    'scope' => 'col'
+                ],
+            ];
+        }
+
+        $output = html_writer::start_tag('table', $table_attributes);
 
         $output .= html_writer::start_tag('thead', array());
         $output .= html_writer::start_tag('tr', array());
 
-        $attributes = array();
-        $attributes['class'] = 'header c0';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_role', 'block_opencast'), $attributes);
-        $attributes = array();
-        $attributes['class'] = 'header c1';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_actions', 'block_opencast'), $attributes);
-        $attributes = array();
-        $attributes['class'] = 'header c2';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_permanent', 'block_opencast'), $attributes);
-        $attributes = array();
-        $attributes['class'] = 'header c3 lastcol';
-        $attributes['scope'] = 'col';
-        $output .= html_writer::tag('th', get_string('heading_delete', 'block_opencast'), $attributes);
+        foreach ($th_attributes as $name =>$th) {
+            $output .= html_writer::tag('th', get_string($name, 'block_opencast'), $th);
+        }
 
         $output .= html_writer::end_tag('tr');
         $output .= html_writer::end_tag('thead');
@@ -247,43 +348,113 @@ class admin_form extends moodleform {
      * Prints course categories and assigned moodle users.
      * @return string
      */
-    private function table_body() {
+    private function table_body($field = 'role') {
         global $OUTPUT;
         $mform = $this->_form;
 
         $mform->addElement('html', '<tbody>');
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            $mform->addElement('html', '<tr>');
+        if ($field == 'role') {
+            $roles = $this->getroles();
+            foreach ($roles as $role) {
+                $mform->addElement('html', '<tr>');
 
-            $mform->addElement('html', '<td class="cell c0">');
-            $name = 'role_' . $role->id;
-            $mform->addElement('text', $name, null, array('size' => 50));
-            $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, $role->rolename);
+                $mform->addElement('html', '<td class="cell c0">');
+                $name = 'role_' . $role->id;
+                $mform->addElement('text', $name, null, array('size' => 50));
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $role->rolename);
 
-            $mform->addElement('html', '</td><td class="cell c1">');
-            $name = 'action_' . $role->id;
-            $mform->addElement('text', $name, null);
-            $mform->setType($name, PARAM_TEXT);
-            $mform->setDefault($name, $role->actions);
+                $mform->addElement('html', '</td><td class="cell c1">');
+                $name = 'action_' . $role->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $role->actions);
 
-            $mform->addElement('html', '</td><td class="cell c2">');
-            $name = 'permanent_' . $role->id;
-            $mform->addElement('advcheckbox', $name, null);
-            $mform->setDefault($name, $role->permanent);
+                $mform->addElement('html', '</td><td class="cell c2">');
+                $name = 'permanent_' . $role->id;
+                $mform->addElement('advcheckbox', $name, null);
+                $mform->setDefault($name, $role->permanent);
 
-            $mform->addElement('html', '</td><td class="cell c3 lastcol">');
-            $pix = $OUTPUT->action_icon(
-                new moodle_url('/blocks/opencast/adminsettings.php', array('d' => $role->id)),
-                new \pix_icon('t/delete', get_string('delete')),
-                null,
-                array('class' => 'action-delete')
-            );
-            $mform->addElement('html', $pix);
+                $mform->addElement('html', '</td><td class="cell c3 lastcol">');
+                $pix = $OUTPUT->action_icon(
+                    new moodle_url('/blocks/opencast/adminsettings.php', array('d' => $role->id)),
+                    new \pix_icon('t/delete', get_string('delete')),
+                    null,
+                    array('class' => 'action-delete')
+                );
+                $mform->addElement('html', $pix);
+            }
+        } else if ($field == 'catalog') {
+            $catalogs = $this->getcatalogs();
+            $position = 1;
+            foreach ($catalogs as $catalog) {
+                $mform->addElement('html', '<tr>');
+
+                $mform->addElement('html', '<td class="cell c0">');
+                $name = 'position_' . $catalog->id;
+                $mform->addElement('static', $name, null, $position);
+
+                $mform->addElement('html', '</td><td class="cell c1">');
+                $name = 'catalog_name_' . $catalog->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $catalog->name);
+
+                $mform->addElement('html', '</td><td class="cell c2">');
+                $name = 'catalog_datatype_' . $catalog->id;
+                $datatypes = [
+                    'text' => 'String (text)',
+                    'select' => 'Drop Down (select)',
+                    'autocomplete' => 'Arrays (autocomplete)',
+                    'textarea' => 'Long Text (textarea)',
+                    'date_time_selector' => 'Date Time Selector (datetime)'
+                ];
+                $mform->addElement('select', $name, null, $datatypes);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $catalog->datatype);
+                $mform->disabledIf($name, 'catalog_readonly_' . $catalog->id, 'checked');
+
+                $mform->addElement('html', '</td><td class="cell c3">');
+                $name = 'catalog_required_' . $catalog->id;
+                $mform->addElement('advcheckbox', $name, null);
+                $mform->setDefault($name, $catalog->required);
+                $mform->disabledIf($name, 'catalog_readonly_' . $catalog->id, 'checked');
+
+                $mform->addElement('html', '</td><td class="cell c4">');
+                $name = 'catalog_readonly_' . $catalog->id;
+                $mform->addElement('advcheckbox', $name, null);
+                $mform->setDefault($name, $catalog->readonly);
+
+                $mform->addElement('html', '</td><td class="cell c5">');
+                $name = 'catalog_params_' . $catalog->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $catalog->param_json);
+
+                $mform->addElement('html', '</td><td class="cell c6 lastcol">');
+                $pix = $OUTPUT->action_icon(
+                    new moodle_url('/blocks/opencast/adminsettings.php', array('cd' => $catalog->id)),
+                    new \pix_icon('t/delete', get_string('delete')),
+                    null,
+                    array('class' => 'action-delete')
+                );
+                $mform->addElement('html', $pix);
+                $position++;
+            }
         }
         $mform->addElement('html', '</tbody>');
         $mform->addElement('html', '</table>');
+    }
+
+     /**
+     * Returns metadata catalog.
+     * @return array
+     */
+    private function getcatalogs() {
+        global $DB;
+        $catalogs = $DB->get_records('block_opencast_catalog');
+
+        return $catalogs;
     }
 
     /**

@@ -51,30 +51,77 @@ $PAGE->navbar->add(get_string('edituploadjobs', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$data = new stdClass();
-$options = array('subdirs' => 0,
-                 'maxfiles' => -1,
-                 'accepted_types' => 'video',
-                 'return_types' => FILE_INTERNAL);
-$data = file_prepare_standard_filemanager($data, 'videos', $options, $coursecontext, 'block_opencast', upload_helper::OC_FILEAREA, 0);
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
 
-// Record the user draft area in this context.
-\block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->videos_filemanager);
-
-$addvideoform = new \block_opencast\local\addvideo_form(null, array('data' => $data, 'courseid' => $courseid));
+$addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog));
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);
 }
 
 if ($data = $addvideoform->get_data()) {
-    file_save_draft_area_files($data->videos_filemanager,
-        $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, 0, $options);
+
+    // Record the user draft area in this context.
+    $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
+    $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+
+    if ($storedfile_presenter) {
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presenter);
+    }
+    if ($storedfile_presentation) {
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presentation);
+    }
+
+    $metadata = [];
+    $get_title = true;
+    foreach ($metadata_catalog as $field) {
+        $id = $field->name;
+        if (array_key_exists($field->name, $data) AND $data->$id) {
+            if ($field->name == 'title') {
+                $get_title = false;
+            }
+            if ($field->name == 'subjects') {
+                !is_array($data->$id) ? $data->$id = array($data->$id) : $data->$id = $data->$id;
+            }
+            if ($field->name == 'subject') {
+                is_array($data->$id) ? $data->$id = implode(', ', $data->$id) : $data->$id = $data->$id;
+            }
+            $obj = [
+                'id' => $id,
+                'value' => $data->$id
+            ];
+            $metadata[] = $obj;
+        }
+    }
+    if ($get_title) {
+        $title_obj = [
+            'id' => $id,
+            'value' => $data->title ? $data->title : 'upload-task'
+        ];
+        $metadata[] = $title_obj;
+    }
+    $startDate = [
+        'id' => 'startDate',
+        'value' => date('Y-m-d', $data->startDate)
+    ];
+    $startTime = [
+        'id' => 'startTime',
+        'value' => date('H:i:s', $data->startDate).'Z'
+    ];
+    $metadata[] = $startDate;
+    $metadata[] = $startTime;
+
+    $options = new \stdClass();
+    $options->metadata = json_encode($metadata);
+    $options->presenter = $storedfile_presenter ? $storedfile_presenter->get_itemid() : '';
+    $options->presentation = $storedfile_presentation ? $storedfile_presentation->get_itemid() : '';
+
     // Update all upload jobs.
-    \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext);
+    \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'));
 }
 
+$PAGE->requires->js(new moodle_url('/blocks/opencast/classes/local/form_handler.js'));
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();

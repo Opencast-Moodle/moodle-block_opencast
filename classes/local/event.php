@@ -31,6 +31,7 @@ class event {
     private $acl = array();            // Access control.
     private $metadatafields = array(); // Meta data.
     private $presentation = null;      // Video file.
+    private $presenter = null;      // Video file.
 
     /**
      * Add a id-value pair as metadata for flavour dublincore/episode
@@ -76,6 +77,26 @@ class event {
     public function get_presentation() {
         return $this->presentation;
     }
+
+    /**
+     * Set presenter as a stored file from moodle.
+     *
+     * @param int $fileid
+     */
+    public function set_presenter($fileid) {
+        $fs = get_file_storage();
+        $this->presenter = $fs->get_file_by_id($fileid);
+    }
+
+    /**
+     * Get the presenter (i. e. the video file).
+     *
+     * @return \stored_file
+     */
+    public function get_presenter() {
+        return $this->presenter;
+    }
+    //End adding presenter option
 
     /**
      * Set the acl data for this event.
@@ -202,7 +223,13 @@ class event {
         $params = array();
         $params['acl'] = $this->get_json_acl();
         $params['metadata'] = $this->get_meta_data();
-        $params['presenter'] = $this->get_presentation();
+        //Handling presentation & presenter
+        if ($this->get_presenter()) {
+            $params['presenter'] = $this->get_presenter();
+        } 
+        if ($this->get_presentation()) {
+            $params['presentation'] = $this->get_presentation();
+        }
         $params['processing'] = $this->get_processing();
 
         return $params;
