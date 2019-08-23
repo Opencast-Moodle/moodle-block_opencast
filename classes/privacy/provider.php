@@ -50,7 +50,8 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      */
     public static function get_metadata(collection $collection) : collection {
         $collection->add_database_table('block_opencast_uploadjob', [
-            'fileid' => 'privacy:metadata:block_opencast_uploadjob:fileid',
+            'presentation_fileid' => 'privacy:metadata:block_opencast_uploadjob:presentation_fileid',
+            'presenter_fileid' => 'privacy:metadata:block_opencast_uploadjob:presenter_fileid',
             'userid' => 'privacy:metadata:block_opencast_uploadjob:userid',
             'status' => 'privacy:metadata:block_opencast_uploadjob:status',
             'courseid' => 'privacy:metadata:block_opencast_uploadjob:courseid',
@@ -123,7 +124,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                        bo.timecreated as creation_time,
                        bo.timemodified as last_modified
                   FROM {block_opencast_uploadjob} bo JOIN
-                       {files} f ON bo.fileid = f.id
+                       {files} f ON bo.presentation_fileid = f.id
                  WHERE bo.userid = :userid AND
                        bo.courseid = :courseid
               ORDER BY bo.status";

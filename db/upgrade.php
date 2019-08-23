@@ -180,5 +180,115 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2018082802, 'opencast');
     }
 
+    if ($oldversion < 2019082100) {
+
+        $table = new xmldb_table('block_opencast_uploadjob');
+
+        // Changing nullability of field contenthash on table block_opencast_uploadjob to null.
+        $field = new xmldb_field('contenthash', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'fileid');
+        // Launch change of nullability for field contenthash.
+        $dbman->change_field_notnull($table, $field);
+        // Launch rename field contenthash.
+        $dbman->rename_field($table, $field, 'contenthash_presentation');
+
+        // Changing nullability of field fileid on table block_opencast_uploadjob to null.
+        $field = new xmldb_field('fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+        // Launch change of nullability for field fileid.
+        $dbman->change_field_notnull($table, $field);
+        // Launch rename field fileid.
+        $dbman->rename_field($table, $field, 'presentation_fileid');
+
+        // Define field presenter_fileid to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('presenter_fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+
+        // Conditionally launch add field presenter_fileid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field contenthash_presenter to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('contenthash_presenter', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'presenter_fileid');
+
+        // Conditionally launch add field contenthash_presenter.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field presenter_filename to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('presenter_filename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'presenter_fileid');
+
+        // Conditionally launch add field presenter_filename.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field presenter_filesize to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('presenter_filesize', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'presenter_filename');
+
+        // Conditionally launch add field presenter_filesize.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field presentation_filename to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('presentation_filename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'presentation_fileid');
+
+        // Conditionally launch add field presentation_filename.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field presentation_filesize to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('presentation_filesize', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'presentation_filename');
+
+        // Conditionally launch add field presentation_filesize.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        
+        // Define table block_opencast_catalog to be created.
+        $table = new xmldb_table('block_opencast_catalog');
+        
+        // Adding fields to table block_opencast_catalog.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('datatype', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('required', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('readonly', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('param_json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        
+        // Adding keys to table block_opencast_catalog.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        
+        // Conditionally launch create table for block_opencast_catalog.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+
+        // Define table block_opencast_metadata to be created.
+        $table = new xmldb_table('block_opencast_metadata');
+
+        // Adding fields to table block_opencast_metadata.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('metadata', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table block_opencast_metadata.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('uploadjob_foreign', XMLDB_KEY_FOREIGN, ['uploadjobid'], 'block_opencast_uploadjob', ['id']);
+
+        // Conditionally launch create table for block_opencast_metadata.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2019082100, 'opencast');
+    }
+
+
     return true;
 }

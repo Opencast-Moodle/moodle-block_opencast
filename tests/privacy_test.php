@@ -58,7 +58,8 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $this->assertEquals('block_opencast_uploadjob', $table->get_name());
 
         $privacyfields = $table->get_privacy_fields();
-        $this->assertArrayHasKey('fileid', $privacyfields);
+        $this->assertArrayHasKey('presenter_fileid', $privacyfields);
+        $this->assertArrayHasKey('presentation_fileid', $privacyfields);
         $this->assertArrayHasKey('userid', $privacyfields);
         $this->assertArrayHasKey('status', $privacyfields);
         $this->assertArrayHasKey('courseid', $privacyfields);
@@ -91,8 +92,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add two upload jobs for the User.
         $job = new \stdClass();
-        $job->fileid = 1;
-        $job->contenthash = '1234567';
+        $job->presenter_fileid = 1;
+        $job->presentation_fileid = null;
+        $job->presenter_contenthash = '1234567';
+        $job->presentation_contenthash = null;
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -107,8 +110,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add two upload jobs for the User in another course.
         $job = new \stdClass();
-        $job->fileid = 3;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = null;
+        $job->presentation_fileid = 3;
+        $job->presenter_contenthash = null;
+        $job->presentation_contenthash = '987654321';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -154,8 +159,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Add 3 upload jobs for the User.
         for ($c = 0; $c < 3; $c++) {
             $job = new \stdClass();
-            $job->fileid = $c;
-            $job->contenthash = '987654321' . $c;
+            $job->presenter_fileid = $c;
+            $job->presentation_fileid = ($c + 4);
+            $job->presenter_contenthash = '987654321' . $c;
+            $job->presentation_contenthash = '987654321' . ($c + 4);
             $job->opencasteventid = '';
             $job->countfailed = 0;
             $job->timestarted = 0;
@@ -206,8 +213,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add an upload job for the User.
         $job = new \stdClass();
-        $job->fileid = 3;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 3;
+        $job->presentation_fileid = 4;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -250,8 +259,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Add 3 upload jobs for Teacher 1.
         for ($c = 0; $c < 3; $c++) {
             $job = new \stdClass();
-            $job->fileid = $c;
-            $job->contenthash = '987654321' . $c;
+            $job->presenter_fileid = $c;
+            $job->presentation_fileid = ($c + 4);
+            $job->presenter_contenthash = '987654321' . $c;
+            $job->presentation_contenthash = '987654321' . ($c + 4);
             $job->opencasteventid = '';
             $job->countfailed = 0;
             $job->timestarted = 0;
@@ -267,8 +278,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add 1 upload jobs for Teacher 2.
         $job = new \stdClass();
-        $job->fileid = 10;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 10;
+        $job->presentation_fileid = 11;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -335,8 +348,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Add 3 upload jobs for Teacher 1 in course 1.
         for ($c = 0; $c < 3; $c++) {
             $job = new \stdClass();
-            $job->fileid = $c;
-            $job->contenthash = '987654321' . $c;
+            $job->presenter_fileid = $c;
+            $job->presentation_fileid = ($c + 4);
+            $job->presenter_contenthash = '987654321' . $c;
+            $job->presentation_contenthash = '987654321' . ($c + 4);
             $job->opencasteventid = '';
             $job->countfailed = 0;
             $job->timestarted = 0;
@@ -367,8 +382,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add 1 upload jobs for Teacher 2 in course 2.
         $job = new \stdClass();
-        $job->fileid = 10;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 10;
+        $job->presentation_fileid = 11;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -390,8 +407,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add 1 upload jobs for Teacher 2 in course 1.
         $job = new \stdClass();
-        $job->fileid = 10;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 10;
+        $job->presentation_fileid = 11;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -429,8 +448,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Add 3 upload jobs for Teacher 1 in course 1.
         for ($c = 0; $c < 3; $c++) {
             $job = new \stdClass();
-            $job->fileid = $c;
-            $job->contenthash = '987654321' . $c;
+            $job->presenter_fileid = $c;
+            $job->presentation_fileid = ($c + 4);
+            $job->presenter_contenthash = '987654321' . $c;
+            $job->presentation_contenthash = '987654321' . ($c + 4);
             $job->opencasteventid = '';
             $job->countfailed = 0;
             $job->timestarted = 0;
@@ -446,8 +467,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add 1 upload jobs for Teacher 1 in course 2.
         $job = new \stdClass();
-        $job->fileid = 10;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 10;
+        $job->presentation_fileid = 11;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -462,8 +485,10 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
 
         // Add 1 upload jobs for Teacher 2 in course 2.
         $job = new \stdClass();
-        $job->fileid = 10;
-        $job->contenthash = '987654321';
+        $job->presenter_fileid = 10;
+        $job->presentation_fileid = 11;
+        $job->presenter_contenthash = '98765432100' ;
+        $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;

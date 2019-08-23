@@ -75,7 +75,16 @@ class block_opencast_upload_testcase extends advanced_testcase {
 
         $file = $plugingenerator->create_file($record);
         $this->assertInstanceOf('stored_file', $file);
-        \block_opencast\local\upload_helper::save_upload_jobs($course->id, $coursecontext);
+        $obj = [
+            'id' => 'title',
+            'value' => 'test'
+        ];
+        $metadata[] = $obj;
+        $options = new \stdClass();
+        $options->metadata = json_encode($metadata);
+        $options->presenter = $file ? $file->get_itemid() : '';
+        $options->presentation = $file ? $file->get_itemid() : '';
+        \block_opencast\local\upload_helper::save_upload_jobs($course->id, $coursecontext, $options);
 
         // Check upload job.
         $jobs = $DB->get_records('block_opencast_uploadjob');
