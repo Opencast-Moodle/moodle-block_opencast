@@ -25,6 +25,8 @@
 
 namespace block_opencast\local;
 
+use core_form;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -37,15 +39,91 @@ class addvideo_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $mform->addElement('filemanager', 'videos_filemanager',
-            get_string('videostoupload', 'block_opencast'), null, array('accepted_types' => array('video'),
-            'subdirs' => 0));
+        $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
 
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-        $mform->setType('courseid', PARAM_INT);
+            $set_title = true;
+            foreach ($this->_customdata['metadata_catalog'] as $field) {
+                $param = array();
+                $attributes = array();
+                if ($field->name == 'title') {
+                    if ($field->required) {
+                        $set_title = false;
+                    } else {
+                        continue;
+                    }
+                }
+                if ($field->param_json) {
+                    $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
+                }
+                if ($field->datatype == 'autocomplete') {
+                    $attributes = [
+                        'multiple' => true,
+                        'placeholder' => 'Enter ' . get_string($field->name, 'block_opencast'),
+                        'showsuggestions' => false,
+                        'noselectionstring' => 'No ' . get_string($field->name, 'block_opencast') . ' selected!' ,
+                        'tags' => true
+                    ];
+                }
+
+                $mform->addElement($field->datatype, $field->name, get_string($field->name, 'block_opencast'), $param, $attributes);
+                
+                if ($field->required) {
+                    $mform->addRule($field->name, get_string('required'), 'required');
+                }     
+                $mform->setAdvanced($field->name, !$field->required);
+            }
+            if ($set_title) {
+                $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
+                $mform->addRule('title', get_string('required'), 'required');
+            }
+            $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
+            $mform->setAdvanced('startDate');
+
+        $mform->closeHeaderBefore('upload_filepicker');
+        
+
+        $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
+        
+            $mform->addElement('filepicker', 'video_presenter',
+                get_string('presenter', 'block_opencast'), null,array('accepted_types' => array('*')));
+            $mform->addElement('static', 'presenterdesc', null, get_string('presenterdesc', 'block_opencast'));
+
+            $mform->addElement('filepicker', 'video_presentation',
+                get_string('presentation', 'block_opencast'), null, array('accepted_types' => array('*')));
+            $mform->addElement('static', 'presentationdesc', null, get_string('presentationdesc', 'block_opencast'));
+
+            $util = new core_form\filetypes_util();
+            $videotypes_expand = implode(', ', $util->expand('video'));
+            $mform->addElement('static', 'filetypes', get_string('filetypes', 'block_opencast'), $videotypes_expand);
+
+            $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+            $mform->setType('courseid', PARAM_INT);
+        
+        $mform->closeHeaderBefore('buttonar');
 
         $this->add_action_buttons(true, get_string('savechanges'));
-        $this->set_data($this->_customdata['data']);
+    }
+
+    /**
+     * Validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array the errors that were found
+     */
+    function validation($data, $files) {
+        global $DB;
+        $errors = parent::validation($data, $files);
+
+        $presenter_file = $this->get_draft_files('video_presenter');
+        $presentation_file = $this->get_draft_files('video_presentation');
+
+        if (!$presenter_file && !$presentation_file) {
+            $errors['video_presenter'] =  get_string('emptyvideouploaderror', 'block_opencast');
+            $errors['video_presentation'] =  get_string('emptyvideouploaderror', 'block_opencast');
+        }
+        
+        return $errors;
     }
 
 }

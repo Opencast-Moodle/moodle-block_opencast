@@ -133,7 +133,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     echo $renderer->render_upload_jobs($videojobs);
 
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
-    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('edituploadjobs', 'block_opencast'));
+    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
     echo html_writer::div($addvideobutton);
 }
 
@@ -200,6 +200,10 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
             }
 
+            // in order to add metadata config
+            if ($opencast->can_update_event_metadata($video, $courseid)) {
+                $actions .= $renderer->render_update_metadata_event_icon($courseid, $video->identifier);
+            }
 
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
