@@ -70,7 +70,7 @@ Feature: Add Opencast block as Teacher
     And I wait "10" seconds
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
-    And I click on "Edit series mapping" "button"
+    And I click on "Edit series mapping" "link"
     And I set the field "seriesid" to ""
     And I click on "Save changes" "button"
     Then I should see "The series ID was removed."

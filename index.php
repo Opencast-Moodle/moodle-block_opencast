@@ -107,6 +107,7 @@ $opencast = \block_opencast\local\apibridge::get_instance();
 $sortcolumns = $table->get_sort_columns();
 $videodata = $opencast->get_course_videos($courseid, $sortcolumns);
 
+/** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
@@ -125,6 +126,10 @@ if ($seriesid && !$ocseriesid) {
     }
 }
 
+echo $renderer->render_series_settings_actions($courseid,
+    !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
+    has_capability('block/opencast:defineseriesforcourse', $coursecontext));
+
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
     echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
@@ -135,21 +140,6 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('edituploadjobs', 'block_opencast'));
     echo html_writer::div($addvideobutton);
-}
-
-if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
-    $editseriesurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
-    $editseriesbutton = $OUTPUT->single_button($editseriesurl, get_string('editseriesforcourse', 'block_opencast'));
-    echo html_writer::div($editseriesbutton);
-}
-
-if (!$apibridge->get_stored_seriesid($courseid) &&
-    has_capability('block/opencast:createseriesforcourse', $coursecontext)
-) {
-
-    $createseriesurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
-    $createseriesbutton = $OUTPUT->single_button($createseriesurl, get_string('createseriesforcourse', 'block_opencast'));
-    echo html_writer::div($createseriesbutton);
 }
 
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));

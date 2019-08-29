@@ -366,4 +366,21 @@ class block_opencast_renderer extends plugin_renderer_base {
         return html_writer::tag('ul', $o);
     }
 
+    public function render_series_settings_actions(int $courseid, bool $createseries, bool $editseries): string {
+        $context = new \stdClass();
+        $context->hasanyactions = false;
+        if ($createseries) {
+            $context->hasanyactions = true;
+            $url = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid));
+            $context->createseriesurl = $url->out();
+        }
+        if ($editseries) {
+            $context->hasanyactions = true;
+            $url = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+            $context->editseriesurl = $url->out();
+        }
+        return $this->render_from_template('block_opencast/series_settings_actions', $context);
+    }
+
+
 }
