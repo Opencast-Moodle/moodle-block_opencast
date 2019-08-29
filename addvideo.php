@@ -42,10 +42,10 @@ $pagecontext = upload_helper::get_opencast_upload_context($courseid);
 $PAGE->set_context($pagecontext);
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('pluginname', 'block_opencast'));
+$PAGE->set_title(get_string('addvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('edituploadjobs', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
@@ -125,6 +125,6 @@ $PAGE->requires->js(new moodle_url('/blocks/opencast/classes/local/form_handler.
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('edituploadjobs', 'block_opencast'));
+echo $OUTPUT->heading(get_string('addvideo', 'block_opencast'));
 $addvideoform->display();
 echo $OUTPUT->footer();

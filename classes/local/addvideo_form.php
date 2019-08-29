@@ -67,6 +67,10 @@ class addvideo_form extends \moodleform {
 
                 $mform->addElement($field->datatype, $field->name, get_string($field->name, 'block_opencast'), $param, $attributes);
                 
+                if ($field->datatype == 'text') {
+                    $mform->setType($field->name, PARAM_TEXT);
+                }
+
                 if ($field->required) {
                     $mform->addRule($field->name, get_string('required'), 'required');
                 }     
@@ -75,6 +79,7 @@ class addvideo_form extends \moodleform {
             if ($set_title) {
                 $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
                 $mform->addRule('title', get_string('required'), 'required');
+                $mform->setType('title', PARAM_TEXT);
             }
             $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
             $mform->setAdvanced('startDate');

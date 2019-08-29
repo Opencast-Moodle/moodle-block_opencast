@@ -32,25 +32,28 @@ Feature: Add Opencast block as Teacher
     When I click on "Go to overview..." "link"
     Then I should see "Videos currently being uploaded to the streaming server"
 
-  Scenario: Opencast Add video / Edit upload tasks page implemented
+  Scenario: Opencast Add video page implemented
     Given I click on "Go to overview..." "link"
-    When I click on "Add video / Edit upload tasks" "button"
+    When I click on "Add video" "button"
     Then I should see "You can drag and drop files here to add them."
 
   @_file_upload @javascript
   Scenario: Opencast Upload Video
     Given I click on "Go to overview..." "link"
-    And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I click on "Add video" "button"
+    And I set the field "Title" to "Test"
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
     And I click on "Save changes" "button"
-    Then I should see "test.mp4"
+    Then I should see "Test"
+    And I should see "test.mp4"
     And I should see "Ready to upload"
 
   @_file_upload @javascript
   Scenario: Opencast run cronjob
     Given I click on "Go to overview..." "link"
-    And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I click on "Add video" "button"
+    And I set the field "Title" to "Test"
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
@@ -58,13 +61,14 @@ Feature: Add Opencast block as Teacher
     And I wait "10" seconds
     And I reload the page
     Then I should not see "Ready to upload"
-    And I should see "test.mp4"
+    And I should see "Test"
 
   @_file_upload @javascript
   Scenario: Opencast remove Series ID
     Given I click on "Go to overview..." "link"
-    And I click on "Add video / Edit upload tasks" "button"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Videos to upload to opencast" filemanager
+    And I click on "Add video" "button"
+    And I set the field "Title" to "Test"
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
@@ -76,4 +80,4 @@ Feature: Add Opencast block as Teacher
     Then I should see "The series ID was removed."
     And I should see "Create new series"
     And I should see "No videos available"
-    And I should not see "test.mp4"
+    And I should not see "Test"

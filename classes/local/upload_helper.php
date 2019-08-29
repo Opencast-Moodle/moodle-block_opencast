@@ -104,8 +104,18 @@ class upload_helper {
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
         $items = array();
-        isset($options->presentation) ? $items[] = $options->presentation : '';
-        isset($options->presenter) ? $items[] = $options->presenter : '';
+        
+        if (isset($options->presentation) && !empty($options->presentation)) {
+            $items[] = $options->presentation;
+        } else {
+            $items[] = 0;
+        }
+
+        if (isset($options->presenter) && !empty($options->presenter)) {
+            $items[] = $options->presenter;
+        } else {
+            $items[] = 0;
+        }
 
         list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
         $params+=$inparams;
