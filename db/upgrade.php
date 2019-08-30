@@ -213,39 +213,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
-        // Define field presenter_filename to be added to block_opencast_uploadjob.
-        $field = new xmldb_field('presenter_filename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'presenter_fileid');
-
-        // Conditionally launch add field presenter_filename.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field presenter_filesize to be added to block_opencast_uploadjob.
-        $field = new xmldb_field('presenter_filesize', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'presenter_filename');
-
-        // Conditionally launch add field presenter_filesize.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field presentation_filename to be added to block_opencast_uploadjob.
-        $field = new xmldb_field('presentation_filename', XMLDB_TYPE_TEXT, null, null, null, null, null, 'presentation_fileid');
-
-        // Conditionally launch add field presentation_filename.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field presentation_filesize to be added to block_opencast_uploadjob.
-        $field = new xmldb_field('presentation_filesize', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'presentation_filename');
-
-        // Conditionally launch add field presentation_filesize.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         
         // Define table block_opencast_catalog to be created.
         $table = new xmldb_table('block_opencast_catalog');

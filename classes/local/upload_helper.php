@@ -76,10 +76,14 @@ class upload_helper {
 
         $allnamefields = get_all_user_name_fields(true, 'u');
 
-        $sql = "SELECT uj.*, $allnamefields, md.metadata
+        $sql = "SELECT uj.*, $allnamefields, md.metadata,
+                f1.filename as presenter_filename, f1.filesize as presenter_filesize,
+                f2.filename as presentation_filename, f2.filesize as presentation_filesize
                 FROM {block_opencast_uploadjob} uj
                 JOIN {user} u ON uj.userid = u.id
-                JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid 
+                JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
+                LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
+                LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid 
                 WHERE uj.status < :status AND uj.courseid = :courseid";
 
         $params = [];
@@ -129,16 +133,12 @@ class upload_helper {
         $job = new \stdClass();
         foreach ($currentjobfiles as $file) {
             if (isset($options->presenter) && $options->presenter == $file->itemid) {
-                $job->presenter_fileid = $file->id; 
-                $job->contenthash_presenter = $file->contenthash; 
-                $job->presenter_filename = $file->filename; 
-                $job->presenter_filesize = $file->filesize; 
+                $job->presenter_fileid = $file->id;
+                $job->contenthash_presenter = $file->contenthash;
             } 
             if (isset($options->presentation) && $options->presentation == $file->itemid) {
                 $job->presentation_fileid = $file->id;
-                $job->contenthash_presentation = $file->contenthash;
-                $job->presentation_filename = $file->filename;
-                $job->presentation_filesize = $file->filesize;
+                $job->contenthash_presenter = $file->contenthash;
             }
         }
         $job->opencasteventid = '';

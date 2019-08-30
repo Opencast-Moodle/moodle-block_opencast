@@ -8,12 +8,8 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="presenter_fileid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Presenter file id in files table"/>
-        <FIELD NAME="presenter_filename" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="presenter_filesize" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="contenthash_presenter" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Presenter file's contenthash of files table to remind that video maybe already uploaded"/>
         <FIELD NAME="presentation_fileid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Presentation file id in files table"/>
-        <FIELD NAME="presentation_filename" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="presentation_filesize" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="contenthash_presentation" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Presentation file's contenthash of files table to remind that video maybe already uploaded"/>
         <FIELD NAME="opencasteventid" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="countfailed" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false"/>
