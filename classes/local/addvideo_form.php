@@ -58,14 +58,16 @@ class addvideo_form extends \moodleform {
                 if ($field->datatype == 'autocomplete') {
                     $attributes = [
                         'multiple' => true,
-                        'placeholder' => 'Enter ' . get_string($field->name, 'block_opencast'),
+                        'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
+                            $this->try_get_string($field->name, 'block_opencast')),
                         'showsuggestions' => false,
-                        'noselectionstring' => 'No ' . get_string($field->name, 'block_opencast') . ' selected!' ,
+                        'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
+                            $this->try_get_string($field->name, 'block_opencast')),
                         'tags' => true
                     ];
                 }
 
-                $mform->addElement($field->datatype, $field->name, get_string($field->name, 'block_opencast'), $param, $attributes);
+                $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
                 
                 if ($field->datatype == 'text') {
                     $mform->setType($field->name, PARAM_TEXT);
@@ -129,6 +131,27 @@ class addvideo_form extends \moodleform {
         }
         
         return $errors;
+    }
+
+    /**
+     * Tries to get the string for identifier and component.
+     * As a fallback it outputs the identifier itself with the first letter being uppercase.
+     * @param string $identifier The key identifier for the localized string
+     * @param string $component The module where the key identifier is stored,
+     *      usually expressed as the filename in the language pack without the
+     *      .php on the end but can also be written as mod/forum or grade/export/xls.
+     *      If none is specified then moodle.php is used.
+     * @param string|object|array $a An object, string or number that can be used
+     *      within translation strings
+     * @return string
+     * @throws \coding_exception
+     */
+    protected function try_get_string($identifier, $component = '', $a = null) {
+        if (!get_string_manager()->string_exists($identifier, $component)) {
+            return ucfirst($identifier);
+        } else {
+            return get_string($identifier, $component, $a);
+        }
     }
 
 }
