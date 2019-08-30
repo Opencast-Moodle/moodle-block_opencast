@@ -161,21 +161,22 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $catalog_required = "catalog_required_{$catalog->id}";
                 $catalog_readonly = "catalog_readonly_{$catalog->id}";
                 $catalog_params = "catalog_params_{$catalog->id}";
-                // Update db entry.
-                if ($data->$catalog_name !== $catalog->name ||
-                 $data->$catalog_datatype !== $catalog->datatype ||
-                 $data->$catalog_required != $catalog->required ||
-                 $data->$catalog_readonly != $catalog->readonly ||
-                 $data->$catalog_params !== $catalog->param_json
-                 ) {
-                    $newcatalog = new \stdClass();
-                    $newcatalog->id = $catalog->id;
-                    $newcatalog->name = $data->$catalog_name;
-                    $newcatalog->datatype = $data->$catalog_readonly == 1 ? 'static' : $data->$catalog_datatype;
-                    $newcatalog->required = $data->$catalog_readonly == 1 ? 0 : ($data->$catalog_required == 1 ? 1 : 0) ;
-                    $newcatalog->readonly = $data->$catalog_readonly == 1 ? 1 : 0 ;
-                    $newcatalog->param_json = $data->$catalog_params;
 
+                $newcatalog = new \stdClass();
+                $newcatalog->id = $catalog->id;
+                $newcatalog->name = $data->$catalog_name;
+                $newcatalog->datatype = $data->$catalog_readonly == 1 ? 'static' : $data->$catalog_datatype;
+                $newcatalog->required = $data->$catalog_readonly == 1 ? 0 : ($data->$catalog_required == 1 ? 1 : 0) ;
+                $newcatalog->readonly = $data->$catalog_readonly == 1 ? 1 : 0 ;
+                $newcatalog->param_json = $data->$catalog_params;
+
+                // Update db entry.
+                if ($newcatalog->name !== $catalog->name ||
+                    $newcatalog->datatype !== $catalog->datatype ||
+                    $newcatalog->required != $catalog->required ||
+                    $newcatalog->readonly != $catalog->readonly ||
+                    $newcatalog->param_json !== $catalog->param_json
+                 ) {
                     $DB->update_record('block_opencast_catalog', $newcatalog);
                 }
             }
