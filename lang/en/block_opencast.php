@@ -83,7 +83,6 @@ $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
 $string['dodeleteevent'] = 'Delete video permanently';
 $string['deleting'] = 'Going to be deleted';
-$string['edituploadjobs'] = 'Add video / Edit upload tasks';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
