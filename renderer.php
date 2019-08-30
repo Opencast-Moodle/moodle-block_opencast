@@ -191,9 +191,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row[] = userdate($uploadjob->timecreated, get_string('strftimedatetime', 'langconfig'));
             $row[] = $title;
             $row[] = $uploadjob->presenter_filename;
-            $row[] = $uploadjob->presenter_filesize;
+            $row[] = $uploadjob->presenter_filesize ? display_size($uploadjob->presenter_filesize) : "";
             $row[] = $uploadjob->presentation_filename;
-            $row[] = $uploadjob->presentation_filesize;
+            $row[] = $uploadjob->presentation_filesize ? display_size($uploadjob->presentation_filesize) : "";
             $row[] = $this->render_status($uploadjob->status);
             $row[] = $uploadjob->countfailed;
             $row[] = fullname($uploadjob);
