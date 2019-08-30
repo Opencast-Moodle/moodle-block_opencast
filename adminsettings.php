@@ -73,7 +73,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         // Print a confirmation message.
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('settings', 'block_opencast'));
-        echo $OUTPUT->confirm(get_string("delete_confirm", 'block_opencast'),
+        echo $OUTPUT->confirm(get_string("delete_confirm_role", 'block_opencast'),
             "adminsettings.php?d=$delrole&c=$delrole",
             'adminsettings.php');
         echo $OUTPUT->footer();
@@ -83,7 +83,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         // Print a confirmation message.
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('settings', 'block_opencast'));
-        echo $OUTPUT->confirm(get_string("delete_confirm", 'block_opencast'),
+        echo $OUTPUT->confirm(get_string("delete_confirm_catalog", 'block_opencast'),
             "adminsettings.php?cd=$delcatalog&c=$delcatalog",
             'adminsettings.php');
         echo $OUTPUT->footer();

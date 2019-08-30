@@ -65,7 +65,8 @@ $string['createdby'] = 'Created by';
 $string['createseriesforcourse'] = 'Create new series';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
-$string['delete_confirm'] = 'Are you sure you want to delete this role?';
+$string['delete_confirm_role'] = 'Are you sure you want to delete this role?';
+$string['delete_confirm_catalog'] = 'Are you sure you want to delete this catalog entry?';
 $string['deleteevent'] = 'Delete a event in opencast';
 $string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from opencast.
     All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
