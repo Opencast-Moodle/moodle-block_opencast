@@ -452,7 +452,7 @@ class admin_form extends moodleform {
      */
     private function getcatalogs() {
         global $DB;
-        $catalogs = $DB->get_records('block_opencast_catalog');
+        $catalogs = $DB->get_records('block_opencast_catalog', null, 'id');
 
         return $catalogs;
     }

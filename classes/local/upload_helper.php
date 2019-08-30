@@ -532,7 +532,7 @@ class upload_helper {
         if ($condition) {
             $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition,  $fields );
         } else {
-            $metadata_catalog = $DB->get_records('block_opencast_catalog');
+            $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
         }
 
         if (!$metadata_catalog) {
