@@ -538,6 +538,24 @@ class admin_form extends moodleform {
             }
         }
 
+        foreach ($this->getcatalogs() as $catalog) {
+            $catalog_datatype = "catalog_datatype_{$catalog->id}";
+            $catalog_readonly = "catalog_readonly_{$catalog->id}";
+            $catalog_params = "catalog_params_{$catalog->id}";
+            // Check for non empty params of static fields.
+            if ($data[$catalog_readonly] == true &&
+                empty($data[$catalog_params])) {
+                $error[$catalog_params] = get_string( 'catalog_static_params_empty', 'block_opencast' );
+            }
+            // Check for empty or array/object parsable params of all other fields.
+            if ($data[$catalog_readonly] == false &&
+                    !empty($data[$catalog_params]) &&
+                    !is_array(json_decode($data[$catalog_params])) &&
+                    !is_object(json_decode($data[$catalog_params]))) {
+                $error[$catalog_params] = get_string( 'catalog_params_noarray', 'block_opencast');
+            }
+        }
+
         return $error;
     }
 }
