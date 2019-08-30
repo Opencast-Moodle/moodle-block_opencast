@@ -95,7 +95,7 @@ if ($data = $addvideoform->get_data()) {
     }
     if ($get_title) {
         $title_obj = [
-            'id' => $id,
+            'id' => 'title',
             'value' => $data->title ? $data->title : 'upload-task'
         ];
         $metadata[] = $title_obj;
