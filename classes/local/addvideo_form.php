@@ -60,7 +60,7 @@ class addvideo_form extends \moodleform {
                         'multiple' => true,
                         'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
                             $this->try_get_string($field->name, 'block_opencast')),
-                        'showsuggestions' => false,
+                        'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                         'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                             $this->try_get_string($field->name, 'block_opencast')),
                         'tags' => true

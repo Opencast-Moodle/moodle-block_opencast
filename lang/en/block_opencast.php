@@ -268,6 +268,11 @@ $string['heading_datatype'] = 'Field Type';
 $string['heading_required'] = 'Required';
 $string['heading_readonly'] = 'Read Only';
 $string['heading_params'] = 'Parameters (JSON)';
+$string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>'
+                                . '<b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element.<br>'
+                                . '<b>Drop Down (select):</b> Parameters will be defined as options of the select element.<br>'
+                                . '<b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>.<br>'
+                                . '<b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> .';
 $string['addcatalog'] = 'Add new metadata';
 $string['descriptionmdfn'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
 $string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';

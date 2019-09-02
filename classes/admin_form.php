@@ -246,6 +246,7 @@ class admin_form extends moodleform {
         $name = 'catalogparam';
         $title = get_string('heading_params', 'block_opencast');
         $mform->addElement('textarea', $name, $title);
+        $mform->addHelpButton($name, $name, 'block_opencast');
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'descriptionmdpj', '', get_string('descriptionmdpj', 'block_opencast'));
 
