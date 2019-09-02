@@ -73,11 +73,13 @@ if ($data = $addvideoform->get_data()) {
     }
 
     $metadata = [];
-    $get_title = true;
+    $get_title = true; //Make sure title (required) is added into metadata
+
+    //Adding data into $metadata based on $metadata_catalog
     foreach ($metadata_catalog as $field) {
         $id = $field->name;
         if (array_key_exists($field->name, $data) AND $data->$id) {
-            if ($field->name == 'title') {
+            if ($field->name == 'title') { //Make sure the title is received!
                 $get_title = false;
             }
             if ($field->name == 'subjects') {
@@ -93,6 +95,8 @@ if ($data = $addvideoform->get_data()) {
             $metadata[] = $obj;
         }
     }
+
+    //If admin forgets/mistakenly deletes the title from metadata_catalog the system will create a title!
     if ($get_title) {
         $title_obj = [
             'id' => 'title',
