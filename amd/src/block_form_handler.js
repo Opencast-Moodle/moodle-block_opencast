@@ -26,20 +26,20 @@ define(['jquery'], function($) {
     * Instantiate the window variable in order to work with Intervals
     *
     */
-    window.presenter_intervalHandle = null;
-    window.presentation_intervalHandle = null;
-    window.presenter_run = false;
-    window.presentation_run = false;
+    window.presenterIntervalHandle = null;
+    window.presentationIntervalHandle = null;
+    window.presenterRun = false;
+    window.presentationRun = false;
 
     /**
     * Clears intervals and enables Save Change Button after upload process is completed
     *
     */
     function afterUpload() {
-        if (!presentation_run  && !presenter_run ) {
-            clearInterval(presentation_intervalHandle); 
-            clearInterval(presenter_intervalHandle);              
-            $('[name="submitbutton"]').removeAttr('disabled'); 
+        if (!window.presentationRun && !window.presenterRun) {
+            clearInterval(window.presentationIntervalHandle);
+            clearInterval(window.presenterIntervalHandle);
+            $('[name="submitbutton"]').removeAttr('disabled');
         }
     }
 
@@ -47,8 +47,8 @@ define(['jquery'], function($) {
     * Makes sure that autocomplete fields receive the form-control class in order to have consistency
     *
     */
-    function autocompletePrettifier () {
-        $('div[data-fieldtype="autocomplete"]').each(function (i, elm) {
+    function autocompletePrettifier() {
+        $('div[data-fieldtype="autocomplete"]').each(function(i, elm) {
             var input = $(elm).find('input');
             if (!input.hasClass('form-control')) {
                 input.addClass('form-control');
@@ -61,44 +61,44 @@ define(['jquery'], function($) {
     *
     */
     var init = function() {
-        
+
         $('.filepicker-filelist').on('drop', function (e){
             var filelist = e.currentTarget;
             var video_identifier = $(filelist).parent().siblings('.filepickerhidden').attr('name');
-            
-            $('[name="submitbutton"]').attr('disabled', 'disabled'); 
-            
+
+            $('[name="submitbutton"]').attr('disabled', 'disabled');
+
             if (video_identifier == 'video_presenter') {
                 $(filelist).addClass('presenter-uploading');
-                presenter_intervalHandle = setInterval(function(){
-                    presenter_run = true;
+                window.presenterIntervalHandle = setInterval(function() {
+                    window.presenterRun = true;
                     if (!$('.presenter-uploading').hasClass('dndupload-inprogress')) {
-                        presenter_run = false;
+                        window.presenterRun = false;
                         afterUpload();
                     }
                 }, 500);
             } else {
                 $(filelist).addClass('presentation-uploading');
-                presenter_intervalHandle = setInterval(function(){
-                    presentation_run = true;
+                window.presenterIntervalHandle = setInterval(function() {
+                    window.presentationRun = true;
                     if (!$('.presentation-uploading').hasClass('dndupload-inprogress')) {
-                        presentation_run = false;
+                        window.presentationRun = false;
                         afterUpload();
                     }
                 }, 500);
             }
-            
+
         });
-        
+
         // Ensures that autocomplete fields are loaded properly after 1 sec!
         setTimeout(function(){
             autocompletePrettifier();
-            $('.moreless-actions').on('click', function (e){ //
+            $('.moreless-actions').on('click', function() { //
                 autocompletePrettifier();
             });
         }, 1000);
     };
-    
+
     return {
         init: init
     };
