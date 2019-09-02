@@ -134,6 +134,9 @@ class updatemetadata_form extends \moodleform {
             if ($field->value AND !$field->readOnly) {
                 $mform->setDefault($field->id, $field->value);
             }
+            if ($type == 'text') {
+                $mform->setType($field->id, PARAM_TEXT);
+            }
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);

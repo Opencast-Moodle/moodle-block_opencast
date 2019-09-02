@@ -84,7 +84,7 @@ if ($data = $updatemetadataform->get_data()) {
     }
     redirect($redirecturl, $msg);
 }
-$PAGE->requires->js(new moodle_url('/blocks/opencast/classes/local/form_handler.js'));
+$PAGE->requires->js_call_amd('block_opencast/block_form_handler','init');
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
