@@ -78,7 +78,7 @@ class updatemetadata_form extends \moodleform {
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
         $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
-        $mform->setType('courseid', PARAM_ALPHANUMEXT);
+        $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
 
         $mform->closeHeaderBefore('buttonar');
 
