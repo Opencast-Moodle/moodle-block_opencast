@@ -244,7 +244,7 @@ class admin_form extends moodleform {
 
         // New catalog param json.
         $name = 'catalogparam';
-        $title = get_string('heading_params', 'block_opencast');
+        $title = get_string('catalogparam', 'block_opencast');
         $mform->addElement('textarea', $name, $title);
         $mform->addHelpButton($name, $name, 'block_opencast');
         $mform->setType($name, PARAM_TEXT);

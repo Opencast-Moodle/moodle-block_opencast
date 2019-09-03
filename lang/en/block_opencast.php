@@ -268,6 +268,7 @@ $string['heading_datatype'] = 'Field Type';
 $string['heading_required'] = 'Required';
 $string['heading_readonly'] = 'Read Only';
 $string['heading_params'] = 'Parameters (JSON)';
+$string['catalogparam'] = 'Parameters in JSON-Format';
 $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>'
                                 . '<b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>'
                                 . '<b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>'
