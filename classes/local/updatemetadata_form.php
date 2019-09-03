@@ -112,9 +112,12 @@ class updatemetadata_form extends \moodleform {
      */
     protected function extract_value($fieldname) {
         $metadata = $this->_customdata['metadata'];
-        
+
         foreach ($metadata as $data) {
-            if (strpos($data->id, $fieldname) !== FALSE) { //checks the similatiry instead of ==, because Opencast accepts both Subject and Subjects but returns only Subjects!
+
+            // Opencast accepts both `subject` and `subjects` but returns only `subjects`!
+            if ($data->id == $fieldname ||
+             ($fieldname == 'subject' && ($data->id == 'subjects'))) {
                 return $data->value;
             }
         }
