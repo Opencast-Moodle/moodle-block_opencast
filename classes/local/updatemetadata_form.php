@@ -37,106 +37,42 @@ class updatemetadata_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $metadata = $this->_customdata['metadata'];
-        
-        unset($metadata[array_search('isPartOf', array_column($metadata,'id'))]);
-        $metadata = array_values($metadata);
-
-        $date = $metadata[array_search('date', array_column($metadata,'type'))];
-        $time = $metadata[array_search('time', array_column($metadata,'type'))];
-        $date_time = strtotime($date->value . ' '  . $time->value);
-
-        unset($metadata[array_search('startTime', array_column($metadata,'id'))]);
-        $metadata = array_values($metadata);
-
-
-        $languages = $this->_customdata['languages'] ? json_decode($this->_customdata['languages']->param_json, true) : [
-            "" => "No option selected",
-            "slv" => "Slovenian",
-            "por" => "Portugese",
-            "roh" => "Romansh",
-            "ara" => "Arabic",
-            "pol" => "Polish",
-            "ita" => "Italian",
-            "zho" => "Chinese",
-            "fin" => "Finnish",
-            "dan" => "Danish",
-            "ukr" => "Ukrainian",
-            "fra" => "French",
-            "spa" => "Spanish",
-            "gsw" => "Swiss German",
-            "nor" => "Norwegian",
-            "rus" => "Russian",
-            "jpx" => "Japanese",
-            "nld" => "Dutch",
-            "tur" => "Turkish",
-            "hin" => "Hindi",
-            "swa" => "Swedish",
-            "eng" => "English",
-            "deu" => "German"
-        ];
-
-        $licenses = $this->_customdata['licenses'] ? json_decode($this->_customdata['licenses']->param_json, true) : [
-            "" => "No option selected",
-            "ALLRIGHTS" => "All Rights Reserved",
-            "CC0" => "CC0",
-            "CC-BY-ND" => "CC BY-ND",
-            "CC-BY-NC-ND" => "CC BY-NC-ND",
-            "CC-BY-NC-SA" => "CC BY-NC-SA",
-            "CC-BY-SA" => "CC BY-SA",
-            "CC-BY-NC" => "CC BY-NC",
-            "CC-BY" => "CC BY"
-        ];
-
-        foreach ($metadata as $field) {
-            $type = 'text';
+        foreach ($this->_customdata['metadata_catalog'] as $field) {
+            $value = $this->extract_value($field->name);
             $param = array();
             $attributes = array();
-
-            if ($field->id == 'startDate') {
-                $type = 'date_time_selector';
-                if ($date_time) {
-                    $field->value = $date_time;
-                }
+            if ($field->param_json) {
+                $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
             }
-            if ($field->id == 'description') {
-                $type = 'textarea';
-            }
-            if ($field->id == 'language') {
-                $type = 'select';
-                $param = $languages;
-            }
-            if ($field->id == 'license') {
-                $type = 'select';
-                $param = $licenses;
-            }
-            if (is_array($field->value)) {
-                $type = 'autocomplete';
+            if ($field->datatype == 'autocomplete') {
                 $attributes = [
                     'multiple' => true,
-                    'placeholder' => 'Enter ' . get_string($field->id, 'block_opencast'),
-                    'showsuggestions' => false,
-                    'noselectionstring' => 'No ' . get_string($field->id, 'block_opencast') . ' selected!' ,  
+                    'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
+                    $this->try_get_string($field->name, 'block_opencast')),
+                    'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
+                    'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
+                    $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
-                foreach ($field->value as $val) {
+                foreach ($value as $val) {
                     $param[$val] = $val;
                 }
             }
-            if ($field->readOnly) {
-                $type = 'static';
-                $param = $field->type == "date" ? date('Y-m-d H:i', strtotime($field->value)) : $field->value;
+            
+            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+            
+            if ($field->datatype == 'text') {
+                $mform->setType($field->name, PARAM_TEXT);
             }
-            $mform->addElement($type, $field->id, get_string($field->id, 'block_opencast'), $param, $attributes);
+            
             if ($field->required) {
-                $mform->addRule($field->id, get_string('required'), 'required');
+                $mform->addRule($field->name, get_string('required'), 'required');
             }
-            if ($field->value AND !$field->readOnly) {
-                $mform->setDefault($field->id, $field->value);
+
+            if ($value) {
+                $mform->setDefault($field->name, $value);
             }
-            if ($type == 'text') {
-                $mform->setType($field->id, PARAM_TEXT);
-            }
+                  
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -147,6 +83,42 @@ class updatemetadata_form extends \moodleform {
         $mform->closeHeaderBefore('buttonar');
 
         $this->add_action_buttons(true, get_string('savechanges'));
+    }
+    /**
+     * Tries to get the string for identifier and component.
+     * As a fallback it outputs the identifier itself with the first letter being uppercase.
+     * @param string $identifier The key identifier for the localized string
+     * @param string $component The module where the key identifier is stored,
+     *      usually expressed as the filename in the language pack without the
+     *      .php on the end but can also be written as mod/forum or grade/export/xls.
+     *      If none is specified then moodle.php is used.
+     * @param string|object|array $a An object, string or number that can be used
+     *      within translation strings
+     * @return string
+     * @throws \coding_exception
+     */
+    protected function try_get_string($identifier, $component = '', $a = null) {
+        if (!get_string_manager()->string_exists($identifier, $component)) {
+            return ucfirst($identifier);
+        } else {
+            return get_string($identifier, $component, $a);
+        }
+    }
+
+    /**
+     * Searches through metadata to find the value of the field defined in catalog
+     * @param string $fieldname the name of the catalog field which is defined as id in metadata set
+     * @return string|array $value An array or string derived from metadata
+     */
+    protected function extract_value($fieldname) {
+        $metadata = $this->_customdata['metadata'];
+        
+        foreach ($metadata as $data) {
+            if (strpos($data->id, $fieldname) !== FALSE) { //checks the similatiry instead of ==, because Opencast accepts both Subject and Subjects but returns only Subjects!
+                return $data->value;
+            }
+        }
+        return '';
     }
 
 }

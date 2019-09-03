@@ -50,10 +50,9 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
 $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
-$languages = upload_helper::get_opencast_metadata_catalog(['name' => 'language'], 'param_json');
-$licenses = upload_helper::get_opencast_metadata_catalog(['name' => 'license'], 'param_json');
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
 
-$updatemetadataform = new \block_opencast\local\updatemetadata_form(null, array('metadata' => $metadata,'languages' => $languages,'licenses' => $licenses , 'courseid' => $courseid, 'identifier' => $identifier));
+$updatemetadataform = new \block_opencast\local\updatemetadata_form(null, array('metadata' => $metadata, 'metadata_catalog' => $metadata_catalog, 'courseid' => $courseid, 'identifier' => $identifier));
 
 if ($updatemetadataform->is_cancelled()) {
     redirect($redirecturl);
