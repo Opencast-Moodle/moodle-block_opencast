@@ -261,7 +261,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $catalog[0]->param_json = '{"style":"min-width: 27ch;"}';
 
         $catalog[1] = new \stdClass();
-        $catalog[1]->name = 'subject';
+        $catalog[1]->name = 'subjects';
         $catalog[1]->datatype = 'autocomplete';
         $catalog[1]->required = 0;
         $catalog[1]->readonly = 0;

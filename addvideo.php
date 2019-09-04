@@ -85,9 +85,6 @@ if ($data = $addvideoform->get_data()) {
             if ($field->name == 'subjects') {
                 !is_array($data->$id) ? $data->$id = array($data->$id) : $data->$id = $data->$id;
             }
-            if ($field->name == 'subject') {
-                is_array($data->$id) ? $data->$id = implode(', ', $data->$id) : $data->$id = $data->$id;
-            }
             $obj = [
                 'id' => $id,
                 'value' => $data->$id

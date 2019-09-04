@@ -115,9 +115,7 @@ class updatemetadata_form extends \moodleform {
 
         foreach ($metadata as $data) {
 
-            // Opencast accepts both `subject` and `subjects` but returns only `subjects`!
-            if ($data->id == $fieldname ||
-             ($fieldname == 'subject' && ($data->id == 'subjects'))) {
+            if ($data->id == $fieldname) {
                 return $data->value;
             }
         }
