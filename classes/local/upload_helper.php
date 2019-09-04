@@ -76,16 +76,17 @@ class upload_helper {
 
         $allnamefields = get_all_user_name_fields(true, 'u');
 
-        $sql = "SELECT uj.*, f.filename, f.filesize, $allnamefields
+        $sql = "SELECT uj.*, $allnamefields, md.metadata,
+                f1.filename as presenter_filename, f1.filesize as presenter_filesize,
+                f2.filename as presentation_filename, f2.filesize as presentation_filesize
                 FROM {block_opencast_uploadjob} uj
-                JOIN {files} f ON uj.fileid = f.id AND f.component = :component
-                JOIN {user} u ON f.userid = u.id
-                AND f.filearea = :filearea AND f.filename <> '.'
+                JOIN {user} u ON uj.userid = u.id
+                JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
+                LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
+                LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid 
                 WHERE uj.status < :status AND uj.courseid = :courseid";
 
         $params = [];
-        $params['component'] = 'block_opencast';
-        $params['filearea'] = self::OC_FILEAREA;
         $params['status'] = self::STATUS_TRANSFERRED;
         $params['courseid'] = $courseid;
 
@@ -99,45 +100,66 @@ class upload_helper {
      * 2. Remove upload job, when status is readytoupload.
      *
      */
-    public static function save_upload_jobs($courseid, $coursecontext) {
+    public static function save_upload_jobs($courseid, $coursecontext , $options) {
         global $DB, $USER;
 
-        // Get all area files where the upload job is missing and add a job.
-        $sql = "SELECT f.id, f.contenthash, uj.fileid
-                FROM {files} f
-                LEFT JOIN {block_opencast_uploadjob} uj ON f.id = uj.fileid
-                WHERE f.component = :component AND f.filearea = :filearea AND f.filename <> '.'
-                AND uj.fileid IS NULL ";
-
+        //find the current files for the jobs
         $params = [];
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
-
-        $filesneedingjobs = $DB->get_records_sql($sql, $params);
-
-        foreach ($filesneedingjobs as $file) {
-
-            $job = new \stdClass();
-            $job->fileid = $file->id;
-            $job->contenthash = $file->contenthash;
-            $job->opencasteventid = '';
-            $job->countfailed = 0;
-            $job->timestarted = 0;
-            $job->timesucceeded = 0;
-            $job->status = self::STATUS_READY_TO_UPLOAD;
-            $job->courseid = $courseid;
-            $job->userid = $USER->id;
-            $job->timecreated = time();
-            $job->timemodified = $job->timecreated;
-
-            $DB->insert_record('block_opencast_uploadjob', $job);
+        $items = array();
+        
+        if (isset($options->presentation) && !empty($options->presentation)) {
+            $items[] = $options->presentation;
+        } else {
+            $items[] = 0;
         }
+
+        if (isset($options->presenter) && !empty($options->presenter)) {
+            $items[] = $options->presenter;
+        } else {
+            $items[] = 0;
+        }
+
+        list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
+        $params+=$inparams;
+        $sql = "SELECT f.id, f.contenthash, f.itemid, f.filename, f.filesize FROM {files} f 
+                    WHERE f.component = :component 
+                        AND f.filearea = :filearea 
+                        AND f.filename <> '.'
+                        AND f.itemid {$insql}";
+        
+        $currentjobfiles = $DB->get_records_sql($sql, $params);
+        $job = new \stdClass();
+        foreach ($currentjobfiles as $file) {
+            if (isset($options->presenter) && $options->presenter == $file->itemid) {
+                $job->presenter_fileid = $file->id;
+                $job->contenthash_presenter = $file->contenthash;
+            } 
+            if (isset($options->presentation) && $options->presentation == $file->itemid) {
+                $job->presentation_fileid = $file->id;
+                $job->contenthash_presenter = $file->contenthash;
+            }
+        }
+        $job->opencasteventid = '';
+        $job->countfailed = 0;
+        $job->timestarted = 0;
+        $job->timesucceeded = 0;
+        $job->status = self::STATUS_READY_TO_UPLOAD;
+        $job->courseid = $courseid;
+        $job->userid = $USER->id;
+        $job->timecreated = time();
+        $job->timemodified = $job->timecreated;
+        $uploadjobid = $DB->insert_record('block_opencast_uploadjob', $job);
+
+        $options->uploadjobid = $uploadjobid;
+        $DB->insert_record('block_opencast_metadata', $options);
 
         // Delete all jobs with status ready to transfer, where file is missing.
         $sql = "SELECT uj.id
                 FROM {block_opencast_uploadjob} uj
                 LEFT JOIN {files} f
-                ON uj.fileid = f.id AND
+                ON (uj.presentation_fileid = f.id OR uj.presenter_fileid = f.id) AND
                   f.component = :component AND
                   f.filearea = :filearea AND
                   f.filename <> '.'
@@ -178,9 +200,14 @@ class upload_helper {
 
         // Delete from files table.
         $fs = get_file_storage();
-        $file = $fs->get_file_by_id($job->fileid);
 
-        $filename = (!$file) ? 'unknown' : $file->get_filename();
+        $files = array();
+        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
+        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
+        $filenames = array();
+        foreach ($files as $file) {
+            $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
+        }
 
         // Trigger event.
         $context = \context_course::instance($job->courseid);
@@ -190,19 +217,23 @@ class upload_helper {
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
                 'userid'   => $job->userid,
-                'other'    => array('filename' => $filename)
+                'other'    => array('filename' => implode(' & ', $filenames))
             )
         );
 
         $event->trigger();
 
         // Delete file from files table.
-        $file->delete();
-
         $config = get_config('block_opencast');
-        if (!empty($config->adhocfiledeletion)) {
-            file_deletionmanager::fulldelete_file($file);
+
+        foreach ($files as $file) {
+            $file->delete();
+            if (!empty($config->adhocfiledeletion)) {
+                file_deletionmanager::fulldelete_file($file);
+            }
         }
+
+        
     }
 
     protected function upload_failed($job, $errormessage) {
@@ -217,9 +248,14 @@ class upload_helper {
 
         // Get file information.
         $fs = get_file_storage();
-        $file = $fs->get_file_by_id($job->fileid);
+        $files = array();
+        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
+        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
 
-        $filename = (!$file) ? 'unknown' : $file->get_filename();
+        $filenames = array();
+        foreach ($files as $file) {
+            $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
+        }
 
         // Trigger event.
         $context = \context_course::instance($job->courseid);
@@ -230,7 +266,7 @@ class upload_helper {
                 'courseid' => $job->courseid,
                 'userid'   => $job->userid,
                 'other'    => array(
-                    'filename'     => $filename,
+                    'filename'     => /* $filename */implode(' & ', $filenames),
                     'errormessage' => $errormessage,
                     'countfailed'  => $job->countfailed
                 )
@@ -327,18 +363,21 @@ class upload_helper {
                 } else if (get_config('block_opencast', 'reuseexistingupload')) {
                     // Check, whether this file was uploaded any time before.
                     $params = array(
-                        'contenthash' => $job->contenthash
+                        'contenthash_presenter' => $job->contenthash_presenter,
+                        'contenthash_presentation' => $job->contenthash_presentation
                     );
 
                     // Search for files already uploaded to opencast.
                     $sql = "SELECT opencasteventid
                         FROM {block_opencast_uploadjob}
-                        WHERE contenthash = :contenthash
+                        WHERE contenthash_presenter = :contenthash_presenter
+                            OR contenthash_presentation = :contenthash_presentation
                         GROUP BY opencasteventid ";
 
                     $eventids = $DB->get_records_sql($sql, $params);
                     if ($eventids) {
                         $eventids = array_keys($eventids);
+                        mtrace('... applying reuse of existing upload');
                     }
                 }
 
@@ -434,6 +473,10 @@ class upload_helper {
         foreach ($jobs as $job) {
             mtrace('proceed: ' . $job->id);
             try {
+                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields='metadata', $strictness=IGNORE_MISSING);
+                if ($joboptions) {
+                    $job = (object) array_merge((array)$job, (array)$joboptions );
+                } 
                 $event = $this->process_upload_job($job);
                 if ($event) {
                     $this->upload_succeeded($job, $event->identifier);
@@ -475,5 +518,29 @@ class upload_helper {
 
         return \context_block::instance($blockinstance->id);
     }
+
+    //metadata
+
+    /**
+     * Gets the cataqlog of metadata fields from database
+     *
+     * @return stdClass $metadata the metadata object
+     */
+    public static function get_opencast_metadata_catalog($condition = array(), $fields = '*') {
+        global $DB;
+
+        if ($condition) {
+            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition,  $fields );
+        } else {
+            $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
+        }
+
+        if (!$metadata_catalog) {
+            return false;
+        }
+
+        return $metadata_catalog;
+    }
+
 
 }

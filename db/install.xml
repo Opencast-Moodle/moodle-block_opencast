@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/opencast/db" VERSION="20180704" COMMENT="XMLDB file for Moodle blocks/opencast"
+<XMLDB PATH="blocks/opencast/db" VERSION="20190822" COMMENT="XMLDB file for Moodle blocks/opencast"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -7,8 +7,10 @@
     <TABLE NAME="block_opencast_uploadjob" COMMENT="Videos to upload by cron job.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id in files table"/>
-        <FIELD NAME="contenthash" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Contenthash of files table to remind that video maybe already uploaded"/>
+        <FIELD NAME="presenter_fileid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Presenter file id in files table"/>
+        <FIELD NAME="contenthash_presenter" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Presenter file's contenthash of files table to remind that video maybe already uploaded"/>
+        <FIELD NAME="presentation_fileid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Presentation file id in files table"/>
+        <FIELD NAME="contenthash_presentation" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Presentation file's contenthash of files table to remind that video maybe already uploaded"/>
         <FIELD NAME="opencasteventid" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="countfailed" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timestarted" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -52,7 +54,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="rolename" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="actions" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Comma-separated list of actions"/>
-        <FIELD NAME="permanent" TYPE="int" LENGTH="1" UNSIGNED="true" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="Defines wether a role is permanent (e.g. admin access) or not"/>
+        <FIELD NAME="permanent" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Defines wether a role is permanent (e.g. admin access) or not"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -83,6 +85,30 @@
         <INDEX NAME="ctx-itemid" UNIQUE="false" FIELDS="contextid, itemid"/>
         <INDEX NAME="ctx-timecreated" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_opencast_catalog" COMMENT="this table contains the list of metadata catalog and its data types">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="datatype" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="required" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="readonly" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="param_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_opencast_metadata" COMMENT="this table contains the metadata related to the event using json">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="uploadjobid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="metadata" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="uploadjob_foreign" TYPE="foreign" FIELDS="uploadjobid" REFTABLE="block_opencast_uploadjob" REFFIELDS="id"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>
