@@ -1,0 +1,47 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_opencast/series_settings_actions
+
+    This template renders the list of series-related settings.
+
+    Example context (json):
+    {
+        "hasanyactions": true,
+        "createseriesurl": "https://moodle.local/blocks/opencast/editseries.php?courseid=3"
+    }
+}}
+{{#hasanyactions}}
+<div class="d-flex flex-wrap flex-row-reverse m-b-1 text-right">
+    {{#createseriesurl}}
+        <div class="pl-1">
+            <a class="iconsmall" title="{{#str}} createseriesforcourse, block_opencast {{/str}}" href="{{{createseriesurl}}}">
+                {{#pix}} a/create_folder, core{{/pix}}
+                {{#str}} createseriesforcourse, block_opencast {{/str}}
+            </a>
+        </div>
+    {{/createseriesurl}}
+    {{#editseriesurl}}
+        <div class="pl-1">
+            <a class="iconsmall" title="{{#str}} editseriesforcourse, block_opencast {{/str}}" href="{{{editseriesurl}}}">
+                {{#pix}} i/edit, core{{/pix}}
+                {{#str}} editseriesforcourse, block_opencast {{/str}}
+            </a>
+        </div>
+    {{/editseriesurl}}
+</div>
+{{/hasanyactions}}

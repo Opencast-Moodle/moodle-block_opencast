@@ -1,5 +1,5 @@
 .opencast-addvideo-wrap {
-    text-align: center
+    text-align: center;
 }
 
 .opencast-vlist {
@@ -30,10 +30,10 @@
     display: none;
 }
 
-#page-blocks-opencast-addvideo .form-filetypes-descriptions li  {
-    font-size:0
+#page-blocks-opencast-addvideo .form-filetypes-descriptions li {
+    font-size: 0;
 }
 
-#page-blocks-opencast-addvideo .form-filetypes-descriptions li  .text-muted {
-     font-size:12px
+#page-blocks-opencast-addvideo .form-filetypes-descriptions li .text-muted {
+    font-size: 12px;
 }
