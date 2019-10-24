@@ -1166,15 +1166,15 @@ class apibridge {
      * Triggers the workflow to update the metadata in opencast.
      * This is necessary, when ACL rules of an event were updated in order to republish the video with the correct
      * access rights.
-     * @param string $event id of the event the metadata should be updated for.
+     * @param string $eventid id of the event the metadata should be updated for.
      * @return bool true, if the workflow was successfully started.
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    private function update_metadata($event) {
+    private function update_metadata($eventid) {
         $workflow = get_config('block_opencast', 'workflow_roles');
 
-        return $this->start_workflow($event, $workflow);
+        return $this->start_workflow($eventid, $workflow);
     }
 
     /**
@@ -1460,7 +1460,9 @@ class apibridge {
      * Update the metadata with the matching type of the specified event.
      * @param string $eventidentifier identifier of the event
      * @param stdClass $metadata collection of metadata
-     * @return bool 
+     * @return bool
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public static function update_event_metadata($eventidentifier, $metadata) {
 
@@ -1471,10 +1473,10 @@ class apibridge {
         $api = new api();
         $api->oc_put($resource, $params);
 
-        return ($api->get_http_code() == 204);
-
+        if ($api->get_http_code() == 204) {
+            return self::update_metadata($eventidentifier);
+        };
+        return false;
     }
-
-
 
 }
