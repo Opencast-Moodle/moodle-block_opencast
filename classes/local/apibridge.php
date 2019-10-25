@@ -1443,7 +1443,7 @@ class apibridge {
      * @param string $eventidentifier identifier of the event
      * @return stdClass $metadata  
      */
-    public static function get_event_metadata($eventidentifier, $query = '') {
+    public function get_event_metadata($eventidentifier, $query = '') {
         $api = new api();
         $resource = '/api/events/' . $eventidentifier . '/metadata' . $query;
         $metadata = $api->oc_get($resource);
@@ -1464,7 +1464,7 @@ class apibridge {
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function update_event_metadata($eventidentifier, $metadata) {
+    public function update_event_metadata($eventidentifier, $metadata) {
 
 
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
@@ -1474,7 +1474,7 @@ class apibridge {
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
-            return self::update_metadata($eventidentifier);
+            return $this->update_metadata($eventidentifier);
         };
         return false;
     }
