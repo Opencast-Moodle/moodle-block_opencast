@@ -50,7 +50,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
 $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
 
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null, array('metadata' => $metadata, 'metadata_catalog' => $metadata_catalog, 'courseid' => $courseid, 'identifier' => $identifier));
 
@@ -74,9 +74,10 @@ if ($data = $updatemetadataform->get_data()) {
                     'value' => date('H:i:sz', $data->startDate)
                 ];
                 $new_metadata[] = $startTime;
-            } 
+            }
         }
     }
+    $msg = '';
     $res = $opencast->update_event_metadata($identifier, $new_metadata);
     if ($res) {
         $msg = get_string('updatemetadatasaved', 'block_opencast');

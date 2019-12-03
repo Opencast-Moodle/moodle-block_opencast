@@ -1173,7 +1173,9 @@ class apibridge {
      */
     private function update_metadata($eventid) {
         $workflow = get_config('block_opencast', 'workflow_roles');
-
+        if (!$workflow) {
+            return true;
+        }
         return $this->start_workflow($eventid, $workflow);
     }
 
@@ -1439,9 +1441,9 @@ class apibridge {
     }
 
     /**
-     * Get the event's metadata of the specified type 
+     * Get the event's metadata of the specified type
      * @param string $eventidentifier identifier of the event
-     * @return stdClass $metadata  
+     * @return stdClass $metadata
      */
     public function get_event_metadata($eventidentifier, $query = '') {
         $api = new api();
