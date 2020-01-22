@@ -21,6 +21,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_opencast\local\upload_helper;
+
 /**
  * Execute opencast upgrade from the given old version
  *
@@ -316,6 +318,49 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019082100, 'opencast');
     }
 
+    if ($oldversion < 2019112102) {
+
+        $table = new xmldb_table('block_opencast_uploadjob');
+
+        // Define field captions_fileid to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('captions_fileid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'contenthash_presentation');
+
+        // Conditionally launch add field captions_fileid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field contenthash_captions to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('contenthash_captions', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'captions_fileid');
+
+        // Conditionally launch add field contenthash_captions.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Status values of uploadjobs have changed. Update existing uploadjobs.
+        $jobs = $DB->get_records('block_opencast_uploadjob', ['status' => 27]); // 27 = old value of STATUS_UPLOADED
+        foreach ($jobs as $job) {
+            $job->status = upload_helper::STATUS_UPLOADED;
+            $DB->update_record('block_opencast_uploadjob', $job);
+        }
+        upgrade_block_savepoint(true, 2019112102, 'opencast');
+    }
+
+    if ($oldversion < 2019112103) {
+
+        $table = new xmldb_table('block_opencast_uploadjob');
+
+        // Define field mediapackagexml to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('mediapackagexml', XMLDB_TYPE_TEXT, null, null, null, null, null, 'opencasteventid');
+
+        // Conditionally launch add field mediapackagexml.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2019112103, 'opencast');
+    }
 
     return true;
 }

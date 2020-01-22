@@ -28,8 +28,10 @@ define(['jquery'], function($) {
     */
     window.presenterIntervalHandle = null;
     window.presentationIntervalHandle = null;
+    window.captionsIntervalHandle = null;
     window.presenterRun = false;
     window.presentationRun = false;
+    window.captionsRun = false;
 
     /**
     * Clears intervals and enables Save Change Button after upload process is completed
@@ -39,6 +41,7 @@ define(['jquery'], function($) {
         if (!window.presentationRun && !window.presenterRun) {
             clearInterval(window.presentationIntervalHandle);
             clearInterval(window.presenterIntervalHandle);
+            clearInterval(window.captionsIntervalHandle);
             $('[name="submitbutton"]').removeAttr('disabled');
         }
     }
@@ -77,12 +80,21 @@ define(['jquery'], function($) {
                         afterUpload();
                     }
                 }, 500);
-            } else {
+            } else if (video_identifier == 'video_presentation') {
                 $(filelist).addClass('presentation-uploading');
-                window.presenterIntervalHandle = setInterval(function() {
+                window.presentationIntervalHandle = setInterval(function() {
                     window.presentationRun = true;
                     if (!$('.presentation-uploading').hasClass('dndupload-inprogress')) {
                         window.presentationRun = false;
+                        afterUpload();
+                    }
+                }, 500);
+            } else {
+                $(filelist).addClass('captions-uploading');
+                window.captionsIntervalHandle = setInterval(function() {
+                    window.captionsRun = true;
+                    if (!$('.captions-uploading').hasClass('dndupload-inprogress')) {
+                        window.captionsRun = false;
                         afterUpload();
                     }
                 }, 500);

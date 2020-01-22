@@ -64,12 +64,16 @@ if ($data = $addvideoform->get_data()) {
     // Record the user draft area in this context.
     $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
     $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+    $storedfile_captions = $addvideoform->save_stored_file('video_captions', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_captions);
 
     if ($storedfile_presenter) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presenter);
     }
     if ($storedfile_presentation) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presentation);
+    }
+    if ($storedfile_captions) {
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_captions);
     }
 
     $metadata = [];
@@ -116,6 +120,7 @@ if ($data = $addvideoform->get_data()) {
     $options->metadata = json_encode($metadata);
     $options->presenter = $storedfile_presenter ? $storedfile_presenter->get_itemid() : '';
     $options->presentation = $storedfile_presentation ? $storedfile_presentation->get_itemid() : '';
+    $options->captions = $storedfile_captions ? $storedfile_captions->get_itemid() : '';
 
     // Update all upload jobs.
     \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);

@@ -712,6 +712,7 @@ class apibridge {
      * API call to create an event.
      *
      * @return object series object of NULL, if group does not exist.
+     * @deprecated Events are now created in multiple steps beginning with the create_media_package method.
      */
     public function create_event($job, $seriesidentifier) {
         global $DB;
@@ -738,6 +739,12 @@ class apibridge {
                 $valid_storedfile = false;
             }
         }
+        if ($job->captions_fileid ) {
+            $event->set_captions($job->captions_fileid);
+            if (!$event->get_captions()) {
+                $valid_storedfile = false;
+            }
+        }
 
         if (!$valid_storedfile) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
@@ -761,6 +768,227 @@ class apibridge {
         }
 
         return $result;
+    }
+
+    // Ingest/media_package stuff.
+
+    private function get_ingest_endpoint_path() {
+        $api = new api();
+        static $path = null;
+        if ($path) {
+            return $path;
+        }
+        $response = $api->oc_get('/services/available.json?serviceType=org.opencastproject.ingest');
+        $responseobj = json_decode($response);
+        // TODO error handling?
+        $service = $responseobj->services->service;
+        $path = $service->path;
+        return $path;
+    }
+
+    private function generate_mediapackage_metadata_xml($job) {
+        $metadata = json_decode($job->metadata);
+        $result = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">';
+        $startdate = null;
+        $starttime = null;
+        foreach ($metadata as $field) {
+            // Start date/time uses another format. It is added further below.
+            if ($field->id == 'startDate') {
+                $startdate = $field->value;
+                continue;
+            } else if ($field->id == 'startTime') {
+                $starttime = $field->value;
+                continue;
+            } else {
+                $result .= "\n";
+                $result .= '    <dcterms:'.$field->id.'>'.$field->value.'</dcterms:'.$field->id.'>';
+            }
+        }
+        $result .= "\n";
+        $result .= '    <dcterms:created xsi:type="dcterms:W3CDTF">'.$startdate.'T'.$starttime.'</dcterms:created>';
+        $seriesid = $this->get_stored_seriesid($job->courseid);
+        $result .= "\n";
+        $result .= '    <dcterms:isPartOf>'.$seriesid.'</dcterms:isPartOf>';
+        $result .= "\n";
+        $result .= '</dublincore>';
+        return $result;
+    }
+
+    private function generate_mediapackage_acl_xml($job) {
+        $aclxml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Policy Version="2.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides" xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os">';
+        $roles = $this->getroles();
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+                foreach ($this->replace_placeholders($role->rolename, $job->courseid) as $acl) {
+                    $aclxml .= "\n";
+                    $aclxml .= '    <Rule RuleId="'.$acl.'_'.$action.'_Permit" Effect="Permit">
+        <Target>
+            <Actions>
+                <Action>
+                    <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$action.'</AttributeValue>
+                        <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </ActionMatch>
+                </Action>
+            </Actions>
+        </Target>
+        <Condition>
+            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$acl.'</AttributeValue>
+                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+            </Apply>
+        </Condition>
+    </Rule>';
+                }
+            }
+        }
+        $aclxml .= "\n";
+        $aclxml .= '    <Rule RuleId="DenyRule" Effect="Deny"/>
+</Policy>';
+        return $aclxml;
+    }
+
+    private function media_package_upload_track($mediapackagexml, $fileid, $flavor) {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $fs = get_file_storage();
+        $file = $fs->get_file_by_id($fileid);
+
+        $api = new api();
+        return $api->oc_post($ingestpath.'/addTrack', [
+            "flavor" => $flavor,
+            "mediaPackage" => $mediapackagexml,
+            "BODY" => $file
+        ]);
+    }
+
+    /**
+     * API call to create an empty media package.
+     * 
+     * @return string media package id which becomes event id upon ingestion
+     */
+    public function create_media_package() {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $api = new api();
+        $response = $api->oc_get($ingestpath.'/createMediaPackage');
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('creatingmediapackagefailed', 'block_opencast');
+        }
+        return $response;
+    }
+
+    public function media_package_upload_metadata($job) {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $metadataxml = $this->generate_mediapackage_metadata_xml($job);
+
+        $api = new api();
+        $response = $api->oc_post($ingestpath.'/addDCCatalog', [
+            'flavor' => 'dublincore/episode',
+            'mediaPackage' => $job->mediapackagexml,
+            'dublinCore' => $metadataxml
+        ]);
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('uploadingmetadatafailed', 'block_opencast');
+        }
+        return $response;
+    }
+
+    public function media_package_upload_acl($job) {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $aclxml = $this->generate_mediapackage_acl_xml($job);
+
+        // Create temporary XML file with ACL.
+        $fs = get_file_storage();
+        $ctxid = \context_course::instance($job->courseid)->id;
+        $fileinfo = [
+            'contextid' => $ctxid,
+            'component' => 'block_opencast',
+            'filearea' => 'tmp_acl',
+            'itemid' => $job->id,
+            'filepath' => '/',
+            'filename' => 'xacml.xml'];
+        $acltmpfile = $fs->create_file_from_string($fileinfo, $aclxml);
+
+        try {
+            $api = new api();
+            $response = $api->oc_post($ingestpath.'/addAttachment', [
+                "flavor" => "security/xacml+episode",
+                "mediaPackage" => $job->mediapackagexml,
+                "BODY" => $acltmpfile
+            ]);
+            $responseobj = simplexml_load_string($response);
+            if ($responseobj === false) {
+                throw new opencast_state_exception('uploadingaclfailed', 'block_opencast');
+            }
+            return $response;
+        } finally {
+            $fs->delete_area_files($ctxid, 'block_opencast', 'tmp_acl', $job->id);
+        }
+    }
+
+    public function media_package_upload_presenter($job) {
+        $response = $this->media_package_upload_track($job->mediapackagexml, $job->presenter_fileid, 'presenter/source');
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('uploadingvideofailed', 'block_opencast');
+        }
+        return $response;
+    }
+
+    public function media_package_upload_presentation($job) {
+        $response = $this->media_package_upload_track($job->mediapackagexml, $job->presentation_fileid, 'presentation/source');
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('uploadingvideofailed', 'block_opencast');
+        }
+        return $response;
+    }
+
+    public function media_package_upload_captions($job) {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $fs = get_file_storage();
+        $file = $fs->get_file_by_id($job->captions_fileid);
+
+        $api = new api();
+        $response = $api->oc_post($ingestpath.'/addAttachment', [
+            "flavor" => "captions/vtt+en", // TODO this should be configurable
+            "mediaPackage" => $job->mediapackagexml,
+            "BODY" => $file
+        ]);
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('uploadingcaptionsfailed', 'block_opencast');
+        }
+        return $response;
+    }
+
+    public function media_package_ingest($job) {
+        $ingestpath = $this->get_ingest_endpoint_path();
+
+        $uploadworkflow = get_config('block_opencast', 'uploadworkflow');
+        if (empty($uploadworkflow)) {
+            $uploadworkflow = 'ng-schedule-and-upload';
+        }
+
+        $api = new api();
+        $response = $api->oc_post($ingestpath.'/ingest/'.$uploadworkflow, [
+            "mediaPackage" => $job->mediapackagexml,
+        ]);
+        $responseobj = simplexml_load_string($response);
+        if ($responseobj === false) {
+            throw new opencast_state_exception('ingestingmediapackagefailed', 'block_opencast');
+        }
+        return $response;
     }
 
     /**
@@ -795,6 +1023,7 @@ class apibridge {
      *
      * @return object series object.
      * @throws opencast_state_exception
+     * @deprecated Events are now created in multiple steps beginning with the create_media_package method.
      */
     public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
 

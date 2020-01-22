@@ -86,6 +86,12 @@ class addvideo_form extends \moodleform {
             $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
             $mform->setAdvanced('startDate');
 
+            $mform->addElement('filepicker', 'video_captions',
+                get_string('captions', 'block_opencast'), null, array('accepted_types' => array('.vtt')));
+            $mform->addElement('static', 'captionsdesc', null, get_string('captionsdesc', 'block_opencast'));
+            $mform->setAdvanced('video_captions');
+            $mform->setAdvanced('captionsdesc');
+
         $mform->closeHeaderBefore('upload_filepicker');
         
 
