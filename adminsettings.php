@@ -45,6 +45,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'allowunassign',
         'deleteworkflow',
         'adhocfiledeletion',
+        'uploadfileextensions',
         'limitvideos',
         'showpublicationchannels',
         'duplicateworkflow',
