@@ -739,12 +739,6 @@ class apibridge {
                 $valid_storedfile = false;
             }
         }
-        if ($job->captions_fileid ) {
-            $event->set_captions($job->captions_fileid);
-            if (!$event->get_captions()) {
-                $valid_storedfile = false;
-            }
-        }
 
         if (!$valid_storedfile) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
@@ -796,6 +790,7 @@ class apibridge {
         $starttime = null;
         foreach ($metadata as $field) {
             // Start date/time uses another format. It is added further below.
+            // Attachments aren't part of the metadata catalog. They are uploaded separately.
             if ($field->id == 'startDate') {
                 $startdate = $field->value;
                 continue;
@@ -808,7 +803,10 @@ class apibridge {
             }
         }
         $result .= "\n";
-        $result .= '    <dcterms:created xsi:type="dcterms:W3CDTF">'.$startdate.'T'.$starttime.'</dcterms:created>';
+        $start = $startdate.'T'.$starttime;
+        $result .= '    <dcterms:created xsi:type="dcterms:W3CDTF">'.$start.'</dcterms:created>';
+        $result .= "\n";
+        $result .= '    <dcterms:temporal xsi:type="dcterms:Period">start='.$start.'; end='.$start.'; scheme=W3C-DTF;</dcterms:temporal>';
         $seriesid = $this->get_stored_seriesid($job->courseid);
         $result .= "\n";
         $result .= '    <dcterms:isPartOf>'.$seriesid.'</dcterms:isPartOf>';
@@ -876,9 +874,8 @@ class apibridge {
 
         $api = new api();
         $response = $api->oc_get($ingestpath.'/createMediaPackage');
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('creatingmediapackagefailed', 'block_opencast');
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
         return $response;
     }
@@ -894,9 +891,8 @@ class apibridge {
             'mediaPackage' => $job->mediapackagexml,
             'dublinCore' => $metadataxml
         ]);
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('uploadingmetadatafailed', 'block_opencast');
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
         return $response;
     }
@@ -925,9 +921,8 @@ class apibridge {
                 "mediaPackage" => $job->mediapackagexml,
                 "BODY" => $acltmpfile
             ]);
-            $responseobj = simplexml_load_string($response);
-            if ($responseobj === false) {
-                throw new opencast_state_exception('uploadingaclfailed', 'block_opencast');
+            if ($api->get_http_code() >= 400) {
+                throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
             }
             return $response;
         } finally {
@@ -946,29 +941,39 @@ class apibridge {
 
     public function media_package_upload_presentation($job) {
         $response = $this->media_package_upload_track($job->mediapackagexml, $job->presentation_fileid, 'presentation/source');
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('uploadingvideofailed', 'block_opencast');
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
         return $response;
     }
 
-    public function media_package_upload_captions($job) {
+    public function media_package_upload_attachments($job) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
-        $fs = get_file_storage();
-        $file = $fs->get_file_by_id($job->captions_fileid);
-
-        $api = new api();
-        $response = $api->oc_post($ingestpath.'/addAttachment', [
-            "flavor" => "captions/vtt+en", // TODO this should be configurable
-            "mediaPackage" => $job->mediapackagexml,
-            "BODY" => $file
-        ]);
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('uploadingcaptionsfailed', 'block_opencast');
+        if(empty($job->attachments)) {
+            return $job->mediapackagexml;
         }
+
+        $fs = get_file_storage();
+        $api = new api();
+        $mediapackagexml = $job->mediapackagexml;
+        foreach ($job->attachments as $attachment) {
+            $file = $fs->get_file_by_id($attachment->fileid);
+            if ($file === false) {
+                throw new \moodle_exception('attachmentmissingfile', 'tool_opencast');
+            }
+    
+            $response = $api->oc_post($ingestpath.'/addAttachment', [
+                "flavor" => $attachment->flavor,
+                "mediaPackage" => $mediapackagexml,
+                "BODY" => $file
+            ]);
+            if ($api->get_http_code() >= 400) {
+                throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            }
+            $mediapackagexml = $response;
+        }
+
         return $response;
     }
 
@@ -984,9 +989,8 @@ class apibridge {
         $response = $api->oc_post($ingestpath.'/ingest/'.$uploadworkflow, [
             "mediaPackage" => $job->mediapackagexml,
         ]);
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('ingestingmediapackagefailed', 'block_opencast');
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
         return $response;
     }

@@ -40,7 +40,7 @@ class upload_helper {
     const STATUS_UPLOADING_ACL = 28;
     const STATUS_UPLOADING_PRESENTER = 29;
     const STATUS_UPLOADING_PRESENTATION = 30;
-    const STATUS_UPLOADING_CAPTIONS = 31;
+    const STATUS_UPLOADING_ATTACHMENTS = 31;
     const STATUS_INGESTING = 32;
     const STATUS_UPLOADED = 35;
     const STATUS_TRANSFERRED = 40;
@@ -72,8 +72,8 @@ class upload_helper {
                 return get_string('mstateuploadingpresenter', 'block_opencast');
             case self::STATUS_UPLOADING_PRESENTATION :
                 return get_string('mstateuploadingpresentation', 'block_opencast');
-            case self::STATUS_UPLOADING_CAPTIONS :
-                return get_string('mstateuploadingcaptions', 'block_opencast');
+            case self::STATUS_UPLOADING_ATTACHMENTS :
+                return get_string('mstateuploadingattachments', 'block_opencast');
             case self::STATUS_INGESTING :
                 return get_string('mstateingesting', 'block_opencast');
             case self::STATUS_UPLOADED :
@@ -99,14 +99,12 @@ class upload_helper {
 
         $sql = "SELECT uj.*, $allnamefields, md.metadata,
                 f1.filename as presenter_filename, f1.filesize as presenter_filesize,
-                f2.filename as presentation_filename, f2.filesize as presentation_filesize,
-                f3.filename as captions_filename, f3.filesize as captions_filesize
+                f2.filename as presentation_filename, f2.filesize as presentation_filesize
                 FROM {block_opencast_uploadjob} uj
                 JOIN {user} u ON uj.userid = u.id
                 JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
                 LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
                 LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid
-                LEFT JOIN {files} f3 ON f3.id = uj.captions_fileid
                 WHERE uj.status < :status AND uj.courseid = :courseid";
 
         $params = [];
@@ -131,7 +129,7 @@ class upload_helper {
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
         $items = array();
-        
+
         if (isset($options->presentation) && !empty($options->presentation)) {
             $items[] = $options->presentation;
         } else {
@@ -144,10 +142,8 @@ class upload_helper {
             $items[] = 0;
         }
 
-        if (isset($options->captions) && !empty($options->captions)) {
-            $items[] = $options->captions;
-        } else {
-            $items[] = 0;
+        foreach ($options->attachments as $attachment) {
+            $items[] = $attachment->fileid;
         }
 
         list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
@@ -169,10 +165,6 @@ class upload_helper {
                 $job->presentation_fileid = $file->id;
                 $job->contenthash_presentation = $file->contenthash;
             }
-            if (isset($options->captions) && $options->captions == $file->itemid) {
-                $job->captions_fileid = $file->id;
-                $job->contenthash_captions = $file->contenthash;
-            }
         }
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -188,14 +180,18 @@ class upload_helper {
         $options->uploadjobid = $uploadjobid;
         $DB->insert_record('block_opencast_metadata', $options);
 
-        // Delete all jobs with status ready to transfer, where file is missing.
+        foreach ($options->attachments as $attachment) {
+            $attachment->uploadjobid = $uploadjobid;
+            $DB->insert_record('block_opencast_attachment', $attachment);
+        }
+
+        // Delete all jobs with status ready to transfer, where video file is missing.
         $sql = "SELECT uj.id
                 FROM {block_opencast_uploadjob} uj
                 LEFT JOIN {files} f
                 ON (
                     uj.presentation_fileid = f.id OR
-                    uj.presenter_fileid = f.id OR
-                    uj.captions_fileid = f.id
+                    uj.presenter_fileid = f.id
                 ) AND
                   f.component = :component AND
                   f.filearea = :filearea AND
@@ -211,6 +207,39 @@ class upload_helper {
 
         if (!empty($jobidstodelete)) {
             $DB->delete_records_list('block_opencast_uploadjob', 'id', array_keys($jobidstodelete));
+        }
+
+        // Delete all jobs with status < uploaded, where attachment file is missing.
+        $sql = "SELECT a.id AS id,
+                    uj.id AS uploadjobid,
+                    a.id AS attachmentid
+                FROM {block_opencast_uploadjob} uj
+                JOIN {block_opencast_attachment} a
+                ON uj.id = a.uploadjobid
+                LEFT JOIN {files} f
+                ON (a.fileid = f.id) AND
+                    f.component = :component AND
+                    f.filearea = :filearea AND
+                    f.filename <> '.'
+                WHERE f.id IS NULL AND uj.status < :status";
+
+        $params = [];
+        $params['component'] = 'block_opencast';
+        $params['filearea'] = self::OC_FILEAREA;
+        $params['status'] = self::STATUS_UPLOADED;
+
+        $jobsandattachmentstodelete = $DB->get_records_sql($sql, $params);
+
+        $attachmentidstodelete = array_column($jobsandattachmentstodelete, 'attachmentid');
+        $attachmentidstodelete = array_unique($attachmentidstodelete);
+        $jobidstodelete = array_column($jobsandattachmentstodelete, 'uploadjobid');
+        $jobidstodelete = array_unique($jobidstodelete);
+
+        if (!empty($attachmentidstodelete)) {
+            $DB->delete_records_list('block_opencast_attachment', 'id', $attachmentidstodelete);
+        }
+        if (!empty($jobidstodelete)) {
+            $DB->delete_records_list('block_opencast_uploadjob', 'id', $jobidstodelete);
         }
     }
 
@@ -241,7 +270,6 @@ class upload_helper {
         $files = array();
         $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
         $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
-        $job->captions_fileid ? $files[] = $fs->get_file_by_id($job->captions_fileid) : NULL;
         $filenames = array();
         foreach ($files as $file) {
             $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
@@ -289,7 +317,6 @@ class upload_helper {
         $files = array();
         $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
         $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
-        $job->captions_fileid ? $files[] = $fs->get_file_by_id($job->captions_fileid) : NULL;
 
         $filenames = array();
         foreach ($files as $file) {
@@ -473,63 +500,59 @@ class upload_helper {
                 $job->mediapackagexml = $mediapackagexml;
                 $DB->update_record('block_opencast_uploadjob', $job);
 
-                $nextstatus = self::STATUS_UPLOADING_PRESENTER;
-                if (!$job->presenter_fileid) {
-                    $nextstatus = self::STATUS_UPLOADING_PRESENTATION;
-                    mtrace('... no presenter provided');
-                }
-                $this->update_status($job, $nextstatus);
+                $this->update_status($job, self::STATUS_UPLOADING_PRESENTER);
                 mtrace('... media package ACL uploaded');
                 break;
 
             case self::STATUS_UPLOADING_PRESENTER:
-                $mediapackagexml = $this->apibridge->media_package_upload_presenter($job);
-                $stepsuccessful = true;
+                if ($job->presenter_fileid) {
+                    $mediapackagexml = $this->apibridge->media_package_upload_presenter($job);
+                    $stepsuccessful = true;
+    
+                    // Update mediapackagexml.
+                    $job->mediapackagexml = $mediapackagexml;
+                    $DB->update_record('block_opencast_uploadjob', $job);
 
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
-
-                $nextstatus = self::STATUS_UPLOADING_PRESENTATION;
-                if (!$job->presentation_fileid) {
-                    $nextstatus = self::STATUS_UPLOADING_CAPTIONS;
-                    mtrace('... no presentation provided');
-                    if (!$job->captions_fileid) {
-                        $nextstatus = self::STATUS_INGESTING;
-                        mtrace('... no captions provided');
-                    }
+                    mtrace('... presenter video uploaded');
+                } else {
+                    mtrace('... no presenter video provided');
+                    $stepsuccessful = true;
                 }
-                $this->update_status($job, $nextstatus);
-                mtrace('... presenter video uploaded');
+                $this->update_status($job, self::STATUS_UPLOADING_PRESENTATION);
                 break;
 
             case self::STATUS_UPLOADING_PRESENTATION:
-                $mediapackagexml = $this->apibridge->media_package_upload_presentation($job);
-                $stepsuccessful = true;
+                if ($job->presentation_fileid) {
+                    $mediapackagexml = $this->apibridge->media_package_upload_presentation($job);
+                    $stepsuccessful = true;
+    
+                    // Update mediapackagexml.
+                    $job->mediapackagexml = $mediapackagexml;
+                    $DB->update_record('block_opencast_uploadjob', $job);
 
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
-
-                $nextstatus = self::STATUS_UPLOADING_CAPTIONS;
-                if (!$job->captions_fileid) {
-                    $nextstatus = self::STATUS_INGESTING;
-                    mtrace('... no captions provided');
+                    mtrace('... presentation video uploaded');
+                } else {
+                    mtrace('... no presentation video provided');
+                    $stepsuccessful = true;
                 }
-                $this->update_status($job, $nextstatus);
-                mtrace('... presentation video uploaded');
+                $this->update_status($job, self::STATUS_UPLOADING_ATTACHMENTS);
                 break;
 
-            case self::STATUS_UPLOADING_CAPTIONS:
-                $mediapackagexml = $this->apibridge->media_package_upload_captions($job);
-                $stepsuccessful = true;
+            case self::STATUS_UPLOADING_ATTACHMENTS:
+                if (!empty($job->attachments)) {
+                    $mediapackagexml = $this->apibridge->media_package_upload_attachments($job);
+                    $stepsuccessful = true;
 
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
+                    // Update mediapackagexml.
+                    $job->mediapackagexml = $mediapackagexml;
+                    $DB->update_record('block_opencast_uploadjob', $job);
 
+                    mtrace('... attachments uploaded');
+                } else {
+                    mtrace('... no attachments provided');
+                    $stepsuccessful = true;
+                }
                 $this->update_status($job, self::STATUS_INGESTING);
-                mtrace('... captions uploaded');
                 break;
 
             case self::STATUS_INGESTING:
@@ -611,10 +634,11 @@ class upload_helper {
         foreach ($jobs as $job) {
             mtrace('proceed: ' . $job->id);
             try {
-                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields='metadata', $strictness=IGNORE_MISSING);
-                if ($joboptions) {
-                    $job = (object) array_merge((array)$job, (array)$joboptions );
-                } 
+                $jobmetadata = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields='metadata', $strictness=IGNORE_MISSING);
+                if ($jobmetadata) {
+                    $job = (object) array_merge((array)$job, (array)$jobmetadata );
+                }
+                $job->attachments = $DB->get_records('block_opencast_attachment', ['uploadjobid' => $job->id], '', 'name,fileid,flavor');
                 $event = $this->process_upload_job($job);
                 if ($event) {
                     $this->upload_succeeded($job, $event->identifier);

@@ -32,7 +32,6 @@ class event {
     private $metadatafields = array(); // Meta data.
     private $presentation = null;      // Video file.
     private $presenter = null;      // Video file.
-    private $captions = null;      // Captions/subtitles file.
 
     /**
      * Add a id-value pair as metadata for flavour dublincore/episode
@@ -98,25 +97,6 @@ class event {
         return $this->presenter;
     }
     //End adding presenter option
-
-    /**
-     * Set captions as a stored file from moodle.
-     *
-     * @param int $fileid
-     */
-    public function set_captions($fileid) {
-        $fs = get_file_storage();
-        $this->captions = $fs->get_file_by_id($fileid);
-    }
-
-    /**
-     * Get the captions (i. e. the WebVTT file).
-     *
-     * @return \stored_file
-     */
-    public function get_captions() {
-        return $this->captions;
-    }
 
     /**
      * Set the acl data for this event.
@@ -249,9 +229,6 @@ class event {
         } 
         if ($this->get_presentation()) {
             $params['presentation'] = $this->get_presentation();
-        }
-        if ($this->get_captions()) {
-            $params['captions'] = $this->get_captions();
         }
         $params['processing'] = $this->get_processing();
 

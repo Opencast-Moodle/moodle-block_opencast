@@ -170,8 +170,6 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presenterfilesize', 'block_opencast'),
             get_string('presentationfilename', 'block_opencast'),
             get_string('presentationfilesize', 'block_opencast'),
-            get_string('captionsfilename', 'block_opencast'),
-            get_string('captionsfilesize', 'block_opencast'),
             get_string('status'),
             get_string('countfailed', 'block_opencast'),
             get_string('createdby', 'block_opencast'));
@@ -196,8 +194,6 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row[] = $uploadjob->presenter_filesize ? display_size($uploadjob->presenter_filesize) : "";
             $row[] = $uploadjob->presentation_filename;
             $row[] = $uploadjob->presentation_filesize ? display_size($uploadjob->presentation_filesize) : "";
-            $row[] = $uploadjob->captions_filename;
-            $row[] = $uploadjob->captions_filesize ? display_size($uploadjob->captions_filesize) : "";
             $row[] = $this->render_status($uploadjob->status);
             $row[] = $uploadjob->countfailed;
             $row[] = fullname($uploadjob);

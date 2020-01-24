@@ -52,7 +52,6 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $collection->add_database_table('block_opencast_uploadjob', [
             'presentation_fileid' => 'privacy:metadata:block_opencast_uploadjob:presentation_fileid',
             'presenter_fileid' => 'privacy:metadata:block_opencast_uploadjob:presenter_fileid',
-            'captions_fileid' => 'privacy:metadata:block_opencast_uploadjob:captions_fileid',
             'userid' => 'privacy:metadata:block_opencast_uploadjob:userid',
             'status' => 'privacy:metadata:block_opencast_uploadjob:status',
             'courseid' => 'privacy:metadata:block_opencast_uploadjob:courseid',

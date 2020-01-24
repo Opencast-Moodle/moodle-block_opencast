@@ -66,6 +66,23 @@ class addvideo_form extends \moodleform {
                         'tags' => true
                     ];
                 }
+                if ($field->datatype == 'filepicker') {
+                    if (empty($param['filetypes'])) {
+                        $attributes['accepted_types'] = '*';
+                    } else {
+                        $attributes['accepted_types'] = [];
+                        $filetypes = explode(',', $param['filetypes']);
+                        foreach ($filetypes as $filetype) {
+                            if (strpos($filetype, '.') !== 0) {
+                                // Extensions need to begin with a dot.
+                                $filetype = ".$filetype";
+                            }
+                            $attributes['accepted_types'][] = $filetype;
+                        }
+                    }
+                    $attributes['maxfiles'] = 1;
+                    $attributes['subdirs'] = 0;
+                }
 
                 $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
                 
@@ -85,12 +102,6 @@ class addvideo_form extends \moodleform {
             }
             $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
             $mform->setAdvanced('startDate');
-
-            $mform->addElement('filepicker', 'video_captions',
-                get_string('captions', 'block_opencast'), null, array('accepted_types' => array('.vtt')));
-            $mform->addElement('static', 'captionsdesc', null, get_string('captionsdesc', 'block_opencast'));
-            $mform->setAdvanced('video_captions');
-            $mform->setAdvanced('captionsdesc');
 
         $mform->closeHeaderBefore('upload_filepicker');
         

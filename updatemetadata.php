@@ -52,6 +52,7 @@ $opencast = \block_opencast\local\apibridge::get_instance();
 $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
 $metadata_catalog = upload_helper::get_opencast_metadata_catalog();
 
+// TODO handle updating of attachments
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null, array('metadata' => $metadata, 'metadata_catalog' => $metadata_catalog, 'courseid' => $courseid, 'identifier' => $identifier));
 
 if ($updatemetadataform->is_cancelled()) {

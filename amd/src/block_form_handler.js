@@ -28,10 +28,10 @@ define(['jquery'], function($) {
     */
     window.presenterIntervalHandle = null;
     window.presentationIntervalHandle = null;
-    window.captionsIntervalHandle = null;
+    window.attachmentsIntervalHandle = null;
     window.presenterRun = false;
     window.presentationRun = false;
-    window.captionsRun = false;
+    window.attachmentsRun = false;
 
     /**
     * Clears intervals and enables Save Change Button after upload process is completed
@@ -41,7 +41,7 @@ define(['jquery'], function($) {
         if (!window.presentationRun && !window.presenterRun) {
             clearInterval(window.presentationIntervalHandle);
             clearInterval(window.presenterIntervalHandle);
-            clearInterval(window.captionsIntervalHandle);
+            clearInterval(window.attachmentsIntervalHandle);
             $('[name="submitbutton"]').removeAttr('disabled');
         }
     }
@@ -90,11 +90,11 @@ define(['jquery'], function($) {
                     }
                 }, 500);
             } else {
-                $(filelist).addClass('captions-uploading');
-                window.captionsIntervalHandle = setInterval(function() {
-                    window.captionsRun = true;
-                    if (!$('.captions-uploading').hasClass('dndupload-inprogress')) {
-                        window.captionsRun = false;
+                $(filelist).addClass('attachments-uploading');
+                window.attachmentsIntervalHandle = setInterval(function() {
+                    window.attachmentsRun = true;
+                    if (!$('.attachments-uploading').hasClass('dndupload-inprogress')) {
+                        window.attachmentsRun = false;
                         afterUpload();
                     }
                 }, 500);

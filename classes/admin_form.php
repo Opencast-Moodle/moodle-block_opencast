@@ -233,7 +233,8 @@ class admin_form extends moodleform {
             'select' => 'Drop Down (select)',
             'autocomplete' => 'Arrays (autocomplete)',
             'textarea' => 'Long Text (textarea)',
-            'date_time_selector' => 'Date Time Selector (datetime)'
+            'date_time_selector' => 'Date Time Selector (datetime)',
+            'filepicker' => 'Attachment (filepicker)'
         ];
         $mform->addElement('select', $name, $title, $datatypes);
         $mform->setType($name, PARAM_TEXT);
@@ -417,7 +418,8 @@ class admin_form extends moodleform {
                     'select' => 'Drop Down (select)',
                     'autocomplete' => 'Arrays (autocomplete)',
                     'textarea' => 'Long Text (textarea)',
-                    'date_time_selector' => 'Date Time Selector (datetime)'
+                    'date_time_selector' => 'Date Time Selector (datetime)',
+                    'filepicker' => 'Attachment (filepicker)'
                 ];
                 $mform->addElement('select', $name, null, $datatypes);
                 $mform->setType($name, PARAM_TEXT);

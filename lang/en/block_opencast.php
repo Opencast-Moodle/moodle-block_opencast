@@ -56,6 +56,8 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
+$string['attachmentmissingfile'] = 'Attachment file is missing from DB';
+$string['attachmentmissingflavor'] = 'Attachment metadata field is missing a flavor';
 $string['backupopencastvideos'] = 'Backup Opencast videos';
 $string['backupsettings'] = 'Settings for backup and restore';
 $string['blocksettings'] = 'Settings for a block instance';
@@ -154,7 +156,7 @@ $string['mstateuploadingmetadata'] = 'Uploading metadata...';
 $string['mstateuploadingacl'] = 'Uploading ACL...';
 $string['mstateuploadingpresentation'] = 'Uploading presentation...';
 $string['mstateuploadingpresenter'] = 'Uploading presenter...';
-$string['mstateuploadingcaptions'] = 'Uploading captions...';
+$string['mstateuploadingattachments'] = 'Uploading attachments...';
 $string['mstateingesting'] = 'Ingesting...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
@@ -209,7 +211,7 @@ $string['uploadfileextensions'] = 'Allowed file extensions';
 $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
 $string['uploadingaclfailed'] = 'Upload of event ACL failed';
-$string['uploadingcaptionsfailed'] = 'Upload of captions failed';
+$string['uploadingattachmentsfailed'] = 'Upload of attachments failed';
 $string['uploadingmetadatafailed'] = 'Upload of event metadata failed';
 $string['uploadingvideofailed'] = 'Upload of video failed';
 $string['uploadjobssaved'] = 'Upload jobs saved.';
@@ -274,8 +276,6 @@ $string['presenter'] = 'Presenter';
 $string['presenterdesc'] = 'A video of a person speaking to an audience.';
 $string['presentation'] = 'Presentation';
 $string['presentationdesc'] = 'A video of slide presentation (Keynote, Powerpoint, etc).';
-$string['captions'] = 'Captions';
-$string['captionsdesc'] = 'Captions, subtitles or chapters in WebVTT format.';
 $string['emptyvideouploaderror'] = 'At least a video for Presenter Or Slide must be uploaded!';
 $string['heading_position'] = 'Position';
 $string['heading_name'] = 'Field Name';
@@ -288,7 +288,8 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
                                 . '<b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>'
                                 . '<b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>'
                                 . '<b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>'
-                                . '<b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
+                                . '<b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020'
+                                . '<b>Attachments (filepicker):</b> Parameters let you define a flavor for the attachment (required) and restrict the allowed filetypes (optional) by providing a comma separated list of all allowed file types. i.e. {"flavor": "captions/vtt+en", "filetypes": "vtt"}';
 $string['addcatalog'] = 'Add new metadata';
 $string['descriptionmdfn'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
 $string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
@@ -304,6 +305,4 @@ $string['presenterfilename'] = 'Filename (Presenter)';
 $string['presenterfilesize'] = 'Filesize (Presenter)';
 $string['presentationfilename'] = 'Filename (Presentation)';
 $string['presentationfilesize'] = 'Filesize (Presentation)';
-$string['captionsfilename'] = 'Filename (Captions)';
-$string['captionsfilesize'] = 'Filesize (Captions)';
 $string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
