@@ -89,16 +89,18 @@ if ($data = $addvideoform->get_data()) {
             if ($field->datatype == 'filepicker') {
                 // Attachments are stored separate from other metadata.
                 $storedfile_attachment = $addvideoform->save_stored_file($id, $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->$id);
-                \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$id);
-                $param = json_decode($field->param_json);
-                if (!$param->flavor) {
-                    throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
+                if ($storedfile_attachment) {
+                    \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$id);
+                    $param = json_decode($field->param_json);
+                    if (!$param->flavor) {
+                        throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
+                    }
+                    $obj = new \stdClass();
+                    $obj->name = $id;
+                    $obj->fileid = $storedfile_attachment->get_id();
+                    $obj->flavor = $param->flavor;
+                    $attachments[] = $obj;
                 }
-                $obj = new \stdClass();
-                $obj->name = $id;
-                $obj->fileid = $storedfile_attachment->get_id();
-                $obj->flavor = $param->flavor;
-                $attachments[] = $obj;
                 continue;
             }
             $obj = [
