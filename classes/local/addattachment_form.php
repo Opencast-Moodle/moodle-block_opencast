@@ -29,45 +29,43 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class addattachments_form extends \moodleform {
+class addattachment_form extends \moodleform {
 
     public function definition() {
 
         $mform = $this->_form;
 
-        foreach ($this->_customdata['metadata_catalog'] as $field) {
-            if ($field->datatype != 'filepicker') {
-                continue;
-            }
-            $param = (array)json_decode($field->param_json);
-            $attributes = [];
-            if (empty($param['filetypes'])) {
-                $attributes['accepted_types'] = '*';
-            } else {
-                $attributes['accepted_types'] = [];
-                $filetypes = explode(',', $param['filetypes']);
-                foreach ($filetypes as $filetype) {
-                    if (strpos($filetype, '.') !== 0) {
-                        // Extensions need to begin with a dot.
-                        $filetype = ".$filetype";
-                    }
-                    $attributes['accepted_types'][] = $filetype;
+        $field = $this->_customdata['attachmentfield'];
+        $param = (array)json_decode($field->param_json);
+        $attributes = [];
+        if (empty($param['filetypes'])) {
+            $attributes['accepted_types'] = '*';
+        } else {
+            $attributes['accepted_types'] = [];
+            $filetypes = explode(',', $param['filetypes']);
+            foreach ($filetypes as $filetype) {
+                if (strpos($filetype, '.') !== 0) {
+                    // Extensions need to begin with a dot.
+                    $filetype = ".$filetype";
                 }
+                $attributes['accepted_types'][] = $filetype;
             }
-            $attributes['maxfiles'] = 1;
-            $attributes['subdirs'] = 0;
+        }
+        $attributes['maxfiles'] = 1;
+        $attributes['subdirs'] = 0;
 
-            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
-            
-            if ($field->required) {
-                $mform->addRule($field->name, get_string('required'), 'required');
-            }     
+        $mform->addElement($field->datatype, 'itemid', $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+
+        if ($field->required) {
+            $mform->addRule($field->name, get_string('required'), 'required');
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
         $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
         $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
+        $mform->addElement('hidden', 'attachment', $field->name);
+        $mform->setType('attachment', PARAM_ALPHANUMEXT);
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }

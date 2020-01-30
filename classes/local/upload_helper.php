@@ -684,15 +684,15 @@ class upload_helper {
     //metadata
 
     /**
-     * Gets the cataqlog of metadata fields from database
+     * Gets the catalog of metadata fields from database
      *
-     * @return stdClass $metadata the metadata object
+     * @return array $metadata the metadata fields
      */
     public static function get_opencast_metadata_catalog($condition = array(), $fields = '*') {
         global $DB;
 
         if ($condition) {
-            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition,  $fields );
+            $metadata_catalog = $DB->get_records('block_opencast_catalog', $condition, 'id',  $fields );
         } else {
             $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
         }
@@ -702,6 +702,21 @@ class upload_helper {
         }
 
         return $metadata_catalog;
+    }
+
+    /**
+     * Gets a certain metadata field from database
+     *
+     * @return stdClass $metadata the metadata field object
+     */
+    public static function get_opencast_metadata_catalog_field($name, $fields = '*') {
+        global $DB;
+
+        $metadata_field = $DB->get_record('block_opencast_catalog', ['name' => $name],  $fields );
+        if (!$metadata_field) {
+            return false;
+        }
+        return $metadata_field;
     }
 
 

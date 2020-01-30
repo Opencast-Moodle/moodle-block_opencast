@@ -961,7 +961,7 @@ class apibridge {
         foreach ($job->attachments as $attachment) {
             $file = $fs->get_file_by_id($attachment->fileid);
             if ($file === false) {
-                throw new \moodle_exception('attachmentmissingfile', 'tool_opencast');
+                throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
             }
     
             $response = $api->oc_post($ingestpath.'/addAttachment', [
@@ -1411,6 +1411,47 @@ class apibridge {
             return true;
         }
         return $this->start_workflow($eventid, $workflow);
+    }
+
+    public function add_attachment($eventid, $fileid, $flavor, $assetid, $assettitle) {
+        if (empty($flavor)) {
+            throw new \moodle_exception('attachmentmissingflavor', 'tool_opencast');
+        }
+        list($flavortype, $flavorsubtype) = explode('/', $flavor);
+        if (empty($flavortype) || empty($flavorsubtype)) {
+            throw new \moodle_exception('attachmentinvalidflavor', 'tool_opencast', '', $flavor);
+        }
+
+        $metadata = new \stdClass();
+        $metadata->assets = new \stdClass();
+        $metadata->assets->options = [];
+        $metadata->assets->options[] = new \stdClass();
+        $metadata->assets->options[0]->id = $assetid; // attachment_captions_webvtt
+        $metadata->assets->options[0]->type = 'attachment';
+        $metadata->assets->options[0]->flavorType = $flavortype;
+        $metadata->assets->options[0]->flavorSubType = $flavorsubtype;
+        $metadata->assets->options[0]->displayOrder = 1;
+        $metadata->assets->options[0]->title = $assettitle; // EVENTS.EVENTS.NEW.UPLOAD_ASSET.OPTION.CAPTIONS_WEBVTT
+        $metadata->processing = new \stdClass();
+        $metadata->processing->workflow = 'publish-uploaded-assets';
+        $metadata->processing->configuration = new \stdClass();
+        $metadata->processing->configuration->downloadSourceflavorsExist = 'true';
+        $fieldname = 'download-source-flavors';
+        $metadata->processing->configuration->$fieldname = $flavor;
+        $metadatajson = json_encode($metadata);
+
+        $fs = get_file_storage();
+        $file = $fs->get_file_by_id($fileid);
+
+        $api = new api();
+        $res = $api->oc_post("/admin-ng/event/$eventid/assets", [
+            "attachment_captions_webvtt.0" => $file,
+            "metadata" => $metadatajson
+        ]);
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
+        return $res;
     }
 
     /**

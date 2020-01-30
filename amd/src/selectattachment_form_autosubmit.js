@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +14,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Version information
  *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_opencast
+ * @copyright 2020 Tim Schroeder, RWTH Aachen University
+ * @author    Tim Schroeder
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2019112106;
-$plugin->requires = 2017111300;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.8-r1'; // First release for Moodle 3.8.
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2019112100);
+define(['jquery'],
+function($) {
+
+    var init = function() {
+
+        // Autosubmit when selecting an attachment field.
+        $('select[name="attachment"]').change(function() {
+            window.onbeforeunload = null; // Prevent "Leave site?" popup.
+            $(this).closest('form').submit();
+        });
+    };
+
+    return {
+        'init': init
+    };
+});
