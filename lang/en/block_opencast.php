@@ -44,6 +44,7 @@ $string['actions'] = 'Comma-separated list of actions';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
 $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
     Please note that the file will still remain in the file system, if it is used within other places in moodle.';
+$string['addattachments'] = 'Add attachments';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
 $string['adminchoice_noworkflow'] = "-- No workflow-- ";
@@ -56,6 +57,7 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
+$string['attachmentinvalidflavor'] = 'Attachment metadata field has an invalid flavor ({$a})';
 $string['attachmentmissingfile'] = 'Attachment file is missing from DB';
 $string['attachmentmissingflavor'] = 'Attachment metadata field is missing a flavor';
 $string['backupopencastvideos'] = 'Backup Opencast videos';
@@ -270,6 +272,7 @@ $string['location'] = 'Location';
 $string['created'] = 'Created at';
 $string['publisher'] = 'Publisher';
 $string['identifier'] = 'Identifier';
+$string['updateattachmentsaved'] = 'Attachment for field {$a} is uploaded.';
 $string['updatemetadatasaved'] = 'Metadata is saved.';
 $string['updatemetadata'] = 'Update metadata for this event';
 $string['presenter'] = 'Presenter';

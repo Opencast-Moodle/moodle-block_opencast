@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Upload video form.
+ * Add attachments form.
  *
  * @package    block_opencast
- * @copyright  2019 Farbod Zamani, ELAN e.V.
- * @author     Farbod Zamani
+ * @copyright  2020 Tim Schroeder, RWTH Aachen University
+ * @author     Tim Schroeder
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,56 +27,41 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class updatemetadata_form extends \moodleform {
+class addattachments_form extends \moodleform {
 
     public function definition() {
 
         $mform = $this->_form;
 
         foreach ($this->_customdata['metadata_catalog'] as $field) {
-            if ($field->datatype == 'filepicker') {
-                // Attachments are handled in the addattachments form.
+            if ($field->datatype != 'filepicker') {
                 continue;
             }
-            $value = $this->extract_value($field->name);
-            $param = array();
-            $attributes = array();
-            if ($field->param_json) {
-                $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
-            }
-            if ($field->datatype == 'autocomplete') {
-                $attributes = [
-                    'multiple' => true,
-                    'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
-                    $this->try_get_string($field->name, 'block_opencast')),
-                    'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
-                    'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
-                    $this->try_get_string($field->name, 'block_opencast')),
-                    'tags' => true
-                ];
-                foreach ($value as $val) {
-                    $param[$val] = $val;
+            $param = (array)json_decode($field->param_json);
+            $attributes = [];
+            if (empty($param['filetypes'])) {
+                $attributes['accepted_types'] = '*';
+            } else {
+                $attributes['accepted_types'] = [];
+                $filetypes = explode(',', $param['filetypes']);
+                foreach ($filetypes as $filetype) {
+                    if (strpos($filetype, '.') !== 0) {
+                        // Extensions need to begin with a dot.
+                        $filetype = ".$filetype";
+                    }
+                    $attributes['accepted_types'][] = $filetype;
                 }
             }
-            
+            $attributes['maxfiles'] = 1;
+            $attributes['subdirs'] = 0;
+
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
-            
-            if ($field->datatype == 'text') {
-                $mform->setType($field->name, PARAM_TEXT);
-            }
             
             if ($field->required) {
                 $mform->addRule($field->name, get_string('required'), 'required');
-            }
-
-            if ($value) {
-                $mform->setDefault($field->name, $value);
-            }
-                  
+            }     
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -84,10 +69,9 @@ class updatemetadata_form extends \moodleform {
         $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
         $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
 
-        $mform->closeHeaderBefore('buttonar');
-
         $this->add_action_buttons(true, get_string('savechanges'));
     }
+
     /**
      * Tries to get the string for identifier and component.
      * As a fallback it outputs the identifier itself with the first letter being uppercase.
@@ -107,23 +91,6 @@ class updatemetadata_form extends \moodleform {
         } else {
             return get_string($identifier, $component, $a);
         }
-    }
-
-    /**
-     * Searches through metadata to find the value of the field defined in catalog
-     * @param string $fieldname the name of the catalog field which is defined as id in metadata set
-     * @return string|array $value An array or string derived from metadata
-     */
-    protected function extract_value($fieldname) {
-        $metadata = $this->_customdata['metadata'];
-
-        foreach ($metadata as $data) {
-
-            if ($data->id == $fieldname) {
-                return $data->value;
-            }
-        }
-        return '';
     }
 
 }

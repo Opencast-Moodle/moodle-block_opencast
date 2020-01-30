@@ -28,6 +28,7 @@ namespace block_opencast\local;
 defined('MOODLE_INTERNAL') || die();
 
 use block_opencast\groupaccess;
+use block_opencast\local\upload_helper;
 use block_opencast_renderer;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
@@ -1668,6 +1669,30 @@ class apibridge {
             ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
             $context = \context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
+        }
+
+        return false;
+    }
+
+    public function can_add_attachments($video, $courseid) {
+
+        static $attachmentsconfigured = null;
+        if ($attachmentsconfigured === null) {
+            $attachmentsconfigured = false;
+            $metadata_catalog = upload_helper::get_opencast_metadata_catalog();
+            foreach ($metadata_catalog as $field) {
+                if ($field->datatype == 'filepicker') {
+                    $attachmentsconfigured = true;
+                    break;
+                }
+            }
+        }
+
+        if (isset($video->processing_state) &&
+            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+            $context = \context_course::instance($courseid);
+            return has_capability('block/opencast:addvideo', $context)
+                    && $attachmentsconfigured;
         }
 
         return false;

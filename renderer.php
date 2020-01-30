@@ -331,6 +331,21 @@ class block_opencast_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render the link to add attachments.
+     *
+     * @param string $videoidentifier
+     */
+    public function render_add_attachments_event_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/addattachments.php', array('video_identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('addattachments', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/add', $text);
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
      * Render the information about the video before finally delete it.
      *
      * @param int $courseid
