@@ -44,7 +44,7 @@ $string['actions'] = 'Comma-separated list of actions';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
 $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
     Please note that the file will still remain in the file system, if it is used within other places in moodle.';
-$string['addattachments'] = 'Add attachments';
+$string['addattachments'] = 'Add attachment';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
 $string['adminchoice_noworkflow'] = "-- No workflow-- ";
@@ -188,7 +188,8 @@ $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
-$string['selectfield:placeholder'] = '(select a field)';
+$string['selectattachmentfield:desc'] = 'You can only add one attachment at a time. Select what kind of attachment to add.';
+$string['selectattachmentfield:placeholder'] = '(select a field)';
 $string['seriescreated'] = 'Series was created.';
 $string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';

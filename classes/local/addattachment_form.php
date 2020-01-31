@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Add attachments form.
+ * Add attachment form.
  *
  * @package    block_opencast
  * @copyright  2020 Tim Schroeder, RWTH Aachen University

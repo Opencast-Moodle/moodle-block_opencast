@@ -31,13 +31,13 @@
 }
 
 #page-blocks-opencast-addvideo .form-filetypes-descriptions li,
-#page-blocks-opencast-addattachments .form-filetypes-descriptions li {
+#page-blocks-opencast-addattachment .form-filetypes-descriptions li {
     font-size: 0;
     display: inline-block;
 }
 
 #page-blocks-opencast-addvideo .form-filetypes-descriptions li .text-muted,
-#page-blocks-opencast-addattachments .form-filetypes-descriptions li .text-muted {
+#page-blocks-opencast-addattachment .form-filetypes-descriptions li .text-muted {
     font-size: 12px;
 }
 

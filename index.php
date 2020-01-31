@@ -196,7 +196,7 @@ if ($videodata->error == 0) {
             }
 
             if ($opencast->can_add_attachments($video, $courseid)) {
-                $actions .= $renderer->render_add_attachments_event_icon($courseid, $video->identifier);
+                $actions .= $renderer->render_add_attachment_event_icon($courseid, $video->identifier);
             }
 
             if ($opencast->can_delete_event_assignment($video, $courseid)) {

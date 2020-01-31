@@ -37,14 +37,15 @@ class selectattachment_form extends \moodleform {
 
         $name = 'attachment';
         $title = get_string('heading_attachmentfield', 'block_opencast');
-        $attachmentfields = [get_string('selectfield:placeholder', 'block_opencast')];
+        $description = get_string('selectattachmentfield:desc', 'block_opencast');
+        $attachmentfields = [];
+        $attachmentfields[] = get_string('selectattachmentfield:placeholder', 'block_opencast');
         foreach ($this->_customdata['attachmentfields'] as $field) {
             $attachmentfields[$field->name] = $this->try_get_string($field->name, 'block_opencast');
         }
         $mform->addElement('select', $name, $title, $attachmentfields);
         $mform->setType($name, PARAM_TEXT);
-
-        // $mform->addRule($name, get_string('required'), 'required');
+        $mform->addElement('static', 'description' . $name, '', $description);
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
