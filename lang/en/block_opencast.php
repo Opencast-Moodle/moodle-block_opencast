@@ -188,6 +188,7 @@ $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
+$string['selectfield:placeholder'] = '(select a field)';
 $string['seriescreated'] = 'Series was created.';
 $string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
@@ -281,7 +282,7 @@ $string['presenterdesc'] = 'A video of a person speaking to an audience.';
 $string['presentation'] = 'Presentation';
 $string['presentationdesc'] = 'A video of slide presentation (Keynote, Powerpoint, etc).';
 $string['emptyvideouploaderror'] = 'At least a video for Presenter Or Slide must be uploaded!';
-$string['heading_attachmentfield'] = 'Select attachment field';
+$string['heading_attachmentfield'] = 'Attachment field';
 $string['heading_position'] = 'Position';
 $string['heading_name'] = 'Field Name';
 $string['heading_datatype'] = 'Field Type';

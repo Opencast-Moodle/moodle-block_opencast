@@ -37,7 +37,7 @@ class selectattachment_form extends \moodleform {
 
         $name = 'attachment';
         $title = get_string('heading_attachmentfield', 'block_opencast');
-        $attachmentfields = [''];
+        $attachmentfields = [get_string('selectfield:placeholder', 'block_opencast')];
         foreach ($this->_customdata['attachmentfields'] as $field) {
             $attachmentfields[$field->name] = $this->try_get_string($field->name, 'block_opencast');
         }
