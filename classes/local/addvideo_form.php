@@ -40,6 +40,7 @@ class addvideo_form extends \moodleform {
         $mform = $this->_form;
 
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
+        $mform->setExpanded('metadata');
 
             $set_title = true;
             foreach ($this->_customdata['metadata_catalog'] as $field) {
@@ -66,23 +67,6 @@ class addvideo_form extends \moodleform {
                         'tags' => true
                     ];
                 }
-                if ($field->datatype == 'filepicker') {
-                    if (empty($param['filetypes'])) {
-                        $attributes['accepted_types'] = '*';
-                    } else {
-                        $attributes['accepted_types'] = [];
-                        $filetypes = explode(',', $param['filetypes']);
-                        foreach ($filetypes as $filetype) {
-                            if (strpos($filetype, '.') !== 0) {
-                                // Extensions need to begin with a dot.
-                                $filetype = ".$filetype";
-                            }
-                            $attributes['accepted_types'][] = $filetype;
-                        }
-                    }
-                    $attributes['maxfiles'] = 1;
-                    $attributes['subdirs'] = 0;
-                }
 
                 $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
                 
@@ -106,7 +90,7 @@ class addvideo_form extends \moodleform {
         $mform->closeHeaderBefore('upload_filepicker');
         
 
-        $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
+        $mform->addElement('header', 'upload_filepicker', get_string('video_upload', 'block_opencast'));
 
             $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
             if (empty($videotypescfg)) {
@@ -121,7 +105,8 @@ class addvideo_form extends \moodleform {
                     $videotypes[] = $videotype;
                 }
             }
-
+            $mform->setExpanded('upload_filepicker');
+        
             $mform->addElement('filepicker', 'video_presenter',
                 get_string('presenter', 'block_opencast'), null, ['accepted_types' => $videotypes]);
             $mform->addElement('static', 'presenterdesc', null, get_string('presenterdesc', 'block_opencast'));
@@ -132,10 +117,66 @@ class addvideo_form extends \moodleform {
 
             $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
             $mform->setType('courseid', PARAM_INT);
-        
-        $mform->closeHeaderBefore('buttonar');
+
+        $attachfields = $this->_customdata['attachment_fields'];
+        if (empty($attachfields)) {
+            $mform->closeHeaderBefore('buttonar');
+        } else {
+            $mform->closeHeaderBefore('attachments');
+
+            // If there is at least one required attachment field, expand the header
+            // and mark all non-required attachment fields as advanced.
+            $requiredfieldexists = false;
+            foreach ($attachfields as $field) {
+                if ($field->required) {
+                    $requiredfieldexists = true;
+                    break;
+                }
+            }
+
+            $mform->addElement('header', 'attachments', get_string('attachment_upload', 'block_opencast'));
+            if ($requiredfieldexists) {
+                $mform->setExpanded('attachments');
+            }
+
+            foreach ($attachfields as $field) {
+                $attributes = [];
+                $attributes['accepted_types'] = $this->get_filetypes_for_filepicker($field->filetypes);
+                $attributes['maxfiles'] = 1;
+                $attributes['subdirs'] = 0;
+                $fieldname = "attachment_{$field->name}";
+                $mform->addElement('filepicker', $fieldname, $this->try_get_string($field->name), null, $attributes);
+
+                if ($field->required) {
+                    $mform->addRule($fieldname, get_string('required'), 'required');
+                }
+                if ($requiredfieldexists) {
+                    $mform->setAdvanced($fieldname, !$field->required);
+                }
+            }
+
+            $mform->closeHeaderBefore('buttonar');
+        }
 
         $this->add_action_buttons(true, get_string('savechanges'));
+    }
+
+    private function get_filetypes_for_filepicker(string $filetypes) {
+        if (empty($filetypes)) {
+            // List of allowed filetypes empty => allow all file types.
+            return ['*'];
+        }
+
+        $res = [];
+        foreach (explode(',', $filetypes) as $filetype) {
+            if (empty($filetype)) {
+                continue;
+            }
+            // Ensure filetype begins with a dot.
+            $filetype = '.' . trim($filetype, '.');
+            $res[] = $filetype;
+        }
+        return $res;
     }
 
     /**

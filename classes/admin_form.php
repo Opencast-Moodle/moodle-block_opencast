@@ -233,8 +233,7 @@ class admin_form extends moodleform {
             'select' => 'Drop Down (select)',
             'autocomplete' => 'Arrays (autocomplete)',
             'textarea' => 'Long Text (textarea)',
-            'date_time_selector' => 'Date Time Selector (datetime)',
-            'filepicker' => 'Attachment (filepicker)'
+            'date_time_selector' => 'Date Time Selector (datetime)'
         ];
         $mform->addElement('select', $name, $title, $datatypes);
         $mform->setType($name, PARAM_TEXT);
@@ -265,6 +264,79 @@ class admin_form extends moodleform {
         $mform->addElement('html', $this->tablehead('catalog'));
         $this->table_body('catalog');
         // End Metadata Catalog
+
+        // Attachments Setting.
+        $mform->addElement('header', 'attachments_header', get_string('attachments', 'block_opencast'));
+        $mform->setExpanded('attachments_header');
+
+        // Workflow for adding attachments.
+        $name = 'workflow_attachments';
+        $title = get_string('workflowattachmentsname', 'block_opencast');
+        $description = get_string('workflowattachmentsdesc', 'block_opencast');
+        $mform->addElement('select', $name, $title, array_merge($noworkflow,
+            $apibridge->get_existing_workflows())); // TODO filter by some tag?
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // New attachment field name.
+        $name = 'attachmentfieldname';
+        $title = get_string('heading_name', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'descriptionmdfn', '', get_string('descriptionaffn', 'block_opencast'));
+
+        // New attachment field Required.
+        $name = 'attachmentfieldrequired';
+        $title = get_string('heading_required', 'block_opencast');
+        $mform->addElement('advcheckbox', $name, $title);
+        $mform->setDefault($name, 0);
+
+        // New attachment field title.
+        $name = 'attachmentfieldassettitle';
+        $title = get_string('heading_assettitle', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('static', 'descriptionafat', '', get_string('descriptionafat', 'block_opencast'));
+
+        // New attachment field id.
+        $name = 'attachmentfieldassetid';
+        $title = get_string('heading_assetid', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+
+        // New attachment field type.
+        $name = 'attachmentfieldtype';
+        $title = get_string('heading_attachmenttype', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+
+        // New attachment field flavorType.
+        $name = 'attachmentfieldflavortype';
+        $title = get_string('heading_flavortype', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+
+        // New attachment field flavorSubType.
+        $name = 'attachmentfieldflavorsubtype';
+        $title = get_string('heading_flavorsubtype', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+
+        // New attachment field allowed extensions.
+        $name = 'attachmentfieldfiletypes';
+        $title = get_string('filetypes', 'block_opencast');
+        $mform->addElement('textarea', $name, $title);
+        $mform->setType($name, PARAM_TEXT);
+        $url = new moodle_url('/admin/tool/filetypes/index.php');
+        $link = html_writer::link($url, get_string('pluginname', 'tool_filetypes'));
+        $description = get_string('descriptionafft', 'block_opencast', $link);
+        $mform->addElement('static', 'descriptionafft', '', $description);
+
+        $mform->addElement('submit', 'addattachmentfieldbutton', get_string('addattachmentfield', 'block_opencast'));
+        // Add Table.
+        $mform->addElement('html', $this->tablehead('attachmentfield'));
+        $this->table_body('attachmentfield');
+        // End Attachments.
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
     }
@@ -335,6 +407,54 @@ class admin_form extends moodleform {
                 ],
                 'heading_delete' => [
                     'class' => 'header c6 lastcol',
+                    'scope' => 'col'
+                ],
+            ];
+        } else if ($field == 'attachmentfield') {
+            $table_attributes = [
+                'class' => 'generaltable',
+                'id' => 'catalog_table'
+            ];
+
+            $th_attributes = [
+                'heading_position' => [
+                    'class' => 'header c0',
+                    'scope' => 'col'
+                ],
+                'heading_name' => [
+                    'class' => 'header c1',
+                    'scope' => 'col'
+                ],
+                'heading_required' => [
+                    'class' => 'header c2',
+                    'scope' => 'col'
+                ],
+                'heading_assettitle' => [
+                    'class' => 'header c3',
+                    'scope' => 'col'
+                ],
+                'heading_assetid' => [
+                    'class' => 'header c4',
+                    'scope' => 'col'
+                ],
+                'heading_attachmenttype' => [
+                    'class' => 'header c5',
+                    'scope' => 'col'
+                ],
+                'heading_flavortype' => [
+                    'class' => 'header c6',
+                    'scope' => 'col'
+                ],
+                'heading_flavorsubtype' => [
+                    'class' => 'header c7',
+                    'scope' => 'col'
+                ],
+                'heading_filetypes' => [
+                    'class' => 'header c8',
+                    'scope' => 'col'
+                ],
+                'heading_delete' => [
+                    'class' => 'header c9 lastcol',
                     'scope' => 'col'
                 ],
             ];
@@ -418,8 +538,7 @@ class admin_form extends moodleform {
                     'select' => 'Drop Down (select)',
                     'autocomplete' => 'Arrays (autocomplete)',
                     'textarea' => 'Long Text (textarea)',
-                    'date_time_selector' => 'Date Time Selector (datetime)',
-                    'filepicker' => 'Attachment (filepicker)'
+                    'date_time_selector' => 'Date Time Selector (datetime)'
                 ];
                 $mform->addElement('select', $name, null, $datatypes);
                 $mform->setType($name, PARAM_TEXT);
@@ -453,12 +572,79 @@ class admin_form extends moodleform {
                 $mform->addElement('html', $pix);
                 $position++;
             }
+        } else if ($field == 'attachmentfield') {
+            $attachmentfields = $this->getattachmentfields();
+            $position = 1;
+            foreach ($attachmentfields as $attachmentfield) {
+                $mform->addElement('html', '<tr>');
+
+                $mform->addElement('html', '<td class="cell c0">');
+                $name = 'position_' . $attachmentfield->id;
+                $mform->addElement('static', $name, null, $position);
+
+                $mform->addElement('html', '</td><td class="cell c1">');
+                $name = 'attachmentfield_name_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->name);
+
+                $mform->addElement('html', '</td><td class="cell c2">');
+                $name = 'attachmentfield_required_' . $attachmentfield->id;
+                $mform->addElement('advcheckbox', $name, null);
+                $mform->setDefault($name, $attachmentfield->required);
+
+                $mform->addElement('html', '</td><td class="cell c3">');
+                $name = 'attachmentfield_assettitle_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->asset_title);
+
+                $mform->addElement('html', '</td><td class="cell c4">');
+                $name = 'attachmentfield_assetid_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->asset_id);
+
+                $mform->addElement('html', '</td><td class="cell c5">');
+                $name = 'attachmentfield_type_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->type);
+
+                $mform->addElement('html', '</td><td class="cell c6">');
+                $name = 'attachmentfield_flavortype_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->flavor_type);
+
+                $mform->addElement('html', '</td><td class="cell c7">');
+                $name = 'attachmentfield_flavorsubtype_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->flavor_subtype);
+
+                $mform->addElement('html', '</td><td class="cell c8">');
+                $name = 'attachmentfield_filetypes_' . $attachmentfield->id;
+                $mform->addElement('text', $name, null);
+                $mform->setType($name, PARAM_TEXT);
+                $mform->setDefault($name, $attachmentfield->filetypes);
+
+                $mform->addElement('html', '</td><td class="cell c9 lastcol">');
+                $pix = $OUTPUT->action_icon(
+                    new moodle_url('/blocks/opencast/adminsettings.php', ['afd' => $attachmentfield->id]),
+                    new \pix_icon('t/delete', get_string('delete')),
+                    null,
+                    ['class' => 'action-delete']
+                );
+                $mform->addElement('html', $pix);
+                $position++;
+            }
         }
         $mform->addElement('html', '</tbody>');
         $mform->addElement('html', '</table>');
     }
 
-     /**
+    /**
      * Returns metadata catalog.
      * @return array
      */
@@ -478,6 +664,17 @@ class admin_form extends moodleform {
         $roles = $DB->get_records('block_opencast_roles');
 
         return $roles;
+    }
+
+    /**
+     * Returns attachment fields.
+     * @return array
+     */
+    private function getattachmentfields() {
+        global $DB;
+        $attachmentfields = $DB->get_records('block_opencast_attach_field', null, 'id');
+
+        return $attachmentfields;
     }
 
     /**
@@ -535,6 +732,14 @@ class admin_form extends moodleform {
                 }
             }
 
+            // Validate attachment workflow.
+            if ( $data['workflow_attachments'] !== "" ) {
+                // Verify workflow.
+                if ( ! $apibridge->check_if_workflow_exists( $data['workflow_attachments'] ) ) {
+                    $error['workflow_attachments'] = get_string( 'workflow_not_existing', 'block_opencast' );
+                }
+            }
+
             // Validate group name if a group should be created.
             if ( $data['group_creation'] === "1" ) {
                 // Group name must not be empty.
@@ -565,6 +770,22 @@ class admin_form extends moodleform {
                     !is_array(json_decode($data[$catalog_params])) &&
                     !is_object(json_decode($data[$catalog_params]))) {
                 $error[$catalog_params] = get_string( 'catalog_params_noarray', 'block_opencast');
+            }
+        }
+
+        $filetypes = \core_filetypes::get_types();
+        foreach ($this->getattachmentfields() as $attachmentfield) {
+            $attachmentfield_filetypes = "attachmentfield_filetypes_{$attachmentfield->id}";
+            foreach (explode(',', $data[$attachmentfield_filetypes]) as $filetype) {
+                $filetype = trim($filetype, '.');
+                if (!array_key_exists($filetype, $filetypes)) {
+                    $url = new moodle_url('/admin/tool/filetypes/index.php');
+                    $link = html_writer::link($url, get_string('pluginname', 'tool_filetypes'));
+                    $a = new \stdClass();
+                    $a->filetype = $filetype;
+                    $a->link = $link;
+                    $error[$attachmentfield_filetypes] = get_string('attachmentfield_unsupported_filetype', 'block_opencast', $link);
+                }
             }
         }
 

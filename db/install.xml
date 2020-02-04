@@ -111,18 +111,35 @@
         <KEY NAME="uploadjob_foreign" TYPE="foreign" FIELDS="uploadjobid" REFTABLE="block_opencast_uploadjob" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="block_opencast_attach_field" COMMENT="this table contains the list of attachment fields and their flavor, allowed file extensions etc.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="required" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="asset_title" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="asset_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="flavor_type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="flavor_subtype" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="filetypes" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="block_opencast_attachment" COMMENT="this table contains the attachments related to the event">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="uploadjobid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="flavor" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="attachfieldid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="uploadjob_foreign" TYPE="foreign" FIELDS="uploadjobid" REFTABLE="block_opencast_uploadjob" REFFIELDS="id"/>
-        <KEY NAME="file_foreign" TYPE="foreign" FIELDS="fileid" REFTABLE="files" REFFIELDS="id"/>
+        <KEY NAME="attachfield_foreign" TYPE="foreign" FIELDS="attachfieldid" REFTABLE="block_opencast_attach_field" REFFIELDS="id"/>
+        <KEY NAME="uq_uploadjobattachfield" TYPE="unique" FIELDS="uploadjobid, attachfieldid" COMMENT="Each upload job can only have one attachment per attachment field."/>
       </KEYS>
     </TABLE>
   </TABLES>

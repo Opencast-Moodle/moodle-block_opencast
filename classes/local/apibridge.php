@@ -818,7 +818,17 @@ class apibridge {
 
     private function generate_mediapackage_acl_xml($job) {
         $aclxml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Policy Version="2.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides" xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os">';
+<Policy PolicyId="'.$job->opencasteventid.'" Version="2.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides" xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
+    <Target>
+        <Resources>
+            <Resource>
+                <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$job->opencasteventid.'</AttributeValue>
+                    <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </ResourceMatch>
+            </Resource>
+        </Resources>
+    </Target>';
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
@@ -963,9 +973,10 @@ class apibridge {
             if ($file === false) {
                 throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
             }
+            $flavor = $attachment->flavor_type.'/'.$attachment->flavor_subtype;
     
             $response = $api->oc_post($ingestpath.'/addAttachment', [
-                "flavor" => $attachment->flavor,
+                "flavor" => $flavor,
                 "mediaPackage" => $mediapackagexml,
                 "BODY" => $file
             ]);
@@ -1413,31 +1424,34 @@ class apibridge {
         return $this->start_workflow($eventid, $workflow);
     }
 
-    public function add_attachment($eventid, $fileid, $flavor, $assetid, $assettitle) {
-        if (empty($flavor)) {
+    public function add_attachment($eventid, $fileid, $attachmentfield) {
+        if (empty($attachmentfield->flavor_type) || empty($attachmentfield->flavor_subtype)) {
             throw new \moodle_exception('attachmentmissingflavor', 'tool_opencast');
         }
-        list($flavortype, $flavorsubtype) = explode('/', $flavor);
-        if (empty($flavortype) || empty($flavorsubtype)) {
-            throw new \moodle_exception('attachmentinvalidflavor', 'tool_opencast', '', $flavor);
+
+        // Make sure workflow is even configured before proceeding.
+        $workflow = get_config('block_opencast', 'workflow_attachments');
+        if ($workflow == "") {
+            throw new \moodle_exception('workflownotdefined:attachments', 'block_opencast');
         }
 
         $metadata = new \stdClass();
         $metadata->assets = new \stdClass();
         $metadata->assets->options = [];
         $metadata->assets->options[] = new \stdClass();
-        $metadata->assets->options[0]->id = $assetid; // attachment_captions_webvtt
-        $metadata->assets->options[0]->type = 'attachment';
-        $metadata->assets->options[0]->flavorType = $flavortype;
-        $metadata->assets->options[0]->flavorSubType = $flavorsubtype;
+        $metadata->assets->options[0]->id = $attachmentfield->asset_id;
+        $metadata->assets->options[0]->type = $attachmentfield->type;
+        $metadata->assets->options[0]->flavorType = $attachmentfield->flavor_type;
+        $metadata->assets->options[0]->flavorSubType = $attachmentfield->flavor_subtype;
         $metadata->assets->options[0]->displayOrder = 1;
-        $metadata->assets->options[0]->title = $assettitle; // EVENTS.EVENTS.NEW.UPLOAD_ASSET.OPTION.CAPTIONS_WEBVTT
+        $metadata->assets->options[0]->title = $attachmentfield->asset_title;
         $metadata->processing = new \stdClass();
-        $metadata->processing->workflow = 'publish-uploaded-assets';
+        $metadata->processing->workflow = $workflow;
         $metadata->processing->configuration = new \stdClass();
         $metadata->processing->configuration->downloadSourceflavorsExist = 'true';
         $fieldname = 'download-source-flavors';
-        $metadata->processing->configuration->$fieldname = $flavor;
+        $flavor = "{$attachmentfield->flavor_type}/{$attachmentfield->flavor_subtype}";
+        $metadata->processing->configuration->$fieldname = "{$flavor},security/*"; // Make sure ACL gets republished.
         $metadatajson = json_encode($metadata);
 
         $fs = get_file_storage();
@@ -1445,7 +1459,7 @@ class apibridge {
 
         $api = new api();
         $res = $api->oc_post("/admin-ng/event/$eventid/assets", [
-            "attachment_captions_webvtt.0" => $file,
+            "{$attachmentfield->asset_id}.0" => $file,
             "metadata" => $metadatajson
         ]);
         if ($api->get_http_code() >= 400) {
@@ -1719,14 +1733,8 @@ class apibridge {
 
         static $attachmentsconfigured = null;
         if ($attachmentsconfigured === null) {
-            $attachmentsconfigured = false;
-            $metadata_catalog = upload_helper::get_opencast_metadata_catalog();
-            foreach ($metadata_catalog as $field) {
-                if ($field->datatype == 'filepicker') {
-                    $attachmentsconfigured = true;
-                    break;
-                }
-            }
+            $attachfields = upload_helper::get_opencast_attachment_fields();
+            $attachmentsconfigured = !empty($attachfields);
         }
 
         if (isset($video->processing_state) &&

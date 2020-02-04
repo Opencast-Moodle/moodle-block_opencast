@@ -30,7 +30,8 @@ use block_opencast\opencast_state_exception;
 
 class upload_helper {
 
-    const OC_FILEAREA = 'videotoupload';
+    const OC_FILEAREA_VIDEO = 'videotoupload';
+    const OC_FILEAREA_ATTACHMENT = 'attachmenttoupload';
     const STATUS_READY_TO_UPLOAD = 10;
     const STATUS_CREATING_GROUP = 21;
     const STATUS_CREATING_SERIES = 22;
@@ -124,11 +125,11 @@ class upload_helper {
     public static function save_upload_jobs($courseid, $coursecontext , $options) {
         global $DB, $USER;
 
-        //find the current files for the jobs
+        // Find the current video files for the jobs.
         $params = [];
         $params['component'] = 'block_opencast';
-        $params['filearea'] = self::OC_FILEAREA;
-        $items = array();
+        $params['filearea'] = self::OC_FILEAREA_VIDEO;
+        $items = [];
 
         if (isset($options->presentation) && !empty($options->presentation)) {
             $items[] = $options->presentation;
@@ -140,10 +141,6 @@ class upload_helper {
             $items[] = $options->presenter;
         } else {
             $items[] = 0;
-        }
-
-        foreach ($options->attachments as $attachment) {
-            $items[] = $attachment->fileid;
         }
 
         list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
@@ -180,7 +177,20 @@ class upload_helper {
         $options->uploadjobid = $uploadjobid;
         $DB->insert_record('block_opencast_metadata', $options);
 
+        // Find the current attachment files for the jobs.
         foreach ($options->attachments as $attachment) {
+            // Translate file itemid into file id.
+            $params = [];
+            $params['component'] = 'block_opencast';
+            $params['filearea'] = self::OC_FILEAREA_ATTACHMENT;
+            $params['itemid'] = $attachment->fileid;
+            $sql = "SELECT id FROM {files}
+                    WHERE component = :component
+                        AND filearea = :filearea
+                        AND filename <> '.'
+                        AND itemid = :itemid";
+            $attachment->fileid = $DB->get_field_sql($sql, $params);
+
             $attachment->uploadjobid = $uploadjobid;
             $DB->insert_record('block_opencast_attachment', $attachment);
         }
@@ -200,7 +210,7 @@ class upload_helper {
 
         $params = [];
         $params['component'] = 'block_opencast';
-        $params['filearea'] = self::OC_FILEAREA;
+        $params['filearea'] = self::OC_FILEAREA_VIDEO;
         $params['status'] = self::STATUS_READY_TO_UPLOAD;
 
         $jobidstodelete = $DB->get_records_sql($sql, $params);
@@ -225,14 +235,15 @@ class upload_helper {
 
         $params = [];
         $params['component'] = 'block_opencast';
-        $params['filearea'] = self::OC_FILEAREA;
+        $params['filearea'] = self::OC_FILEAREA_ATTACHMENT;
         $params['status'] = self::STATUS_UPLOADED;
 
         $jobsandattachmentstodelete = $DB->get_records_sql($sql, $params);
 
         $attachmentidstodelete = array_column($jobsandattachmentstodelete, 'attachmentid');
-        $attachmentidstodelete = array_unique($attachmentidstodelete);
         $jobidstodelete = array_column($jobsandattachmentstodelete, 'uploadjobid');
+
+        $attachmentidstodelete = array_unique($attachmentidstodelete);
         $jobidstodelete = array_unique($jobidstodelete);
 
         if (!empty($attachmentidstodelete)) {
@@ -508,7 +519,7 @@ class upload_helper {
                 if ($job->presenter_fileid) {
                     $mediapackagexml = $this->apibridge->media_package_upload_presenter($job);
                     $stepsuccessful = true;
-    
+
                     // Update mediapackagexml.
                     $job->mediapackagexml = $mediapackagexml;
                     $DB->update_record('block_opencast_uploadjob', $job);
@@ -525,7 +536,7 @@ class upload_helper {
                 if ($job->presentation_fileid) {
                     $mediapackagexml = $this->apibridge->media_package_upload_presentation($job);
                     $stepsuccessful = true;
-    
+
                     // Update mediapackagexml.
                     $job->mediapackagexml = $mediapackagexml;
                     $DB->update_record('block_opencast_uploadjob', $job);
@@ -638,7 +649,7 @@ class upload_helper {
                 if ($jobmetadata) {
                     $job = (object) array_merge((array)$job, (array)$jobmetadata );
                 }
-                $job->attachments = $DB->get_records('block_opencast_attachment', ['uploadjobid' => $job->id], '', 'name,fileid,flavor');
+                $job->attachments = $this->get_opencast_attachments($job->id);
                 $event = $this->process_upload_job($job);
                 if ($event) {
                     $this->upload_succeeded($job, $event->identifier);
@@ -686,13 +697,13 @@ class upload_helper {
     /**
      * Gets the catalog of metadata fields from database
      *
-     * @return array $metadata the metadata fields
+     * @return mixed $metadata the metadata fields
      */
     public static function get_opencast_metadata_catalog($condition = array(), $fields = '*') {
         global $DB;
 
         if ($condition) {
-            $metadata_catalog = $DB->get_records('block_opencast_catalog', $condition, 'id',  $fields );
+            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition, $fields );
         } else {
             $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
         }
@@ -704,20 +715,36 @@ class upload_helper {
         return $metadata_catalog;
     }
 
-    /**
-     * Gets a certain metadata field from database
-     *
-     * @return stdClass $metadata the metadata field object
-     */
-    public static function get_opencast_metadata_catalog_field($name, $fields = '*') {
+    // Attachments.
+
+    public static function get_opencast_attachment_fields($condition = [], $fields = '*') {
         global $DB;
 
-        $metadata_field = $DB->get_record('block_opencast_catalog', ['name' => $name],  $fields );
-        if (!$metadata_field) {
+        if ($condition) {
+            $attachfields = $DB->get_record('block_opencast_attach_field', $condition, $fields );
+        } else {
+            $attachfields = $DB->get_records('block_opencast_attach_field', null, 'id');
+        }
+
+        if (!$attachfields) {
             return false;
         }
-        return $metadata_field;
+
+        return $attachfields;
     }
 
+    public static function get_opencast_attachments($uploadjobid) {
+        global $DB;
+
+        $sql = "SELECT a.id, a.fileid, af.name, af.asset_title, af.asset_id, af.type, af.flavor_type, af.flavor_subtype
+                FROM {block_opencast_attachment} a
+                JOIN {block_opencast_attach_field} af
+                    ON a.attachfieldid = af.id
+                WHERE a.uploadjobid = :uploadjobid";
+        $params = [];
+        $params['uploadjobid'] = $uploadjobid;
+
+        return $DB->get_records_sql($sql, $params);
+    }
 
 }

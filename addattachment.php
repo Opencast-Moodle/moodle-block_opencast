@@ -56,7 +56,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 // No attachment field selected yet.
 if ($attachment === null) {
-    $attachmentfields = upload_helper::get_opencast_metadata_catalog(['datatype' => 'filepicker']);
+    $attachmentfields = upload_helper::get_opencast_attachment_fields();
     switch (count($attachmentfields)) {
         case 0:
             // No attachment fields defined.
@@ -89,7 +89,7 @@ if ($attachment !== null) {
 
     $opencast = \block_opencast\local\apibridge::get_instance();
 
-    $attachmentfield = upload_helper::get_opencast_metadata_catalog_field($attachment);
+    $attachmentfield = upload_helper::get_opencast_attachment_fields(['name' => $attachment]);
     $addattachmentform = new \block_opencast\local\addattachment_form(null, ['attachmentfield' => $attachmentfield, 'courseid' => $courseid, 'identifier' => $identifier]);
 
     if ($addattachmentform->is_cancelled()) {
@@ -98,16 +98,16 @@ if ($attachment !== null) {
 
     if ($data = $addattachmentform->get_data()) {
         if ($data->itemid) {
+
             // Upload attachment.
-            $file = $addattachmentform->save_stored_file('itemid', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->itemid);
+            $file = $addattachmentform->save_stored_file('itemid', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_ATTACHMENT, $data->itemid);
             if (!$file) {
                 throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
             }
             \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->itemid);
-            $params = json_decode($attachmentfield->param_json);
 
             $msg = '';
-            $res = $opencast->add_attachment($identifier, $file->get_id(), $params->flavor, $params->assetid, $params->assettitle);
+            $res = $opencast->add_attachment($identifier, $file->get_id(), $attachmentfield);
             if ($res) {
                 $msg = get_string('attachmentsaved', 'block_opencast');
             }

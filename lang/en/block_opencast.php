@@ -57,9 +57,9 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
-$string['attachmentinvalidflavor'] = 'Attachment metadata field has an invalid flavor ({$a})';
 $string['attachmentmissingfile'] = 'Attachment file is missing from DB';
 $string['attachmentmissingflavor'] = 'Attachment metadata field is missing a flavor';
+$string['attachments'] = 'Attachments';
 $string['attachmentsaved'] = 'Attachment uploaded.';
 $string['backupopencastvideos'] = 'Backup Opencast videos';
 $string['backupsettings'] = 'Settings for backup and restore';
@@ -73,6 +73,7 @@ $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm_role'] = 'Are you sure you want to delete this role?';
 $string['delete_confirm_catalog'] = 'Are you sure you want to delete this catalog entry?';
+$string['delete_confirm_attachmentfield'] = 'Are you sure you want to delete this attachment field?';
 $string['deleteevent'] = 'Delete a event in opencast';
 $string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from opencast.
     All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
@@ -233,9 +234,12 @@ $string['visibility_hide'] = 'Prevent any student from accessing the video';
 $string['visibility_show'] = 'Allow all students of the course to access the video';
 $string['visibility_group'] = 'Allow all students belonging to selected groups to access the video';
 $string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
+$string['workflownotdefined:attachments'] = 'The workflow for adding attachments is not defined.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';
 $string['workflowrolesdesc'] = 'This workflow is triggered when the nonpermanent ACL rules are deleted or added. If not set, it will not be possible to change the visibility of uploaded videos through the block.';
+$string['workflowattachmentsname'] = 'Workflow for adding attachments';
+$string['workflowattachmentsdesc'] = 'This workflow is triggered when an attachment is added to an already published video. If not set, it will not be possible to add attachments to already published videos through the block.';
 
 $string['privacy:metadata:block_opencast_uploadjob'] = 'Information about video uploads.';
 $string['privacy:metadata:block_opencast_uploadjob:fileid'] = 'ID of the file/video which is uploaded';
@@ -263,7 +267,8 @@ $string['contributor'] = 'Contributor(s)';
 $string['source'] = 'Source';
 $string['type'] = 'Media Type';
 $string['date'] = 'Start Date';
-$string['upload'] = 'File Upload';
+$string['video_upload'] = 'Video Upload';
+$string['attachment_upload'] = 'Attachment Upload';
 $string['subjects'] = 'Subjects';
 $string['language'] = 'Language';
 $string['rightsHolder'] = 'Rights';
@@ -283,7 +288,6 @@ $string['presenterdesc'] = 'A video of a person speaking to an audience.';
 $string['presentation'] = 'Presentation';
 $string['presentationdesc'] = 'A video of slide presentation (Keynote, Powerpoint, etc).';
 $string['emptyvideouploaderror'] = 'At least a video for Presenter Or Slide must be uploaded!';
-$string['heading_attachmentfield'] = 'Attachment field';
 $string['heading_position'] = 'Position';
 $string['heading_name'] = 'Field Name';
 $string['heading_datatype'] = 'Field Type';
@@ -295,8 +299,7 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
                                 . '<b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>'
                                 . '<b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>'
                                 . '<b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>'
-                                . '<b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020'
-                                . '<b>Attachments (filepicker):</b> Parameters let you define a flavor for the attachment (required) and restrict the allowed filetypes (optional) by providing a comma separated list of all allowed file types. i.e. {"flavor": "captions/vtt+en", "filetypes": "vtt"}';
+                                . '<b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['addcatalog'] = 'Add new metadata';
 $string['descriptionmdfn'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
 $string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
@@ -313,3 +316,18 @@ $string['presenterfilesize'] = 'Filesize (Presenter)';
 $string['presentationfilename'] = 'Filename (Presentation)';
 $string['presentationfilesize'] = 'Filesize (Presentation)';
 $string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
+$string['heading_assettitle'] = 'Asset title';
+$string['heading_assetid'] = 'Asset ID';
+$string['heading_attachmenttype'] = 'Attachment type';
+$string['heading_flavortype'] = 'Flavor type';
+$string['heading_flavorsubtype'] = 'Flavor subtype';
+$string['heading_filetypes'] = 'File types';
+$string['descriptionaffn'] = 'The name this field should have in the video/attachment upload form.';
+$string['descriptionafat'] = 'TODO: is this even necessary? seems like this is just the OC gui string identifier';
+$string['descriptionafft'] = 'Comma-separated list of file extension that can be uploaded to this field. Only extensions listed under {$a} are allowed.';
+$string['addattachmentfield'] = 'Add new attachment field';
+$string['empty_attachmentfieldname'] = 'Field name must not be empty';
+$string['exists_attachmentfieldname'] = 'A field with this name already exists';
+$string['attachmentfield_unsupported_filetype'] = 'File type \'{$a->filetype}\' is not known to Moodle. Consider adding it under {$a->link}.';
+$string['addnewattachmentfield'] = 'A new attachment field has been added.';
+$string['heading_attachmentfield'] = 'Attachment field';

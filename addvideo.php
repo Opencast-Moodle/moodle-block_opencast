@@ -51,9 +51,10 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
+$attachfields = upload_helper::get_opencast_attachment_fields();
 
-$addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog));
+$addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog, 'attachment_fields' => $attachfields));
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);
@@ -62,8 +63,8 @@ if ($addvideoform->is_cancelled()) {
 if ($data = $addvideoform->get_data()) {
 
     // Record the user draft area in this context.
-    $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
-    $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+    $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_VIDEO, $data->video_presenter);
+    $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_VIDEO, $data->video_presentation);
 
     if ($storedfile_presenter) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presenter);
@@ -73,7 +74,6 @@ if ($data = $addvideoform->get_data()) {
     }
 
     $metadata = [];
-    $attachments = [];
     $get_title = true; //Make sure title (required) is added into metadata
 
     //Adding data into $metadata based on $metadata_catalog
@@ -85,23 +85,6 @@ if ($data = $addvideoform->get_data()) {
             }
             if ($field->name == 'subjects') {
                 !is_array($data->$id) ? $data->$id = array($data->$id) : $data->$id = $data->$id;
-            }
-            if ($field->datatype == 'filepicker') {
-                // Attachments are stored separate from other metadata.
-                $storedfile_attachment = $addvideoform->save_stored_file($id, $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->$id);
-                if ($storedfile_attachment) {
-                    \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$id);
-                    $param = json_decode($field->param_json);
-                    if (!$param->flavor) {
-                        throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
-                    }
-                    $obj = new \stdClass();
-                    $obj->name = $id;
-                    $obj->fileid = $storedfile_attachment->get_id();
-                    $obj->flavor = $param->flavor;
-                    $attachments[] = $obj;
-                }
-                continue;
             }
             $obj = [
                 'id' => $id,
@@ -129,6 +112,21 @@ if ($data = $addvideoform->get_data()) {
     ];
     $metadata[] = $startDate;
     $metadata[] = $startTime;
+
+    // Adding data into $attachments based on $attachment_fields.
+    $attachments = [];
+    foreach ($attachfields as $field) {
+        $id = "attachment_{$field->name}";
+        $storedfile = $addvideoform->save_stored_file($id, $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_ATTACHMENT, $data->$id);
+        if ($storedfile) {
+            \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$id);
+            $obj = new \stdClass();
+            $obj->name = $id; // TODO can we remove this?
+            $obj->fileid = $storedfile->get_itemid();
+            $obj->attachfieldid = $field->id;
+            $attachments[] = $obj;
+        }
+    }
 
     $options = new \stdClass();
     $options->metadata = json_encode($metadata);

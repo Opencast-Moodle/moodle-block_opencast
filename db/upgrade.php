@@ -344,7 +344,34 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019112103, 'opencast');
     }
 
-    if ($oldversion < 2019112104) {
+    if ($oldversion < 2019112107) {
+
+        // Define table block_opencast_attach_field to be created.
+        $table = new xmldb_table('block_opencast_attach_field');
+
+        // Adding fields to table block_opencast_attach_field.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('required', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('asset_title', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('asset_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('flavor_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('flavor_subtype', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('filetypes', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_attach_field.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_opencast_attach_field.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_block_savepoint(true, 2019112107, 'opencast');
+    }
+
+    if ($oldversion < 2019112108) {
 
         // Define table block_opencast_attachment to be created.
         $table = new xmldb_table('block_opencast_attachment');
@@ -354,19 +381,20 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('flavor', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('attachfieldid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_attachment.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
         $table->add_key('uploadjob_foreign', XMLDB_KEY_FOREIGN, ['uploadjobid'], 'block_opencast_uploadjob', ['id']);
-        $table->add_key('file_foreign', XMLDB_KEY_FOREIGN, ['fileid'], 'files', ['id']);
+        $table->add_key('attachfield_foreign', XMLDB_KEY_FOREIGN, ['attachfieldid'], 'block_opencast_attach_field', ['id']);
+        $table->add_key('uq_uploadjobattachfield', XMLDB_KEY_UNIQUE, ['uploadjobid', 'attachfieldid']);
 
         // Conditionally launch create table for block_opencast_attachment.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
-        upgrade_block_savepoint(true, 2019112104, 'opencast');
+        upgrade_block_savepoint(true, 2019112108, 'opencast');
     }
 
     return true;

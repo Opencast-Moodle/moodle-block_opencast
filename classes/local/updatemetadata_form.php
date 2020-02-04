@@ -38,10 +38,6 @@ class updatemetadata_form extends \moodleform {
         $mform = $this->_form;
 
         foreach ($this->_customdata['metadata_catalog'] as $field) {
-            if ($field->datatype == 'filepicker') {
-                // Attachments are handled in the addattachments form.
-                continue;
-            }
             $value = $this->extract_value($field->name);
             $param = array();
             $attributes = array();

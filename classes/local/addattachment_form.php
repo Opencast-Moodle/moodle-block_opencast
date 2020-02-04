@@ -36,28 +36,28 @@ class addattachment_form extends \moodleform {
         $mform = $this->_form;
 
         $field = $this->_customdata['attachmentfield'];
-        $param = (array)json_decode($field->param_json);
-        $attributes = [];
-        if (empty($param['filetypes'])) {
-            $attributes['accepted_types'] = '*';
+        $filetypes = [];
+        if (empty($field->filetypes)) {
+            $filetypes = '*';
         } else {
-            $attributes['accepted_types'] = [];
-            $filetypes = explode(',', $param['filetypes']);
-            foreach ($filetypes as $filetype) {
-                if (strpos($filetype, '.') !== 0) {
-                    // Extensions need to begin with a dot.
-                    $filetype = ".$filetype";
+            foreach (explode(',', $field->filetypes) as $filetype) {
+                if (empty($filetype)) {
+                    continue;
                 }
-                $attributes['accepted_types'][] = $filetype;
+                // Make sure extension begins with a dot.
+                $filetype = '.' . trim($filetype, '.');
+                $filetypes[] = $filetype;
             }
         }
+        $attributes = [];
+        $attributes['accepted_types'] = $filetypes;
         $attributes['maxfiles'] = 1;
         $attributes['subdirs'] = 0;
 
-        $mform->addElement($field->datatype, 'itemid', $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+        $mform->addElement('filepicker', 'itemid', $this->try_get_string($field->name, 'block_opencast'), null, $attributes);
 
         if ($field->required) {
-            $mform->addRule($field->name, get_string('required'), 'required');
+            $mform->addRule('itemid', get_string('required'), 'required');
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
