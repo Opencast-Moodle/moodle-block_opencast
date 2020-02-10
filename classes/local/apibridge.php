@@ -1444,7 +1444,7 @@ class apibridge {
         $metadata->assets->options[0]->flavorType = $attachmentfield->flavor_type;
         $metadata->assets->options[0]->flavorSubType = $attachmentfield->flavor_subtype;
         $metadata->assets->options[0]->displayOrder = 1;
-        $metadata->assets->options[0]->title = $attachmentfield->asset_title;
+        $metadata->assets->options[0]->title = 'unused';
         $metadata->processing = new \stdClass();
         $metadata->processing->workflow = $workflow;
         $metadata->processing->configuration = new \stdClass();

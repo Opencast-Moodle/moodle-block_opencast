@@ -153,7 +153,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $newattachmentfield = new \stdClass();
                 $newattachmentfield->name = str_replace(' ', '',  strtolower($data->attachmentfieldname));
                 $newattachmentfield->required = $data->attachmentfieldrequired == 1 ? 1 : 0;
-                $newattachmentfield->asset_title = $data->attachmentfieldassettitle;
                 $newattachmentfield->asset_id = $data->attachmentfieldassetid;
                 $newattachmentfield->type = $data->attachmentfieldtype;
                 $newattachmentfield->flavor_type = $data->attachmentfieldflavortype;
@@ -234,7 +233,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             foreach ($attachmentfields as $attachmentfield) {
                 $attachmentfield_name = "attachmentfield_name_{$attachmentfield->id}";
                 $attachmentfield_required = "attachmentfield_required_{$attachmentfield->id}";
-                $attachmentfield_assettitle = "attachmentfield_assettitle_{$attachmentfield->id}";
                 $attachmentfield_assetid = "attachmentfield_assetid_{$attachmentfield->id}";
                 $attachmentfield_type = "attachmentfield_type_{$attachmentfield->id}";
                 $attachmentfield_flavortype = "attachmentfield_flavortype_{$attachmentfield->id}";
@@ -245,7 +243,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $newattachmentfield->id = $attachmentfield->id;
                 $newattachmentfield->name = $data->$attachmentfield_name;
                 $newattachmentfield->required = $data->$attachmentfield_required == 1 ? 1 : 0;
-                $newattachmentfield->assettitle = $data->$attachmentfield_assettitle;
                 $newattachmentfield->assetid = $data->$attachmentfield_assetid;
                 $newattachmentfield->type = $data->$attachmentfield_type;
                 $newattachmentfield->flavortype = $data->$attachmentfield_flavortype;
@@ -255,7 +252,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 // Update db entry.
                 if ($newattachmentfield->name !== $attachmentfield->name ||
                     $newattachmentfield->required != $attachmentfield->required ||
-                    $newattachmentfield->assettitle != $attachmentfield->asset_title ||
                     $newattachmentfield->assetid != $attachmentfield->asset_id ||
                     $newattachmentfield->type != $attachmentfield->type ||
                     $newattachmentfield->flavortype != $attachmentfield->flavor_type ||

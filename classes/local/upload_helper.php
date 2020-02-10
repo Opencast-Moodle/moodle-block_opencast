@@ -736,7 +736,7 @@ class upload_helper {
     public static function get_opencast_attachments($uploadjobid) {
         global $DB;
 
-        $sql = "SELECT a.id, a.fileid, af.name, af.asset_title, af.asset_id, af.type, af.flavor_type, af.flavor_subtype
+        $sql = "SELECT a.id, a.fileid, af.name, af.asset_id, af.type, af.flavor_type, af.flavor_subtype
                 FROM {block_opencast_attachment} a
                 JOIN {block_opencast_attach_field} af
                     ON a.attachfieldid = af.id

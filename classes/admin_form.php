@@ -291,13 +291,6 @@ class admin_form extends moodleform {
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 0);
 
-        // New attachment field title.
-        $name = 'attachmentfieldassettitle';
-        $title = get_string('heading_assettitle', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->addElement('static', 'descriptionafat', '', get_string('descriptionafat', 'block_opencast'));
-
         // New attachment field id.
         $name = 'attachmentfieldassetid';
         $title = get_string('heading_assetid', 'block_opencast');
@@ -427,10 +420,6 @@ class admin_form extends moodleform {
                 ],
                 'heading_required' => [
                     'class' => 'header c2',
-                    'scope' => 'col'
-                ],
-                'heading_assettitle' => [
-                    'class' => 'header c3',
                     'scope' => 'col'
                 ],
                 'heading_assetid' => [
@@ -592,12 +581,6 @@ class admin_form extends moodleform {
                 $name = 'attachmentfield_required_' . $attachmentfield->id;
                 $mform->addElement('advcheckbox', $name, null);
                 $mform->setDefault($name, $attachmentfield->required);
-
-                $mform->addElement('html', '</td><td class="cell c3">');
-                $name = 'attachmentfield_assettitle_' . $attachmentfield->id;
-                $mform->addElement('text', $name, null);
-                $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, $attachmentfield->asset_title);
 
                 $mform->addElement('html', '</td><td class="cell c4">');
                 $name = 'attachmentfield_assetid_' . $attachmentfield->id;

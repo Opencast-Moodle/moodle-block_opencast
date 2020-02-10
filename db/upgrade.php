@@ -353,7 +353,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('required', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('asset_title', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('asset_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('flavor_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
