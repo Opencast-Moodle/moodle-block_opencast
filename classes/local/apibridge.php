@@ -709,6 +709,13 @@ class apibridge {
         return false;
     }
 
+    // Ingest/media_package stuff.
+
+    /**
+     * Get path to the ingest endpoint.
+     *
+     * @return string ingest path to be used with functions like oc_post and oc_get
+     */
     private function get_ingest_endpoint_path() {
         $api = new api();
         static $path = null;
@@ -725,6 +732,12 @@ class apibridge {
         return $path;
     }
 
+    /**
+     * Generate metadata XML for use with ingest API.
+     *
+     * @param $job uploadjob object from DB
+     * @return string metadata XML string for given uploadjob
+     */
     private function generate_mediapackage_metadata_xml($job) {
         $metadata = json_decode($job->metadata);
         $result = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -760,7 +773,13 @@ class apibridge {
         return $result;
     }
 
-    private function generate_mediapackage_acl_xml($job) {
+    /**
+     * Generate ACL in XACML form for upload as an attachment.
+     *
+     * @param $job uploadjob object from DB
+     * @return string XACML string containing ACL for given uploadjob
+     */
+    private function generate_mediapackage_acl_xacml($job) {
         $aclxml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Policy PolicyId="'.$job->opencasteventid.'" Version="2.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides" xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
     <Target>
@@ -805,6 +824,17 @@ class apibridge {
         return $aclxml;
     }
 
+    /**
+     * Upload video file to ingest endpoint.
+     *
+     * You have to provide XML of a media package created via create_media_package()
+     * and you get back an updated version of that XML where the new track is included.
+     *
+     * @param $mediapackagexml XML of mediapackage
+     * @param $fileid ID from files DB table of track to be uploaded
+     * @param $flavor flavor of the uploaded track
+     * @return string updated mediapackage XML
+     */
     private function media_package_upload_track($mediapackagexml, $fileid, $flavor) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
@@ -820,9 +850,20 @@ class apibridge {
     }
 
     /**
-     * API call to create an empty media package.
-     * 
-     * @return string media package id which becomes event id upon ingestion
+     * Creates an empty media package for use with the ingest endpoint.
+     *
+     * When uploading a video through the ingest API you need to create an empty media
+     * package first. To this media package you can then add various files:
+     *
+     * * media_package_upload_metadata()
+     * * media_package_upload_presenter()
+     * * media_package_upload_presentation()
+     * * media_package_upload_acl()
+     * * media_package_upload_attachments()
+     *
+     * Tell Opencast to start processing the media package via media_package_ingest().
+     *
+     * @return string media package XML
      */
     public function create_media_package() {
         $ingestpath = $this->get_ingest_endpoint_path();
@@ -835,11 +876,24 @@ class apibridge {
         return $response;
     }
 
+    /**
+     * Uploads metadata to the ingest endpoint.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     * If nothing has been added to the media package yet it needs to be set to the
+     * result of create_media_package() instead.
+     *
+     * @param $job uploadjob object from DB
+     * @return string updated media package XML
+     */
     public function media_package_upload_metadata($job) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
         $metadataxml = $this->generate_mediapackage_metadata_xml($job);
 
+        // This uses the default dublincore catalog. If you want to use a custom catalog
+        // call addCatalog instead of addDCCatalog.
         $api = new api();
         $response = $api->oc_post($ingestpath.'/addDCCatalog', [
             'flavor' => 'dublincore/episode',
@@ -852,10 +906,24 @@ class apibridge {
         return $response;
     }
 
+    /**
+     * Uploads ACL to the ingest endpoint.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     * If nothing has been added to the media package yet it needs to be set to the
+     * result of create_media_package() instead.
+     *
+     * The ingest endpoint only supports setting ACL via upload of an XACML attachment
+     * with flavor "security/xacml+episode". So that's what this method does.
+     *
+     * @param $job uploadjob object from DB
+     * @return string updated media package XML
+     */
     public function media_package_upload_acl($job) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
-        $aclxml = $this->generate_mediapackage_acl_xml($job);
+        $aclxml = $this->generate_mediapackage_acl_xacml($job);
 
         // Create temporary XML file with ACL.
         $fs = get_file_storage();
@@ -885,6 +953,20 @@ class apibridge {
         }
     }
 
+    /**
+     * Uploads presenter video to the ingest endpoint.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     * If nothing has been added to the media package yet it needs to be set to the
+     * result of create_media_package() instead.
+     *
+     * Doesn't check whether the given uploadjob even has a presenter file. Will throw
+     * an exception in if it doesn't.
+     *
+     * @param $job uploadjob object from DB
+     * @return string updated media package XML
+     */
     public function media_package_upload_presenter($job) {
         $response = $this->media_package_upload_track($job->mediapackagexml, $job->presenter_fileid, 'presenter/source');
         $responseobj = simplexml_load_string($response);
@@ -894,6 +976,20 @@ class apibridge {
         return $response;
     }
 
+    /**
+     * Uploads presentation video to the ingest endpoint.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     * If nothing has been added to the media package yet it needs to be set to the
+     * result of create_media_package() instead.
+     *
+     * Doesn't check whether the given uploadjob even has a presentation file. Will throw
+     * an exception in if it doesn't.
+     *
+     * @param $job uploadjob object from DB
+     * @return string updated media package XML
+     */
     public function media_package_upload_presentation($job) {
         $response = $this->media_package_upload_track($job->mediapackagexml, $job->presentation_fileid, 'presentation/source');
         if ($api->get_http_code() >= 400) {
@@ -902,6 +998,17 @@ class apibridge {
         return $response;
     }
 
+    /**
+     * Uploads all attachments to the ingest endpoint.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     * If nothing has been added to the media package yet it needs to be set to the
+     * result of create_media_package() instead.
+     *
+     * @param $job uploadjob object from DB
+     * @return string updated media package XML
+     */
     public function media_package_upload_attachments($job) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
@@ -933,6 +1040,15 @@ class apibridge {
         return $response;
     }
 
+    /**
+     * Ingests the media package.
+     *
+     * The uploadjob needs to have its mediapackagexml field set to the updated media
+     * package XML returned from the most recently called media_package_* function.
+     *
+     * @param $job uploadjob object from DB
+     * @return string media package XML
+     */
     public function media_package_ingest($job) {
         $ingestpath = $this->get_ingest_endpoint_path();
 
@@ -1334,6 +1450,17 @@ class apibridge {
         return $this->start_workflow($eventid, $workflow);
     }
 
+    /**
+     * Adds an attachment to an already published event.
+     *
+     * Since there is no real API for doing this we use the admin endpoint that is
+     * also used when adding an attachment via the web interface.
+     *
+     * @param $eventid the event's UID in Opencast (== the media package ID before ingestion)
+     * @param $fileid ID from files DB table of attachment to be uploaded
+     * @param $attachmentfield object from DB table block_opencast_attach_field
+     * @return string ID of the workflow instance started in Opencast
+     */
     public function add_attachment($eventid, $fileid, $attachmentfield) {
         if (empty($attachmentfield->flavor_type) || empty($attachmentfield->flavor_subtype)) {
             throw new \moodle_exception('attachmentmissingflavor', 'tool_opencast');
@@ -1639,6 +1766,13 @@ class apibridge {
         return false;
     }
 
+    /**
+     * Whether the user is allowed to add attachments to published videos
+     *
+     * @param $video video object from Opencast
+     * @param $courseid course ID
+     * @return bool true if video is not processing and user has capability
+     */
     public function can_add_attachments($video, $courseid) {
 
         static $attachmentsconfigured = null;
