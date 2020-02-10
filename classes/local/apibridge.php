@@ -716,8 +716,10 @@ class apibridge {
             return $path;
         }
         $response = $api->oc_get('/services/available.json?serviceType=org.opencastproject.ingest');
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
         $responseobj = json_decode($response);
-        // TODO error handling?
         $service = $responseobj->services->service;
         $path = $service->path;
         return $path;
