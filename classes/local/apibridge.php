@@ -709,64 +709,6 @@ class apibridge {
         return false;
     }
 
-    /**
-     * API call to create an event.
-     *
-     * @return object series object of NULL, if group does not exist.
-     * @deprecated Events are now created in multiple steps beginning with the create_media_package method.
-     */
-    public function create_event($job, $seriesidentifier) {
-        global $DB;
-
-        $event = new \block_opencast\local\event();
-
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
-            }
-        }
-        // applying the media types to the event
-        $valid_storedfile = true;
-        if ($job->presenter_fileid) {
-            $event->set_presenter($job->presenter_fileid);
-            if (!$event->get_presenter()) {
-                $valid_storedfile = false;
-            }
-        }
-        if ($job->presentation_fileid ) {
-            $event->set_presentation($job->presentation_fileid);
-            if (!$event->get_presentation()) {
-                $valid_storedfile = false;
-            }
-        }
-
-        if (!$valid_storedfile) {
-            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
-            throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
-        }
-
-        if ($job->metadata) {
-            foreach (json_decode($job->metadata) as $metadata ) {
-                $event->add_meta_data($metadata->id, $metadata->value);
-            }
-        }
-        $event->add_meta_data('isPartOf', $seriesidentifier);
-        $params = $event->get_form_params();
-
-        $api = new api();
-
-        $result = $api->oc_post('/api/events', $params);
-
-        if ($api->get_http_code() >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-        }
-
-        return $result;
-    }
-
-    // Ingest/media_package stuff.
-
     private function get_ingest_endpoint_path() {
         $api = new api();
         static $path = null;
@@ -1029,40 +971,6 @@ class apibridge {
         }
 
         return $roles;
-    }
-
-    /**
-     * Check, whether the related series exists to given course id. If not exists than try to create
-     * a group in opencast system.
-     *
-     * @param int $courseid
-     *
-     * @return object series object.
-     * @throws opencast_state_exception
-     * @deprecated Events are now created in multiple steps beginning with the create_media_package method.
-     */
-    public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
-
-        if ($opencastids) {
-            if ($event = $this->get_already_existing_event($opencastids)) {
-                // Flag as existing event.
-                $event->newlycreated = false;
-
-                return $event;
-            }
-        }
-
-        $event = $this->create_event($job, $seriesidentifier);
-        // Check success.
-        if (!$event) {
-            throw new opencast_state_exception('uploadingeventfailed', 'block_opencast');
-        }
-
-        $event = json_decode($event);
-        // Flag as newly created.
-        $event->newlycreated = true;
-
-        return $event;
     }
 
     /**
