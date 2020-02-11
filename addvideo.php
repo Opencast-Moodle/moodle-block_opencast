@@ -121,7 +121,6 @@ if ($data = $addvideoform->get_data()) {
         if ($storedfile) {
             \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$id);
             $obj = new \stdClass();
-            $obj->name = $id; // TODO can we remove this?
             $obj->fileid = $storedfile->get_itemid();
             $obj->attachfieldid = $field->id;
             $attachments[] = $obj;
