@@ -406,7 +406,7 @@ class admin_form extends moodleform {
         } else if ($field == 'attachmentfield') {
             $table_attributes = [
                 'class' => 'generaltable',
-                'id' => 'catalog_table'
+                'id' => 'attachmentfield_table'
             ];
 
             $th_attributes = [
