@@ -1463,7 +1463,7 @@ class apibridge {
      */
     public function add_attachment($eventid, $fileid, $attachmentfield) {
         if (empty($attachmentfield->flavor_type) || empty($attachmentfield->flavor_subtype)) {
-            throw new \moodle_exception('attachmentmissingflavor', 'tool_opencast');
+            throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
         }
 
         // Make sure workflow is even configured before proceeding.
