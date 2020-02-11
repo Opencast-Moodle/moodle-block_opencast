@@ -303,15 +303,9 @@ class admin_form extends moodleform {
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
-        // New attachment field flavorType.
-        $name = 'attachmentfieldflavortype';
-        $title = get_string('heading_flavortype', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-
-        // New attachment field flavorSubType.
-        $name = 'attachmentfieldflavorsubtype';
-        $title = get_string('heading_flavorsubtype', 'block_opencast');
+        // New attachment field flavor.
+        $name = 'attachmentfieldflavor';
+        $title = get_string('heading_flavor', 'block_opencast');
         $mform->addElement('text', $name, $title);
         $mform->setType($name, PARAM_TEXT);
 
@@ -430,20 +424,16 @@ class admin_form extends moodleform {
                     'class' => 'header c5',
                     'scope' => 'col'
                 ],
-                'heading_flavortype' => [
+                'heading_flavor' => [
                     'class' => 'header c6',
                     'scope' => 'col'
                 ],
-                'heading_flavorsubtype' => [
+                'heading_filetypes' => [
                     'class' => 'header c7',
                     'scope' => 'col'
                 ],
-                'heading_filetypes' => [
-                    'class' => 'header c8',
-                    'scope' => 'col'
-                ],
                 'heading_delete' => [
-                    'class' => 'header c9 lastcol',
+                    'class' => 'header c8 lastcol',
                     'scope' => 'col'
                 ],
             ];
@@ -595,24 +585,18 @@ class admin_form extends moodleform {
                 $mform->setDefault($name, $attachmentfield->type);
 
                 $mform->addElement('html', '</td><td class="cell c6">');
-                $name = 'attachmentfield_flavortype_' . $attachmentfield->id;
+                $name = 'attachmentfield_flavor_' . $attachmentfield->id;
                 $mform->addElement('text', $name, null);
                 $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, $attachmentfield->flavor_type);
+                $mform->setDefault($name, "{$attachmentfield->flavor_type}/{$attachmentfield->flavor_subtype}");
 
                 $mform->addElement('html', '</td><td class="cell c7">');
-                $name = 'attachmentfield_flavorsubtype_' . $attachmentfield->id;
-                $mform->addElement('text', $name, null);
-                $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, $attachmentfield->flavor_subtype);
-
-                $mform->addElement('html', '</td><td class="cell c8">');
                 $name = 'attachmentfield_filetypes_' . $attachmentfield->id;
                 $mform->addElement('text', $name, null);
                 $mform->setType($name, PARAM_TEXT);
                 $mform->setDefault($name, $attachmentfield->filetypes);
 
-                $mform->addElement('html', '</td><td class="cell c9 lastcol">');
+                $mform->addElement('html', '</td><td class="cell c8 lastcol">');
                 $pix = $OUTPUT->action_icon(
                     new moodle_url('/blocks/opencast/adminsettings.php', ['afd' => $attachmentfield->id]),
                     new \pix_icon('t/delete', get_string('delete')),
@@ -671,12 +655,17 @@ class admin_form extends moodleform {
      */
     public function validation($data, $files) {
         $error = array();
+        $flavorregex = '/[^\\/]+\\/[^\\/]+/';
 
         if (array_key_exists('addrolebutton', $data)) {
             foreach (['rolename', 'actions'] as $key) {
                 if ($data[$key] === "") {
                     $error[$key] = get_string('required');
                 }
+            }
+        } else if (array_key_exists('addattachmentfieldbutton', $data)) {
+            if (!preg_match($flavorregex, $data['attachmentfieldflavor'])) {
+                $error['attachmentfieldflavor'] = get_string( 'attachmentfieldinvalidflavor', 'block_opencast');
             }
         } else if (array_key_exists('submitbutton', $data)) {
             // Validate that role and actions are not empty.
@@ -769,6 +758,11 @@ class admin_form extends moodleform {
                     $a->link = $link;
                     $error[$attachmentfield_filetypes] = get_string('attachmentfield_unsupported_filetype', 'block_opencast', $link);
                 }
+            }
+
+            $attachmentfield_flavor = "attachmentfield_flavor_{$attachmentfield->id}";
+            if (!preg_match($flavorregex, $data[$attachmentfield_flavor])) {
+                $error[$attachmentfield_flavor] = get_string( 'attachmentfieldinvalidflavor', 'block_opencast');
             }
         }
 

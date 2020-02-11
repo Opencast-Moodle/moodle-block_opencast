@@ -59,6 +59,7 @@ $string['allowunassigndesc'] = 'Delete the assignment of a course series to cont
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['attachmentmissingfile'] = 'Attachment file is missing from DB';
 $string['attachmentmissingflavor'] = 'Attachment metadata field is missing a flavor';
+$string['attachmentfieldinvalidflavor'] = 'Invalid flavor entered for attachment field. Flavors must have this form: flavor_type/flavor_subtype';
 $string['attachments'] = 'Attachments';
 $string['attachmentsaved'] = 'Attachment uploaded.';
 $string['backupopencastvideos'] = 'Backup Opencast videos';
@@ -318,8 +319,7 @@ $string['presentationfilesize'] = 'Filesize (Presentation)';
 $string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
 $string['heading_assetid'] = 'Asset ID';
 $string['heading_attachmenttype'] = 'Attachment type';
-$string['heading_flavortype'] = 'Flavor type';
-$string['heading_flavorsubtype'] = 'Flavor subtype';
+$string['heading_flavor'] = 'Flavor';
 $string['heading_filetypes'] = 'File types';
 $string['descriptionaffn'] = 'The name this field should have in the video/attachment upload form.';
 $string['descriptionafft'] = 'Comma-separated list of file extension that can be uploaded to this field. Only extensions listed under {$a} are allowed.';
