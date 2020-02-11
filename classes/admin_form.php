@@ -312,8 +312,7 @@ class admin_form extends moodleform {
         // New attachment field allowed extensions.
         $name = 'attachmentfieldfiletypes';
         $title = get_string('filetypes', 'block_opencast');
-        $mform->addElement('textarea', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('filetypes', $name, $title);
         $url = new moodle_url('/admin/tool/filetypes/index.php');
         $link = html_writer::link($url, get_string('pluginname', 'tool_filetypes'));
         $description = get_string('descriptionafft', 'block_opencast', $link);
@@ -592,8 +591,7 @@ class admin_form extends moodleform {
 
                 $mform->addElement('html', '</td><td class="cell c7">');
                 $name = 'attachmentfield_filetypes_' . $attachmentfield->id;
-                $mform->addElement('text', $name, null);
-                $mform->setType($name, PARAM_TEXT);
+                $mform->addElement('filetypes', $name, null);
                 $mform->setDefault($name, $attachmentfield->filetypes);
 
                 $mform->addElement('html', '</td><td class="cell c8 lastcol">');
@@ -756,7 +754,7 @@ class admin_form extends moodleform {
                     $a = new \stdClass();
                     $a->filetype = $filetype;
                     $a->link = $link;
-                    $error[$attachmentfield_filetypes] = get_string('attachmentfield_unsupported_filetype', 'block_opencast', $link);
+                    $error[$attachmentfield_filetypes] = get_string('attachmentfield_unsupported_filetype', 'block_opencast', $a);
                 }
             }
 
