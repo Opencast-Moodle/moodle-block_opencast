@@ -85,6 +85,20 @@ For this the series id has to be reference in the block.
 3. Enter the series id and save the form.
 4. Now all videos of the series should be displayed in the block and the visibility of them can be adjusted.
 
+## Use case 4 - Adding an attachment ###
+
+A teacher uploaded a video but forgot to add subtitles.
+
+1. Go to the overview section of the block.</br>
+![Overview with add captions button](/doc/img/block_opencast_captions_overview.png)
+2. Click on the add caption button (plus symbol).
+3. In case you have more than one attachment field configure you are shown a page where you select which field you want to add an attachment to.</br>
+![Select attachment field](/doc/img/block_opencast_captions_select_attachfield.png)
+4. You are shown the attachment file upload dialog. Drag-and-drop the file in there.
+5. The publishing of the new attachment starts.
+    1. The attachment is uploaded as an asset to the event in Opencast.
+    2. A workflow (must be defined in the settings) is started which publishes the new attachment.
+
 Configuration
 -------------
 
