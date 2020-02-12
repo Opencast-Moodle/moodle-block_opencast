@@ -172,7 +172,38 @@ To give an example for Roles, which also meets the LTI standard, you can use the
 | ROLE_ADMIN              | write,read | Yes       |
 | [COURSEID]_Instructor   | write,read | Yes       |
 | [COURSEGROUPID]_Learner | read       | No        |
-    
+
+#### Attachments
+You can add attachments (e.g. captions) to a video. In order to do that you need to:
+
+* define an attachment field in the plugin's admin settings
+* make sure your upload workflow tags the attachment with "engage-download"
+
+When adding an attachment field you need to provide values for the following fields:
+
+* Field Name
+* Flavor
+* File types
+
+Some examples of valid attachment flavors can be seen at https://docs.opencast.org/develop/admin/#configuration/admin-ui/asset-upload/#how-to-enable-preconfigured-asset-options The site lists flavor type and subtype separately. You need to enter both values with a slash (/) in between in the flavor field of this plugin, e.g. "presenter/search+preview".
+
+Notice that depending on your video player you may need to use different flavors, e.g. for WebVTT captions in PaellaPlayer you need to use flavors "captions/vtt+en", "captions/vtt+de" etc. instead of the "text/webvtt" that is mentioned at the page linked above.
+
+Here's an example for an operation that you can put at the beginning of your video upload workflow to make it work with all attachments of flavor type "captions":
+
+```xml
+    <!-- Mark captions for publishing -->
+    <operation
+      id="tag"
+      exception-handler-workflow="partial-error"
+      description="Tagging uploaded captions for distribution">
+      <configurations>
+        <configuration key="source-flavors"> captions/*</configuration>
+        <configuration key="target-tags">+engage-download</configuration>
+      </configurations>
+    </operation>
+```
+
 
 Capabilities
 ------------
