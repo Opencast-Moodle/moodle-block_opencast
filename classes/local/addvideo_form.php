@@ -168,12 +168,10 @@ class addvideo_form extends \moodleform {
         }
 
         $res = [];
-        foreach (explode(',', $filetypes) as $filetype) {
+        foreach (preg_split("/[\s,]+/", $filetypes) as $filetype) {
             if (empty($filetype)) {
                 continue;
             }
-            // Ensure filetype begins with a dot.
-            $filetype = '.' . trim($filetype, '.');
             $res[] = $filetype;
         }
         return $res;

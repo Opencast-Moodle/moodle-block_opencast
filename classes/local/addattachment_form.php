@@ -40,12 +40,10 @@ class addattachment_form extends \moodleform {
         if (empty($field->filetypes)) {
             $filetypes = '*';
         } else {
-            foreach (explode(',', $field->filetypes) as $filetype) {
+            foreach (preg_split("/[\s,]+/", $field->filetypes) as $filetype) {
                 if (empty($filetype)) {
                     continue;
                 }
-                // Make sure extension begins with a dot.
-                $filetype = '.' . trim($filetype, '.');
                 $filetypes[] = $filetype;
             }
         }
