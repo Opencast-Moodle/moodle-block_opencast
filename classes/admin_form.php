@@ -662,7 +662,6 @@ class admin_form extends moodleform {
             }
         } else if (array_key_exists('addattachmentfieldbutton', $data)) {
             $this->validate_flavor($data, 'attachmentfieldflavor', $error);
-            $this->validate_filetypes($data, 'attachmentfieldfiletypes', $error);
         } else if (array_key_exists('submitbutton', $data)) {
             // Validate that role and actions are not empty.
             foreach ($data as $key => $value) {
@@ -743,7 +742,6 @@ class admin_form extends moodleform {
 
         foreach ($this->getattachmentfields() as $attachmentfield) {
             $this->validate_flavor($data, "attachmentfield_flavor_{$attachmentfield->id}", $error);
-            $this->validate_filetypes($data, "attachmentfield_filetypes_{$attachmentfield->id}", $error);
         }
 
         return $error;
@@ -762,40 +760,6 @@ class admin_form extends moodleform {
         $regex = '/[^\\/]+\\/[^\\/]+/';
         if (!preg_match($regex, $data[$name])) {
             $error[$name] = get_string( 'invalidflavor', 'block_opencast');
-        }
-    }
-
-    /**
-     * Validates a filetypes input field.
-     * 
-     * To be called by validation().
-     * 
-     * @param array $data POST data of form submission
-     * @param string $name input field name
-     * @param array &$error validation errors
-     */
-    private function validate_filetypes($data, $name, &$error) {
-
-        // Get all supported filetypes and groups of filetypes.
-        $filetypes = \core_filetypes::get_types();
-        $typegroups = [];
-        foreach ($filetypes as $filetype) {
-            if (array_key_exists('groups', $filetype)) {
-                $typegroups = array_merge($typegroups, $filetype['groups']);
-            }
-        }
-        $typegroups = array_unique($typegroups);
-
-        foreach (explode(',', $data[$name]) as $filetype) {
-            $filetype = trim($filetype, '.');
-            if (!array_key_exists($filetype, $filetypes) && !in_array($filetype, $typegroups)) {
-                $url = new moodle_url('/admin/tool/filetypes/index.php');
-                $link = html_writer::link($url, get_string('pluginname', 'tool_filetypes'));
-                $a = new \stdClass();
-                $a->filetype = $filetype;
-                $a->link = $link;
-                $error[$name] = get_string('unsupportedfiletype', 'block_opencast', $a);
-            }
         }
     }
 }

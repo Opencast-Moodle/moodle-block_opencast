@@ -325,6 +325,5 @@ $string['descriptionafft'] = 'Comma-separated list of file extension that can be
 $string['addattachmentfield'] = 'Add new attachment field';
 $string['empty_attachmentfieldname'] = 'Field name must not be empty';
 $string['exists_attachmentfieldname'] = 'A field with this name already exists';
-$string['unsupportedfiletype'] = 'File type \'{$a->filetype}\' is not known to Moodle. Consider adding it under {$a->link}.';
 $string['addnewattachmentfield'] = 'A new attachment field has been added.';
 $string['heading_attachmentfield'] = 'Attachment field';
