@@ -73,9 +73,9 @@ if ($attachment === null) {
             break;
         default:
             // Multiple attachment fields defined. Prompt user to choose one.
-            $selectattachmentform = new \block_opencast\local\selectattachment_form(null, ['attachmentfields' => $attachmentfields, 'courseid' => $courseid, 'identifier' => $identifier]);
+            $selectattachmentform = new \block_opencast\local\addattachment_select_form(null, ['attachmentfields' => $attachmentfields, 'courseid' => $courseid, 'identifier' => $identifier]);
 
-            $PAGE->requires->js_call_amd('block_opencast/selectattachment_form_autosubmit', 'init');
+            $PAGE->requires->js_call_amd('block_opencast/addattachment_select_form_autosubmit', 'init');
             echo $OUTPUT->header();
             echo $OUTPUT->heading(get_string('addattachments', 'block_opencast'));
             $selectattachmentform->display();

@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class selectattachment_form extends \moodleform {
+class addattachment_select_form extends \moodleform {
 
     public function definition() {
 
