@@ -310,7 +310,6 @@ $string['exists_catalogname'] = 'The field is already existed';
 $string['metadata_autocomplete_placeholder'] = 'Enter {$a}';
 $string['metadata_autocomplete_noselectionstring'] = 'No {$a} provided!';
 $string['expirydate'] = 'Expiry Date';
-$string['filetypes'] = 'Accepted file types';
 $string['title'] = 'Title';
 $string['presenterfilename'] = 'Filename (Presenter)';
 $string['presenterfilesize'] = 'Filesize (Presenter)';

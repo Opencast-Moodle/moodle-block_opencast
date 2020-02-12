@@ -311,7 +311,7 @@ class admin_form extends moodleform {
 
         // New attachment field allowed extensions.
         $name = 'attachmentfieldfiletypes';
-        $title = get_string('filetypes', 'block_opencast');
+        $title = get_string('heading_filetypes', 'block_opencast');
         $mform->addElement('filetypes', $name, $title);
         $url = new moodle_url('/admin/tool/filetypes/index.php');
         $link = html_writer::link($url, get_string('pluginname', 'tool_filetypes'));
