@@ -59,7 +59,7 @@ $string['allowunassigndesc'] = 'Delete the assignment of a course series to cont
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['attachmentmissingfile'] = 'Attachment file is missing from DB';
 $string['attachmentmissingflavor'] = 'Attachment metadata field is missing a flavor';
-$string['attachmentfieldinvalidflavor'] = 'Invalid flavor entered for attachment field. Flavors must have this form: flavor_type/flavor_subtype';
+$string['invalidflavor'] = 'Invalid flavor entered for attachment field. Flavors must have this form: flavor_type/flavor_subtype';
 $string['attachments'] = 'Attachments';
 $string['attachmentsaved'] = 'Attachment uploaded.';
 $string['backupopencastvideos'] = 'Backup Opencast videos';
@@ -326,6 +326,6 @@ $string['descriptionafft'] = 'Comma-separated list of file extension that can be
 $string['addattachmentfield'] = 'Add new attachment field';
 $string['empty_attachmentfieldname'] = 'Field name must not be empty';
 $string['exists_attachmentfieldname'] = 'A field with this name already exists';
-$string['attachmentfield_unsupported_filetype'] = 'File type \'{$a->filetype}\' is not known to Moodle. Consider adding it under {$a->link}.';
+$string['unsupportedfiletype'] = 'File type \'{$a->filetype}\' is not known to Moodle. Consider adding it under {$a->link}.';
 $string['addnewattachmentfield'] = 'A new attachment field has been added.';
 $string['heading_attachmentfield'] = 'Attachment field';
