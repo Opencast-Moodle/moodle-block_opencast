@@ -329,21 +329,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019112102, 'opencast');
     }
 
-    if ($oldversion < 2019112103) {
-
-        $table = new xmldb_table('block_opencast_uploadjob');
-
-        // Define field mediapackagexml to be added to block_opencast_uploadjob.
-        $field = new xmldb_field('mediapackagexml', XMLDB_TYPE_TEXT, null, null, null, null, null, 'opencasteventid');
-
-        // Conditionally launch add field mediapackagexml.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        upgrade_block_savepoint(true, 2019112103, 'opencast');
-    }
-
     if ($oldversion < 2019112107) {
 
         // Define table block_opencast_attach_field to be created.
@@ -353,10 +338,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('required', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('asset_id', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('flavor_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('flavor_subtype', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('flavor', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('filetypes', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_attach_field.
@@ -378,7 +360,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         // Adding fields to table block_opencast_attachment.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('fileid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('attachfieldid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 

@@ -35,15 +35,10 @@ class upload_helper {
     const STATUS_READY_TO_UPLOAD = 10;
     const STATUS_CREATING_GROUP = 21;
     const STATUS_CREATING_SERIES = 22;
-    const STATUS_CHECK_DUPLICATE = 25;
-    const STATUS_CREATING_MEDIA_PACKAGE = 26;
-    const STATUS_UPLOADING_METADATA = 27;
-    const STATUS_UPLOADING_ACL = 28;
-    const STATUS_UPLOADING_PRESENTER = 29;
-    const STATUS_UPLOADING_PRESENTATION = 30;
-    const STATUS_UPLOADING_ATTACHMENTS = 31;
-    const STATUS_INGESTING = 32;
-    const STATUS_UPLOADED = 35;
+    const STATUS_CREATING_EVENT = 25;
+    const STATUS_WAITING_FOR_WORKFLOW_PRE_ATTACHMENTS = 26;
+    const STATUS_UPLOADING_ATTACHMENTS = 27;
+    const STATUS_UPLOADED = 30;
     const STATUS_TRANSFERRED = 40;
 
     private $apibridge;
@@ -61,22 +56,12 @@ class upload_helper {
                 return get_string('mstatecreatinggroup', 'block_opencast');
             case self::STATUS_CREATING_SERIES :
                 return get_string('mstatecreatingseries', 'block_opencast');
-            case self::STATUS_CHECK_DUPLICATE :
-                return get_string('mstatecheckduplicate', 'block_opencast');
-            case self::STATUS_CREATING_MEDIA_PACKAGE :
-                return get_string('mstatecreatingmediapackage', 'block_opencast');
-            case self::STATUS_UPLOADING_METADATA :
-                return get_string('mstateuploadingmetadata', 'block_opencast');
-            case self::STATUS_UPLOADING_ACL :
-                return get_string('mstateuploadingacl', 'block_opencast');
-            case self::STATUS_UPLOADING_PRESENTER :
-                return get_string('mstateuploadingpresenter', 'block_opencast');
-            case self::STATUS_UPLOADING_PRESENTATION :
-                return get_string('mstateuploadingpresentation', 'block_opencast');
+            case self::STATUS_CREATING_EVENT :
+                return get_string('mstatecreatingevent', 'block_opencast');
+            case self::STATUS_WAITING_FOR_WORKFLOW_PRE_ATTACHMENTS :
+                return get_string('mstatewaitingforworkflowpreattachments', 'block_opencast');
             case self::STATUS_UPLOADING_ATTACHMENTS :
                 return get_string('mstateuploadingattachments', 'block_opencast');
-            case self::STATUS_INGESTING :
-                return get_string('mstateingesting', 'block_opencast');
             case self::STATUS_UPLOADED :
                 return get_string('mstateuploaded', 'block_opencast');
             case self::STATUS_TRANSFERRED :
@@ -424,51 +409,54 @@ class upload_helper {
                         $stepsuccessful = true;
                         mtrace('... series exists');
                         // Move on to next status.
-                        $this->update_status($job, self::STATUS_CREATING_MEDIA_PACKAGE);
+                        $this->update_status($job, self::STATUS_CREATING_EVENT);
                     }
                 } catch (opencast_state_exception $e) {
                     mtrace('... series creation still in progress');
                 }
                 break;
 
-            case self::STATUS_CHECK_DUPLICATE:
-                if (!get_config('block_opencast', 'reuseexistingupload')) {
-                    // We don't reuse existing uploads, so continue as usual.
-                    $stepsuccessful = true;
-                    $this->update_status($job, self::STATUS_CREATING_MEDIA_PACKAGE);
-                    break;
+            case self::STATUS_CREATING_EVENT:
+
+                $eventids = array();
+
+                if ($job->opencasteventid) {
+                    array_push($eventids, $job->opencasteventid);
+                } else if (get_config('block_opencast', 'reuseexistingupload')) {
+                    // Check, whether this file was uploaded any time before.
+                    $params = array(
+                        'contenthash_presenter' => $job->contenthash_presenter,
+                        'contenthash_presentation' => $job->contenthash_presentation
+                    );
+
+                    // Search for files already uploaded to opencast.
+                    $sql = "SELECT opencasteventid
+                        FROM {block_opencast_uploadjob}
+                        WHERE contenthash_presenter = :contenthash_presenter
+                            OR contenthash_presentation = :contenthash_presentation
+                        GROUP BY opencasteventid ";
+
+                    $eventids = $DB->get_records_sql($sql, $params);
+                    if ($eventids) {
+                        $eventids = array_keys($eventids);
+                        mtrace('... applying reuse of existing upload');
+                    }
                 }
 
-                // Check, whether any of the video files were uploaded any time before.
-                $params = array(
-                    'contenthash_presenter' => $job->contenthash_presenter,
-                    'contenthash_presentation' => $job->contenthash_presentation
-                );
-
-                // Search for files already uploaded to opencast.
-                $sql = "SELECT opencasteventid
-                    FROM {block_opencast_uploadjob}
-                    WHERE contenthash_presenter = :contenthash_presenter
-                        OR contenthash_presentation = :contenthash_presentation
-                    GROUP BY opencasteventid ";
-
-                $eventids = $DB->get_records_sql($sql, $params);
-                if ($eventids) {
-                    $eventids = array_keys($eventids);
-                    mtrace('... applying reuse of existing upload');
-                }
-
-                $event = $this->apibridge->get_already_existing_event($eventids);
+                $series = $this->apibridge->get_course_series($job->courseid);
+                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
 
                 // Check result.
                 if (!isset($event->identifier)) {
-                    // None of the videos are uploaded yet, so continue.
-                    $stepsuccessful = true;
-                    $this->update_status($job, self::STATUS_CREATING_MEDIA_PACKAGE);
+                    throw new \moodle_exception('missingevent', 'block_opencast');
                 } else {
-                    $stepsuccessful = true;
                     mtrace('... video uploaded');
-                    $this->update_status($job, self::STATUS_UPLOADED);
+                    if (empty($job->attachments)) {
+                        $this->update_status($job, self::STATUS_UPLOADED);
+                    } else {
+                        $this->update_status($job, self::STATUS_WAITING_FOR_WORKFLOW_PRE_ATTACHMENTS);
+                    }
+                    $stepsuccessful = true;
 
                     // Update eventid.
                     $job->opencasteventid = $event->identifier;
@@ -476,106 +464,22 @@ class upload_helper {
                 }
                 break;
 
-            case self::STATUS_CREATING_MEDIA_PACKAGE:
-                // Create empty media package.
-                $mediapackagexml = $this->apibridge->create_media_package();
-                $stepsuccessful = true;
-
-                // Update mediapackagexml and eventid.
-                $job->mediapackagexml = $mediapackagexml;
-                $mediapackage = simplexml_load_string($mediapackagexml);
-                $job->opencasteventid = (string)$mediapackage->attributes()['id'];
-                $DB->update_record('block_opencast_uploadjob', $job);
-
-                $this->update_status($job, self::STATUS_UPLOADING_METADATA);
-                mtrace('... media package created');
-                break;
-
-            case self::STATUS_UPLOADING_METADATA:
-                $mediapackagexml = $this->apibridge->media_package_upload_metadata($job);
-                $stepsuccessful = true;
-
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
-
-                $this->update_status($job, self::STATUS_UPLOADING_ACL);
-                mtrace('... media package metadata uploaded');
-                break;
-
-            case self::STATUS_UPLOADING_ACL:
-                $mediapackagexml = $this->apibridge->media_package_upload_acl($job);
-                $stepsuccessful = true;
-
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
-
-                $this->update_status($job, self::STATUS_UPLOADING_PRESENTER);
-                mtrace('... media package ACL uploaded');
-                break;
-
-            case self::STATUS_UPLOADING_PRESENTER:
-                if ($job->presenter_fileid) {
-                    $mediapackagexml = $this->apibridge->media_package_upload_presenter($job);
-                    $stepsuccessful = true;
-
-                    // Update mediapackagexml.
-                    $job->mediapackagexml = $mediapackagexml;
-                    $DB->update_record('block_opencast_uploadjob', $job);
-
-                    mtrace('... presenter video uploaded');
+            case self::STATUS_WAITING_FOR_WORKFLOW_PRE_ATTACHMENTS:
+                $isworkflowactive = $this->apibridge->is_workflow_running($job->opencasteventid);
+                $stepsuccessful = !$isworkflowactive;
+                if ($isworkflowactive) {
+                    mtrace('... other workflow is still running, cannot upload attachments yet');
                 } else {
-                    mtrace('... no presenter video provided');
-                    $stepsuccessful = true;
+                    $this->update_status($job, self::STATUS_UPLOADING_ATTACHMENTS);
                 }
-                $this->update_status($job, self::STATUS_UPLOADING_PRESENTATION);
-                break;
-
-            case self::STATUS_UPLOADING_PRESENTATION:
-                if ($job->presentation_fileid) {
-                    $mediapackagexml = $this->apibridge->media_package_upload_presentation($job);
-                    $stepsuccessful = true;
-
-                    // Update mediapackagexml.
-                    $job->mediapackagexml = $mediapackagexml;
-                    $DB->update_record('block_opencast_uploadjob', $job);
-
-                    mtrace('... presentation video uploaded');
-                } else {
-                    mtrace('... no presentation video provided');
-                    $stepsuccessful = true;
-                }
-                $this->update_status($job, self::STATUS_UPLOADING_ATTACHMENTS);
                 break;
 
             case self::STATUS_UPLOADING_ATTACHMENTS:
-                if (!empty($job->attachments)) {
-                    $mediapackagexml = $this->apibridge->media_package_upload_attachments($job);
-                    $stepsuccessful = true;
+                $this->apibridge->media_package_upload_attachments($job);
 
-                    // Update mediapackagexml.
-                    $job->mediapackagexml = $mediapackagexml;
-                    $DB->update_record('block_opencast_uploadjob', $job);
-
-                    mtrace('... attachments uploaded');
-                } else {
-                    mtrace('... no attachments provided');
-                    $stepsuccessful = true;
-                }
-                $this->update_status($job, self::STATUS_INGESTING);
-                break;
-
-            case self::STATUS_INGESTING:
-                $mediapackagexml = $this->apibridge->media_package_ingest($job);
-                $stepsuccessful = true;
-
-                // Update mediapackagexml.
-                $job->mediapackagexml = $mediapackagexml;
-                $DB->update_record('block_opencast_uploadjob', $job);
-
+                mtrace('... attachments uploaded');
                 $this->update_status($job, self::STATUS_UPLOADED);
-                mtrace('... workflow started uploaded');
+                $stepsuccessful = true;
                 break;
 
             case self::STATUS_UPLOADED:
@@ -736,7 +640,7 @@ class upload_helper {
     public static function get_opencast_attachments($uploadjobid) {
         global $DB;
 
-        $sql = "SELECT a.id, a.fileid, af.name, af.asset_id, af.type, af.flavor_type, af.flavor_subtype
+        $sql = "SELECT a.id, a.fileid, af.name, af.flavor
                 FROM {block_opencast_attachment} a
                 JOIN {block_opencast_attach_field} af
                     ON a.attachfieldid = af.id

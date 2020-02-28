@@ -274,7 +274,7 @@ class admin_form extends moodleform {
         $title = get_string('workflowattachmentsname', 'block_opencast');
         $description = get_string('workflowattachmentsdesc', 'block_opencast');
         $mform->addElement('select', $name, $title, array_merge($noworkflow,
-            $apibridge->get_existing_workflows())); // TODO filter by some tag?
+            $apibridge->get_existing_workflows('api')));
         $mform->setType($name, PARAM_TEXT);
         $mform->addElement('static', 'description' . $name, '', $description);
 
@@ -290,18 +290,6 @@ class admin_form extends moodleform {
         $title = get_string('heading_required', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 0);
-
-        // New attachment field id.
-        $name = 'attachmentfieldassetid';
-        $title = get_string('heading_assetid', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-
-        // New attachment field type.
-        $name = 'attachmentfieldtype';
-        $title = get_string('heading_attachmenttype', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
 
         // New attachment field flavor.
         $name = 'attachmentfieldflavor';
@@ -413,14 +401,6 @@ class admin_form extends moodleform {
                 ],
                 'heading_required' => [
                     'class' => 'header c2',
-                    'scope' => 'col'
-                ],
-                'heading_assetid' => [
-                    'class' => 'header c4',
-                    'scope' => 'col'
-                ],
-                'heading_attachmenttype' => [
-                    'class' => 'header c5',
                     'scope' => 'col'
                 ],
                 'heading_flavor' => [
@@ -571,23 +551,11 @@ class admin_form extends moodleform {
                 $mform->addElement('advcheckbox', $name, null);
                 $mform->setDefault($name, $attachmentfield->required);
 
-                $mform->addElement('html', '</td><td class="cell c4">');
-                $name = 'attachmentfield_assetid_' . $attachmentfield->id;
-                $mform->addElement('text', $name, null);
-                $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, $attachmentfield->asset_id);
-
-                $mform->addElement('html', '</td><td class="cell c5">');
-                $name = 'attachmentfield_type_' . $attachmentfield->id;
-                $mform->addElement('text', $name, null);
-                $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, $attachmentfield->type);
-
                 $mform->addElement('html', '</td><td class="cell c6">');
                 $name = 'attachmentfield_flavor_' . $attachmentfield->id;
                 $mform->addElement('text', $name, null);
                 $mform->setType($name, PARAM_TEXT);
-                $mform->setDefault($name, "{$attachmentfield->flavor_type}/{$attachmentfield->flavor_subtype}");
+                $mform->setDefault($name, $attachmentfield->flavor);
 
                 $mform->addElement('html', '</td><td class="cell c7">');
                 $name = 'attachmentfield_filetypes_' . $attachmentfield->id;
@@ -660,8 +628,6 @@ class admin_form extends moodleform {
                     $error[$key] = get_string('required');
                 }
             }
-        } else if (array_key_exists('addattachmentfieldbutton', $data)) {
-            $this->validate_flavor($data, 'attachmentfieldflavor', $error);
         } else if (array_key_exists('submitbutton', $data)) {
             // Validate that role and actions are not empty.
             foreach ($data as $key => $value) {
@@ -740,26 +706,7 @@ class admin_form extends moodleform {
             }
         }
 
-        foreach ($this->getattachmentfields() as $attachmentfield) {
-            $this->validate_flavor($data, "attachmentfield_flavor_{$attachmentfield->id}", $error);
-        }
-
         return $error;
     }
 
-    /**
-     * Validates a flavor input field.
-     * 
-     * To be called by validation().
-     * 
-     * @param array $data POST data of form submission
-     * @param string $name input field name
-     * @param array &$error validation errors
-     */
-    private function validate_flavor($data, $name, &$error) {
-        $regex = '/[^\\/]+\\/[^\\/]+/';
-        if (!preg_match($regex, $data[$name])) {
-            $error[$name] = get_string( 'invalidflavor', 'block_opencast');
-        }
-    }
 }

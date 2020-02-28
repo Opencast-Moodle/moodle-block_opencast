@@ -79,7 +79,7 @@ if ($data = $addvideoform->get_data()) {
     //Adding data into $metadata based on $metadata_catalog
     foreach ($metadata_catalog as $field) {
         $id = $field->name;
-        if (array_key_exists($field->name, $data) AND $data->$id) {
+        if (property_exists($data, $field->name) AND $data->$id) {
             if ($field->name == 'title') { //Make sure the title is received!
                 $get_title = false;
             }

@@ -35,35 +35,42 @@ class addattachment_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $field = $this->_customdata['attachmentfield'];
-        $filetypes = [];
-        if (empty($field->filetypes)) {
-            $filetypes = '*';
-        } else {
-            foreach (preg_split("/[\s,]+/", $field->filetypes) as $filetype) {
-                if (empty($filetype)) {
-                    continue;
+        $fields = $this->_customdata['attachmentfields'];
+        if (empty($fields)) {
+            $mform->addElement('static', 'no_fields', '', get_string('noattachmentfieldsdefined', 'block_opencast'));
+            return;
+        }
+
+        $mform->addElement('static', 'attachmentoverwritenotice', '', get_string('attachmentoverwritenotice', 'block_opencast'));
+
+        foreach ($fields as $field) {
+            $filetypes = [];
+            if (empty($field->filetypes)) {
+                $filetypes = '*';
+            } else {
+                foreach (preg_split("/[\s,]+/", $field->filetypes) as $filetype) {
+                    if (empty($filetype)) {
+                        continue;
+                    }
+                    $filetypes[] = $filetype;
                 }
-                $filetypes[] = $filetype;
             }
+            $attributes = [];
+            $attributes['accepted_types'] = $filetypes;
+            $attributes['maxfiles'] = 1;
+            $attributes['subdirs'] = 0;
+
+            $mform->addElement('filepicker', $field->name, $this->try_get_string($field->name, 'block_opencast'), null, $attributes);
+
+            if ($field->required) {
+                $mform->addRule('itemid', get_string('required'), 'required');
+            }
+
+            $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+            $mform->setType('courseid', PARAM_INT);
+            $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
+            $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
         }
-        $attributes = [];
-        $attributes['accepted_types'] = $filetypes;
-        $attributes['maxfiles'] = 1;
-        $attributes['subdirs'] = 0;
-
-        $mform->addElement('filepicker', 'itemid', $this->try_get_string($field->name, 'block_opencast'), null, $attributes);
-
-        if ($field->required) {
-            $mform->addRule('itemid', get_string('required'), 'required');
-        }
-
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-        $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
-        $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
-        $mform->addElement('hidden', 'attachment', $field->name);
-        $mform->setType('attachment', PARAM_ALPHANUMEXT);
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }

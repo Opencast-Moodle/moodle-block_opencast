@@ -709,7 +709,60 @@ class apibridge {
         return false;
     }
 
-    // Ingest/media_package stuff.
+    /**
+     * API call to create an event.
+     *
+     * @return object series object of NULL, if group does not exist.
+     */
+    public function create_event($job, $seriesidentifier) {
+        global $DB;
+
+        $event = new \block_opencast\local\event();
+
+        $roles = $this->getroles();
+        foreach ($roles as $role) {
+            foreach ($role->actions as $action) {
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
+            }
+        }
+        // applying the media types to the event
+        $valid_storedfile = true;
+        if ($job->presenter_fileid) {
+            $event->set_presenter($job->presenter_fileid);
+            if (!$event->get_presenter()) {
+                $valid_storedfile = false;
+            }
+        }
+        if ($job->presentation_fileid ) {
+            $event->set_presentation($job->presentation_fileid);
+            if (!$event->get_presentation()) {
+                $valid_storedfile = false;
+            }
+        }
+
+        if (!$valid_storedfile) {
+            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
+        }
+
+        if ($job->metadata) {
+            foreach (json_decode($job->metadata) as $metadata ) {
+                $event->add_meta_data($metadata->id, $metadata->value);
+            }
+        }
+        $event->add_meta_data('isPartOf', $seriesidentifier);
+        $params = $event->get_form_params();
+
+        $api = new api();
+
+        $result = $api->oc_post('/api/events', $params);
+
+        if ($api->get_http_code() >= 400) {
+            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
+
+        return $result;
+    }
 
     /**
      * Get path to the ingest endpoint.
@@ -733,272 +786,6 @@ class apibridge {
     }
 
     /**
-     * Generate metadata XML for use with ingest API.
-     *
-     * @param $job uploadjob object from DB
-     * @return string metadata XML string for given uploadjob
-     */
-    private function generate_mediapackage_metadata_xml($job) {
-        $metadata = json_decode($job->metadata);
-        $result = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"
-    xmlns:dcterms="http://purl.org/dc/terms/"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">';
-        $startdate = null;
-        $starttime = null;
-        foreach ($metadata as $field) {
-            // Start date/time uses another format. It is added further below.
-            // Attachments aren't part of the metadata catalog. They are uploaded separately.
-            if ($field->id == 'startDate') {
-                $startdate = $field->value;
-                continue;
-            } else if ($field->id == 'startTime') {
-                $starttime = $field->value;
-                continue;
-            } else {
-                $result .= "\n";
-                $result .= '    <dcterms:'.$field->id.'>'.$field->value.'</dcterms:'.$field->id.'>';
-            }
-        }
-        $result .= "\n";
-        $start = $startdate.'T'.$starttime;
-        $result .= '    <dcterms:created xsi:type="dcterms:W3CDTF">'.$start.'</dcterms:created>';
-        $result .= "\n";
-        $result .= '    <dcterms:temporal xsi:type="dcterms:Period">start='.$start.'; end='.$start.'; scheme=W3C-DTF;</dcterms:temporal>';
-        $seriesid = $this->get_stored_seriesid($job->courseid);
-        $result .= "\n";
-        $result .= '    <dcterms:isPartOf>'.$seriesid.'</dcterms:isPartOf>';
-        $result .= "\n";
-        $result .= '</dublincore>';
-        return $result;
-    }
-
-    /**
-     * Generate ACL in XACML form for upload as an attachment.
-     *
-     * @param $job uploadjob object from DB
-     * @return string XACML string containing ACL for given uploadjob
-     */
-    private function generate_mediapackage_acl_xacml($job) {
-        $aclxml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Policy PolicyId="'.$job->opencasteventid.'" Version="2.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides" xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os">
-    <Target>
-        <Resources>
-            <Resource>
-                <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$job->opencasteventid.'</AttributeValue>
-                    <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                </ResourceMatch>
-            </Resource>
-        </Resources>
-    </Target>';
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                foreach ($this->replace_placeholders($role->rolename, $job->courseid) as $acl) {
-                    $aclxml .= "\n";
-                    $aclxml .= '    <Rule RuleId="'.$acl.'_'.$action.'_Permit" Effect="Permit">
-        <Target>
-            <Actions>
-                <Action>
-                    <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$action.'</AttributeValue>
-                        <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-                    </ActionMatch>
-                </Action>
-            </Actions>
-        </Target>
-        <Condition>
-            <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
-                <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">'.$acl.'</AttributeValue>
-                <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-            </Apply>
-        </Condition>
-    </Rule>';
-                }
-            }
-        }
-        $aclxml .= "\n";
-        $aclxml .= '    <Rule RuleId="DenyRule" Effect="Deny"/>
-</Policy>';
-        return $aclxml;
-    }
-
-    /**
-     * Upload video file to ingest endpoint.
-     *
-     * You have to provide XML of a media package created via create_media_package()
-     * and you get back an updated version of that XML where the new track is included.
-     *
-     * @param $mediapackagexml XML of mediapackage
-     * @param $fileid ID from files DB table of track to be uploaded
-     * @param $flavor flavor of the uploaded track
-     * @return string updated mediapackage XML
-     */
-    private function media_package_upload_track($mediapackagexml, $fileid, $flavor) {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        $fs = get_file_storage();
-        $file = $fs->get_file_by_id($fileid);
-
-        $api = new api();
-        return $api->oc_post($ingestpath.'/addTrack', [
-            "flavor" => $flavor,
-            "mediaPackage" => $mediapackagexml,
-            "BODY" => $file
-        ]);
-    }
-
-    /**
-     * Creates an empty media package for use with the ingest endpoint.
-     *
-     * When uploading a video through the ingest API you need to create an empty media
-     * package first. To this media package you can then add various files:
-     *
-     * * media_package_upload_metadata()
-     * * media_package_upload_presenter()
-     * * media_package_upload_presentation()
-     * * media_package_upload_acl()
-     * * media_package_upload_attachments()
-     *
-     * Tell Opencast to start processing the media package via media_package_ingest().
-     *
-     * @return string media package XML
-     */
-    public function create_media_package() {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        $api = new api();
-        $response = $api->oc_get($ingestpath.'/createMediaPackage');
-        if ($api->get_http_code() >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-        }
-        return $response;
-    }
-
-    /**
-     * Uploads metadata to the ingest endpoint.
-     *
-     * The uploadjob needs to have its mediapackagexml field set to the updated media
-     * package XML returned from the most recently called media_package_* function.
-     * If nothing has been added to the media package yet it needs to be set to the
-     * result of create_media_package() instead.
-     *
-     * @param $job uploadjob object from DB
-     * @return string updated media package XML
-     */
-    public function media_package_upload_metadata($job) {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        $metadataxml = $this->generate_mediapackage_metadata_xml($job);
-
-        // This uses the default dublincore catalog. If you want to use a custom catalog
-        // call addCatalog instead of addDCCatalog.
-        $api = new api();
-        $response = $api->oc_post($ingestpath.'/addDCCatalog', [
-            'flavor' => 'dublincore/episode',
-            'mediaPackage' => $job->mediapackagexml,
-            'dublinCore' => $metadataxml
-        ]);
-        if ($api->get_http_code() >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-        }
-        return $response;
-    }
-
-    /**
-     * Uploads ACL to the ingest endpoint.
-     *
-     * The uploadjob needs to have its mediapackagexml field set to the updated media
-     * package XML returned from the most recently called media_package_* function.
-     * If nothing has been added to the media package yet it needs to be set to the
-     * result of create_media_package() instead.
-     *
-     * The ingest endpoint only supports setting ACL via upload of an XACML attachment
-     * with flavor "security/xacml+episode". So that's what this method does.
-     *
-     * @param $job uploadjob object from DB
-     * @return string updated media package XML
-     */
-    public function media_package_upload_acl($job) {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        $aclxml = $this->generate_mediapackage_acl_xacml($job);
-
-        // Create temporary XML file with ACL.
-        $fs = get_file_storage();
-        $ctxid = \context_course::instance($job->courseid)->id;
-        $fileinfo = [
-            'contextid' => $ctxid,
-            'component' => 'block_opencast',
-            'filearea' => 'tmp_acl',
-            'itemid' => $job->id,
-            'filepath' => '/',
-            'filename' => 'xacml.xml'];
-        $acltmpfile = $fs->create_file_from_string($fileinfo, $aclxml);
-
-        try {
-            $api = new api();
-            $response = $api->oc_post($ingestpath.'/addAttachment', [
-                "flavor" => "security/xacml+episode",
-                "mediaPackage" => $job->mediapackagexml,
-                "BODY" => $acltmpfile
-            ]);
-            if ($api->get_http_code() >= 400) {
-                throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-            }
-            return $response;
-        } finally {
-            $fs->delete_area_files($ctxid, 'block_opencast', 'tmp_acl', $job->id);
-        }
-    }
-
-    /**
-     * Uploads presenter video to the ingest endpoint.
-     *
-     * The uploadjob needs to have its mediapackagexml field set to the updated media
-     * package XML returned from the most recently called media_package_* function.
-     * If nothing has been added to the media package yet it needs to be set to the
-     * result of create_media_package() instead.
-     *
-     * Doesn't check whether the given uploadjob even has a presenter file. Will throw
-     * an exception in if it doesn't.
-     *
-     * @param $job uploadjob object from DB
-     * @return string updated media package XML
-     */
-    public function media_package_upload_presenter($job) {
-        $response = $this->media_package_upload_track($job->mediapackagexml, $job->presenter_fileid, 'presenter/source');
-        $responseobj = simplexml_load_string($response);
-        if ($responseobj === false) {
-            throw new opencast_state_exception('uploadingvideofailed', 'block_opencast');
-        }
-        return $response;
-    }
-
-    /**
-     * Uploads presentation video to the ingest endpoint.
-     *
-     * The uploadjob needs to have its mediapackagexml field set to the updated media
-     * package XML returned from the most recently called media_package_* function.
-     * If nothing has been added to the media package yet it needs to be set to the
-     * result of create_media_package() instead.
-     *
-     * Doesn't check whether the given uploadjob even has a presentation file. Will throw
-     * an exception in if it doesn't.
-     *
-     * @param $job uploadjob object from DB
-     * @return string updated media package XML
-     */
-    public function media_package_upload_presentation($job) {
-        $response = $this->media_package_upload_track($job->mediapackagexml, $job->presentation_fileid, 'presentation/source');
-        if ($api->get_http_code() >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-        }
-        return $response;
-    }
-
-    /**
      * Uploads all attachments to the ingest endpoint.
      *
      * The uploadjob needs to have its mediapackagexml field set to the updated media
@@ -1010,61 +797,15 @@ class apibridge {
      * @return string updated media package XML
      */
     public function media_package_upload_attachments($job) {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        if(empty($job->attachments)) {
-            return $job->mediapackagexml;
+        if (empty($job->attachments)) {
+            return;
         }
 
-        $fs = get_file_storage();
-        $api = new api();
-        $mediapackagexml = $job->mediapackagexml;
+        $attachments = [];
         foreach ($job->attachments as $attachment) {
-            $file = $fs->get_file_by_id($attachment->fileid);
-            if ($file === false) {
-                throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
-            }
-            $flavor = $attachment->flavor_type.'/'.$attachment->flavor_subtype;
-    
-            $response = $api->oc_post($ingestpath.'/addAttachment', [
-                "flavor" => $flavor,
-                "mediaPackage" => $mediapackagexml,
-                "BODY" => $file
-            ]);
-            if ($api->get_http_code() >= 400) {
-                throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-            }
-            $mediapackagexml = $response;
+            $attachments[$attachment->name] = $attachment->fileid;
         }
-
-        return $response;
-    }
-
-    /**
-     * Ingests the media package.
-     *
-     * The uploadjob needs to have its mediapackagexml field set to the updated media
-     * package XML returned from the most recently called media_package_* function.
-     *
-     * @param $job uploadjob object from DB
-     * @return string media package XML
-     */
-    public function media_package_ingest($job) {
-        $ingestpath = $this->get_ingest_endpoint_path();
-
-        $uploadworkflow = get_config('block_opencast', 'uploadworkflow');
-        if (empty($uploadworkflow)) {
-            $uploadworkflow = 'ng-schedule-and-upload';
-        }
-
-        $api = new api();
-        $response = $api->oc_post($ingestpath.'/ingest/'.$uploadworkflow, [
-            "mediaPackage" => $job->mediapackagexml,
-        ]);
-        if ($api->get_http_code() >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
-        }
-        return $response;
+        $this->add_attachments($job->opencasteventid, $attachments, $job->courseid);
     }
 
     /**
@@ -1089,6 +830,39 @@ class apibridge {
         }
 
         return $roles;
+    }
+
+    /**
+     * Check, whether the related series exists to given course id. If not exists than try to create
+     * a group in opencast system.
+     *
+     * @param int $courseid
+     *
+     * @return object series object.
+     * @throws opencast_state_exception
+     */
+    public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
+
+        if ($opencastids) {
+            if ($event = $this->get_already_existing_event($opencastids)) {
+                // Flag as existing event.
+                $event->newlycreated = false;
+
+                return $event;
+            }
+        }
+
+        $event = $this->create_event($job, $seriesidentifier);
+        // Check success.
+        if (!$event) {
+            throw new opencast_state_exception('uploadingeventfailed', 'block_opencast');
+        }
+
+        $event = json_decode($event);
+        // Flag as newly created.
+        $event->newlycreated = true;
+
+        return $event;
     }
 
     /**
@@ -1457,14 +1231,10 @@ class apibridge {
      * also used when adding an attachment via the web interface.
      *
      * @param $eventid the event's UID in Opencast (== the media package ID before ingestion)
-     * @param $fileid ID from files DB table of attachment to be uploaded
-     * @param $attachmentfield object from DB table block_opencast_attach_field
-     * @return string ID of the workflow instance started in Opencast
+     * @param $attachments map of attachmentfieldname -> fileid
+     * @return void
      */
-    public function add_attachment($eventid, $fileid, $attachmentfield) {
-        if (empty($attachmentfield->flavor_type) || empty($attachmentfield->flavor_subtype)) {
-            throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
-        }
+    public function add_attachments($eventid, $attachments, $courseid) {
 
         // Make sure workflow is even configured before proceeding.
         $workflow = get_config('block_opencast', 'workflow_attachments');
@@ -1472,37 +1242,87 @@ class apibridge {
             throw new \moodle_exception('workflownotdefined:attachments', 'block_opencast');
         }
 
-        $metadata = new \stdClass();
-        $metadata->assets = new \stdClass();
-        $metadata->assets->options = [];
-        $metadata->assets->options[] = new \stdClass();
-        $metadata->assets->options[0]->id = $attachmentfield->asset_id;
-        $metadata->assets->options[0]->type = $attachmentfield->type;
-        $metadata->assets->options[0]->flavorType = $attachmentfield->flavor_type;
-        $metadata->assets->options[0]->flavorSubType = $attachmentfield->flavor_subtype;
-        $metadata->assets->options[0]->displayOrder = 1;
-        $metadata->assets->options[0]->title = 'unused';
-        $metadata->processing = new \stdClass();
-        $metadata->processing->workflow = $workflow;
-        $metadata->processing->configuration = new \stdClass();
-        $metadata->processing->configuration->downloadSourceflavorsExist = 'true';
-        $fieldname = 'download-source-flavors';
-        $flavor = "{$attachmentfield->flavor_type}/{$attachmentfield->flavor_subtype}";
-        $metadata->processing->configuration->$fieldname = "{$flavor},security/*"; // Make sure ACL gets republished.
-        $metadatajson = json_encode($metadata);
-
-        $fs = get_file_storage();
-        $file = $fs->get_file_by_id($fileid);
-
         $api = new api();
-        $res = $api->oc_post("/admin-ng/event/$eventid/assets", [
-            "{$attachmentfield->asset_id}.0" => $file,
-            "metadata" => $metadatajson
+        $ingestpath = $this->get_ingest_endpoint_path();
+        $mediapackagexml = $api->oc_get("/api/episode/{$eventid}");
+
+        
+        foreach ($attachments as $fieldname => $fileid) {
+            $attachmentfield = upload_helper::get_opencast_attachment_fields(['name' => $fieldname]);
+            if (empty($attachmentfield->flavor)) {
+                throw new \moodle_exception('attachmentmissingflavor', 'block_opencast');
+            }
+            $flavor = $attachmentfield->flavor;
+
+            // Remove existing attachments with same flavor.
+            $mediapackage = simplexml_load_string($mediapackagexml);
+            $i = 0;
+            $toremove = [];
+            foreach ($mediapackage->attachments->attachment as $attachment) {
+                if ($attachment->attributes()['type'] == $flavor) {
+                    $toremove[] = $i;
+                }
+                $i++;
+            }
+            $toremove = array_reverse($toremove);
+            foreach ($toremove as $i) {
+                unset($mediapackage->attachments->attachment[$i]);
+            }
+            $mediapackagexml = $mediapackage->asXML();
+
+            $fs = get_file_storage();
+            $file = $fs->get_file_by_id($fileid);
+            if ($file === false) {
+                throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
+            }
+
+            $response = $api->oc_post($ingestpath.'/addAttachment', [
+                "flavor" => $flavor,
+                "mediaPackage" => $mediapackagexml,
+                "BODY" => $file
+            ]);
+            if ($api->get_http_code() >= 400) {
+                throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            }
+            $mediapackagexml = $response;
+        }
+
+        // Take snapshot.
+        $mediapackagexml = str_replace('+', '%2B', $mediapackagexml); // Without this '+' becomes ' ' (space).
+        $api->oc_post('/assets/snapshot', [
+            'mediapackage' => $mediapackagexml,
         ]);
-        if ($api->get_http_code() >= 400) {
+
+        // Publish attachments.
+        $success = $this->start_workflow($eventid, $workflow);
+        if (!$success) {
+            global $DB;
+            $a = (object) [
+                'eventid' => $eventid,
+                'courseid' => $courseid,
+                'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            ];
+            if ($course = $DB->get_record('course', ['id' => $courseid])) {
+                $a->coursefullname = $course->fullname;
+            }
+            throw new \moodle_exception('workflownotstarted:attachments', 'block_opencast', '', $a);
+        }
+    }
+
+    /**
+     * Check whether a workflow is currently running for the given event.
+     * @param string $eventid event id in the opencast system
+     * @return bool whether a workflow is currently running for this event
+     * @throws \moodle_exception if connection to opencast fails
+     */
+    public function is_workflow_running($eventid) {
+        $api = new api();
+        $resp = $api->oc_get("/api/$eventid/hasActiveTransaction");
+        if ($api->get_http_code() > 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
-        return $res;
+        $respobj = json_decode($resp);
+        return $respobj->active;
     }
 
     /**

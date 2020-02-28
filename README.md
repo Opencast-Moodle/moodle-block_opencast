@@ -92,12 +92,8 @@ A teacher uploaded a video but forgot to add subtitles.
 1. Go to the overview section of the block.</br>
 ![Overview with add captions button](/doc/img/block_opencast_captions_overview.png)
 2. Click on the add caption button (plus symbol).
-3. In case you have more than one attachment field configure you are shown a page where you select which field you want to add an attachment to.</br>
-![Select attachment field](/doc/img/block_opencast_captions_select_attachfield.png)
-4. You are shown the attachment file upload dialog. Drag-and-drop the file in there.
-5. The publishing of the new attachment starts.
-    1. The attachment is uploaded as an asset to the event in Opencast.
-    2. A workflow (must be defined in the settings) is started which publishes the new attachment.
+3. Drag-and-drop the attachment files in.
+4. The publishing of the new attachments starts.
 
 Configuration
 -------------
@@ -176,39 +172,14 @@ To give an example for Roles, which also meets the LTI standard, you can use the
 #### Attachments
 You can add attachments to a video. In order to do that you need to:
 
+* configure a workflow for adding attachments
 * define an attachment field in the plugin's admin settings
-* make sure your upload workflow tags the attachment with "engage-download"
-* give your API user in Opencast the role ROLE_ADMIN
 
 When adding an attachment field you need to provide values for the following fields:
 
 * Field Name
-* Asset ID
-* Attachment type
 * Flavor
 * File types
-
-Some examples of valid asset IDs, attachment types and flavors can be seen at https://docs.opencast.org/develop/admin/#configuration/admin-ui/asset-upload/#how-to-enable-preconfigured-asset-options The site lists flavor type and subtype separately. You need to enter both values with a slash (/) in between, e.g. "presenter/search+preview".
-
-Note: Depending on your video player you may need to use different flavors, e.g. for WebVTT captions to work in PaellaPlayer you need to use flavors like "captions/vtt+en", "captions/vtt+de" etc. instead of the "text/webvtt" that is mentioned at the page linked above.
-
-Example for an operation that you can put at the beginning of your video upload workflow to make it work with all attachments of flavor type "captions":
-
-```xml
-    <!-- Mark captions for publishing -->
-    <operation
-      id="tag"
-      exception-handler-workflow="partial-error"
-      description="Tagging uploaded captions for distribution">
-      <configurations>
-        <configuration key="source-flavors"> captions/*</configuration>
-        <configuration key="target-tags">+engage-download</configuration>
-      </configurations>
-    </operation>
-```
-
-The role ROLE_ADMIN is necessary for uploading attachments to already published events. Since there is no API function for this we have to use the admin-ng endpoint which only works with ROLE_ADMIN.
-
 
 Capabilities
 ------------

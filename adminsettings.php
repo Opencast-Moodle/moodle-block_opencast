@@ -153,10 +153,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $newattachmentfield = new \stdClass();
                 $newattachmentfield->name = str_replace(' ', '',  strtolower($data->attachmentfieldname));
                 $newattachmentfield->required = $data->attachmentfieldrequired == 1 ? 1 : 0;
-                $newattachmentfield->asset_id = $data->attachmentfieldassetid;
-                $newattachmentfield->type = $data->attachmentfieldtype;
-                $newattachmentfield->flavor_type = explode('/', $data->attachmentfieldflavor)[0];
-                $newattachmentfield->flavor_subtype = explode('/', $data->attachmentfieldflavor)[1];
+                $newattachmentfield->flavor = $data->attachmentfieldflavor;
                 $newattachmentfield->filetypes = $data->attachmentfieldfiletypes;
                 
                 if ( !$DB->record_exists('block_opencast_attach_field', ['name'=> $newattachmentfield->name]) ) {
@@ -233,8 +230,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             foreach ($attachmentfields as $attachmentfield) {
                 $attachmentfield_name = "attachmentfield_name_{$attachmentfield->id}";
                 $attachmentfield_required = "attachmentfield_required_{$attachmentfield->id}";
-                $attachmentfield_assetid = "attachmentfield_assetid_{$attachmentfield->id}";
-                $attachmentfield_type = "attachmentfield_type_{$attachmentfield->id}";
                 $attachmentfield_flavor = "attachmentfield_flavor_{$attachmentfield->id}";
                 $attachmentfield_filetypes = "attachmentfield_filetypes_{$attachmentfield->id}";
 
@@ -242,19 +237,13 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $newattachmentfield->id = $attachmentfield->id;
                 $newattachmentfield->name = $data->$attachmentfield_name;
                 $newattachmentfield->required = $data->$attachmentfield_required == 1 ? 1 : 0;
-                $newattachmentfield->assetid = $data->$attachmentfield_assetid;
-                $newattachmentfield->type = $data->$attachmentfield_type;
-                $newattachmentfield->flavortype = explode('/', $data->$attachmentfield_flavor)[0];
-                $newattachmentfield->flavorsubtype = explode('/', $data->$attachmentfield_flavor)[1];
+                $newattachmentfield->flavor = $data->$attachmentfield_flavor;
                 $newattachmentfield->filetypes = $data->$attachmentfield_filetypes;
 
                 // Update db entry.
                 if ($newattachmentfield->name !== $attachmentfield->name ||
                     $newattachmentfield->required != $attachmentfield->required ||
-                    $newattachmentfield->assetid != $attachmentfield->asset_id ||
-                    $newattachmentfield->type != $attachmentfield->type ||
-                    $newattachmentfield->flavortype != $attachmentfield->flavor_type ||
-                    $newattachmentfield->flavorsubtype != $attachmentfield->flavor_subtype ||
+                    $newattachmentfield->flavor != $attachmentfield->flavor ||
                     $newattachmentfield->filetypes !== $attachmentfield->filetypes
                  ) {
                     $DB->update_record('block_opencast_attach_field', $newattachmentfield);

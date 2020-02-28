@@ -54,71 +54,41 @@ $PAGE->navbar->add(get_string('addattachments', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-// No attachment field selected yet.
-if ($attachment === null) {
-    $attachmentfields = upload_helper::get_opencast_attachment_fields();
-    switch (count($attachmentfields)) {
-        case 0:
-            // No attachment fields defined.
-            echo $OUTPUT->header();
-            echo $OUTPUT->heading(get_string('addattachments', 'block_opencast'));
-            echo get_string('noattachmentfieldsdefined', 'block_opencast');
-            echo $OUTPUT->footer();
-            break;
-        case 1:
-            // Only one attachment field defined. Automatically use this.
-            foreach ($attachmentfields as $field) {
-                $attachment = $field->name;
-            }
-            break;
-        default:
-            // Multiple attachment fields defined. Prompt user to choose one.
-            $selectattachmentform = new \block_opencast\local\addattachment_select_form(null, ['attachmentfields' => $attachmentfields, 'courseid' => $courseid, 'identifier' => $identifier]);
+$opencast = \block_opencast\local\apibridge::get_instance();
 
-            $PAGE->requires->js_call_amd('block_opencast/addattachment_select_form_autosubmit', 'init');
-            echo $OUTPUT->header();
-            echo $OUTPUT->heading(get_string('addattachments', 'block_opencast'));
-            $selectattachmentform->display();
-            echo $OUTPUT->footer();
-            break;
-    }
+$attachmentfields = upload_helper::get_opencast_attachment_fields();
+$addattachmentform = new \block_opencast\local\addattachment_form(null, ['attachmentfields' => $attachmentfields, 'courseid' => $courseid, 'identifier' => $identifier]);
+
+if ($addattachmentform->is_cancelled()) {
+    redirect($redirecturl);
 }
 
-
-if ($attachment !== null) {
-
-    $opencast = \block_opencast\local\apibridge::get_instance();
-
-    $attachmentfield = upload_helper::get_opencast_attachment_fields(['name' => $attachment]);
-    $addattachmentform = new \block_opencast\local\addattachment_form(null, ['attachmentfield' => $attachmentfield, 'courseid' => $courseid, 'identifier' => $identifier]);
-
-    if ($addattachmentform->is_cancelled()) {
-        redirect($redirecturl);
-    }
-
-    if ($data = $addattachmentform->get_data()) {
-        if ($data->itemid) {
+if ($data = $addattachmentform->get_data()) {
+    $attachments = [];
+    foreach ($attachmentfields as $attachmentfield) {
+        $fieldname = $attachmentfield->name;
+        if ($data->$fieldname) {
 
             // Upload attachment.
-            $file = $addattachmentform->save_stored_file('itemid', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_ATTACHMENT, $data->itemid);
+            $file = $addattachmentform->save_stored_file($fieldname, $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA_ATTACHMENT, $data->$fieldname);
             if (!$file) {
-                throw new \moodle_exception('attachmentmissingfile', 'block_opencast');
+                continue;
             }
-            \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->itemid);
-
-            $msg = '';
-            $res = $opencast->add_attachment($identifier, $file->get_id(), $attachmentfield);
-            if ($res) {
-                $msg = get_string('attachmentsaved', 'block_opencast');
-            }
-            redirect($redirecturl, $msg);
+            \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->$fieldname);
+            $attachments[$fieldname] = $file->get_id();
         }
     }
 
-    $PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');
-
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(get_string('addattachments', 'block_opencast'));
-    $addattachmentform->display();
-    echo $OUTPUT->footer();
+    if (!empty($attachments)) {
+        $opencast->add_attachments($identifier, $attachments, $courseid);
+    }
+    $msg = get_string('attachmentssaved', 'block_opencast');
+    redirect($redirecturl, $msg);
 }
+
+$PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('addattachments', 'block_opencast'));
+$addattachmentform->display();
+echo $OUTPUT->footer();
