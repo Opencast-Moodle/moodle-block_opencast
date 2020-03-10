@@ -196,6 +196,8 @@ $string['ocstatesucceeded'] = 'Succeeded';
 $string['restoreopencastvideos'] = 'Restore opencast videos';
 $string['ocstatecapturing'] = 'Capturing';
 $string['ocstateneedscutting'] = 'Needs cutting';
+$string['uploadfileextensions'] = 'Allowed file extensions';
+$string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
 $string['uploadjobssaved'] = 'Upload jobs saved.';
 $string['uploadqueuetoopencast'] = 'Videos currently being uploaded to the streaming server';

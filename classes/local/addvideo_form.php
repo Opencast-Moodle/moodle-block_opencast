@@ -90,18 +90,28 @@ class addvideo_form extends \moodleform {
         
 
         $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
-        
+
+            $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
+            if (empty($videotypescfg)) {
+                // Fallback. Use Moodle defined video file types.
+                $videotypes = ['video'];
+            } else {
+                $videotypes = [];
+                foreach (explode(',', $videotypescfg) as $videotype) {
+                    if (empty($videotype)) {
+                        continue;
+                    }
+                    $videotypes[] = $videotype;
+                }
+            }
+
             $mform->addElement('filepicker', 'video_presenter',
-                get_string('presenter', 'block_opencast'), null,array('accepted_types' => array('*')));
+                get_string('presenter', 'block_opencast'), null, ['accepted_types' => $videotypes]);
             $mform->addElement('static', 'presenterdesc', null, get_string('presenterdesc', 'block_opencast'));
 
             $mform->addElement('filepicker', 'video_presentation',
-                get_string('presentation', 'block_opencast'), null, array('accepted_types' => array('*')));
+                get_string('presentation', 'block_opencast'), null, ['accepted_types' => $videotypes]);
             $mform->addElement('static', 'presentationdesc', null, get_string('presentationdesc', 'block_opencast'));
-
-            $util = new core_form\filetypes_util();
-            $videotypes_expand = implode(', ', $util->expand('video'));
-            $mform->addElement('static', 'filetypes', get_string('filetypes', 'block_opencast'), $videotypes_expand);
 
             $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
             $mform->setType('courseid', PARAM_INT);

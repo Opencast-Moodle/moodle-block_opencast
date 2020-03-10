@@ -112,6 +112,7 @@ See issue <a href="https://github.com/unirz-tu-ilmenau/moodle-block_opencast/iss
 - Setup the unique shortname of the workflow that should be started for deleting a video file in opencast. If a workflow is selected, a 'delete' icon is offered to the teacher, which will actually delete the event in the opencast system.
 We recommend to use only one of the two previous 'delete' options!
 - The setting 'Delete videofile from moodle' causes the moodle system to delete the file of the uploaded video as soon as possible. If set to false, the video file will remain in the moodle system in the draft area until a cron job deletes it (usually some days later). 
+- With 'Allowed file extensions' you can specify which file extensions users can upload as videos. The extensions must exist as file types in Moodle under Site administration -> Server -> File types. If left blank all of Moodle's file types in the type group 'video' are allowed.
  
 #### Settings for overview page
 In this section you can define how many videos should be displayed in the block.

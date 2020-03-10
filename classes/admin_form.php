@@ -34,6 +34,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 class admin_form extends moodleform {
     protected function definition() {
+        global $CFG;
         $mform = $this->_form;
 
         $apibridge = \block_opencast\local\apibridge::get_instance();
@@ -104,6 +105,14 @@ class admin_form extends moodleform {
         $description =    get_string('adhocfiledeletiondesc', 'block_opencast');
         $mform->addElement('selectyesno', $name, $title);
         $mform->setDefault($name, 0);
+        $mform->addElement('static', 'description' . $name, '', $description);
+
+        // Supported file extensions.
+        $name = 'uploadfileextensions';
+        $title = get_string('uploadfileextensions', 'block_opencast');
+        $description = get_string('uploadfileextensionsdesc', 'block_opencast', $CFG->wwwroot.'/admin/tool/filetypes/index.php');
+        $mform->addElement('filetypes', $name, $title);
+        $mform->setDefault($name, '');
         $mform->addElement('static', 'description' . $name, '', $description);
 
         // Section overview settings.
