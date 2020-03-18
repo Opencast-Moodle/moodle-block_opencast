@@ -98,7 +98,12 @@ This is done via a cronjob, which processes all Upload Jobs in a first in first 
 Please make sure that the *Maximum Time limit* for cron execution in *Site administration*->*Server*->*Performance* is not restricted (value of 0 means no timelimit).
 Then the cron job is not terminated early.
 
-The plugin <a href="https://github.com/unirz-tu-ilmenau/moodle-tool_opencast">tool_opencast</a> bundles some administration settings for all opencast plugins, which have to be configured first!
+**IMPORTANT:** The plugin <a href="https://github.com/unirz-tu-ilmenau/moodle-tool_opencast">tool_opencast</a> bundles some administration settings for all opencast plugins, which have to be configured first!
+
+In addition to the roles to access the opencast API, the opencast user has to be provided with the role `ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS`.
+Otherwise, moodle will not have the capabilities to write or read series created through moodle.
+This role can be changed, but has to be aligned with one of the roles you set under [Roles](#roles).
+
 
 #### Settings for upload jobs
 In this section you can define the following settings:
