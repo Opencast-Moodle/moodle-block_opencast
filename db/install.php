@@ -42,8 +42,8 @@ function xmldb_block_opencast_install() {
     $record[0]->permanent = true;
 
     $record[1] = new \stdClass();
-    $record[1]->rolename = 'ROLE_GROUP_MOODLE_COURSE_[COURSEID]';
-    $record[1]->actions = 'read';
+    $record[1]->rolename = 'ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS';
+    $record[1]->actions = 'write,read';
     $record[1]->permanent = true;
 
     $record[2] = new \stdClass();

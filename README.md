@@ -151,13 +151,14 @@ In the ACL Roles the following placeholders can be used:
  In case that multiple groups are selected in the visibility dialog, one ACL rule for every group is created.
  The basic role including the course id is removed in the case of group visibility.
     
-To give an example for Roles, which also meets the LTI standard, you can use the following setting:
+To give an example for Roles, which also meets the LTI standard and which is used by the plugin by default, you can use the following setting:
 
-| Role                    | Actions    | Permanent |
-| ------------------------|------------|-----------|
-| ROLE_ADMIN              | write,read | Yes       |
-| [COURSEID]_Instructor   | write,read | Yes       |
-| [COURSEGROUPID]_Learner | read       | No        |
+| Role                                            | Actions    | Permanent |
+| ------------------------------------------------|------------|-----------|
+| ROLE_ADMIN                                      | write,read | Yes       |
+| ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS | write,read | Yes       |
+| [COURSEID]_Instructor                           | write,read | Yes       |
+| [COURSEGROUPID]_Learner                         | read       | No        |
     
 
 Capabilities

@@ -46,7 +46,7 @@ class block_opencast_roles_testcase extends advanced_testcase {
 
         $expected = [
             'ROLE_ADMIN' => ['write', 'read'],
-            'ROLE_GROUP_MOODLE_COURSE_[COURSEID]' => ['read'],
+            'ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS' => ['write', 'read'],
             '[COURSEID]_Instructor' => ['write', 'read'],
             '[COURSEGROUPID]_Learner' => ['read'],
             'testrole1' => ['action1'],
