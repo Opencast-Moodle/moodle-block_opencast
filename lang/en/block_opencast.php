@@ -137,6 +137,7 @@ $string['limituploadjobs'] = 'Limit upload job by cron';
 $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cronjob. The cronjob can be scheduled here: {$a}';
 $string['limitvideos'] = 'Number of videos';
 $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
+$string['messageprovider:error'] = 'Processing error notification';
 $string['missingevent'] = 'Creation of event failed';
 $string['missinggroup'] = 'Missing group in opencast';
 $string['missingseries'] = 'Missing series in opencast';
