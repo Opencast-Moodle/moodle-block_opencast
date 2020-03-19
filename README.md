@@ -184,6 +184,22 @@ Logging
 The execution of upload jobs are being logged, which can be viewed at *Site administration*->*Reports*->*Logs*.
 View the setting "Site Errors" instead of "All activities" you can view only those upload jobs, which failed.    
 
+Placement
+---------
+
+This plugin is designed as block and, to be used, it will be initially added to a Moodle course by a teacher. The block shows a quick overview over the videos which are uploaded in the block, but mainly links to a fullscreen overview page where the full functionality of the plugin is provided.
+
+If you want to provide the plugin in every course by default without requiring that the teachers adds it to the course, please have a look at Moodle core's $CFG->defaultblocks setting which is set in config.php only and which is described on https://github.com/moodle/moodle/blob/master/config-dist.php.
+
+As an alternative to placing the block by default, you might also want to add a link to the plugin's overview page to the Boost nav drawer. This plugin does not offer support for adding a Boost nav drawer item itself, but we would like to reference the https://moodle.org/plugins/local_boostnavigation plugin for this job.
+After installing local_boostnavigation to your Moodle instance, please add the following line to the `local_boostnavigation | insertcustomcoursenodesusers` setting:
+```
+Opencast Videos|/blocks/opencast/index.php?courseid={courseid}|||editingteacher,manager|admin|OR|fa-film|opencast|grades
+```
+Please take extra care that the `editingteacher,manager` list of roles should match the list of roles who are given the `block/opencast:addvideo` capability in your Moodle instance.
+After adding the Boost nav drawer item, you can also remove the `block/opencast:addinstance` capability from all roles as adding the block is not really necessary anymore.
+
+
 ## License ##
 
 This plugin is developed in cooperation with the TU Ilmenau and the WWU Münster.
