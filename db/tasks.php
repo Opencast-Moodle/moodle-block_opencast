@@ -27,8 +27,8 @@ $tasks = array(
     array(
         'classname' => 'block_opencast\task\process_upload_cron',
         'blocking' => 0,
-        'minute' => '0',
-        'hour' => '0',
+        'minute' => '*',
+        'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
