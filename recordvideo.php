@@ -35,38 +35,28 @@ $courseid = required_param('courseid', PARAM_INT);
 $baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
-
 require_login($courseid, false);
 
-// Use block context for this page to ignore course file upload limit.
-$pagecontext = upload_helper::get_opencast_upload_context($courseid);
-$PAGE->set_context($pagecontext);
+// Capability check.
+$context = context_course::instance($courseid);
+require_capability('block/opencast:addvideo', $context);
+
+$PAGE->set_context($context);
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
-$PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('recordvideo', 'block_opencast'), $baseurl);
 
-// Capability check.
-$coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:addvideo', $coursecontext);
-
-// Get baseurl for the endpoint either from engageurl setting or from opencast tool.
-$endpoint = get_config('block_opencast', 'ltiengageurl');
-if (empty($endpoint)) {
-    $endpoint = get_config('tool_opencast', 'apiurl');
-}
+$endpoint = get_config('tool_opencast', 'apiurl');
 
 if (strpos($endpoint, 'http') !== 0) {
     $endpoint = 'http://' . $endpoint;
 }
 
-$endpoint = rtrim($endpoint, '/') . '/lti';
+$ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
 // Create parameters.
-$params = block_opencast_create_lti_parameters($endpoint);
+$params = block_opencast_create_lti_parameters($ltiendpoint);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
@@ -85,9 +75,11 @@ echo $OUTPUT->footer();
 
 /**
  * Create necessary lti parameters.
- * @param $endpoint of the opencast instance.
+ * @param string $endpoint of the opencast instance.
  *
  * @return array lti parameters
+ * @throws dml_exception
+ * @throws moodle_exception
  */
 function block_opencast_create_lti_parameters($endpoint) {
     global $CFG, $COURSE, $USER;
@@ -121,7 +113,6 @@ function block_opencast_create_lti_parameters($endpoint) {
     $params['lti_message_type'] = 'basic-lti-launch-request';
     $urlparts = parse_url($CFG->wwwroot);
     $params['tool_consumer_instance_guid'] = $urlparts['host'];
-    // $params['custom_tool'] = 'ltitools/series/index.html?series=b0af300e-fad1-48f3-b3f6-d702cc266d4c';
     $params['custom_tool'] = 'ltitools';
 
     // User data.
@@ -140,13 +131,6 @@ function block_opencast_create_lti_parameters($endpoint) {
     }
 
     $params['launch_presentation_document_target'] = 'iframe';
-    // $returnurlparams = array('course' => $COURSE->id,
-    //             'launch_container' => 3,
-    //             'instanceid' => 1,
-    //             'sesskey' => sesskey());
-    // $url = new \moodle_url('/mod/lti/return.php', $returnurlparams);
-    // $returnurl = $url->out(false);
-    // $params['launch_presentation_return_url'] = $returnurl;
     $params['oauth_signature_method'] = 'HMAC-SHA1';
     $params['oauth_signature'] = $helper->sign("POST", $endpoint, $params, $consumersecret . '&');
 
