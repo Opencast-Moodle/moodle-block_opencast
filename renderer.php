@@ -92,6 +92,10 @@ class block_opencast_renderer extends plugin_renderer_base {
             $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap');
+
+            $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
+            $recordvideobutton = $this->output->single_button($recordvideo, get_string('recordvideo', 'block_opencast'));
+            $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
         }
 
         if ($videodata->error) {
@@ -413,6 +417,40 @@ class block_opencast_renderer extends plugin_renderer_base {
             $context->editseriesurl = $url->out();
         }
         return $this->render_from_template('block_opencast/series_settings_actions', $context);
+    }
+
+    /**
+     * Display the lti form.
+     *
+     * @param object $data The prepared variables.
+     * @return string
+     */
+    public function render_lti_form($endpoint, $params) {
+        $content = "<form action=\"" . urlencode($endpoint) .
+            "\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n";
+
+        // Construct html form for the launch parameters.
+        foreach ($params as $key => $value) {
+            $key = htmlspecialchars($key);
+            $value = htmlspecialchars($value);
+            $content .= "<input type=\"hidden\" name=\"{$key}\"";
+            $content .= " value=\"";
+            $content .= $value;
+            $content .= "\"/>\n";
+        }
+        $content .= "</form>\n";
+
+        return $content;
+    }
+
+    /**
+     * Display the player.
+     *
+     * @param object $data The prepared variables.
+     * @return string
+     */
+    public function render_studio($data) {
+        return $this->render_from_template('block_opencast/studio', $data);
     }
 
 

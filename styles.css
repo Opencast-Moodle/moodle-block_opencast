@@ -2,6 +2,15 @@
     text-align: center;
 }
 
+.opencast-recordvideo-wrap {
+    margin: 10px 0;
+}
+
+.opencast-recordvideo-wrap.overview {
+    text-align: center;
+}
+
+
 .opencast-vlist {
     margin-left: 0;
     list-style: none;
