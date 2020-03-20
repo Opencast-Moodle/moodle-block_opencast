@@ -26,7 +26,7 @@ define(['jquery'], function($) {
     /*
     * Submits lti form and updates the source attribute of the video iframes
     */
-    var init = function() {
+    var init = function($redirecturi) {
         $('#ltiLaunchForm').submit(function(e) {
             e.preventDefault();
             var ocurl = decodeURIComponent($(this).attr("action"));
@@ -38,10 +38,7 @@ define(['jquery'], function($) {
                 xhrFields: {withCredentials: true},
                 data: $('#ltiLaunchForm').serialize(),
                 complete: function () {
-                    $(".ocstudio").each(function () {
-                        // Replace the src url of the iframes to load the videos.
-                        $(this).attr('src', $(this).data('framesrc'));
-                    });
+                    $( location ).attr("href", $redirecturi);
                 }
             });
         });

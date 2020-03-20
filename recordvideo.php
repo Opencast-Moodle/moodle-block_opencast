@@ -74,14 +74,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
 echo $renderer->render_lti_form($endpoint, $params);
 
-$mustachedata = new stdClass();
-$mustachedata->loggedin = true;
-$mustachedata->src = rtrim($endpoint, 'lti') . 'studio';
-$mustachedata->link = rtrim($endpoint, 'lti') . 'studio';
+$api = \block_opencast\local\apibridge::get_instance();
 
-echo $renderer->render_studio($mustachedata);
+$seriesid = $api->get_course_series($courseid);
 
-$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init');
+$redirecturl = $endpoint . 'studio/?upload.seriesId=' . $seriesid;
+
+$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init', array($redirecturl));
 echo $OUTPUT->footer();
 
 /**

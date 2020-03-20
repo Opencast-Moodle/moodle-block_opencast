@@ -443,15 +443,4 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $content;
     }
 
-    /**
-     * Display the player.
-     *
-     * @param object $data The prepared variables.
-     * @return string
-     */
-    public function render_studio($data) {
-        return $this->render_from_template('block_opencast/studio', $data);
-    }
-
-
 }
