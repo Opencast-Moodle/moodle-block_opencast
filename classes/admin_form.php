@@ -266,27 +266,6 @@ class admin_form extends moodleform {
         // End Metadata Catalog
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
-        
-        //LTI Configuration
-        $mform->addElement('header', 'heading_lti', get_string('heading_lti', 'block_opencast'));
-        $mform->setExpanded('heading_lti');
-
-        //LTI Consumer key
-        $name = 'lticonsumerkey';
-        $title = get_string('lticonsumerkey', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->addElement('static', 'lticonsumerkey_desc', '', get_string('lticonsumerkey_desc', 'block_opencast'));
-
-        //LTI Consumer Secret
-        $name = 'lticonsumersecret';
-        $title = get_string('lticonsumersecret', 'block_opencast');
-        $mform->addElement('passwordunmask', $name, $title);
-        $mform->setType('password', PARAM_RAW);
-        $mform->addElement('static', 'lticonsumersecret_desc', '', get_string('lticonsumersecret_desc', 'block_opencast'));
-
-        //End LTI Configuration
-        $this->add_action_buttons();
     }
 
     /**

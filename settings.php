@@ -24,8 +24,36 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) { // Needs this condition or there is error on login page.
-    $ADMIN->add('blocksettings', new admin_externalpage('block_opencast',
-        get_string('pluginname', 'block_opencast'),
+
+    $settingscategory = new admin_category('blockopencastfolder',
+        new lang_string('settings', 'block_opencast'));
+
+    $ADMIN->add('blocksettings', $settingscategory);
+
+    $ADMIN->add('blockopencastfolder', new admin_externalpage('block_opencast',
+        get_string('general_settings', 'block_opencast'),
         new moodle_url('/blocks/opencast/adminsettings.php')));
+
+    $additionalsettings = new admin_settingpage('additionalsettings',
+        get_string('additional_settings', 'block_opencast'));
+
+    $ADMIN->add('blockopencastfolder', $additionalsettings);
+
+    $additionalsettings->add(
+        new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link',
+            get_string('enableopencaststudiolink', 'block_opencast'),
+            get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));
+
+    $additionalsettings->add(
+        new admin_setting_configtext('block_opencast/lticonsumerkey',
+            get_string('lticonsumerkey', 'block_opencast'),
+            get_string('lticonsumerkey_desc', 'block_opencast'), ""));
+
+    $additionalsettings->add(
+        new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret',
+            get_string('lticonsumersecret', 'block_opencast'),
+            get_string('lticonsumersecret_desc', 'block_opencast'), ""));
+
+
 }
 $settings = null;

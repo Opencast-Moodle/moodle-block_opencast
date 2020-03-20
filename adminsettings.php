@@ -53,8 +53,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'group_name',
         'series_name',
         'workflow_roles',
-        'lticonsumerkey',
-        'lticonsumersecret',
     ];
 
     if (!empty($delrole) && !empty($confirm)) {
