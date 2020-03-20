@@ -66,9 +66,14 @@ echo $renderer->render_lti_form($endpoint, $params);
 
 $api = \block_opencast\local\apibridge::get_instance();
 
-$seriesid = $api->get_course_series($courseid);
+// Ensure that series exists.
+$seriesid = $api->get_stored_seriesid($courseid);
+if ($seriesid == null) {
+    $api->create_course_series($courseid);
+    $seriesid = $api->get_stored_seriesid($courseid);
+}
 
-$redirecturl = $endpoint . 'studio/?upload.seriesId=' . $seriesid;
+$redirecturl = $endpoint . '/studio/?upload.seriesId=' . $seriesid;
 
 $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init', array($redirecturl));
 echo $OUTPUT->footer();
