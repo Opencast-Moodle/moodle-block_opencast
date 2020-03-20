@@ -55,7 +55,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'workflow_roles',
         'lticonsumerkey',
         'lticonsumersecret',
-        'ltiengageurl',
     ];
 
     if (!empty($delrole) && !empty($confirm)) {

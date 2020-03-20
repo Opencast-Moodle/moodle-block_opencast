@@ -285,13 +285,6 @@ class admin_form extends moodleform {
         $mform->setType('password', PARAM_RAW);
         $mform->addElement('static', 'lticonsumersecret_desc', '', get_string('lticonsumersecret_desc', 'block_opencast'));
 
-        //LTI engage server
-        $name = 'ltiengageurl';
-        $title = get_string('ltiengageurl', 'block_opencast');
-        $mform->addElement('text', $name, $title);
-        $mform->setType($name, PARAM_TEXT);
-        $mform->addElement('static', 'ltiengageurl_desc', '', get_string('ltiengageurl_desc', 'block_opencast'));
-
         //End LTI Configuration
         $this->add_action_buttons();
     }
