@@ -43,7 +43,7 @@ define(['jquery'], function($) {
             });
         });
         $('#ltiLaunchForm').submit();
-    }
+    };
     return {
         init: init
     };
