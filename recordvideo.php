@@ -62,7 +62,7 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
-echo $renderer->render_lti_form($endpoint, $params);
+echo $renderer->render_lti_form($ltiendpoint, $params);
 
 $api = \block_opencast\local\apibridge::get_instance();
 
@@ -118,7 +118,7 @@ function block_opencast_create_lti_parameters($endpoint) {
     $params['lti_message_type'] = 'basic-lti-launch-request';
     $urlparts = parse_url($CFG->wwwroot);
     $params['tool_consumer_instance_guid'] = $urlparts['host'];
-    $params['custom_tool'] = 'ltitools';
+    $params['custom_tool'] = '/ltitools';
 
     // User data.
     $params['user_id'] = $USER->id;
