@@ -95,7 +95,8 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             if (get_config('block_opencast', 'enable_opencast_studio_link')) {
                 $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
-                $recordvideobutton = $this->output->single_button($recordvideo, get_string('recordvideo', 'block_opencast'));
+                $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
+                    null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
                 $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
             }
         }
