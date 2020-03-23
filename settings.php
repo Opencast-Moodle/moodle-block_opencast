@@ -25,19 +25,19 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
-    $settingscategory = new admin_category('blockopencastfolder',
+    $settingscategory = new admin_category('block_opencast_folder',
         new lang_string('settings', 'block_opencast'));
 
     $ADMIN->add('blocksettings', $settingscategory);
 
-    $ADMIN->add('blockopencastfolder', new admin_externalpage('block_opencast',
+    $ADMIN->add('block_opencast_folder', new admin_externalpage('block_opencast',
         get_string('general_settings', 'block_opencast'),
         new moodle_url('/blocks/opencast/adminsettings.php')));
 
-    $additionalsettings = new admin_settingpage('additionalsettings',
+    $additionalsettings = new admin_settingpage('block_opencast_additionalsettings',
         get_string('additional_settings', 'block_opencast'));
 
-    $ADMIN->add('blockopencastfolder', $additionalsettings);
+    $ADMIN->add('block_opencast_folder', $additionalsettings);
 
     $additionalsettings->add(
         new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link',
