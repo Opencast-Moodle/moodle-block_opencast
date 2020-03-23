@@ -143,7 +143,8 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
 
     $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
-    $recordvideobutton = $OUTPUT->single_button($recordvideo, get_string('recordvideo', 'block_opencast'));
+    $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
+        null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
     echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
 }
 
