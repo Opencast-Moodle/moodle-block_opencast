@@ -24,24 +24,9 @@
 define(['jquery'], function($) {
 
     /*
-    * Submits lti form and updates the source attribute of the video iframes
+    * Submits lti form
     */
-    var init = function($redirecturi) {
-        $('#ltiLaunchForm').submit(function(e) {
-            e.preventDefault();
-            var ocurl = decodeURIComponent($(this).attr("action"));
-
-            $.ajax({
-                url: ocurl,
-                crossDomain: true,
-                type: 'post',
-                xhrFields: {withCredentials: true},
-                data: $('#ltiLaunchForm').serialize(),
-                complete: function () {
-                    $( location ).attr("href", $redirecturi);
-                }
-            });
-        });
+    var init = function() {
         $('#ltiLaunchForm').submit();
     };
     return {

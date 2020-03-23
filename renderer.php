@@ -429,7 +429,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_lti_form($endpoint, $params) {
-        $content = "<form action=\"" . urlencode($endpoint) .
+        $content = "<form action=\"" . $endpoint .
             "\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n";
 
         // Construct html form for the launch parameters.

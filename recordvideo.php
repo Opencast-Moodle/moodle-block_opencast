@@ -55,15 +55,6 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
-// Create parameters.
-$params = block_opencast_create_lti_parameters($ltiendpoint);
-
-$renderer = $PAGE->get_renderer('block_opencast');
-
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
-echo $renderer->render_lti_form($ltiendpoint, $params);
-
 $api = \block_opencast\local\apibridge::get_instance();
 
 // Ensure that series exists.
@@ -73,20 +64,28 @@ if ($seriesid == null) {
     $seriesid = $api->get_stored_seriesid($courseid);
 }
 
-$redirecturl = $endpoint . '/studio/?upload.seriesId=' . $seriesid;
+// Create parameters.
+$params = block_opencast_create_lti_parameters($ltiendpoint, $seriesid);
 
-$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init', array($redirecturl));
+$renderer = $PAGE->get_renderer('block_opencast');
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
+echo $renderer->render_lti_form($ltiendpoint, $params);
+
+$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init');
 echo $OUTPUT->footer();
 
 /**
  * Create necessary lti parameters.
  * @param string $endpoint of the opencast instance.
+ * @param string $seriesid id of the series, to which recordings should be uploaded.
  *
  * @return array lti parameters
  * @throws dml_exception
  * @throws moodle_exception
  */
-function block_opencast_create_lti_parameters($endpoint) {
+function block_opencast_create_lti_parameters($endpoint, $seriesid) {
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.
@@ -118,7 +117,7 @@ function block_opencast_create_lti_parameters($endpoint) {
     $params['lti_message_type'] = 'basic-lti-launch-request';
     $urlparts = parse_url($CFG->wwwroot);
     $params['tool_consumer_instance_guid'] = $urlparts['host'];
-    $params['custom_tool'] = '/ltitools';
+    $params['custom_tool'] = '/studio?upload.seriesId=' . $seriesid;
 
     // User data.
     $params['user_id'] = $USER->id;
