@@ -330,3 +330,7 @@ $string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integ
 $string['lticonsumersecret'] = 'Consumer secret';
 $string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
+
+$string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
+$string['cachevalidtime'] = 'Cache valid time';
+$string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
