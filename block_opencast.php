@@ -61,8 +61,7 @@ class block_opencast extends block_base {
         $renderer = $PAGE->get_renderer('block_opencast');
 
         $cache = cache::make('block_opencast', 'videodata');
-        if ($cache->has($COURSE->id)) {
-            $result = $cache->get($COURSE->id);
+        if ($result = $cache->get($COURSE->id)) {
             if ($result->timevalid > time()) {
                 // If cache for course is set and still valid.
                 $videos = $result->videos;

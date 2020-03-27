@@ -44,8 +44,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 // Invalidate Block cache;
-$cache = cache::make('block_opencast', 'videodata');
-$cache->delete($courseid);
+cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
 
 $table = new block_opencast\local\flexible_table('opencast-videos-table');
 
