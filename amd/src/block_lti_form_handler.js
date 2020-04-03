@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +14,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Ajax functions for opencast
  *
+ * @module     block/opencast
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * * @copyright  2020 Farbod Zamani (zamani@elan-ev.de)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+define(['jquery'], function($) {
 
-$plugin->version = 2020032100;
-$plugin->requires = 2017111300;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.8-r1'; // First release for Moodle 3.8.
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2019112100);
+    /*
+    * Submits lti form
+    */
+    var init = function() {
+        $('#ltiLaunchForm').submit();
+    };
+    return {
+        init: init
+    };
+});
