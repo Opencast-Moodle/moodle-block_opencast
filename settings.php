@@ -24,6 +24,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) { // Needs this condition or there is error on login page.
+    global $CFG;
 
     $settingscategory = new admin_category('block_opencast_folder',
         new lang_string('settings', 'block_opencast'));
@@ -40,6 +41,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $ADMIN->add('block_opencast_folder', $additionalsettings);
 
     $additionalsettings->add(
+        new admin_setting_heading('block_opencast/opencast_studio',
+            get_string('opencaststudiointegration', 'block_opencast'),
+            ''));
+
+    $additionalsettings->add(
         new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link',
             get_string('enableopencaststudiolink', 'block_opencast'),
             get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));
@@ -54,6 +60,56 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             get_string('lticonsumersecret', 'block_opencast'),
             get_string('lticonsumersecret_desc', 'block_opencast'), ""));
 
+    // Add LTI module section.
+    $additionalsettings->add(
+        new admin_setting_heading('block_opencast/addlti_settingheader',
+            get_string('addlti_settingheader', 'block_opencast'),
+            ''));
 
+    // Add LTI module: Enable feature.
+    $additionalsettings->add(
+        new admin_setting_configcheckbox('block_opencast/addltienabled',
+            get_string('addlti_settingenabled', 'block_opencast'),
+            get_string('addlti_settingenabled_desc', 'block_opencast'), 0));
+
+    // Add LTI module: Default LTI module title.
+    $additionalsettings->add(
+        new admin_setting_configtext('block_opencast/addltidefaulttitle',
+            get_string('addlti_settingdefaulttitle', 'block_opencast'),
+            get_string('addlti_settingdefaulttitle_desc', 'block_opencast'),
+            get_string('addlti_defaulttitle', 'block_opencast'),
+            PARAM_TEXT));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/addltidefaulttitle',
+                'block_opencast/addltienabled', 'notchecked');
+    }
+
+    // Add LTI module: Preconfigured LTI tool.
+    $tools = \block_opencast\local\ltimodulemanager::get_preconfigured_tools();
+    // If there are any tools to be selected.
+    if (count($tools) > 0) {
+        $additionalsettings->add(
+            new admin_setting_configselect('block_opencast/addltipreconfiguredtool',
+                get_string('addlti_settingpreconfiguredtool', 'block_opencast'),
+                get_string('addlti_settingpreconfiguredtool_desc', 'block_opencast'),
+                null,
+                $tools));
+
+        // If there aren't any preconfigured tools to be selected.
+    } else {
+        // Add an empty element to at least create the setting when the plugin is installed.
+        // Additionally, show some information text where to add preconfigured tools.
+        $url = '/admin/settings.php?section=modsettinglti';
+        $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
+        $description = get_string('addlti_settingpreconfiguredtool_notools', 'block_opencast', $link);
+        $additionalsettings->add(
+            new admin_setting_configempty('block_opencast/addltipreconfiguredtool',
+                get_string('addlti_settingpreconfiguredtool', 'block_opencast'),
+                $description));
+    }
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/addltipreconfiguredtool',
+                'block_opencast/addltienabled', 'notchecked');
+    }
 }
 $settings = null;

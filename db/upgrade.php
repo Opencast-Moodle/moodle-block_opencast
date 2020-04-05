@@ -316,6 +316,34 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2019082100, 'opencast');
     }
 
+    if ($oldversion < 2020040400) {
+        // Define table block_opencast_ltimodule to be created.
+        $table = new xmldb_table('block_opencast_ltimodule');
+
+        // Adding fields to table block_opencast_ltimodule.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_ltimodule.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+
+        // Conditionally launch create table for block_opencast_ltimodule.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Store new plugin settings' defaults to the DB (as the plugin does not use standard admin settings).
+        set_config('addltienabled', '0', 'block_opencast');
+        set_config('addltidefaulttitle', get_string('addlti_defaulttitle', 'block_opencast'), 'block_opencast');
+        set_config('addltipreconfiguredtool', null, 'block_opencast');
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2020040400, 'opencast');
+    }
 
     return true;
 }

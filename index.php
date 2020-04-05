@@ -219,6 +219,40 @@ if ($download) {
     $table->finish_output();
 } else {
     $table->finish_html();
-    echo $OUTPUT->footer();
 }
 
+// If enabled and working, add LTI module feature.
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {
+
+    // Fetch existing LTI module for this course.
+    $moduleid = \block_opencast\local\ltimodulemanager::get_module($courseid);
+
+    // If there is already a LTI module created in this course.
+    if ($moduleid) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('addlti_header', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('addlti_viewbuttonexplanation', 'block_opencast'));
+
+        // Show button to view the LTI module.
+        $viewltiurl = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
+        $viewltibutton = $OUTPUT->single_button($viewltiurl, get_string('addlti_viewbuttontitle', 'block_opencast'), 'get');
+        echo html_writer::div($viewltibutton);
+
+        // If there isn't a LTI module yet in this course and the user is allowed to add one.
+    } else if (has_capability('block/opencast:addlti', $coursecontext)) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('addlti_header', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('addlti_addbuttonexplanation', 'block_opencast'));
+
+        // Show button to add the LTI module.
+        $addltiurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
+        $addltibutton = $OUTPUT->single_button($addltiurl, get_string('addlti_addbuttontitle', 'block_opencast'), 'get');
+        echo html_writer::div($addltibutton);
+    }
+}
+
+echo $OUTPUT->footer();
