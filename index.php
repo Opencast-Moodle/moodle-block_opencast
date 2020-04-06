@@ -138,7 +138,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     echo $renderer->render_upload_jobs($videojobs);
 
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
-    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
+    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
     echo html_writer::div($addvideobutton);
 
     if (get_config('block_opencast', 'enable_opencast_studio_link')) {
