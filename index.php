@@ -45,11 +45,6 @@ require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 $table = new block_opencast\local\flexible_table('opencast-videos-table');
 
-$download = optional_param('download', '', PARAM_ALPHA);
-if ($download) {
-    $table->is_downloading($download, userdate(time(), '%Y-%m-%d-%H%M%S') . '_report');
-}
-
 $table->set_attribute('cellspacing', '0');
 $table->set_attribute('cellpadding', '3');
 $table->set_attribute('class', 'generaltable');
@@ -218,11 +213,7 @@ if ($videodata->error == 0) {
     echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');
 }
 
-if ($download) {
-    $table->finish_output();
-} else {
-    $table->finish_html();
-}
+$table->finish_html();
 
 // If enabled and working, add LTI module feature.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {
