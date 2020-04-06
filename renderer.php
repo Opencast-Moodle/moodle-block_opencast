@@ -181,7 +181,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $table = new html_table();
         $table->head = array(
-            get_string('date'),
+            get_string('hstart_date', 'block_opencast'),
             get_string('title', 'block_opencast'),
             get_string('presenterfile', 'block_opencast'),
             get_string('presentationfile', 'block_opencast'),
