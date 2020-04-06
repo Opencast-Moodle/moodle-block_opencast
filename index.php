@@ -125,17 +125,37 @@ echo $renderer->render_series_settings_actions($courseid,
     !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
     has_capability('block/opencast:defineseriesforcourse', $coursecontext));
 
+// Section "Upload or record videos"
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
+    // Show heading and explanation depending if Opencast Studio is enabled.
+    if (get_config('block_opencast', 'enable_opencast_studio_link')) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadrecordvideos', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast').'<br />'.
+        get_string('uploadprocessingexplanation', 'block_opencast'));
+
+        // If Opencast Studio is not enabled.
+    } else {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadvideos', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast').'<br />'.
+                get_string('uploadprocessingexplanation', 'block_opencast'));
+    }
 
     echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
-
     $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
     echo $renderer->render_upload_jobs($videojobs);
 
+    // Show "Add video" button.
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
     echo html_writer::div($addvideobutton);
 
+    // If Opencast Studio is enabled, show "Record video" button.
     if (get_config('block_opencast', 'enable_opencast_studio_link')) {
         $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
         $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),

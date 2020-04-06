@@ -224,6 +224,11 @@ $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video fil
 $string['uploadingeventfailed'] = 'Creating of event failed';
 $string['uploadjobssaved'] = 'Upload jobs saved.';
 $string['uploadqueuetoopencast'] = 'Videos currently being uploaded to the streaming server';
+$string['uploadrecordvideos'] = 'Upload or record videos';
+$string['uploadrecordvideosexplanation'] = 'In this section, you can upload existing video files to Moodle. Additionally, you can record video files directly with Opencast Studio.';
+$string['uploadvideos'] = 'Upload videos';
+$string['uploadvideosexplanation'] = 'In this section, you can upload existing video files to Moodle.';
+$string['uploadprocessingexplanation'] = 'These video files will be processed in Opencast and then made available in this course.';
 $string['uploadworkflow'] = 'Workflow to start after upload';
 $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, that should be started after succesfully uploading a video file to opencast.
     If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
