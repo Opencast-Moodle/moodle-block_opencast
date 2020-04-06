@@ -183,10 +183,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->head = array(
             get_string('date'),
             get_string('title', 'block_opencast'),
-            get_string('presenterfilename', 'block_opencast'),
-            get_string('presenterfilesize', 'block_opencast'),
-            get_string('presentationfilename', 'block_opencast'),
-            get_string('presentationfilesize', 'block_opencast'),
+            get_string('presenterfile', 'block_opencast'),
+            get_string('presentationfile', 'block_opencast'),
             get_string('status'),
             get_string('createdby', 'block_opencast'));
 
@@ -206,10 +204,24 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row = [];
             $row[] = userdate($uploadjob->timecreated, get_string('strftimedatetime', 'langconfig'));
             $row[] = $title;
-            $row[] = $uploadjob->presenter_filename;
-            $row[] = $uploadjob->presenter_filesize ? display_size($uploadjob->presenter_filesize) : "";
-            $row[] = $uploadjob->presentation_filename;
-            $row[] = $uploadjob->presentation_filesize ? display_size($uploadjob->presentation_filesize) : "";
+            if ($uploadjob->presenter_filename) {
+                if ($uploadjob->presenter_filesize) {
+                    $row[] = $uploadjob->presenter_filename.' ('.display_size($uploadjob->presenter_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presenter_filename;
+                }
+            } else {
+                $row[] = '&mdash;';
+            }
+            if ($uploadjob->presentation_filename) {
+                if ($uploadjob->presentation_filesize) {
+                    $row[] = $uploadjob->presentation_filename.' ('.display_size($uploadjob->presentation_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presentation_filename;
+                }
+            } else {
+                $row[] = '&mdash;';
+            }
             $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             $row[] = fullname($uploadjob);
 
