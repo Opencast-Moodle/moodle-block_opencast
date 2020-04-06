@@ -44,7 +44,7 @@ Feature: Add Opencast block as Teacher
     Given I click on "Go to overview..." "link"
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
     And I click on "Save changes" "button"
     Then I should see "Test"
     And I should see "test.mp4"
@@ -55,7 +55,7 @@ Feature: Add Opencast block as Teacher
     Given I click on "Go to overview..." "link"
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
@@ -70,7 +70,7 @@ Feature: Add Opencast block as Teacher
     Given I click on "Go to overview..." "link"
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter" filemanager
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
     And I click on "Save changes" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds

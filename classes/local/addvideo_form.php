@@ -41,6 +41,9 @@ class addvideo_form extends \moodleform {
 
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
 
+        $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
+        $mform->addElement('html', $explanation);
+
             $set_title = true;
             foreach ($this->_customdata['metadata_catalog'] as $field) {
                 $param = array();
@@ -91,6 +94,9 @@ class addvideo_form extends \moodleform {
 
         $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
 
+        $explanation = \html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
+        $mform->addElement('html', $explanation);
+
             $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
             if (empty($videotypescfg)) {
                 // Fallback. Use Moodle defined video file types.
@@ -105,13 +111,17 @@ class addvideo_form extends \moodleform {
                 }
             }
 
+            $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
+            $mform->addElement('html', $presenterdesc);
             $mform->addElement('filepicker', 'video_presenter',
-                get_string('presenter', 'block_opencast'), null, ['accepted_types' => $videotypes]);
-            $mform->addElement('static', 'presenterdesc', null, get_string('presenterdesc', 'block_opencast'));
+                get_string('presenter', 'block_opencast'),
+                null, ['accepted_types' => $videotypes]);
 
+            $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
+            $mform->addElement('html', $presentationdesc);
             $mform->addElement('filepicker', 'video_presentation',
-                get_string('presentation', 'block_opencast'), null, ['accepted_types' => $videotypes]);
-            $mform->addElement('static', 'presentationdesc', null, get_string('presentationdesc', 'block_opencast'));
+                    get_string('presentation', 'block_opencast'),
+                null, ['accepted_types' => $videotypes]);
 
             $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
             $mform->setType('courseid', PARAM_INT);
