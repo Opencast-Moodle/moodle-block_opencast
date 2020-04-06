@@ -1,16 +1,17 @@
-.opencast-addvideo-wrap {
+/* Styles for the buttons in the block view */
+.opencast-addvideo-wrap.overview {
     text-align: center;
 }
-
-.opencast-recordvideo-wrap {
-    margin: 10px 0;
-}
-
 .opencast-recordvideo-wrap.overview {
     text-align: center;
 }
 
+/* Styles for the buttons on the overview page */
+.opencast-recordvideo-wrap {
+    margin: 10px 0;
+}
 
+/* Styles for the recordings list in the block view */
 .opencast-vlist {
     margin-left: 0;
     list-style: none;
@@ -18,42 +19,39 @@
     border-bottom: 1px solid #dedede;
     padding: 10px 0;
 }
-
 .opencast-vlist .smallicon {
     margin-right: 5px;
 }
-
 .opencast-more-wrap {
     text-align: right;
 }
 
-#page-admin-blocks-opencast-adminsettings #roles_table .fitemtitle {
-    width: 0;
-}
-
-#page-admin-blocks-opencast-adminsettings #roles_table .felement {
-    margin-left: 0;
-}
-
+/* Styles for the overview page */
 #page-blocks-opencast-index h2 ~ .resettable {
     display: none;
 }
 
+/* Styles for the admin settings page */
+#page-admin-blocks-opencast-adminsettings #roles_table .fitemtitle {
+    width: 0;
+}
+#page-admin-blocks-opencast-adminsettings #roles_table .felement {
+    margin-left: 0;
+}
+
+/* Styles for the add video page */
+#page-blocks-opencast-addvideo .form-filetypes-descriptions ul {
+    margin-bottom: 0;
+}
 #page-blocks-opencast-addvideo .form-filetypes-descriptions li {
     font-size: 0;
     display: inline-block;
 }
-
 #page-blocks-opencast-addvideo .form-filetypes-descriptions li .text-muted {
     font-size: 12px;
 }
-
 #page-blocks-opencast-addvideo #fitem_id_video_presenter p,
 #page-blocks-opencast-addvideo #fitem_id_video_presentation p {
     margin-top: 0.5rem;
-    margin-bottom: 0;
-}
-
-#page-blocks-opencast-addvideo .form-filetypes-descriptions ul {
     margin-bottom: 0;
 }
