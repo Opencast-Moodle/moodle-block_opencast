@@ -30,6 +30,12 @@
 #page-blocks-opencast-index h2 ~ .resettable {
     display: none;
 }
+#page-blocks-opencast-index #region-main h2 {
+    margin-top: 50px;
+}
+#page-blocks-opencast-index #region-main h2:first-of-type {
+    margin-top: inherit;
+}
 
 /* Styles for the admin settings page */
 #page-admin-blocks-opencast-adminsettings #roles_table .fitemtitle {
