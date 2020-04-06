@@ -56,16 +56,16 @@ $toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &
 
 if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
     $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', '');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
 } else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
     $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', '');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
 } else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
     $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', '');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
 } else {
     $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', '');
+    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
 }
 
 foreach ($headers as $i => $header) {

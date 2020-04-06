@@ -144,6 +144,7 @@ $string['heading_role'] = 'Role';
 $string['heading_actions'] = 'Actions';
 $string['heading_delete'] = 'Delete';
 $string['heading_permanent'] = 'Permanent';
+$string['haction'] = 'Action';
 $string['hstart_date'] = 'Start Date';
 $string['hend_date'] = 'End Date';
 $string['htitle'] = 'Title';
