@@ -153,11 +153,21 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the opencast processing status.
      *
      * @param string $statuscode
+     * @param int $countfailed
      *
      * @return string
      */
-    public function render_status($statuscode) {
-        return \block_opencast\local\upload_helper::get_status_string($statuscode);
+    public function render_status($statuscode, $countfailed = 0) {
+        // Get understandable status string.
+        $status_string = \block_opencast\local\upload_helper::get_status_string($statuscode);
+
+        // If needed, add the number of failed uploads.
+        if ($countfailed > 1) {
+            $status_string .= '<br />'.get_string('failedtransferattempts', 'block_opencast', $countfailed);
+        }
+
+        // Return string.
+        return $status_string;
     }
 
     /**
@@ -178,7 +188,6 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presentationfilename', 'block_opencast'),
             get_string('presentationfilesize', 'block_opencast'),
             get_string('status'),
-            get_string('countfailed', 'block_opencast'),
             get_string('createdby', 'block_opencast'));
 
         foreach ($uploadjobs as $uploadjob) {
@@ -201,8 +210,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row[] = $uploadjob->presenter_filesize ? display_size($uploadjob->presenter_filesize) : "";
             $row[] = $uploadjob->presentation_filename;
             $row[] = $uploadjob->presentation_filesize ? display_size($uploadjob->presentation_filesize) : "";
-            $row[] = $this->render_status($uploadjob->status);
-            $row[] = $uploadjob->countfailed;
+            $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             $row[] = fullname($uploadjob);
 
             $table->data[] = $row;
