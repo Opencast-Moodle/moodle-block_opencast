@@ -146,10 +146,6 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
                 get_string('uploadprocessingexplanation', 'block_opencast'));
     }
 
-    echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
-    $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
-    echo $renderer->render_upload_jobs($videojobs);
-
     // Show "Add video" button.
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
@@ -161,6 +157,17 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
         $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
             null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
         echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+    }
+
+    // If there are upload jobs scheduled, show the upload queue table.
+    $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
+    if (count($videojobs) > 0) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadqueuetoopencastexplanation', 'block_opencast'));
+        echo $renderer->render_upload_jobs($videojobs);
     }
 }
 

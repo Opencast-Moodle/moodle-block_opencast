@@ -30,7 +30,9 @@ Feature: Add Opencast block as Teacher
 
   Scenario: Opencast Overview page implemented
     When I click on "Go to overview..." "link"
-    Then I should see "Videos currently being uploaded to the streaming server"
+    Then I should not see "Videos scheduled to be transferred to Opencast"
+    And I should see "Videos available in this course"
+    And I should see "No videos available"
 
   Scenario: Opencast Add video page implemented
     Given I click on "Go to overview..." "link"
@@ -46,7 +48,7 @@ Feature: Add Opencast block as Teacher
     And I click on "Save changes" "button"
     Then I should see "Test"
     And I should see "test.mp4"
-    And I should see "Ready to upload"
+    And I should see "Ready for transfer"
 
   @_file_upload @javascript
   Scenario: Opencast run cronjob
@@ -60,7 +62,7 @@ Feature: Add Opencast block as Teacher
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
     And I reload the page
-    Then I should not see "Ready to upload"
+    Then I should not see "Ready for transfer"
     And I should see "Test"
 
   @_file_upload @javascript
