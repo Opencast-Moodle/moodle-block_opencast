@@ -2,7 +2,7 @@
 Feature: Add Opencast LTI module as Teacher
   In order to provide the uploaded videos to my students
   As teacher
-  I need to be able to add an Opencast LTI module to my course
+  I need to be able to add an Opencast series module to my course
 
   Background:
     Given the following "users" exist:
@@ -50,7 +50,7 @@ Feature: Add Opencast LTI module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
-    And I should see "Add Opencast LTI module to course"
+    And I should see "Add Opencast series module to course"
 
   Scenario: When the feature is enabled and working, users who have been granted the right to view the recordings list but not to add the LTI module are not able to add the LTI module to the course
     Given the following "users" exist:
@@ -66,7 +66,7 @@ Feature: Add Opencast LTI module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast LTI module to course"
+    And I should not see "Add Opencast series module to course"
 
   Scenario: When the feature is disabled by the admin, editing teachers are not able to add the LTI module to the course
     Given the following config values are set as admin:
@@ -75,18 +75,18 @@ Feature: Add Opencast LTI module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast LTI module to course"
+    And I should not see "Add Opencast series module to course"
 
   @javascript
   Scenario: After adding the LTI module to the course, the teacher sees to link to the LTI module in the Opencast overview.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI module to course" "button"
-    And I should see "Opencast LTI module title"
-    And I click on "Add Opencast LTI module to course" "button"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module title"
+    And I click on "Add Opencast series module to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
-    And I should see "The 'Opencast videos' LTI module has been added to this course."
+    And I should see "The 'Opencast videos' series module has been added to this course."
     And I should see "Opencast videos" in the "li.activity" "css_element"
     And I am on "Course 1" course homepage with editing mode on
     And I open "Opencast videos" actions menu
@@ -96,23 +96,23 @@ Feature: Add Opencast LTI module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
-    And I should see "View Opencast LTI module in course"
-    And I click on "View Opencast LTI module in course" "button"
+    And I should see "View Opencast series module in course"
+    And I click on "View Opencast series module in course" "button"
     Then I should see "Opencast videos" in the "region-main" "region"
 
   Scenario: After adding the LTI module to the course, the teacher deletes the module manually and is able to add the module again in the Opencast overview.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI module to course" "button"
-    And I should see "Opencast LTI module title"
-    And I click on "Add Opencast LTI module to course" "button"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module title"
+    And I click on "Add Opencast series module to course" "button"
     And I should see "Course 1" in the "#page-header" "css_element"
     And I am on "Course 1" course homepage with editing mode on
     And I delete "Opencast videos" activity
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
-    And I should see "Add Opencast LTI module to course"
+    And I should see "Add Opencast series module to course"
 
   Scenario: The admin is able to change the default title for the LTI module.
     Given the following config values are set as admin:
@@ -120,36 +120,36 @@ Feature: Add Opencast LTI module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI module to course" "button"
-    Then the field "Opencast LTI module title" matches value "Sensational videos"
-    And I click on "Add Opencast LTI module to course" "button"
+    And I click on "Add Opencast series module to course" "button"
+    Then the field "Opencast series module title" matches value "Sensational videos"
+    And I click on "Add Opencast series module to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
-    And I should see "The 'Sensational videos' LTI module has been added to this course."
+    And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
 
   Scenario: The teacher is able to use a different title than the default title for the LTI module.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI module to course" "button"
-    And the field "Opencast LTI module title" matches value "Opencast videos"
+    And I click on "Add Opencast series module to course" "button"
+    And the field "Opencast series module title" matches value "Opencast videos"
     And I set the following fields to these values:
-      | Opencast LTI module title | Sensational videos |
-    And I click on "Add Opencast LTI module to course" "button"
+      | Opencast series module title | Sensational videos |
+    And I click on "Add Opencast series module to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
-    And I should see "The 'Sensational videos' LTI module has been added to this course."
+    And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
 
   Scenario: The teacher is not allowed to use an empty title for the LTI module.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI module to course" "button"
+    And I click on "Add Opencast series module to course" "button"
     And I set the following fields to these values:
-      | Opencast LTI module title | |
-    And I click on "Add Opencast LTI module to course" "button"
+      | Opencast series module title | |
+    And I click on "Add Opencast series module to course" "button"
     Then I should not see "Course 1" in the "#page-header" "css_element"
-    And I should see "You have to set a title for the Opencast LTI module or to use the default title"
+    And I should see "You have to set a title for the Opencast series module or to use the default title"
 
   Scenario: When the LTI tool is deleted by the admin, editing teachers are not able to add the LTI module to the course anymore
     Given I log in as "admin"
@@ -161,7 +161,7 @@ Feature: Add Opencast LTI module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast LTI module to course"
+    And I should not see "Add Opencast series module to course"
 
   Scenario: When the LTI tool is deleted by the admin, the plugin configuration does not allow to set a tool anymore
     Given I log in as "admin"
