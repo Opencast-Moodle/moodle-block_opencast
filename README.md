@@ -164,7 +164,17 @@ To give an example for Roles, which also meets the LTI standard and which is use
 | ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS | write,read | Yes       |
 | [COURSEID]_Instructor                           | write,read | Yes       |
 | [COURSEGROUPID]_Learner                         | read       | No        |
-    
+
+Additional features
+-------------------
+
+#### Opencast studio
+In this section you can enable a feature to add Opencast studio support to the block.
+
+#### Add LTI module
+In this section you can enable a feature to let teachers add an Opencast LTI module to the course. This LTI module will be pointing to the course's Opencast series.
+To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast series first.
+
 
 Capabilities
 ------------
