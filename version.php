@@ -23,9 +23,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2020040400;
+$plugin->version = 2020041700;
 $plugin->requires = 2017111300;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.8-r1'; // First release for Moodle 3.8.
+$plugin->release   = 'v3.8-r2'; // First release for Moodle 3.8.
 $plugin->component = 'block_opencast';
 $plugin->dependencies = array('tool_opencast' => 2019112100);
