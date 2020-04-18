@@ -198,8 +198,11 @@ if ($videodata->error == 0) {
             }
 
             // in order to add metadata config
-            if ($opencast->can_update_event_metadata($video, $courseid)) {
-                $actions .= $renderer->render_update_metadata_event_icon($courseid, $video->identifier);
+            if ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
+                $video->processing_state == "STOPPED") {
+                if ($opencast->can_update_event_metadata($video, $courseid)) {
+                    $actions .= $renderer->render_update_metadata_event_icon($courseid, $video->identifier);
+                }
             }
 
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
