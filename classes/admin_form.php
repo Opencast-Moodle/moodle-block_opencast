@@ -127,14 +127,6 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 5);
         $mform->addElement('static', 'description' . $name, '', $description);
 
-        // Show publication channels.
-        $name = "showpublicationchannels";
-        $title = get_string('show_public_channels', 'block_opencast');
-        $description = get_string('show_public_channels_desc', 'block_opencast');
-        $mform->addElement('advcheckbox', $name, $title);
-        $mform->setDefault($name, 1);
-        $mform->addElement('static', 'description'. $name, '', $description);
-
         // Section overview settings.
         $mform->addElement('header', 'backuprestore_header', get_string('backupsettings', 'block_opencast'));
         $name = 'duplicateworkflow';

@@ -51,23 +51,49 @@ $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
 $apibridge = apibridge::get_instance();
-$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
-    (get_config('block_opencast', 'workflow_roles') != "") &&
-    (get_config('block_opencast', 'aclcontrolafter') == true);
 
-if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
-} else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
-} else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
-} else {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
+// Start the columns and headers array with the (mandatory) start date column.
+$columns = array('start_date');
+$headers = array('start_date');
+
+// If configured, add the end date column.
+if (get_config('block_opencast', 'showenddate')) {
+    $columns[] = 'end_date';
+    $headers[] = 'end_date';
 }
+
+// Add the (mandatory) title column.
+$columns[] = 'title';
+$headers[] = 'title';
+
+// If configured, add the location column.
+if (get_config('block_opencast', 'showlocation')) {
+    $columns[] = 'location';
+    $headers[] = 'location';
+}
+
+// If configured, add the publication channel column.
+if (get_config('block_opencast', 'showpublicationchannels')) {
+    $columns[] = 'published';
+    $headers[] = 'published';
+}
+
+// Add the (mandatory) workflow state column.
+$columns[] = 'workflow_state';
+$headers[] = 'workflow_state';
+
+// If configured, add the visibility column.
+$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
+        (get_config('block_opencast', 'workflow_roles') != "") &&
+        (get_config('block_opencast', 'aclcontrolafter') == true);
+if ($toggleaclroles) {
+    $columns[] = 'visibility';
+    $headers[] = 'visibility';
+}
+
+// Add the (mandatory) action column.
+$columns[] = 'action';
+$headers[] = 'action';
 
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
@@ -182,30 +208,45 @@ if ($videodata->error == 0) {
 
         $row = array();
 
+        // Start date column.
         $row[] = $renderer->render_created($video->start);
-        if ($video->duration) {
-            $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
-                get_string('strftimedatetime', 'langconfig'));
-        } else {
-            $row[] = "";
+
+        // End date column.
+        if (get_config('block_opencast', 'showenddate')) {
+            if ($video->duration) {
+                $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
+                        get_string('strftimedatetime', 'langconfig'));
+            }
+            else {
+                $row[] = "";
+            }
         }
 
+        // Title column.
         $row[] = $video->title;
-        $row[] = $video->location;
 
+        // Location column.
+        if (get_config('block_opencast', 'showlocation')) {
+            $row[] = $video->location;
+        }
+
+        // Publication channel column.
         if (get_config('block_opencast', 'showpublicationchannels')) {
             $row[] = $renderer->render_publication_status($video->publication_status);
         }
 
+        // Workflow state and actions column, depending if the video is currently deleted or not.
         if (array_key_exists($video->identifier, $deletedvideos)) {
-
+            // Workflow state column.
             $row[] = $renderer->render_processing_state_icon("DELETING");
+
+            // Actions column.
             $row[] = "";
-
         } else {
-
+            // Workflow state column.
             $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
+            // Actions column.
             if ($toggleaclroles) {
                 if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" && $video->processing_state !== "STOPPED") {
                     $row[] = "-";
