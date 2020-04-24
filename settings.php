@@ -35,6 +35,31 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         get_string('general_settings', 'block_opencast'),
         new moodle_url('/blocks/opencast/adminsettings.php')));
 
+    $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',
+            get_string('appearance_settings', 'block_opencast'));
+
+    $ADMIN->add('block_opencast_folder', $appearancesettings);
+
+    $appearancesettings->add(
+            new admin_setting_heading('block_opencast/appearance_overview',
+                    get_string('appearance_overview_settingheader', 'block_opencast'),
+                    ''));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showpublicationchannels',
+                    get_string('appearance_overview_settingshowpublicationchannels', 'block_opencast'),
+                    get_string('appearance_overview_settingshowpublicationchannels_desc', 'block_opencast'), 1));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showenddate',
+                    get_string('appearance_overview_settingshowenddate', 'block_opencast'),
+                    get_string('appearance_overview_settingshowenddate_desc', 'block_opencast'), 1));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showlocation',
+                    get_string('appearance_overview_settingshowlocation', 'block_opencast'),
+                    get_string('appearance_overview_settingshowlocation_desc', 'block_opencast'), 1));
+
     $additionalsettings = new admin_settingpage('block_opencast_additionalsettings',
         get_string('additional_settings', 'block_opencast'));
 
