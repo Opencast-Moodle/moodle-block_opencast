@@ -36,6 +36,11 @@ Please refresh the site after some time to see the current visibility status.';
 $string['aclrolesaddedgroup'] = 'The change of visibility has been triggered to allow students of selected groups to access the video: {$a->title}
 
 Please refresh the site after some time to see the current visibility status.';
+$string['acl_settingcontrolafter'] = 'Allow episode visibility control after processing';
+$string['acl_settingcontrolafter_desc'] = 'If enabled, teachers can control the visibility of an Opencast episode after the episode has been processed in Opencast.';
+$string['acl_settingcontrolgroup'] = 'Allow episode group restriction';
+$string['acl_settingcontrolgroup_desc'] = 'If enabled, teachers can not only control the visibility of an Opencast episode for all course users but can also restrict the visibility to particular course groups.';
+$string['acl_settingheader'] = 'Control episode visibility';
 $string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';

@@ -52,7 +52,8 @@ $table->set_attribute('id', 'opencast-videos-table');
 
 $apibridge = apibridge::get_instance();
 $toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
-    (get_config('block_opencast', 'workflow_roles') != "");
+    (get_config('block_opencast', 'workflow_roles') != "") &&
+    (get_config('block_opencast', 'aclcontrolafter') == true);
 
 if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
     $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');

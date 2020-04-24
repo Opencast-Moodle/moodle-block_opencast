@@ -60,6 +60,28 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             get_string('lticonsumersecret', 'block_opencast'),
             get_string('lticonsumersecret_desc', 'block_opencast'), ""));
 
+    // Control ACL section.
+    $additionalsettings->add(
+            new admin_setting_heading('block_opencast/acl_settingheader',
+                    get_string('acl_settingheader', 'block_opencast'),
+                    ''));
+
+    // Control ACL: Enable feature.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/aclcontrolafter',
+                    get_string('acl_settingcontrolafter', 'block_opencast'),
+                    get_string('acl_settingcontrolafter_desc', 'block_opencast'), 1));
+
+    // Control ACL: Enable group restriction.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/aclcontrolgroup',
+                    get_string('acl_settingcontrolgroup', 'block_opencast'),
+                    get_string('acl_settingcontrolgroup_desc', 'block_opencast'), 1));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/aclcontrolgroup',
+                'block_opencast/aclcontrolafter', 'notchecked');
+    }
+
     // Add LTI module section.
     $additionalsettings->add(
         new admin_setting_heading('block_opencast/addlti_settingheader',
