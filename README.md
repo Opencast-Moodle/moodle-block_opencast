@@ -165,6 +165,12 @@ To give an example for Roles, which also meets the LTI standard and which is use
 | [COURSEID]_Instructor                           | write,read | Yes       |
 | [COURSEGROUPID]_Learner                         | read       | No        |
 
+Appearance
+----------
+
+#### Overview page
+In this section you can configure if particular columns on the overview page are shown or not.
+
 Additional features
 -------------------
 
