@@ -323,3 +323,6 @@ $string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integ
 $string['lticonsumersecret'] = 'Consumer secret';
 $string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
+
+$string['videodraftnotdeletable'] = 'The video cannot be deleted as the status is already "{$a}"';
+$string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';

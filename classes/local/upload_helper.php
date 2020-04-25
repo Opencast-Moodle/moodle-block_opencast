@@ -178,6 +178,36 @@ class upload_helper {
     }
 
     /**
+     * deletes the video file from file system and removes the job from upload queue as if the video had never been uploaded
+     * deletes only if the status is STATUS_READY_TO_UPLOAD
+     *
+     * @param \stdClass $jobtodelete
+     * @return bool
+     * @throws \dml_exception
+     */
+    public static function delete_video_draft($jobtodelete) {
+        global $DB;
+        // check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD
+        if($DB->record_exists('block_opencast_uploadjob',
+            ['id' => $jobtodelete->id, 'status' => self::STATUS_READY_TO_UPLOAD])) {
+
+            $DB->delete_records('block_opencast_uploadjob', ['id' => $jobtodelete->id]);
+            $DB->delete_records('block_opencast_metadata', ['uploadjobid' => $jobtodelete->id]);
+            // Delete from files table.
+            $fs    = get_file_storage();
+            $files = array();
+            $jobtodelete->presenter_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presenter_fileid) : null;
+            $jobtodelete->presentation_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presentation_fileid) : null;
+            foreach ($files as $file) {
+                $file->delete();
+                file_deletionmanager::fulldelete_file($file);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * If upload was successful, set:
      * - timesucceeded
      * - status to transferred
