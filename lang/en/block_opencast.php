@@ -299,7 +299,12 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
                                 <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['addcatalog'] = 'Add new metadata';
 $string['descriptionmdfn'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
-$string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
+$string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!<br>You may enter <a href="https://docs.moodle.org/en/Multi-language_content_filter">multi-language</a> strings in this format:
+
+    <pre>
+    &ltspan lang="en" class="multilang"&gt{"en": "English", "de": "German"}&lt/span&gt
+    &ltspan lang="de" class="multilang"&gt{"en": "Englisch", "de": "Deutsch"}&lt/span&gt
+    </pre>';
 $string['empty_catalogname'] = 'This field must not be empty';
 $string['space_catalogname'] = 'This field must not contain space';
 $string['exists_catalogname'] = 'The field is already existed';
