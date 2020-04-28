@@ -180,10 +180,12 @@ In this section you can enable a feature to add Opencast studio support to the b
 #### Control episode visibility
 In this section you can configure if the teacher is allowed to control the visibility of an Opencast episode after the episode has been processed.
 
-#### Add LTI module
-In this section you can enable a feature to let teachers add an Opencast LTI module to the course. This LTI module will be pointing to the course's Opencast series.
+#### Add Opencast LTI modules to courses
+In this section you can enable a feature to let teachers add an Opencast LTI series module to the course. This LTI series module will be pointing to the course's Opencast series.
 To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast series first.
 
+You can also enable a feature to let teachers add Opencast LTI episode modules to the course. These LTI episode modules will be pointing to an Opencast episode.
+To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast episodes first.
 
 Capabilities
 ------------

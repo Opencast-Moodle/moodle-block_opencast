@@ -24,9 +24,10 @@ require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG;
 
+$episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/addltiepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
 $redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
@@ -38,28 +39,35 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverview);
-$PAGE->navbar->add(get_string('addlti_addbuttontitle', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('addltiepisode_addicontitle', 'block_opencast'), $baseurl);
 
 // Check if the LTI module feature is enabled and working.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == false) {
-    print_error('add lti series module not enabled or working', 'block_opencast', $redirecturloverview);
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == false) {
+    print_error('add lti episode module not enabled or working', 'block_opencast', $redirecturloverview);
 }
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:addlti', $coursecontext);
+require_capability('block/opencast:addltiepisode', $coursecontext);
 
 // Existing LTI module check.
-$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($courseid);
+$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_episode($courseid, $episodeuuid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
-            get_string('addlti_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+            get_string('addltiepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
-$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid));
+// Episode UUID Check.
+// We do not validate if the given episode is really published in the given course.
+// But we validate if the given episode UUID is really a UUID.
+// The test code is borrowed from /lib/tests/setuplib_tests.php.
+$uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
+if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1) {
+    print_error('The given episode UUID is not valid', 'block_opencast', $redirecturloverview);
+}
 
-$apibridge = \block_opencast\local\apibridge::get_instance();
+$addltiform = new \block_opencast\local\addltiepisode_form(null, array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
 
 if ($addltiform->is_cancelled()) {
     redirect($redirecturlcancel);
@@ -68,37 +76,28 @@ if ($addltiform->is_cancelled()) {
 if ($data = $addltiform->get_data()) {
     // Verify again that we have a title. If not, use the default title.
     if (!$data->title) {
-        $data->title = get_string('addlti_defaulttitle', 'block_opencast');
-    }
-
-    // Get series ID.
-    $seriesid = $apibridge->get_stored_seriesid($courseid);
-
-    // Ensure that series exists.
-    if ($seriesid == null) {
-        $apibridge->create_course_series($courseid);
-        $seriesid = $apibridge->get_stored_seriesid($courseid);
+        $data->title = get_string('addltiepisode_defaulttitle', 'block_opencast');
     }
 
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid);
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_episode($courseid, $data->title, $episodeuuid);
 
     // Check if the module was created successfully.
     if ($result == true) {
         // Redirect to course overview.
         redirect($redirecturlcourse,
-                get_string('addlti_modulecreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_SUCCESS);
+                get_string('addltiepisode_modulecreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_SUCCESS);
 
         // Otherwise.
     } else {
         // Redirect to Opencast videos overview page.
         redirect($redirecturloverview,
-                get_string('addlti_modulenotcreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_ERROR);
+                get_string('addltiepisode_modulenotcreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_ERROR);
     }
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('addlti_addbuttontitle', 'block_opencast'));
+echo $OUTPUT->heading(get_string('addltiepisode_addicontitle', 'block_opencast'));
 
 $addltiform->display();
 echo $OUTPUT->footer();

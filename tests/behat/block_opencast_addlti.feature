@@ -1,5 +1,5 @@
 @block @block_opencast
-Feature: Add Opencast LTI module as Teacher
+Feature: Add Opencast LTI series module as Teacher
   In order to provide the uploaded videos to my students
   As teacher
   I need to be able to add an Opencast series module to my course
@@ -37,9 +37,9 @@ Feature: Add Opencast LTI module as Teacher
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
     And I set the following fields to these values:
-      | Enable ”Add LTI module"  | 1               |
-      | Default LTI module title | Opencast videos |
-      | Preconfigured LTI tool   | Opencast series |
+      | Enable ”Add LTI series module"            | 1               |
+      | Default LTI series module title           | Opencast videos |
+      | Preconfigured LTI tool for series modules | Opencast series |
     And I press "Save changes"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
@@ -169,4 +169,4 @@ Feature: Add Opencast LTI module as Teacher
     And I follow "Manage preconfigured tools"
     And I click on "#lti_configured_tools_container a.editing_delete" "css_element"
     And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
-    Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast LTI tool first"
+    Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast series LTI tool first"

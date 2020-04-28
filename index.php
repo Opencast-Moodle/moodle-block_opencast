@@ -95,6 +95,12 @@ if ($toggleaclroles) {
 $columns[] = 'action';
 $headers[] = 'action';
 
+// If enabled and working, add the provide column.
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
+    $columns[] = 'provide';
+    $headers[] = 'provide';
+}
+
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
         $headers[$i] = get_string('h' . $header, 'block_opencast');
@@ -108,6 +114,7 @@ $table->define_columns($columns);
 $table->define_baseurl($baseurl);
 
 $table->no_sorting('action');
+$table->no_sorting('provide');
 $table->no_sorting('published');
 $table->sortable(true, 'start_date', SORT_DESC);
 
@@ -200,6 +207,12 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 
+// If enabled and working, fetch the data for the LTI episodes feature.
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
+    // Fetch existing LTI episode modules for this course.
+    $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episodes($courseid);
+}
+
 if ($videodata->error == 0) {
 
     $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
@@ -276,6 +289,26 @@ if ($videodata->error == 0) {
             $row[] = $actions;
         }
 
+        // Provide column.
+        if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
+            // Pick existing LTI episode module for this episode.
+            $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
+                    $video->identifier);
+
+            // If there is already a LTI episode module created for this episode.
+            if ($moduleid) {
+                // Build icon to view the LTI episode module.
+                $ltiicon = $renderer->render_view_lti_episode_icon($moduleid);
+
+                // If there isn't a LTI episode module yet in this course and the user is allowed to add one.
+            } else if (has_capability('block/opencast:addltiepisode', $coursecontext)) {
+                // Build icon to add the LTI episode module.
+                $ltiicon = $renderer->render_add_lti_episode_icon($courseid, $video->identifier);
+            }
+
+            // Add icons to row.
+            $row[] = $ltiicon;
+        }
         $table->add_data($row);
     }
 } else {
@@ -284,13 +317,13 @@ if ($videodata->error == 0) {
 
 $table->finish_html();
 
-// If enabled and working, add LTI module feature.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {
+// If enabled and working, add LTI series module feature.
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true) {
 
-    // Fetch existing LTI module for this course.
-    $moduleid = \block_opencast\local\ltimodulemanager::get_module($courseid);
+    // Fetch existing LTI series module for this course.
+    $moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($courseid);
 
-    // If there is already a LTI module created in this course.
+    // If there is already a LTI series module created in this course.
     if ($moduleid) {
         // Show heading.
         echo $OUTPUT->heading(get_string('addlti_header', 'block_opencast'));
@@ -298,12 +331,18 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {
         // Show explanation.
         echo html_writer::tag('p', get_string('addlti_viewbuttonexplanation', 'block_opencast'));
 
-        // Show button to view the LTI module.
+        // Show button to view the LTI series module.
         $viewltiurl = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
         $viewltibutton = $OUTPUT->single_button($viewltiurl, get_string('addlti_viewbuttontitle', 'block_opencast'), 'get');
-        echo html_writer::div($viewltibutton);
+        echo html_writer::tag('p', $viewltibutton);
 
-        // If there isn't a LTI module yet in this course and the user is allowed to add one.
+        // If enabled and working, add additional explanation for LTI episodes module feature.
+        if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
+                count($videodata->videos) > 0) {
+            echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
+        }
+
+        // If there isn't a LTI series module yet in this course and the user is allowed to add one.
     } else if (has_capability('block/opencast:addlti', $coursecontext)) {
         // Show heading.
         echo $OUTPUT->heading(get_string('addlti_header', 'block_opencast'));
@@ -311,10 +350,16 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {
         // Show explanation.
         echo html_writer::tag('p', get_string('addlti_addbuttonexplanation', 'block_opencast'));
 
-        // Show button to add the LTI module.
+        // Show button to add the LTI series module.
         $addltiurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
         $addltibutton = $OUTPUT->single_button($addltiurl, get_string('addlti_addbuttontitle', 'block_opencast'), 'get');
-        echo html_writer::div($addltibutton);
+        echo html_writer::tag('p', $addltibutton);
+
+        // If enabled and working, add additional explanation for LTI episodes module feature.
+        if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
+                count($videodata->videos) > 0) {
+            echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
+        }
     }
 }
 

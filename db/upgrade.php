@@ -345,5 +345,32 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2020040400, 'opencast');
     }
 
+    if ($oldversion < 2020042404) {
+        // Define table block_opencast_ltiepisode to be created.
+        $table = new xmldb_table('block_opencast_ltiepisode');
+
+        // Adding fields to table block_opencast_ltiepisode.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('episodeuuid', XMLDB_TYPE_CHAR, '36', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_ltiepisode.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+
+        // Adding indexes to table block_opencast_ltiepisode.
+        $table->add_index('episodeuuid', XMLDB_INDEX_NOTUNIQUE, array('episodeuuid'));
+
+        // Conditionally launch create table for block_opencast_ltiepisode.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2020042404, 'opencast');
+    }
+
     return true;
 }
