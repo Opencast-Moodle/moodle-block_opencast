@@ -84,7 +84,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     And I should see "Opencast series module title"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Opencast videos' series module has been added to this course."
     And I should see "Opencast videos" in the "li.activity" "css_element"
@@ -106,13 +106,23 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     And I should see "Opencast series module title"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     And I should see "Course 1" in the "#page-header" "css_element"
     And I am on "Course 1" course homepage with editing mode on
     And I delete "Opencast videos" activity
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
     And I should see "Add Opencast series module to course"
+
+  Scenario: When adding the LTI module to the course, the teacher returns to the Opencast overview instead of to the course.
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module title"
+    And I click on "Add module and return to overview" "button"
+    Then I should not see "Course 1" in the "#page-header" "css_element"
+    And I should see "Provide videos"
 
   Scenario: The admin is able to change the default title for the LTI module.
     Given the following config values are set as admin:
@@ -122,7 +132,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     Then the field "Opencast series module title" matches value "Sensational videos"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
@@ -135,7 +145,7 @@ Feature: Add Opencast LTI series module as Teacher
     And the field "Opencast series module title" matches value "Opencast videos"
     And I set the following fields to these values:
       | Opencast series module title | Sensational videos |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
@@ -147,7 +157,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Add Opencast series module to course" "button"
     And I set the following fields to these values:
       | Opencast series module title | |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should not see "Course 1" in the "#page-header" "css_element"
     And I should see "You have to set a title for the Opencast series module or to use the default title"
 
@@ -190,7 +200,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I should see "Opencast series module intro"
     And I set the following fields to these values:
       | Opencast series module intro | <p>This is a nice intro</p><p>Watch my videos!</p> |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "This is a nice intro" in the "li.activity" "css_element"
     And I should see "Watch my videos!" in the "li.activity" "css_element"
@@ -214,7 +224,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I should see "Opencast series module target section"
     And I set the following fields to these values:
       | Opencast series module target section | Topic 1 |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "Opencast videos" in the "li#section-1" "css_element"
 

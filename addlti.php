@@ -25,6 +25,7 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $CFG;
 
 $courseid = required_param('courseid', PARAM_INT);
+$submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
 $baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
@@ -116,15 +117,30 @@ if ($data = $addltiform->get_data()) {
 
     // Check if the module was created successfully.
     if ($result == true) {
-        // Redirect to course overview.
-        redirect($redirecturlcourse,
-                get_string('addlti_modulecreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_SUCCESS);
+        // Form was submitted with second submit button.
+        if ($submitbutton2) {
+            // Redirect to course overview.
+            redirect($redirecturlcourse,
+                    get_string('addlti_modulecreated', 'block_opencast', $data->title),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS);
+
+            // Form was submitted with first submit button.
+        } else {
+            // Redirect to Opencast videos overview page.
+            redirect($redirecturloverview,
+                    get_string('addlti_modulecreated', 'block_opencast', $data->title),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS);
+        }
 
         // Otherwise.
     } else {
         // Redirect to Opencast videos overview page.
         redirect($redirecturloverview,
-                get_string('addlti_modulenotcreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_ERROR);
+                get_string('addlti_modulenotcreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_ERROR);
     }
 }
 

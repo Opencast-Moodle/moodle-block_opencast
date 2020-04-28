@@ -26,6 +26,7 @@ global $PAGE, $OUTPUT, $CFG;
 
 $episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
+$submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
 $baseurl = new moodle_url('/blocks/opencast/addltiepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
 $PAGE->set_url($baseurl);
@@ -115,15 +116,30 @@ if ($data = $addltiform->get_data()) {
 
     // Check if the module was created successfully.
     if ($result == true) {
-        // Redirect to course overview.
-        redirect($redirecturlcourse,
-                get_string('addltiepisode_modulecreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_SUCCESS);
+        // Form was submitted with second submit button.
+        if ($submitbutton2) {
+            // Redirect to course overview.
+            redirect($redirecturlcourse,
+                    get_string('addltiepisode_modulecreated', 'block_opencast', $data->title),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS);
+
+            // Form was submitted with first submit button.
+        } else {
+            // Redirect to Opencast videos overview page.
+            redirect($redirecturloverview,
+                    get_string('addltiepisode_modulecreated', 'block_opencast', $data->title),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS);
+        }
 
         // Otherwise.
     } else {
         // Redirect to Opencast videos overview page.
         redirect($redirecturloverview,
-                get_string('addltiepisode_modulenotcreated', 'block_opencast', $data->title), null, \core\output\notification::NOTIFY_ERROR);
+                get_string('addltiepisode_modulenotcreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_ERROR);
     }
 }
 

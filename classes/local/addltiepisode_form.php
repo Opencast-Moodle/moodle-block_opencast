@@ -78,6 +78,35 @@ class addltiepisode_form extends \moodleform {
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
-        $this->add_action_buttons(true, get_string('addltiepisode_addicontitle', 'block_opencast'));
+        $this->add_action_buttons();
+    }
+
+    /**
+     * Overriding formslib's add_action_buttons() method, to add an extra submit button.
+     *
+     * @param bool $cancel Not used
+     * @param string $submitlabel Not used
+     *
+     * @return void
+     */
+    function add_action_buttons($cancel = true, $submitlabel = null) {
+        $mform = $this->_form;
+
+        // Elements in a row need a group.
+        $buttonarray = array();
+
+        // Submit buttons.
+        $submitlabel = get_string('addltiepisode_addbuttontitlereturnoverview', 'block_opencast');
+        $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitlabel);
+        $submit2label = get_string('addltiepisode_addbuttontitlereturncourse', 'block_opencast');
+        $buttonarray[] = &$mform->createElement('submit', 'submitbutton2', $submit2label);
+
+        // Cancel button.
+        $buttonarray[] = &$mform->createElement('cancel');
+
+        // Show group.
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->setType('buttonar', PARAM_RAW);
+        $mform->closeHeaderBefore('buttonar');
     }
 }
