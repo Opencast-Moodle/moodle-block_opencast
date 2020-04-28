@@ -372,5 +372,45 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2020042404, 'opencast');
     }
 
+    if ($oldversion < 2020042408) {
+        // Define table block_opencast_ltimodule to be used.
+        $table = new xmldb_table('block_opencast_ltimodule');
+
+        // Here, we drop the 'courseid' unique key and the 'fk_course' foreign-unique key from the table block_opencast_ltimodule.
+        // Afterwards, we recreate the 'fk_course' foreign-unique key.
+        // This is done as a foreign-unique key produces a unique key automatically and we do not need two identical keys.
+        // This is especially done in this way (dropping both keys, then recreating the second one from scratch) as it can happen
+        // that Moodle drops both keys already when you just want to drop the first one as both are technically the same.
+
+        // There is no key_exists, so test the equivalent index.
+        $oldindex = new xmldb_index('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+
+        // Launch drop key if the key exists.
+        if ($dbman->index_exists($table, $oldindex)) {
+            // Drop the key.
+            $key = new xmldb_key('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+            $dbman->drop_key($table, $key);
+        }
+
+        // There is no key_exists, so test the equivalent index.
+        $oldindex2 = new xmldb_index('fk_course', XMLDB_KEY_UNIQUE, array('courseid'));
+
+        // Launch drop key if the key exists.
+        if ($dbman->index_exists($table, $oldindex2)) {
+            // Drop the key.
+            $key2 = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $dbman->drop_key($table, $key2);
+        }
+
+        // Launch add key if the key does not exist.
+        if (!$dbman->index_exists($table, $oldindex2)) {
+            $newkey = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $dbman->add_key($table, $newkey);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2020042408, 'opencast');
+    }
+
     return true;
 }
