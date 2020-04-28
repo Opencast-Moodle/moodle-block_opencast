@@ -53,6 +53,10 @@ class addvideo_form extends \moodleform {
                     }
                 }
                 if ($field->param_json) {
+                    $identifier = "{$field->name}_params";
+                    if (get_string_manager()->string_exists($identifier, 'block_opencast')) {
+                        $field->param_json = get_string($identifier, 'block_opencast');
+                    }
                     $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
                 }
                 if ($field->datatype == 'autocomplete') {
