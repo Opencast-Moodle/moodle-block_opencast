@@ -179,6 +179,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/addltienabled', 'notchecked');
     }
 
+    // Add LTI series modules: Availability.
+    $url = '/admin/settings.php?section=optionalsubsystems';
+    $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+    $description = get_string('addlti_settingavailability_desc', 'block_opencast').'<br />'.
+            get_string('addlti_settingavailability_note', 'block_opencast', $link);
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/addltiavailability',
+                    get_string('addlti_settingavailability', 'block_opencast'),
+                    $description, 0));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/addltiavailability',
+                'block_opencast/addltienabled', 'notchecked');
+    }
+
     // Add LTI episode modules: Enable feature.
     $additionalsettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiepisodeenabled',
@@ -230,6 +244,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addltiepisode_settingsection_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
         $additionalsettings->hide_if('block_opencast/addltiepisodesection',
+                'block_opencast/addltiepisodeenabled', 'notchecked');
+    }
+
+    // Add LTI episode modules: Availability.
+    $url = '/admin/settings.php?section=optionalsubsystems';
+    $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+    $description = get_string('addltiepisode_settingavailability_desc', 'block_opencast').'<br />'.
+            get_string('addlti_settingavailability_note', 'block_opencast', $link);
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/addltiepisodeavailability',
+                    get_string('addltiepisode_settingavailability', 'block_opencast'),
+                    $description, 0));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/addltiepisodeavailability',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 }

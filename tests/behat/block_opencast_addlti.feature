@@ -217,3 +217,25 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Add Opencast series module to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "Opencast videos" in the "li#section-1" "css_element"
+
+  Scenario: The admin has not allowed to set availability for the LTI module
+    Given the following config values are set as admin:
+      | addltiavailability | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module access restriction"
+
+  @javascript
+  Scenario: The admin has allowed to set availability for the LTI module
+    Given the following config values are set as admin:
+      | addltiavailability | 1 | block_opencast |
+    And the following config values are set as admin:
+      | enableavailability | 1 |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module access restriction"
+    And "Add restriction..." "button" should exist

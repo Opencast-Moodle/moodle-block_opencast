@@ -99,9 +99,19 @@ if ($data = $addltiform->get_data()) {
         $sectionid = $data->section;
     }
 
+    // If the availability feature is disabled or if we do not have an availability given, use null.
+    if (get_config('block_opencast', 'addltiepisodeavailability') != true || empty($CFG->enableavailability) ||
+            !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
+        $availability = null;
+
+        // Otherwise.
+    } else {
+        $availability = $data->availabilityconditionsjson;
+    }
+
     // Create the module.
     $result = \block_opencast\local\ltimodulemanager::create_module_for_episode($courseid, $data->title, $episodeuuid,
-            $sectionid, $introtext, $introformat);
+            $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.
     if ($result == true) {

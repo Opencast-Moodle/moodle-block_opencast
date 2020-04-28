@@ -31,7 +31,11 @@ require_once($CFG->dirroot . '/lib/formslib.php');
 class addlti_form extends \moodleform {
 
     public function definition() {
+        global $CFG;
+
         $mform = $this->_form;
+
+        $courseid = $this->_customdata['courseid'];
 
         $mform->addElement('text', 'title', get_string('addlti_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
@@ -49,18 +53,24 @@ class addlti_form extends \moodleform {
 
         if (get_config('block_opencast', 'addltisection') == true) {
             // Get course sections.
-            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']);
+            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($courseid);
 
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addlti_formltisection', 'block_opencast'),
-                        \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']));
+                        \block_opencast\local\ltimodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
         }
 
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+        if (get_config('block_opencast', 'addltiavailability') == true && !empty($CFG->enableavailability)) {
+            $mform->addElement('textarea', 'availabilityconditionsjson',
+                    get_string('addlti_formltiavailability', 'block_opencast'));
+            \core_availability\frontend::include_all_javascript(get_course($courseid));
+        }
+
+        $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('addlti_addbuttontitle', 'block_opencast'));

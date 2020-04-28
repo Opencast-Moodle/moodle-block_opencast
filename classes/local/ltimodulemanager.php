@@ -202,11 +202,12 @@ class ltimodulemanager {
      * @param int $sectionid
      * @param string $introtext
      * @param int $introformat
+     * @param string $availability
      *
      * @return boolean
      */
     public static function create_module_for_series($courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML) {
+            $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -243,7 +244,7 @@ class ltimodulemanager {
 
         // Create an LTI modinfo object.
         $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'series='.$seriesid, $introtext,
-                $introformat);
+                $introformat, $availability);
 
         // Add the LTI series module to the given course (this does not check any capabilities to add modules to courses by purpose).
         $modulecreated = \add_moduleinfo($moduleinfo, $course);
@@ -266,11 +267,12 @@ class ltimodulemanager {
      * @param int $sectionid
      * @param string $introtext
      * @param int $introformat
+     * @param string $availability
      *
      * @return boolean
      */
     public static function create_module_for_episode($courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML) {
+            $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -306,7 +308,8 @@ class ltimodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'id='.$episodeuuid, $introtext, $introformat);
+        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'id='.$episodeuuid, $introtext, $introformat,
+                $availability);
 
         // Add the LTI episode module to the given course (this does not check any capabilities to add modules to courses by purpose).
         $modulecreated = \add_moduleinfo($moduleinfo, $course);
@@ -331,11 +334,12 @@ class ltimodulemanager {
      * @param string $instructorcustomparameters
      * @param string $introtext
      * @param int $introformat
+     * @param string $availability
      *
      * @return object
      */
     public static function build_lti_modinfo($pluginid, $title, $sectionid, $toolid, $instructorcustomparameters, $introtext = '',
-            $introformat = FORMAT_HTML) {
+            $introformat = FORMAT_HTML, $availability = null) {
         // Create standard class object.
         $moduleinfo = new \stdClass();
 
@@ -356,7 +360,7 @@ class ltimodulemanager {
         $moduleinfo->cmidnumber = '';
         $moduleinfo->groupmode = NOGROUPS;
         $moduleinfo->groupingid = 0;
-        $moduleinfo->availability = null;
+        $moduleinfo->availability = $availability;
         $moduleinfo->completion = 0;
 
         // Populate the modinfo object with LTI specific parameters.

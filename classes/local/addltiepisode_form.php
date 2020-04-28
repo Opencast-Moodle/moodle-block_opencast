@@ -31,7 +31,11 @@ require_once($CFG->dirroot . '/lib/formslib.php');
 class addltiepisode_form extends \moodleform {
 
     public function definition() {
+        global $CFG;
+
         $mform = $this->_form;
+
+        $courseid = $this->_customdata['courseid'];
 
         $mform->addElement('text', 'title', get_string('addltiepisode_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
@@ -51,21 +55,27 @@ class addltiepisode_form extends \moodleform {
 
         if (get_config('block_opencast', 'addltiepisodesection') == true) {
             // Get course sections.
-            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']);
+            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($courseid);
 
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addltiepisode_formltisection', 'block_opencast'),
-                        \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']));
+                        \block_opencast\local\ltimodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
         }
 
+        if (get_config('block_opencast', 'addltiepisodeavailability') == true && !empty($CFG->enableavailability)) {
+            $mform->addElement('textarea', 'availabilityconditionsjson',
+                    get_string('addltiepisode_formltiavailability', 'block_opencast'));
+            \core_availability\frontend::include_all_javascript(get_course($courseid));
+        }
+
         $mform->addElement('hidden', 'episodeuuid', $this->_customdata['episodeuuid']);
         $mform->setType('episodeuuid', PARAM_ALPHANUMEXT);
 
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+        $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('addltiepisode_addicontitle', 'block_opencast'));
