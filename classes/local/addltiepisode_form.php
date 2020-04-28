@@ -35,7 +35,12 @@ class addltiepisode_form extends \moodleform {
 
         $mform->addElement('text', 'title', get_string('addltiepisode_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
-        $mform->setDefault('title', \block_opencast\local\ltimodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
+        $mform->setDefault('title',
+                \block_opencast\local\ltimodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
+        $mform->addRule('title',
+                get_string('addltiepisode_noemptytitle', 'block_opencast',
+                        get_string('addltiepisode_defaulttitle', 'block_opencast')),
+                'required');
 
         $mform->addElement('hidden', 'episodeuuid', $this->_customdata['episodeuuid']);
         $mform->setType('episodeuuid', PARAM_ALPHANUMEXT);
@@ -44,25 +49,5 @@ class addltiepisode_form extends \moodleform {
         $mform->setType('courseid', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('addltiepisode_addicontitle', 'block_opencast'));
-    }
-
-    /**
-     * Validates if all fields are filled.
-     *
-     * @param array $data
-     * @param array $files
-     *
-     * @return array
-     * @throws \coding_exception
-     */
-    public function validation($data, $files) {
-        $error = array();
-
-        if (empty($data['title'])) {
-            $error['title'] = get_string('addltiepisode_noemptytitle', 'block_opencast',
-                    get_string('addltiepisode_defaulttitle', 'block_opencast'));
-        }
-
-        return $error;
     }
 }

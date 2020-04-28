@@ -36,30 +36,13 @@ class addlti_form extends \moodleform {
         $mform->addElement('text', 'title', get_string('addlti_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title', \block_opencast\local\ltimodulemanager::get_default_title_for_series());
+        $mform->addRule('title',
+                get_string('addlti_noemptytitle', 'block_opencast', get_string('addlti_defaulttitle', 'block_opencast')),
+                'required');
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('addlti_addbuttontitle', 'block_opencast'));
-    }
-
-    /**
-     * Validates if all fields are filled.
-     *
-     * @param array $data
-     * @param array $files
-     *
-     * @return array
-     * @throws \coding_exception
-     */
-    public function validation($data, $files) {
-        $error = array();
-
-        if (empty($data['title'])) {
-            $error['title'] = get_string('addlti_noemptytitle', 'block_opencast',
-                    get_string('addlti_defaulttitle', 'block_opencast'));
-        }
-
-        return $error;
     }
 }
