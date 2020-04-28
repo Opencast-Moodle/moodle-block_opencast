@@ -42,6 +42,13 @@ class addltiepisode_form extends \moodleform {
                         get_string('addltiepisode_defaulttitle', 'block_opencast')),
                 'required');
 
+        if (get_config('block_opencast', 'addltiepisodeintro') == true) {
+            $mform->addElement('editor', 'intro', get_string('addltiepisode_formltiintro', 'block_opencast'),
+                    array('rows' => 5),
+                    array('maxfiles' => 0, 'noclean' => true));
+            $mform->setType('intro', PARAM_RAW); // no XSS prevention here, users must be trusted
+        }
+
         $mform->addElement('hidden', 'episodeuuid', $this->_customdata['episodeuuid']);
         $mform->setType('episodeuuid', PARAM_ALPHANUMEXT);
 

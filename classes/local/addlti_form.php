@@ -40,6 +40,13 @@ class addlti_form extends \moodleform {
                 get_string('addlti_noemptytitle', 'block_opencast', get_string('addlti_defaulttitle', 'block_opencast')),
                 'required');
 
+        if (get_config('block_opencast', 'addltiintro') == true) {
+            $mform->addElement('editor', 'intro', get_string('addlti_formltiintro', 'block_opencast'),
+                    array('rows' => 5),
+                    array('maxfiles' => 0, 'noclean' => true));
+            $mform->setType('intro', PARAM_RAW); // no XSS prevention here, users must be trusted
+        }
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 

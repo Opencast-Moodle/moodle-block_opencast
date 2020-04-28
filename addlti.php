@@ -71,6 +71,26 @@ if ($data = $addltiform->get_data()) {
         $data->title = get_string('addlti_defaulttitle', 'block_opencast');
     }
 
+    // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
+    if (get_config('block_opencast', 'addltiintro') != true || !isset($data->intro) || !$data->intro) {
+        $introtext = '';
+        $introformat = FORMAT_HTML;
+
+        // Otherwise.
+    } else {
+        $introtext = $data->intro['text'];
+        $introformat = $data->intro['format'];
+    }
+
+    // If we do not have a section (because the admin may have disabled the corresponding feature), use the default section.
+    if (!isset($data->section) || !$data->section) {
+        $sectionid = 0;
+
+        // Otherwise.
+    } else {
+        $sectionid = $data->section;
+    }
+
     // Get series ID.
     $seriesid = $apibridge->get_stored_seriesid($courseid);
 
@@ -81,7 +101,8 @@ if ($data = $addltiform->get_data()) {
     }
 
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid);
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid,
+            $sectionid, $introtext, $introformat);
 
     // Check if the module was created successfully.
     if ($result == true) {

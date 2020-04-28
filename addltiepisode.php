@@ -79,8 +79,29 @@ if ($data = $addltiform->get_data()) {
         $data->title = get_string('addltiepisode_defaulttitle', 'block_opencast');
     }
 
+    // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
+    if (get_config('block_opencast', 'addltiepisodeintro') != true || !isset($data->intro) || !$data->intro) {
+        $introtext = '';
+        $introformat = FORMAT_HTML;
+
+        // Otherwise.
+    } else {
+        $introtext = $data->intro['text'];
+        $introformat = $data->intro['format'];
+    }
+
+    // If we do not have a section (because the admin may have disabled the corresponding feature), use the default section.
+    if (!isset($data->section) || !$data->section) {
+        $sectionid = 0;
+
+        // Otherwise.
+    } else {
+        $sectionid = $data->section;
+    }
+
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_episode($courseid, $data->title, $episodeuuid);
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_episode($courseid, $data->title, $episodeuuid,
+            $sectionid, $introtext, $introformat);
 
     // Check if the module was created successfully.
     if ($result == true) {

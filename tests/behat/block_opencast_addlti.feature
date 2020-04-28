@@ -170,3 +170,27 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "#lti_configured_tools_container a.editing_delete" "css_element"
     And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
     Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast series LTI tool first"
+
+  Scenario: The admin has not allowed to add an intro for the LTI module.
+    Given the following config values are set as admin:
+      | addltiintro | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module intro"
+
+  Scenario: The admin has allowed to add an intro for the LTI module.
+    Given the following config values are set as admin:
+      | addltiintro | 1 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module intro"
+    And I set the following fields to these values:
+      | Opencast series module intro | <p>This is a nice intro</p><p>Watch my videos!</p> |
+    And I click on "Add Opencast series module to course" "button"
+    Then I should see "Course 1" in the "#page-header" "css_element"
+    And I should see "This is a nice intro" in the "li.activity" "css_element"
+    And I should see "Watch my videos!" in the "li.activity" "css_element"
