@@ -47,6 +47,19 @@ class addlti_form extends \moodleform {
             $mform->setType('intro', PARAM_RAW); // no XSS prevention here, users must be trusted
         }
 
+        if (get_config('block_opencast', 'addltisection') == true) {
+            // Get course sections.
+            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']);
+
+            // Add the widget only if we have more than one section.
+            if (count($sectionmenu) > 1) {
+                $mform->addElement('select', 'section', get_string('addlti_formltisection', 'block_opencast'),
+                        \block_opencast\local\ltimodulemanager::get_course_sections($this->_customdata['courseid']));
+                $mform->setType('section', PARAM_INT);
+                $mform->setDefault('section', 0);
+            }
+        }
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 

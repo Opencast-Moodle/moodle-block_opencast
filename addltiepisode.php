@@ -90,8 +90,8 @@ if ($data = $addltiform->get_data()) {
         $introformat = $data->intro['format'];
     }
 
-    // If we do not have a section (because the admin may have disabled the corresponding feature), use the default section.
-    if (!isset($data->section) || !$data->section) {
+    // If the section feature is disabled or if we do not have an intro, use the default section.
+    if (get_config('block_opencast', 'addltiepisodesection') != true || !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.

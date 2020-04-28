@@ -9,8 +9,8 @@ Feature: Add Opencast LTI series module as Teacher
       | username | firstname | lastname | email                | idnumber |
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |
     And the following "courses" exist:
-      | fullname | shortname | category |
-      | Course 1 | C1        | 0        |
+      | fullname | shortname | format | category |
+      | Course 1 | C1        | topics | 0        |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
@@ -194,3 +194,26 @@ Feature: Add Opencast LTI series module as Teacher
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "This is a nice intro" in the "li.activity" "css_element"
     And I should see "Watch my videos!" in the "li.activity" "css_element"
+
+  Scenario: The admin has not allowed to choose the target section for the LTI module.
+    Given the following config values are set as admin:
+      | addltisection | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module target section"
+
+  Scenario: The admin has allowed to choose the target section for the LTI module
+    Given the following config values are set as admin:
+      | addltisection | 1 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module target section"
+    And I set the following fields to these values:
+      | Opencast series module target section | Topic 1 |
+    And I click on "Add Opencast series module to course" "button"
+    Then I should see "Course 1" in the "#page-header" "css_element"
+    And I should see "Opencast videos" in the "li#section-1" "css_element"

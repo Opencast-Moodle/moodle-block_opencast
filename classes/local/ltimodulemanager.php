@@ -537,4 +537,35 @@ class ltimodulemanager {
         // Finally, return the episode title.
         return $episodetitle;
     }
+
+    /**
+     * Helperfunction to get the section list of a given course as associative array.
+     * This includes a fallback for the case that the course format does not use sections at all.
+     *
+     * @param int $courseid
+     *
+     * @return array
+     */
+    public static function get_course_sections($courseid) {
+        // Get course format.
+        $courseformat = course_get_format($courseid);
+
+        // If the course format does not use sections at all, we are already done.
+        if (!$courseformat->uses_sections()) {
+            return array();
+        }
+
+        // Get list of sections.
+        $coursemodinfo = \course_modinfo::instance($courseid);
+        $sections = $coursemodinfo->get_section_info_all();
+
+        // Extract section titles and build section menu.
+        $sectionmenu = array();
+        foreach($sections as $id => $section) {
+            $sectionmenu[$id] = get_section_name($courseid, $id);
+        }
+
+        // Finally, return the course section array.
+        return $sectionmenu;
+    }
 }
