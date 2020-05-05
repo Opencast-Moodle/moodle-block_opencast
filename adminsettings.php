@@ -46,6 +46,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'deleteworkflow',
         'adhocfiledeletion',
         'uploadfileextensions',
+        'maxuploadsize',
         'limitvideos',
         'cachevalidtime',
         'duplicateworkflow',

@@ -51,7 +51,7 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
 
 $addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog));
 
@@ -60,16 +60,27 @@ if ($addvideoform->is_cancelled()) {
 }
 
 if ($data = $addvideoform->get_data()) {
-
     // Record the user draft area in this context.
-    $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
-    $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+    if (property_exists($data, 'presenter_already_uploaded') && $data->presenter_already_uploaded) {
+        $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id,
+                'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
+    } else {
+        $storedfile_presenter = \local_chunkupload\chunkupload_form_element::export_to_filearea($data->video_presenter_chunk,
+                $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA);
+    }
+    if (property_exists($data, 'presentation_already_uploaded') && $data->presentation_already_uploaded) {
+        $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id,
+                'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+    } else {
+        $storedfile_presentation = \local_chunkupload\chunkupload_form_element::export_to_filearea($data->video_presentation_chunk,
+                $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA);
+    }
 
     if ($storedfile_presenter) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presenter);
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presenter->get_itemid());
     }
     if ($storedfile_presentation) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presentation);
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presentation->get_itemid());
     }
 
     $metadata = [];

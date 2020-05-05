@@ -348,3 +348,5 @@ $string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['cachevalidtime'] = 'Cache valid time';
 $string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
+$string['maxuploadsize'] = 'Maximum Upload size (MB)';
+$string['video_already_uploaded'] = 'Video already uploaded';

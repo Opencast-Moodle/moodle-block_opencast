@@ -115,6 +115,12 @@ class admin_form extends moodleform {
         $mform->setDefault($name, '');
         $mform->addElement('static', 'description' . $name, '', $description);
 
+        $name = 'maxuploadsize';
+        $title = get_string('maxuploadsize', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setType($name, PARAM_INT);
+        $mform->setDefault($name, 2048);
+
         // Section overview settings.
         $mform->addElement('header', 'block_header', get_string('blocksettings', 'block_opencast'));
 
