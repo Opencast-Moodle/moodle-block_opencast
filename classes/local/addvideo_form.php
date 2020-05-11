@@ -38,9 +38,13 @@ class addvideo_form extends \moodleform {
 
     public function definition() {
         global $CFG;
-        \MoodleQuickForm::registerElementType('chunkupload',
-                "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
-                'local_chunkupload\chunkupload_form_element');
+        $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element');
+
+        if ($chunkupload_installed) {
+            \MoodleQuickForm::registerElementType('chunkupload',
+                    "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
+                    'local_chunkupload\chunkupload_form_element');
+        }
 
 
         $mform = $this->_form;
@@ -122,27 +126,37 @@ class addvideo_form extends \moodleform {
 
             $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
             $mform->addElement('html', $presenterdesc);
-            $mform->addElement('checkbox', 'presenter_already_uploaded',
-                get_string('video_already_uploaded', 'block_opencast'));
+
+            if ($chunkupload_installed) {
+                $mform->addElement('checkbox', 'presenter_already_uploaded',
+                        get_string('video_already_uploaded', 'block_opencast'));
+            }
             $mform->addElement('filepicker', 'video_presenter',
                 get_string('presenter', 'block_opencast'),
                 null, ['accepted_types' => $videotypes]);
-            $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
-            $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-            $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
+            if ($chunkupload_installed) {
+                $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
+                $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
+                        array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+                $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
+            }
 
             $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
             $mform->addElement('html', $presentationdesc);
-            $mform->addElement('checkbox', 'presentation_already_uploaded',
-                get_string('video_already_uploaded', 'block_opencast'));
+
+            if ($chunkupload_installed) {
+                $mform->addElement('checkbox', 'presentation_already_uploaded',
+                        get_string('video_already_uploaded', 'block_opencast'));
+            }
             $mform->addElement('filepicker', 'video_presentation',
                 get_string('presentation', 'block_opencast'),
                 null, ['accepted_types' => $videotypes]);
-            $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
-            $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-            $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
+            if ($chunkupload_installed) {
+                $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
+                $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
+                        array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+                $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
+            }
 
             $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
             $mform->setType('courseid', PARAM_INT);
@@ -161,13 +175,16 @@ class addvideo_form extends \moodleform {
      */
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if (isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
+        $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element');
+        if (!$chunkupload_installed ||
+                isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
             $presenter_file = $this->get_draft_files('video_presenter');
         } else {
             $presenter_file = isset($data['video_presenter_chunk']) &&
                     chunkupload_form_element::is_file_uploaded($data['video_presenter_chunk']);
         }
-        if (isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
+        if (!$chunkupload_installed ||
+                isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
             $presentation_file = $this->get_draft_files('video_presentation');
         } else {
             $presentation_file = isset($data['video_presentation_chunk']) &&
