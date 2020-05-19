@@ -16,7 +16,7 @@
 
 /**
  *
- * * @package    block_opencast
+ * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,7 +30,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/uploadvideo.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
@@ -51,7 +51,7 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
 
 $addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog));
 

@@ -89,9 +89,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $coursecontext = context_course::instance($courseid);
 
         if (has_capability('block/opencast:addvideo', $coursecontext)) {
-            $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
-            $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
-            $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap');
+                $addvideourl = new moodle_url('/blocks/opencast/uploadvideo.php', array('courseid' => $courseid));
+                $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
 
             if (get_config('block_opencast', 'enable_opencast_studio_link')) {
                 $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
