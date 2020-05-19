@@ -46,6 +46,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             ''));
 
     $additionalsettings->add(
+        new admin_setting_configcheckbox('block_opencast/enable_upload_video',
+            get_string('enableuploadvideo', 'block_opencast'),
+            get_string('enableuploadvideo_desc', 'block_opencast'), 1));
+
+    $additionalsettings->add(
         new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link',
             get_string('enableopencaststudiolink', 'block_opencast'),
             get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));

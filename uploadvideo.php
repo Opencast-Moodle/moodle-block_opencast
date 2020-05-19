@@ -35,6 +35,10 @@ $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 
+if (!get_config('block_opencast', 'enable_upload_video')) {
+    redirect($redirecturl);
+}
+
 require_login($courseid, false);
 
 // Use block context for this page to ignore course file upload limit.

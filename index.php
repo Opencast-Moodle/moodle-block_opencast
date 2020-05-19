@@ -137,8 +137,11 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
     echo $renderer->render_upload_jobs($videojobs);
 
+    if (get_config('block_opencast', 'enable_upload_video')) {
         $addvideourl = new moodle_url('/blocks/opencast/uploadvideo.php', array('courseid' => $courseid));
         $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
+        echo html_writer::div($addvideobutton);
+    }
 
     if (get_config('block_opencast', 'enable_opencast_studio_link')) {
         $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));

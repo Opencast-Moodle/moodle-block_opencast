@@ -315,6 +315,8 @@ $string['presentationfilesize'] = 'Filesize (Presentation)';
 $string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
 $string['recordvideo'] = 'Record video';
 $string['heading_lti'] = 'Setting for LTI Configuration';
+$string['enableuploadvideo'] = 'Allow to upload videos into Opencast';
+$string['enableuploadvideo_desc'] = 'This option allows videos to be uploaded into Opencast.';
 $string['enableopencaststudiolink'] = 'Show the link to opencast studio';
 $string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview.
 Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
