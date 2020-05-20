@@ -54,7 +54,7 @@ jobs:
     # Prechecks against latest Moodle stable only.
     - stage: static
       php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
@@ -70,7 +70,7 @@ jobs:
     # Smaller build matrix for development builds
     - stage: develop
       php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
       before_install:
         - phpenv config-rm xdebug.ini
         - nvm install v14
