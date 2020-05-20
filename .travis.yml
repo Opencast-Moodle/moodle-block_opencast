@@ -118,7 +118,7 @@ install:
 
 script:
   - moodle-plugin-ci phpunit --coverage-clover
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat || [ "$MOODLE_BRANCH" = 'MOODLE_35_STABLE' ]
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
