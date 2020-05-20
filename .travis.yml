@@ -64,7 +64,7 @@ jobs:
       #- moodle-plugin-ci codechecker
       - moodle-plugin-ci savepoints
       - moodle-plugin-ci mustache
-      - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ]
+      - moodle-plugin-ci grunt
       - moodle-plugin-ci validate
 
     # Smaller build matrix for development builds
