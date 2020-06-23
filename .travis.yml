@@ -86,6 +86,14 @@ jobs:
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.3
       env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.4
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
 
 # Unit tests and behat tests against full matrix.
 install:
