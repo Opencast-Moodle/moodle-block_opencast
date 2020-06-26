@@ -84,7 +84,8 @@ class upload_helper {
                 JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
                 LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
                 LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid 
-                WHERE uj.status < :status AND uj.courseid = :courseid";
+                WHERE uj.status < :status AND uj.courseid = :courseid
+                ORDER BY uj.timecreated DESC";
 
         $params = [];
         $params['status'] = self::STATUS_TRANSFERRED;
