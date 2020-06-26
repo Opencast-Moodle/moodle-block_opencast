@@ -185,7 +185,7 @@ if ($videodata->error == 0) {
         $row = array();
 
         $row[] = $renderer->render_created($video->start);
-        if ($video->duration) {
+        if (property_exists($video, 'duration') && $video->duration) {
             $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
                 get_string('strftimedatetime', 'langconfig'));
         } else {
