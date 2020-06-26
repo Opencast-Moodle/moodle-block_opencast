@@ -342,6 +342,9 @@ $string['lticonsumersecret'] = 'Consumer secret';
 $string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
 
+$string['videodraftnotdeletable'] = 'The video cannot be deleted as the status is already "{$a}"';
+$string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
+
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['cachevalidtime'] = 'Cache valid time';
 $string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
