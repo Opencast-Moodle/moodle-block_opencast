@@ -993,6 +993,7 @@ class apibridge {
 
         // Add new acls.
         $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups);
+        $newacls = array_merge($newacls, $this->get_permanent_acl_rules_for_status($courseid, $visibility, $groups));
         foreach ($newacls as $acl) {
             $event->add_acl($acl->allow, $acl->action, $acl->role);
         }
@@ -1055,7 +1056,36 @@ class apibridge {
      * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
     private function get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
-        $roles = $this->getroles(array('permanent' => 0));
+        return $this->get_acl_rules_for_status($courseid, $visibility, false, $groups);
+    }
+
+    /**
+     * Returns the expected set of permanent acl rules for the given status in the context of an event.
+     * Can be used for comparision with the actual set of acl rules.
+     * @param int $courseid id of the course the event belongs to.
+     * @param int $visibility visibility of the event.
+     * @param array|null $groups array of group ids used for replacing the placeholders
+     * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
+     * @throws \dml_exception
+     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
+     */
+    private function get_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
+        return $this->get_acl_rules_for_status($courseid, $visibility, true, $groups);
+    }
+
+    /**
+     * Returns the expected set of acl rules for the given status in the context of an event.
+     * Can be used for comparision with the actual set of acl rules.
+     * @param int $courseid id of the course the event belongs to.
+     * @param int $visibility visibility of the event.
+     * @param bool $permanent whether to get permanent or non-permanent acl rules.
+     * @param array|null $groups array of group ids used for replacing the placeholders
+     * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
+     * @throws \dml_exception
+     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
+     */
+    private function get_acl_rules_for_status($courseid, $visibility, $permanent, $groups = null) {
+        $roles = $this->getroles(array('permanent' => $permanent ? 1 : 0));
 
         $result = array();
 

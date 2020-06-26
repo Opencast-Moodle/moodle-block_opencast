@@ -78,7 +78,7 @@ if ($data = $addvideoform->get_data()) {
     //Adding data into $metadata based on $metadata_catalog
     foreach ($metadata_catalog as $field) {
         $id = $field->name;
-        if (array_key_exists($field->name, $data) AND $data->$id) {
+        if (property_exists($data, $field->name) AND $data->$id) {
             if ($field->name == 'title') { //Make sure the title is received!
                 $get_title = false;
             }
@@ -119,7 +119,7 @@ if ($data = $addvideoform->get_data()) {
 
     // Update all upload jobs.
     \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);
-    redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'));
+    redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
 $PAGE->requires->js_call_amd('block_opencast/block_form_handler','init');

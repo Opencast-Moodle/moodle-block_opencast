@@ -1,7 +1,5 @@
 language: php
-
-sudo: required
-dist: trusty
+os: linux
 
 cache:
   directories:
@@ -9,61 +7,38 @@ cache:
     - $HOME/.npm
 
 addons:
-  firefox: "47.0.1"
   postgresql: "9.5"
 
 services:
+  - mysql
   - docker
 
 php:
-  - 7.0
-  - 7.1
+  - 7.2
   - 7.3
+  - 7.4
 
-matrix:
-  exclude:
-    - php: 7.0
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
-    - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
-    - php: 7.0
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE
-    - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
-    - php: 7.0
-      env: DB=pgsql MOODLE_BRANCH=master
-    - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=master
-    - php: 7.1
-      env: DB=pgsql MOODLE_BRANCH=master
-    - php: 7.1
-      env: DB=mysqli MOODLE_BRANCH=master
-    - php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.3
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
-  fast_finish: true
 
 
 env:
- matrix:
+ jobs:
   - DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
-  - DB=pgsql MOODLE_BRANCH=MOODLE_36_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE
+  #- DB=pgsql MOODLE_BRANCH=MOODLE_39_STABLE
   - DB=pgsql MOODLE_BRANCH=master
   - DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+  #- DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
   - DB=mysqli MOODLE_BRANCH=master
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9.4
+  - nvm install v14
   - cd ../..
   - composer selfupdate
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci dev-master
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
   - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
@@ -72,11 +47,12 @@ before_install:
   - cd -
 
 jobs:
+  fast_finish: true
   include:
     # Prechecks against latest Moodle stable only.
     - stage: static
       php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
@@ -86,38 +62,47 @@ jobs:
       #- moodle-plugin-ci codechecker
       - moodle-plugin-ci savepoints
       - moodle-plugin-ci mustache
-      - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ]
+      - moodle-plugin-ci grunt
       - moodle-plugin-ci validate
 
     # Smaller build matrix for development builds
     - stage: develop
       php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
       before_install:
         - phpenv config-rm xdebug.ini
-        - nvm install 8.9.4
+        - nvm install v14
         - cd ../..
         - composer selfupdate
-        - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
+        - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci dev-master
         - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
         - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
         - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
         - cd /tmp/opencast-docker
         - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
         - cd -
-      install:
-      - moodle-plugin-ci install
-      script:
-      - moodle-plugin-ci phpunit --coverage-clover
-      - moodle-plugin-ci behat
+  exclude:
+    - php: 7.3
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.3
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
+    - php: 7.4
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
 
 # Unit tests and behat tests against full matrix.
 install:
+  - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm selenium/standalone-firefox:2.53.1
   - moodle-plugin-ci install
 
 script:
   - moodle-plugin-ci phpunit --coverage-clover
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat || [ "$MOODLE_BRANCH" = 'MOODLE_35_STABLE' ]
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 

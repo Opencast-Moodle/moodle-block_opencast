@@ -50,17 +50,23 @@ class visibility_form extends \moodleform {
         $mform->addElement('hidden', 'identifier', $eventid);
         $mform->setType('identifier', PARAM_INT);
 
-        // Check if there are roles, which allow group visibility.
-        $roles = $apibridge->getroles(array("permanent" => 0));
-        $groupvisibilityallowed = false;
-        foreach ($roles as $role) {
-            if (strpos($role->rolename, '[COURSEGROUPID]') >= 0) {
-                $groupvisibilityallowed = true;
-                break;
-            }
-        }
+        // Check if the teacher should be allowed to restrict the episode to course groups.
+        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup');
 
-        $groups = groups_get_all_groups($courseid);
+        // If group restriction is generally enabled, check if there are roles which allow group visibility.
+        if ($controlgroupsenabled) {
+            $roles = $apibridge->getroles(array("permanent" => 0));
+            $groupvisibilityallowed = false;
+            foreach ($roles as $role) {
+                if (strpos($role->rolename, '[COURSEGROUPID]') >= 0) {
+                    $groupvisibilityallowed = true;
+                    break;
+                }
+            }
+            $groups = groups_get_all_groups($courseid);
+        } else {
+            $groupvisibilityallowed = false;
+        }
 
         $radioarray=array();
         $radioarray[] = $mform->addElement('radio', 'visibility',

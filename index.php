@@ -43,12 +43,10 @@ $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
-$table = new block_opencast\local\flexible_table('opencast-videos-table');
+// Invalidate Block cache;
+cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
 
-$download = optional_param('download', '', PARAM_ALPHA);
-if ($download) {
-    $table->is_downloading($download, userdate(time(), '%Y-%m-%d-%H%M%S') . '_report');
-}
+$table = new block_opencast\local\flexible_table('opencast-videos-table');
 
 $table->set_attribute('cellspacing', '0');
 $table->set_attribute('cellpadding', '3');
@@ -56,22 +54,49 @@ $table->set_attribute('class', 'generaltable');
 $table->set_attribute('id', 'opencast-videos-table');
 
 $apibridge = apibridge::get_instance();
-$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
-    (get_config('block_opencast', 'workflow_roles') != "");
 
-if ($toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'visibility', '');
-} else if ($toggleaclroles && !get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'visibility', '');
-} else if (!$toggleaclroles && get_config('block_opencast', 'showpublicationchannels')) {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'published', 'workflow_state', '');
-} else {
-    $columns = array('start_date', 'end_date', 'title', 'location', 'workflow_state', 'action');
-    $headers = array('start_date', 'end_date', 'title', 'location', 'workflow_state', '');
+// Start the columns and headers array with the (mandatory) start date column.
+$columns = array('start_date');
+$headers = array('start_date');
+
+// If configured, add the end date column.
+if (get_config('block_opencast', 'showenddate')) {
+    $columns[] = 'end_date';
+    $headers[] = 'end_date';
 }
+
+// Add the (mandatory) title column.
+$columns[] = 'title';
+$headers[] = 'title';
+
+// If configured, add the location column.
+if (get_config('block_opencast', 'showlocation')) {
+    $columns[] = 'location';
+    $headers[] = 'location';
+}
+
+// If configured, add the publication channel column.
+if (get_config('block_opencast', 'showpublicationchannels')) {
+    $columns[] = 'published';
+    $headers[] = 'published';
+}
+
+// Add the (mandatory) workflow state column.
+$columns[] = 'workflow_state';
+$headers[] = 'workflow_state';
+
+// If configured, add the visibility column.
+$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
+        (get_config('block_opencast', 'workflow_roles') != "") &&
+        (get_config('block_opencast', 'aclcontrolafter') == true);
+if ($toggleaclroles) {
+    $columns[] = 'visibility';
+    $headers[] = 'visibility';
+}
+
+// Add the (mandatory) action column.
+$columns[] = 'action';
+$headers[] = 'action';
 
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
@@ -87,7 +112,7 @@ $table->define_baseurl($baseurl);
 
 $table->no_sorting('action');
 $table->no_sorting('published');
-$table->sortable(true, "start_date");
+$table->sortable(true, 'start_date', SORT_DESC);
 
 $table->pageable(true);
 $table->is_downloadable(false);
@@ -130,22 +155,49 @@ echo $renderer->render_series_settings_actions($courseid,
     !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
     has_capability('block/opencast:defineseriesforcourse', $coursecontext));
 
+// Section "Upload or record videos"
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
+    // Show heading and explanation depending if Opencast Studio is enabled.
+    if (get_config('block_opencast', 'enable_opencast_studio_link')) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadrecordvideos', 'block_opencast'));
 
-    echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast').'<br />'.
+        get_string('uploadprocessingexplanation', 'block_opencast'));
 
-    $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
-    echo $renderer->render_upload_jobs($videojobs);
+        // If Opencast Studio is not enabled.
+    } else {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadvideos', 'block_opencast'));
 
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast').'<br />'.
+                get_string('uploadprocessingexplanation', 'block_opencast'));
+    }
+
+    // Show "Add video" button.
     $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
-    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'));
+    $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
     echo html_writer::div($addvideobutton);
 
+    // If Opencast Studio is enabled, show "Record video" button.
     if (get_config('block_opencast', 'enable_opencast_studio_link')) {
         $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
         $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
             null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
         echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+    }
+
+    // If there are upload jobs scheduled, show the upload queue table.
+    $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($courseid);
+    if (count($videojobs) > 0) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('uploadqueuetoopencastexplanation', 'block_opencast'));
+        echo $renderer->render_upload_jobs($videojobs);
     }
 }
 
@@ -159,30 +211,45 @@ if ($videodata->error == 0) {
 
         $row = array();
 
+        // Start date column.
         $row[] = $renderer->render_created($video->start);
-        if ($video->duration) {
-            $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
-                get_string('strftimedatetime', 'langconfig'));
-        } else {
-            $row[] = "";
+
+        // End date column.
+        if (get_config('block_opencast', 'showenddate')) {
+            if (property_exists($video, 'duration') && $video->duration) {
+                $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
+                        get_string('strftimedatetime', 'langconfig'));
+            }
+            else {
+                $row[] = "";
+            }
         }
 
+        // Title column.
         $row[] = $video->title;
-        $row[] = $video->location;
 
+        // Location column.
+        if (get_config('block_opencast', 'showlocation')) {
+            $row[] = $video->location;
+        }
+
+        // Publication channel column.
         if (get_config('block_opencast', 'showpublicationchannels')) {
             $row[] = $renderer->render_publication_status($video->publication_status);
         }
 
+        // Workflow state and actions column, depending if the video is currently deleted or not.
         if (array_key_exists($video->identifier, $deletedvideos)) {
-
+            // Workflow state column.
             $row[] = $renderer->render_processing_state_icon("DELETING");
+
+            // Actions column.
             $row[] = "";
-
         } else {
-
+            // Workflow state column.
             $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
+            // Actions column.
             if ($toggleaclroles) {
                 if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" && $video->processing_state !== "STOPPED") {
                     $row[] = "-";
@@ -218,11 +285,7 @@ if ($videodata->error == 0) {
     echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');
 }
 
-if ($download) {
-    $table->finish_output();
-} else {
-    $table->finish_html();
-}
+$table->finish_html();
 
 // If enabled and working, add LTI module feature.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working() == true) {

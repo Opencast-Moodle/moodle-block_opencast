@@ -59,12 +59,26 @@ class block_opencast extends block_base {
         }
 
         $renderer = $PAGE->get_renderer('block_opencast');
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-        try {
-            $videos = $apibridge->get_block_videos($COURSE->id);
-        } catch (\moodle_exception $e) {
-            $videos = new \stdClass();
-            $videos->error = $e->getmessage();
+
+        $cache = cache::make('block_opencast', 'videodata');
+        if ($result = $cache->get($COURSE->id)) {
+            if ($result->timevalid > time()) {
+                // If cache for course is set and still valid.
+                $videos = $result->videos;
+            }
+        }
+        if (!isset($videos)) {
+            $apibridge = \block_opencast\local\apibridge::get_instance();
+            try {
+                $videos = $apibridge->get_block_videos($COURSE->id);
+                $cacheobj = new stdClass();
+                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
+                $cacheobj->videos = $videos;
+                $cache->set($COURSE->id, $cacheobj);
+            } catch (\moodle_exception $e) {
+                $videos = new \stdClass();
+                $videos->error = $e->getmessage();
+            }
         }
         $this->content->text = $renderer->render_block_content($COURSE->id, $videos);
         return $this->content;

@@ -35,6 +35,31 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         get_string('general_settings', 'block_opencast'),
         new moodle_url('/blocks/opencast/adminsettings.php')));
 
+    $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',
+            get_string('appearance_settings', 'block_opencast'));
+
+    $ADMIN->add('block_opencast_folder', $appearancesettings);
+
+    $appearancesettings->add(
+            new admin_setting_heading('block_opencast/appearance_overview',
+                    get_string('appearance_overview_settingheader', 'block_opencast'),
+                    ''));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showpublicationchannels',
+                    get_string('appearance_overview_settingshowpublicationchannels', 'block_opencast'),
+                    get_string('appearance_overview_settingshowpublicationchannels_desc', 'block_opencast'), 1));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showenddate',
+                    get_string('appearance_overview_settingshowenddate', 'block_opencast'),
+                    get_string('appearance_overview_settingshowenddate_desc', 'block_opencast'), 1));
+
+    $appearancesettings->add(
+            new admin_setting_configcheckbox('block_opencast/showlocation',
+                    get_string('appearance_overview_settingshowlocation', 'block_opencast'),
+                    get_string('appearance_overview_settingshowlocation_desc', 'block_opencast'), 1));
+
     $additionalsettings = new admin_settingpage('block_opencast_additionalsettings',
         get_string('additional_settings', 'block_opencast'));
 
@@ -59,6 +84,28 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret',
             get_string('lticonsumersecret', 'block_opencast'),
             get_string('lticonsumersecret_desc', 'block_opencast'), ""));
+
+    // Control ACL section.
+    $additionalsettings->add(
+            new admin_setting_heading('block_opencast/acl_settingheader',
+                    get_string('acl_settingheader', 'block_opencast'),
+                    ''));
+
+    // Control ACL: Enable feature.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/aclcontrolafter',
+                    get_string('acl_settingcontrolafter', 'block_opencast'),
+                    get_string('acl_settingcontrolafter_desc', 'block_opencast'), 1));
+
+    // Control ACL: Enable group restriction.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/aclcontrolgroup',
+                    get_string('acl_settingcontrolgroup', 'block_opencast'),
+                    get_string('acl_settingcontrolgroup_desc', 'block_opencast'), 1));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/aclcontrolgroup',
+                'block_opencast/aclcontrolafter', 'notchecked');
+    }
 
     // Add LTI module section.
     $additionalsettings->add(

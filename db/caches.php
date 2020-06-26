@@ -14,18 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version details
- *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2020062600;
-$plugin->requires = 2017111300;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.9-r1'; // First release for Moodle 3.9.
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2019112100);
+$definitions = [
+        'videodata' => [
+                'mode' => cache_store::MODE_APPLICATION,
+                'invalidationevents' => ['viewopencastvideolist']
+        ]
+];
