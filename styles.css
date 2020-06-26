@@ -61,3 +61,12 @@
     margin-top: 0.5rem;
     margin-bottom: 0;
 }
+
+#page-blocks-opencast-addvideo .form-filetypes-descriptions ul {
+    margin-bottom: 0;
+}
+
+/* Hide empty label columns in tables on admin settings page. */
+#page-admin-blocks-opencast-adminsettings .generaltable .col-md-3 {
+    display: none;
+}
