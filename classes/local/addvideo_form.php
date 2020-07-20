@@ -192,8 +192,8 @@ class addvideo_form extends \moodleform {
         }
 
         if (!$presenter_file && !$presentation_file) {
-            $errors['presenterdesc'] =  get_string('emptyvideouploaderror', 'block_opencast');
-            $errors['presentationdesc'] =  get_string('emptyvideouploaderror', 'block_opencast');
+            $errors['presenter_already_uploaded'] =  get_string('emptyvideouploaderror', 'block_opencast');
+            $errors['presentation_already_uploaded'] =  get_string('emptyvideouploaderror', 'block_opencast');
         }
 
         return $errors;
