@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use local_chunkupload\local\chunkupload_file;
+
 defined('MOODLE_INTERNAL') || die();
 
 class event {
@@ -67,6 +69,32 @@ class event {
     public function set_presentation($fileid) {
         $fs = get_file_storage();
         $this->presentation = $fs->get_file_by_id($fileid);
+    }
+
+    /**
+     * Set presenter as a chunkupload file from moodle.
+     *
+     * @param string $chunkuploadid
+     * @throws \moodle_exception
+     */
+    public function set_chunkupload_presenter($chunkuploadid) {
+        if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
+            throw new \moodle_exception("local_chunkupload is not installed. This should never happen.");
+        }
+        $this->presenter = new chunkupload_file($chunkuploadid);
+    }
+
+    /**
+     * Set presentation as a chunkupload file from moodle.
+     *
+     * @param string $chunkuploadid
+     * @throws \moodle_exception
+     */
+    public function set_chunkupload_presentation($chunkuploadid) {
+        if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
+            throw new \moodle_exception("local_chunkupload is not installed. This should never happen.");
+        }
+        $this->presentation = new chunkupload_file($chunkuploadid);
     }
 
     /**

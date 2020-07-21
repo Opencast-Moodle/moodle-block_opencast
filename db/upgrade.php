@@ -345,5 +345,27 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2020040400, 'opencast');
     }
 
+    if ($oldversion < 2020072101) {
+
+        // Define field chunkupload_presenter to be added to block_opencast_uploadjob.
+        $table = new xmldb_table('block_opencast_uploadjob');
+        $field = new xmldb_field('chunkupload_presenter', XMLDB_TYPE_CHAR, '15', null, null, null, null, 'timemodified');
+
+        // Conditionally launch add field chunkupload_presenter.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('chunkupload_presentation', XMLDB_TYPE_CHAR, '15', null, null, null, null, 'timemodified');
+
+        // Conditionally launch add field chunkupload_presentation.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2020072101, 'opencast');
+    }
+
     return true;
 }

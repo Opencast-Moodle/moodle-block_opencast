@@ -738,6 +738,18 @@ class apibridge {
                 $valid_storedfile = false;
             }
         }
+        if ($job->chunkupload_presenter) {
+            $event->set_chunkupload_presenter($job->chunkupload_presenter);
+            if (!$event->get_presenter()) {
+                $valid_storedfile = false;
+            }
+        }
+        if ($job->chunkupload_presentation) {
+            $event->set_chunkupload_presentation($job->chunkupload_presentation);
+            if (!$event->get_presentation()) {
+                $valid_storedfile = false;
+            }
+        }
 
         if (!$valid_storedfile) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
@@ -808,6 +820,7 @@ class apibridge {
         }
 
         $event = $this->create_event($job, $seriesidentifier);
+
         // Check success.
         if (!$event) {
             throw new opencast_state_exception('uploadingeventfailed', 'block_opencast');
