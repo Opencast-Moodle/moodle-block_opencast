@@ -121,8 +121,7 @@ class addvideo_form extends \moodleform {
                 }
             }
 
-            $maxuploadsize = get_config('block_opencast', 'maxuploadsize');
-            $maxuploadsize = $maxuploadsize ? $maxuploadsize * 1024 * 1024 : 2048 * 1024 * 1024;
+            $maxuploadsize = get_config('block_opencast', 'uploadfilelimit');
 
             $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
             $mform->addElement('html', $presenterdesc);
