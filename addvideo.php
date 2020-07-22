@@ -78,10 +78,10 @@ if ($data = $addvideoform->get_data()) {
         $chunkupload_presentation = $data->video_presentation_chunk;
     }
 
-    if (isset($storedfile_presenter)) {
+    if (isset($storedfile_presenter) && $storedfile_presenter) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presenter->get_itemid());
     }
-    if (isset($storedfile_presentation)) {
+    if (isset($storedfile_presentation) && $storedfile_presentation) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presentation->get_itemid());
     }
 
@@ -127,10 +127,10 @@ if ($data = $addvideoform->get_data()) {
 
     $options = new \stdClass();
     $options->metadata = json_encode($metadata);
-    $options->presenter = isset($storedfile_presenter) ? $storedfile_presenter->get_itemid() : '';
-    $options->presentation = isset($storedfile_presentation) ? $storedfile_presentation->get_itemid() : '';
-    $options->chunkupload_presenter = $chunkupload_presenter;
-    $options->chunkupload_presentation = $chunkupload_presentation;
+    $options->presenter = isset($storedfile_presenter) && $storedfile_presenter ? $storedfile_presenter->get_itemid() : '';
+    $options->presentation = isset($storedfile_presentation) && $storedfile_presentation ? $storedfile_presentation->get_itemid() : '';
+    $options->chunkupload_presenter = isset($chunkupload_presenter) ? $chunkupload_presenter : '';
+    $options->chunkupload_presentation = isset($chunkupload_presentation) ? $chunkupload_presentation : '';
 
     // Update all upload jobs.
     \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);

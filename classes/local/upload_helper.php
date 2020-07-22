@@ -158,15 +158,19 @@ class upload_helper {
 
         // Add chunkupload references.
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
-            $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presenter),
-                '*', IGNORE_MISSING);
-            if ($record && $record->state == 2) {
-                $job->chunkupload_presenter = $options->chunkupload_presenter;
+            if ($options->chunkupload_presenter) {
+                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presenter),
+                    '*', IGNORE_MISSING);
+                if ($record && $record->state == 2) {
+                    $job->chunkupload_presenter = $options->chunkupload_presenter;
+                }
             }
-            $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
-                '*', IGNORE_MISSING);
-            if ($record && $record->state == 2) {
-                $job->chunkupload_presentation = $options->chunkupload_presentation;
+            if ($options->chunkupload_presentation) {
+                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
+                    '*', IGNORE_MISSING);
+                if ($record && $record->state == 2) {
+                    $job->chunkupload_presentation = $options->chunkupload_presentation;
+                }
             }
         }
 
