@@ -214,6 +214,13 @@ class block_opencast_renderer extends plugin_renderer_base {
                 } else {
                     $row[] = $uploadjob->presenter_filename;
                 }
+            } else if (property_exists($uploadjob, 'presenter_chunkupload_filename')) {
+                if ($uploadjob->presenter_chunkupload_filesize) {
+                    $row[] = $uploadjob->presenter_chunkupload_filename.
+                        ' ('.display_size($uploadjob->presenter_chunkupload_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presenter_chunkupload_filename;
+                }
             } else {
                 $row[] = '&mdash;';
             }
@@ -222,6 +229,13 @@ class block_opencast_renderer extends plugin_renderer_base {
                     $row[] = $uploadjob->presentation_filename.' ('.display_size($uploadjob->presentation_filesize).')';
                 } else {
                     $row[] = $uploadjob->presentation_filename;
+                }
+            } else if (property_exists($uploadjob, 'presentation_chunkupload_filename')) {
+                if ($uploadjob->presentation_chunkupload_filesize) {
+                    $row[] = $uploadjob->presentation_chunkupload_filename.
+                        ' ('.display_size($uploadjob->presentation_chunkupload_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presentation_chunkupload_filename;
                 }
             } else {
                 $row[] = '&mdash;';

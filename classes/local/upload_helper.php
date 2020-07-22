@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/lib/filelib.php');
 
 use block_opencast\opencast_state_exception;
+use local_chunkupload\chunkupload_form_element;
 
 class upload_helper {
 
@@ -76,16 +77,28 @@ class upload_helper {
 
         $allnamefields = get_all_user_name_fields(true, 'u');
 
-        $sql = "SELECT uj.*, $allnamefields, md.metadata,
+        $select = "SELECT uj.*, $allnamefields, md.metadata,
                 f1.filename as presenter_filename, f1.filesize as presenter_filesize,
-                f2.filename as presentation_filename, f2.filesize as presentation_filesize
-                FROM {block_opencast_uploadjob} uj
+                f2.filename as presentation_filename, f2.filesize as presentation_filesize";
+        $from = " FROM {block_opencast_uploadjob} uj
                 JOIN {user} u ON uj.userid = u.id
                 JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
                 LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
-                LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid 
-                WHERE uj.status < :status AND uj.courseid = :courseid
-                ORDER BY uj.timecreated DESC";
+                LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid";
+
+        if (class_exists('\local_chunkupload\chunkupload_form_element')) {
+            $select .= ", cu1.filename as presenter_chunkupload_filename, 
+                          cu2.filename as presentation_chunkupload_filename,
+                          cu1.length as presenter_chunkupload_filesize,
+                          cu2.length as presentation_chunkupload_filesize";
+            $from .= " LEFT JOIN {local_chunkupload_files} cu1 ON uj.chunkupload_presenter = cu1.id
+                       LEFT JOIN {local_chunkupload_files} cu2 ON uj.chunkupload_presentation = cu2.id";
+        }
+
+        $where = " WHERE uj.status < :status AND uj.courseid = :courseid
+                  ORDER BY uj.timecreated DESC";
+
+        $sql = $select . $from . $where;
 
         $params = [];
         $params['status'] = self::STATUS_TRANSFERRED;
@@ -142,6 +155,25 @@ class upload_helper {
                 $job->contenthash_presenter = $file->contenthash;
             }
         }
+
+        // Add chunkupload references.
+        if (class_exists('\local_chunkupload\chunkupload_form_element')) {
+            if ($options->chunkupload_presenter) {
+                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presenter),
+                    '*', IGNORE_MISSING);
+                if ($record && $record->state == 2) {
+                    $job->chunkupload_presenter = $options->chunkupload_presenter;
+                }
+            }
+            if ($options->chunkupload_presentation) {
+                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
+                    '*', IGNORE_MISSING);
+                if ($record && $record->state == 2) {
+                    $job->chunkupload_presentation = $options->chunkupload_presentation;
+                }
+            }
+        }
+
         $job->opencasteventid = '';
         $job->countfailed = 0;
         $job->timestarted = 0;
@@ -163,8 +195,19 @@ class upload_helper {
                 ON (uj.presentation_fileid = f.id OR uj.presenter_fileid = f.id) AND
                   f.component = :component AND
                   f.filearea = :filearea AND
-                  f.filename <> '.'
-                WHERE f.id IS NULL AND uj.status = :status";
+                  f.filename <> '.'";
+
+        $where = " WHERE f.id IS NULL AND uj.status = :status";
+
+        // If chunkupload exists add additional requirements to the statement.
+        if (class_exists('\local_chunkupload\chunkupload_form_element')) {
+            $sql .= " LEFT JOIN {local_chunkupload_files} cu 
+                   ON cu.id = uj.chunkupload_presenter OR cu.id = uj.chunkupload_presentation";
+            $where .= " AND cu.id IS NULL";
+        }
+
+        // Append where to sql.
+        $sql .= $where;
 
         $params = [];
         $params['component'] = 'block_opencast';
@@ -228,6 +271,16 @@ class upload_helper {
         $job->status = self::STATUS_TRANSFERRED;
 
         $DB->update_record('block_opencast_uploadjob', $job);
+
+        // Delete from chunkupload
+        if (class_exists('\local_chunkupload\chunkupload_form_element')) {
+            if ($job->chunkupload_presenter) {
+                chunkupload_form_element::delete_file($job->chunkupload_presenter);
+            }
+            if ($job->chunkupload_presentation) {
+                chunkupload_form_element::delete_file($job->chunkupload_presentation);
+            }
+        }
 
         // Delete from files table.
         $fs = get_file_storage();
