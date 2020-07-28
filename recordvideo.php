@@ -136,7 +136,8 @@ function block_opencast_create_lti_parameters($endpoint, $seriesid) {
 
     $params['launch_presentation_document_target'] = 'iframe';
     $params['oauth_signature_method'] = 'HMAC-SHA1';
-    $params['oauth_signature'] = $helper->sign("POST", $endpoint, $params, $consumersecret . '&');
+    $signed_params = lti_sign_parameters($params, $endpoint, "POST", $consumerkey, $consumersecret);
+    $params['oauth_signature'] = $signed_params['oauth_signature']; 
 
     return $params;
 }
