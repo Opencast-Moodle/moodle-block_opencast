@@ -65,12 +65,19 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
     $ADMIN->add('block_opencast_folder', $additionalsettings);
 
-    if (class_exists('\local_chunkupload\chunkupload_form_element')) {
+    $installedplugins = core_plugin_manager::instance()->get_installed_plugins('local');
+    $chunkuploadisinstalled = array_key_exists('chunkupload', $installedplugins);
+    if ($chunkuploadisinstalled) {
 
         $additionalsettings->add(
             new admin_setting_heading('block_opencast/upload',
                 get_string('uploadsettings', 'block_opencast'),
                 ''));
+
+        $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/enablechunkupload',
+                get_string('enablechunkupload', 'block_opencast'),
+                get_string('enablechunkupload_desc', 'block_opencast'), true));
 
         $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1610612736, 1073741824,
             536870912, 268435456, 134217728, 67108864);
