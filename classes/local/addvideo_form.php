@@ -38,7 +38,8 @@ class addvideo_form extends \moodleform {
 
     public function definition() {
         global $CFG;
-        $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element');
+        $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element')
+            && get_config('block_opencast', 'enablechunkupload');
 
         if ($chunkupload_installed) {
             \MoodleQuickForm::registerElementType('chunkupload',
