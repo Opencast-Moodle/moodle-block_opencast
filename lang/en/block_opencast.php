@@ -111,6 +111,8 @@ $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for restoring opencast events from one course into another.
     If not set, it is not possible to restore Opencast events. A block instance might be restore, but without a series and without events.';
 $string['editseriesforcourse'] = 'Edit series mapping';
+$string['enablechunkupload'] = 'Enable Chunkupload';
+$string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possible to upload videos using the chunkupload plugin';
 $string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
