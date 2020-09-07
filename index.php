@@ -43,6 +43,9 @@ $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
+// Invalidate Block cache;
+cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
+
 $table = new block_opencast\local\flexible_table('opencast-videos-table');
 
 $table->set_attribute('cellspacing', '0');
@@ -226,7 +229,7 @@ if ($videodata->error == 0) {
 
         // End date column.
         if (get_config('block_opencast', 'showenddate')) {
-            if ($video->duration) {
+            if (property_exists($video, 'duration') && $video->duration) {
                 $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
                         get_string('strftimedatetime', 'langconfig'));
             }

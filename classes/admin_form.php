@@ -127,6 +127,16 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 5);
         $mform->addElement('static', 'description' . $name, '', $description);
 
+        // Cache duration.
+        $name = 'cachevalidtime';
+        $title = get_string('cachevalidtime', 'block_opencast');
+        $description = get_string('cachevalidtime_desc', 'block_opencast');
+        $mform->addElement('text', $name, $title);
+        $mform->setDefault($name, 500);
+        $mform->setType($name, PARAM_INT);
+        $mform->addRule($name, get_string('err_numeric', 'form'), 'numeric');
+        $mform->addElement('static', 'description' . $name, '', $description);
+
         // Section overview settings.
         $mform->addElement('header', 'backuprestore_header', get_string('backupsettings', 'block_opencast'));
         $name = 'duplicateworkflow';

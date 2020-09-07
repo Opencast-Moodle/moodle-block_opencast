@@ -148,6 +148,8 @@ $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for restoring opencast events from one course into another.
     If not set, it is not possible to restore Opencast events. A block instance might be restore, but without a series and without events.';
 $string['editseriesforcourse'] = 'Edit series mapping';
+$string['enablechunkupload'] = 'Enable Chunkupload';
+$string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possible to upload videos using the chunkupload plugin';
 $string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
@@ -380,3 +382,15 @@ $string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integ
 $string['lticonsumersecret'] = 'Consumer secret';
 $string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
+
+$string['videodraftnotdeletable'] = 'The video cannot be deleted as the status is already "{$a}"';
+$string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
+
+$string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
+$string['cachevalidtime'] = 'Cache valid time';
+$string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
+$string['uploadsettings'] = 'Settings for the chunkuploader';
+$string['uploadfilelimit'] = 'Video size limit';
+$string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
+
+$string['video_already_uploaded'] = 'Video already uploaded';

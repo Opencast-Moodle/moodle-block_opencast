@@ -51,7 +51,7 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();  
+$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
 
 $addvideoform = new \block_opencast\local\addvideo_form(null, array('courseid' => $courseid, 'metadata_catalog' => $metadata_catalog));
 
@@ -60,16 +60,29 @@ if ($addvideoform->is_cancelled()) {
 }
 
 if ($data = $addvideoform->get_data()) {
+    $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element');
 
     // Record the user draft area in this context.
-    $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
-    $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
-
-    if ($storedfile_presenter) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presenter);
+    if (!$chunkupload_installed ||
+            property_exists($data, 'presenter_already_uploaded') && $data->presenter_already_uploaded) {
+        $storedfile_presenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id,
+                'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
+    } else {
+        $chunkupload_presenter = $data->video_presenter_chunk;
     }
-    if ($storedfile_presentation) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $data->video_presentation);
+    if (!$chunkupload_installed ||
+            property_exists($data, 'presentation_already_uploaded') && $data->presentation_already_uploaded) {
+        $storedfile_presentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id,
+                'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
+    } else {
+        $chunkupload_presentation = $data->video_presentation_chunk;
+    }
+
+    if (isset($storedfile_presenter) && $storedfile_presenter) {
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presenter->get_itemid());
+    }
+    if (isset($storedfile_presentation) && $storedfile_presentation) {
+        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfile_presentation->get_itemid());
     }
 
     $metadata = [];
@@ -78,7 +91,7 @@ if ($data = $addvideoform->get_data()) {
     //Adding data into $metadata based on $metadata_catalog
     foreach ($metadata_catalog as $field) {
         $id = $field->name;
-        if (array_key_exists($field->name, $data) AND $data->$id) {
+        if (property_exists($data, $field->name) AND $data->$id) {
             if ($field->name == 'title') { //Make sure the title is received!
                 $get_title = false;
             }
@@ -114,8 +127,10 @@ if ($data = $addvideoform->get_data()) {
 
     $options = new \stdClass();
     $options->metadata = json_encode($metadata);
-    $options->presenter = $storedfile_presenter ? $storedfile_presenter->get_itemid() : '';
-    $options->presentation = $storedfile_presentation ? $storedfile_presentation->get_itemid() : '';
+    $options->presenter = isset($storedfile_presenter) && $storedfile_presenter ? $storedfile_presenter->get_itemid() : '';
+    $options->presentation = isset($storedfile_presentation) && $storedfile_presentation ? $storedfile_presentation->get_itemid() : '';
+    $options->chunkupload_presenter = isset($chunkupload_presenter) ? $chunkupload_presenter : '';
+    $options->chunkupload_presentation = isset($chunkupload_presentation) ? $chunkupload_presentation : '';
 
     // Update all upload jobs.
     \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);

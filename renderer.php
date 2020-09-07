@@ -173,11 +173,12 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the tabel of upload jobs.
      *
-     * @param  array uploadjobs array of uploadjob objects
+     * @param array uploadjobs array of uploadjob objects
+     * @param bool showdeletebutton shows a delete button in the last column
      *
      * @return string
      */
-    public function render_upload_jobs($uploadjobs) {
+    public function render_upload_jobs($uploadjobs, $showdeletebutton = true) {
 
         $table = new html_table();
         $table->head = array(
@@ -187,6 +188,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presentationfile', 'block_opencast'),
             get_string('status'),
             get_string('createdby', 'block_opencast'));
+        if($showdeletebutton) {
+            $table->head[] = '';
+        }
 
         foreach ($uploadjobs as $uploadjob) {
 
@@ -210,6 +214,13 @@ class block_opencast_renderer extends plugin_renderer_base {
                 } else {
                     $row[] = $uploadjob->presenter_filename;
                 }
+            } else if (property_exists($uploadjob, 'presenter_chunkupload_filename')) {
+                if ($uploadjob->presenter_chunkupload_filesize) {
+                    $row[] = $uploadjob->presenter_chunkupload_filename.
+                        ' ('.display_size($uploadjob->presenter_chunkupload_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presenter_chunkupload_filename;
+                }
             } else {
                 $row[] = '&mdash;';
             }
@@ -219,11 +230,25 @@ class block_opencast_renderer extends plugin_renderer_base {
                 } else {
                     $row[] = $uploadjob->presentation_filename;
                 }
+            } else if (property_exists($uploadjob, 'presentation_chunkupload_filename')) {
+                if ($uploadjob->presentation_chunkupload_filesize) {
+                    $row[] = $uploadjob->presentation_chunkupload_filename.
+                        ' ('.display_size($uploadjob->presentation_chunkupload_filesize).')';
+                } else {
+                    $row[] = $uploadjob->presentation_chunkupload_filename;
+                }
             } else {
                 $row[] = '&mdash;';
             }
             $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             $row[] = fullname($uploadjob);
+            if($showdeletebutton) {
+                $coursecontext = context_course::instance($uploadjob->courseid);
+                // the one who is allowed to add the video is also allowed to delete the video before it is uploaded
+                $row[] = ($uploadjob->status == \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD &&
+                    has_capability('block/opencast:addvideo', $coursecontext)) ?
+                    $this->render_delete_draft_icon($uploadjob->courseid, $uploadjob->id) : '';
+            }
 
             $table->data[] = $row;
         }
@@ -371,6 +396,25 @@ class block_opencast_renderer extends plugin_renderer_base {
         $text = get_string('addltiepisode_viewicontitle', 'block_opencast');
 
         $icon = $this->output->pix_icon('play', $text, 'block_opencast');
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the link to delete a draft file.
+     *
+     * @param int    $courseid
+     * @param string $videoidentifier
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    private function render_delete_draft_icon($courseid, $videoidentifier) {
+
+        $url = new \moodle_url('/blocks/opencast/deletedraft.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $text = get_string('dodeleteevent', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/delete', $text);
 
         return \html_writer::link($url, $icon);
     }

@@ -47,6 +47,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'adhocfiledeletion',
         'uploadfileextensions',
         'limitvideos',
+        'cachevalidtime',
         'duplicateworkflow',
         'group_creation',
         'group_name',
@@ -67,7 +68,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         redirect($PAGE->url . '#id_catalog_header');
         exit();
     }
-    
+
     if (!empty($delrole)) {
         // Deletion has to be confirmed.
         // Print a confirmation message.
@@ -111,7 +112,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $newcatalog->required = $data->catalogreadonly  == 1 ? 0 : ($data->catalogrequired == 1 ? 1 : 0) ;
                 $newcatalog->readonly = $data->catalogreadonly  == 1 ? 1 : 0;
                 $newcatalog->param_json = $data->catalogparam;
-                
+
                 if ( !$DB->record_exists('block_opencast_catalog', array('name'=> $newcatalog->name)) ) {
                     $DB->insert_record('block_opencast_catalog', $newcatalog, false);
                 } else {
@@ -123,7 +124,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 $ret = get_string( 'empty_catalogname', 'block_opencast' );
                 $notify =  \core\notification::ERROR;
             }
-            
+
             redirect($PAGE->url . '#id_catalog_header', $ret, null, $notify);
             exit();
         } else if (isset($data->submitbutton)) {
