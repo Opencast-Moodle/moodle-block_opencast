@@ -1,5 +1,5 @@
 @block @block_opencast
-Feature: Add Opencast LTI module as Teacher
+Feature: Add Opencast LTI series module as Teacher
   In order to provide the uploaded videos to my students
   As teacher
   I need to be able to add an Opencast series module to my course
@@ -9,8 +9,8 @@ Feature: Add Opencast LTI module as Teacher
       | username | firstname | lastname | email                | idnumber |
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |
     And the following "courses" exist:
-      | fullname | shortname | category |
-      | Course 1 | C1        | 0        |
+      | fullname | shortname | format | category |
+      | Course 1 | C1        | topics | 0        |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
@@ -37,9 +37,9 @@ Feature: Add Opencast LTI module as Teacher
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
     And I set the following fields to these values:
-      | Enable ”Add LTI module"  | 1               |
-      | Default LTI module title | Opencast videos |
-      | Preconfigured LTI tool   | Opencast series |
+      | Enable ”Add LTI series module"            | 1               |
+      | Default LTI series module title           | Opencast videos |
+      | Preconfigured LTI tool for series modules | Opencast series |
     And I press "Save changes"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
@@ -84,7 +84,7 @@ Feature: Add Opencast LTI module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     And I should see "Opencast series module title"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Opencast videos' series module has been added to this course."
     And I should see "Opencast videos" in the "li.activity" "css_element"
@@ -106,13 +106,23 @@ Feature: Add Opencast LTI module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     And I should see "Opencast series module title"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     And I should see "Course 1" in the "#page-header" "css_element"
     And I am on "Course 1" course homepage with editing mode on
     And I delete "Opencast videos" activity
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
     And I should see "Add Opencast series module to course"
+
+  Scenario: When adding the LTI module to the course, the teacher returns to the Opencast overview instead of to the course.
+    Given I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module title"
+    And I click on "Add module and return to overview" "button"
+    Then I should not see "Course 1" in the "#page-header" "css_element"
+    And I should see "Provide videos"
 
   Scenario: The admin is able to change the default title for the LTI module.
     Given the following config values are set as admin:
@@ -122,7 +132,7 @@ Feature: Add Opencast LTI module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast series module to course" "button"
     Then the field "Opencast series module title" matches value "Sensational videos"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
@@ -135,7 +145,7 @@ Feature: Add Opencast LTI module as Teacher
     And the field "Opencast series module title" matches value "Opencast videos"
     And I set the following fields to these values:
       | Opencast series module title | Sensational videos |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Sensational videos' series module has been added to this course."
     And I should see "Sensational videos" in the "li.activity" "css_element"
@@ -147,7 +157,7 @@ Feature: Add Opencast LTI module as Teacher
     And I click on "Add Opencast series module to course" "button"
     And I set the following fields to these values:
       | Opencast series module title | |
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add module and return to course" "button"
     Then I should not see "Course 1" in the "#page-header" "css_element"
     And I should see "You have to set a title for the Opencast series module or to use the default title"
 
@@ -169,4 +179,73 @@ Feature: Add Opencast LTI module as Teacher
     And I follow "Manage preconfigured tools"
     And I click on "#lti_configured_tools_container a.editing_delete" "css_element"
     And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
-    Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast LTI tool first"
+    Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast series LTI tool first"
+
+  Scenario: The admin has not allowed to add an intro for the LTI module.
+    Given the following config values are set as admin:
+      | addltiintro | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module intro"
+
+  Scenario: The admin has allowed to add an intro for the LTI module.
+    Given the following config values are set as admin:
+      | addltiintro | 1 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module intro"
+    And I set the following fields to these values:
+      | Opencast series module intro | <p>This is a nice intro</p><p>Watch my videos!</p> |
+    And I click on "Add module and return to course" "button"
+    Then I should see "Course 1" in the "#page-header" "css_element"
+    And I should see "This is a nice intro" in the "li.activity" "css_element"
+    And I should see "Watch my videos!" in the "li.activity" "css_element"
+
+  Scenario: The admin has not allowed to choose the target section for the LTI module.
+    Given the following config values are set as admin:
+      | addltisection | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module target section"
+
+  Scenario: The admin has allowed to choose the target section for the LTI module
+    Given the following config values are set as admin:
+      | addltisection | 1 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module target section"
+    And I set the following fields to these values:
+      | Opencast series module target section | Topic 1 |
+    And I click on "Add module and return to course" "button"
+    Then I should see "Course 1" in the "#page-header" "css_element"
+    And I should see "Opencast videos" in the "li#section-1" "css_element"
+
+  Scenario: The admin has not allowed to set availability for the LTI module
+    Given the following config values are set as admin:
+      | addltiavailability | 0 | block_opencast |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    Then I should not see "Opencast series module access restriction"
+
+  @javascript
+  Scenario: The admin has allowed to set availability for the LTI module
+    Given the following config values are set as admin:
+      | addltiavailability | 1 | block_opencast |
+    And the following config values are set as admin:
+      | enableavailability | 1 |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I click on "Go to overview..." "link"
+    And I click on "Add Opencast series module to course" "button"
+    And I should see "Opencast series module access restriction"
+    And "Add restriction..." "button" should exist

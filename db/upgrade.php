@@ -367,5 +367,67 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2020072101, 'opencast');
     }
 
+    if ($oldversion < 2020090701) {
+        // Define table block_opencast_ltiepisode to be created.
+        $table = new xmldb_table('block_opencast_ltiepisode');
+
+        // Adding fields to table block_opencast_ltiepisode.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('episodeuuid', XMLDB_TYPE_CHAR, '36', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_opencast_ltiepisode.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+
+        // Adding indexes to table block_opencast_ltiepisode.
+        $table->add_index('episodeuuid', XMLDB_INDEX_NOTUNIQUE, array('episodeuuid'));
+
+        // Conditionally launch create table for block_opencast_ltiepisode.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_opencast_ltimodule to be used.
+        $table = new xmldb_table('block_opencast_ltimodule');
+
+        // Here, we drop the 'courseid' unique key and the 'fk_course' foreign-unique key from the table block_opencast_ltimodule.
+        // Afterwards, we recreate the 'fk_course' foreign-unique key.
+        // This is done as a foreign-unique key produces a unique key automatically and we do not need two identical keys.
+        // This is especially done in this way (dropping both keys, then recreating the second one from scratch) as it can happen
+        // that Moodle drops both keys already when you just want to drop the first one as both are technically the same.
+
+        // There is no key_exists, so test the equivalent index.
+        $oldindex = new xmldb_index('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+
+        // Launch drop key if the key exists.
+        if ($dbman->index_exists($table, $oldindex)) {
+            // Drop the key.
+            $key = new xmldb_key('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+            $dbman->drop_key($table, $key);
+        }
+
+        // There is no key_exists, so test the equivalent index.
+        $oldindex2 = new xmldb_index('fk_course', XMLDB_KEY_UNIQUE, array('courseid'));
+
+        // Launch drop key if the key exists.
+        if ($dbman->index_exists($table, $oldindex2)) {
+            // Drop the key.
+            $key2 = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $dbman->drop_key($table, $key2);
+        }
+
+        // Launch add key if the key does not exist.
+        if (!$dbman->index_exists($table, $oldindex2)) {
+            $newkey = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $dbman->add_key($table, $newkey);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2020090701, 'opencast');
+    }
+
     return true;
 }

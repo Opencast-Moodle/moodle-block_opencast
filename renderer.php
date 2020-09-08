@@ -366,6 +366,39 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
+    /**
+     * Render the icon to add an LTI episode module.
+     *
+     * @param int $courseid
+     * @param string $episodeuuid
+     *
+     * @return string
+     */
+    public function render_add_lti_episode_icon($courseid, $episodeuuid) {
+        $url = new \moodle_url('/blocks/opencast/addltiepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
+        $text = get_string('addltiepisode_addicontitle', 'block_opencast');
+
+        $icon = $this->output->pix_icon('share', $text, 'block_opencast');
+
+        return \html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the icon to view an LTI episode module.
+     *
+     * @param int $moduleid
+     *
+     * @return string
+     */
+    public function render_view_lti_episode_icon($moduleid) {
+
+        $url = new \moodle_url('/mod/lti/view.php', array('id' => $moduleid));
+        $text = get_string('addltiepisode_viewicontitle', 'block_opencast');
+
+        $icon = $this->output->pix_icon('play', $text, 'block_opencast');
+
+        return \html_writer::link($url, $icon);
+    }
 
     /**
      * Render the link to delete a draft file.

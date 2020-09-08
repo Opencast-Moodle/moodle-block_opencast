@@ -15,17 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2020090701;
-$plugin->requires = 2017111300;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.9-r1'; // First release for Moodle 3.9.
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2019112100);
+/**
+ * Get icon mapping for FontAwesome.
+ *
+ * @return array
+ */
+function block_opencast_get_fontawesome_icon_map() {
+    return [
+        'block_opencast:share' => 'fa-share-square',
+        'block_opencast:play' => 'fa-play-circle'
+    ];
+}
