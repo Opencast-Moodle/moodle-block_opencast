@@ -23,19 +23,10 @@
  */
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
-$string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}
-
-Please refresh the site after some time to see the current visibility status.';
-$string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}
-
-Some changes might have not been saved.
-If this occurs repeatedly, please contact your support team.';
-$string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}
-
-Please refresh the site after some time to see the current visibility status.';
-$string['aclrolesaddedgroup'] = 'The change of visibility has been triggered to allow students of selected groups to access the video: {$a->title}
-
-Please refresh the site after some time to see the current visibility status.';
+$string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
+$string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}<br />Some changes might have not been saved. If this occurs repeatedly, please contact your support team.';
+$string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
+$string['aclrolesaddedgroup'] = 'The change of visibility has been triggered to allow students of selected groups to access the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
 $string['acl_settingcontrolafter'] = 'Allow episode visibility control after processing';
 $string['acl_settingcontrolafter_desc'] = 'If enabled, teachers can control the visibility of an Opencast episode after the episode has been processed in Opencast.';
 $string['acl_settingcontrolgroup'] = 'Allow episode group restriction';
