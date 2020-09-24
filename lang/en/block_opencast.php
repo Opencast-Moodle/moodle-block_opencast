@@ -153,7 +153,7 @@ $string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possib
 $string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
-$string['dodeleteevent'] = 'Delete video permanently';
+$string['dodeleteevent'] = 'Delete video before transfer to Opencast';
 $string['deleting'] = 'Going to be deleted';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
