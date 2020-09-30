@@ -126,12 +126,11 @@ $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm_role'] = 'Are you sure you want to delete this role?';
 $string['delete_confirm_catalog'] = 'Are you sure you want to delete this catalog entry?';
-$string['deleteevent'] = 'Delete a event in opencast';
-$string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from opencast.
-    All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
-$string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.
-    If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.
-    The video will not be deleted in Opencast.';
+$string['deleteevent'] = 'Delete an event in Opencast';
+$string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from Opencast.<br />All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
+$string['deletedraft'] = 'Delete a video before transfer to Opencast';
+$string['deletedraftdesc'] = 'You are about to delete this video before the transfer to Opencast.<br />It will be removed from the transfer queue and will not be processed. Please do not continue unless you are absolutely sure.';
+$string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.<br />If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.<br />The video will not be deleted in Opencast.';
 $string['deleteworkflow'] = 'Workflow to start before event is be deleted';
 $string['deleteworkflowdesc'] = 'Before deleting a video, a workflow can be defined, which is called to retract the event from all publication channels.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
@@ -145,6 +144,7 @@ $string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
 $string['dodeleteevent'] = 'Delete video permanently';
+$string['dodeletedraft'] = 'Delete video before transfer to Opencast';
 $string['deleting'] = 'Going to be deleted';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
@@ -279,6 +279,7 @@ $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, tha
     If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
 $string['videosavailable'] = 'Videos available in this course';
 $string['videonotfound'] = 'Video not found';
+$string['videodraftnotfound'] = 'The video to be deleted before the transfer to Opencast was not found.';
 $string['videostoupload'] = 'Videos to upload to opencast';
 $string['visibility'] = 'Visibility of the video';
 $string['visibility_hide'] = 'Prevent any student from accessing the video';
@@ -374,7 +375,7 @@ $string['lticonsumersecret'] = 'Consumer secret';
 $string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
 
-$string['videodraftnotdeletable'] = 'The video cannot be deleted as the status is already "{$a}"';
+$string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before the transfer to Opencast as the processing status is already "{$a}"';
 $string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
 
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';

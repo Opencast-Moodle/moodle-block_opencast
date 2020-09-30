@@ -45,7 +45,7 @@ $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('dodeleteevent', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('deletedraft', 'block_opencast'), $baseurl);
 
 // Capability check.
 // the one who is allowed to add the video is also allowed to delete the video before it is uploaded
@@ -61,13 +61,13 @@ foreach ($uploadjobs as $uploadjob) {
     }
 }
 if(!$jobtodelete) {
-    $message = get_string('videonotfound', 'block_opencast');
-    redirect($redirecturl, $message);
+    $message = get_string('videodraftnotfound', 'block_opencast');
+    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
 }
 if($jobtodelete->status != upload_helper::STATUS_READY_TO_UPLOAD) {
     $message = get_string('videodraftnotdeletable', 'block_opencast',
                           upload_helper::get_status_string($jobtodelete->status));
-    redirect($redirecturl, $message);
+    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
 }
 
 
@@ -80,10 +80,12 @@ if (($action == 'delete') && confirm_sesskey()) {
     redirect($redirecturl, $message);
 }
 
+$html = $OUTPUT->notification(get_string('deletedraftdesc', 'block_opencast'), 'error');
 
 $renderer = $PAGE->get_renderer('block_opencast');
-$html = $renderer->render_upload_jobs([$jobtodelete], false);
-$label = get_string('dodeleteevent', 'block_opencast');
+$html .= $renderer->render_upload_jobs([$jobtodelete], false);
+
+$label = get_string('dodeletedraft', 'block_opencast');
 $params = array(
         'identifier' => $identifier,
         'courseid' => $courseid,
@@ -93,6 +95,6 @@ $urldelete = new \moodle_url('/blocks/opencast/deletedraft.php', $params);
 $html .= $OUTPUT->confirm($label, $urldelete, $redirecturl);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('dodeleteevent', 'block_opencast'));
+echo $OUTPUT->heading(get_string('deletedraft', 'block_opencast'));
 echo $html;
 echo $OUTPUT->footer();
