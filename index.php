@@ -372,4 +372,22 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() 
     }
 }
 
+// If enabled and working, add manual import videos feature.
+if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport() == true) {
+    // Check if the user is allowed to import videos.
+    if (has_capability('block/opencast:manualimporttarget', $coursecontext)) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('importvideos_importheading', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('importvideos_sectionexplanation', 'block_opencast') . '<br />' .
+                get_string('importvideos_processingexplanation', 'block_opencast'));
+
+        // Show "Import videos" button.
+        $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));
+        $importvideosbutton = $OUTPUT->single_button($importvideosurl, get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
+        echo html_writer::div($importvideosbutton);
+    }
+}
+
 echo $OUTPUT->footer();

@@ -287,5 +287,27 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $additionalsettings->hide_if('block_opencast/addltiepisodeavailability',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
+
+    // Import videos section.
+    $additionalsettings->add(
+            new admin_setting_heading('block_opencast/importvideos_settingheader',
+                    get_string('importvideos_settingheader', 'block_opencast'),
+                    ''));
+
+    // Import videos: Enable feature.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideosenabled',
+                    get_string('importvideos_settingenabled', 'block_opencast'),
+                    get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
+
+    // Import videos: Enable manual import videos feature.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideosmanualenabled',
+                    get_string('importvideos_settingmanualenabled', 'block_opencast'),
+                    get_string('importvideos_settingmanualenabled_desc', 'block_opencast'), 0));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/importvideosmanualenabled',
+                'block_opencast/importvideosenabled', 'notchecked');
+    }
 }
 $settings = null;
