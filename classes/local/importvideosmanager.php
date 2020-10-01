@@ -86,6 +86,56 @@ class importvideosmanager {
     }
 
     /**
+     * Helperfunction to get the status of the import videos within Moodle core course import wizard feature.
+     * This consists of a check if the feature is enabled by the admin and a check if a duplicate workflow is configured.
+     *
+     * @return boolean
+     */
+    public static function is_enabled_and_working_for_coreimport() {
+        // Get the status of the whole import featureset.
+        $config = get_config('block_opencast', 'importvideosenabled');
+
+        // If the setting is false, then the featureset is not enabled.
+        if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get the status of the subfeature.
+        $config = get_config('block_opencast', 'importvideoscoreenabled');
+
+        // If the setting is false, then the subfeature is not enabled.
+        if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get the configured duplicate workflow.
+        $workflow = get_config('block_opencast', 'duplicateworkflow');
+
+        // If the workflow is empty, then the feature is not working.
+        if (empty($workflow)) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Verify that the workflow exists in Opencast.
+        $workflowexists = $apibridge->check_if_workflow_exists($workflow);
+
+        // If the workflow does not exist, then the feature is not working.
+        if (!$workflowexists) {
+            // Inform the caller.
+            return false;
+        }
+
+        // The feature should be working.
+        return true;
+    }
+
+    /**
      * Helperfunction to get the list of available workflows to be used by the import videos feature.
      * Please note that this function does not filter for workflows targeted at duplicated events,
      * it just fetches all available workflows.

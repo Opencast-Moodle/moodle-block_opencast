@@ -48,7 +48,6 @@ if (has_capability('moodle/site:config', context_system::instance())) {
         'uploadfileextensions',
         'limitvideos',
         'cachevalidtime',
-        'duplicateworkflow',
         'group_creation',
         'group_name',
         'series_name',
