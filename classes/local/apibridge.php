@@ -386,16 +386,38 @@ class apibridge {
      * Retrieves the id of the series, which is stored in the admin tool.
      *
      * @param int $courseid id of the course.
+     * @param bool $createifempty Create a series on-the-fly if there isn't a series stored yet.
      *
      * @return string id of the series
      */
-    public function get_stored_seriesid($courseid) {
+    public function get_stored_seriesid($courseid, $createifempty = false) {
+        // Get series mapping.
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
+        // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
-            return null;
+            $seriesid = null;
         }
 
+        // If no series exists and if requested, ensure that a series exists.
+        if ($seriesid == null && $createifempty == true) {
+            // Create a series on-the-fly.
+            $seriescreated = $this->create_course_series($courseid);
+
+            // The series was created.
+            if ($seriescreated == true) {
+                // Fetch the created series' id.
+                $seriesid = $this->get_stored_seriesid($courseid);
+
+                // Otherwise there must have been some problem.
+            }
+            else {
+                // Remember series id as null.
+                $seriesid = null;
+            }
+        }
+
+        // Return series id.
         return $seriesid;
     }
 

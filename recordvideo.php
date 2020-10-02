@@ -57,12 +57,8 @@ $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
 $api = \block_opencast\local\apibridge::get_instance();
 
-// Ensure that series exists.
-$seriesid = $api->get_stored_seriesid($courseid);
-if ($seriesid == null) {
-    $api->create_course_series($courseid);
-    $seriesid = $api->get_stored_seriesid($courseid);
-}
+// Get series ID, create a new one if necessary.
+$seriesid = $api->get_stored_seriesid($courseid, true);
 
 // Create parameters.
 $params = block_opencast_create_lti_parameters($ltiendpoint, $seriesid);

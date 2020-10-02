@@ -102,14 +102,8 @@ if ($data = $addltiform->get_data()) {
         $availability = $data->availabilityconditionsjson;
     }
 
-    // Get series ID.
-    $seriesid = $apibridge->get_stored_seriesid($courseid);
-
-    // Ensure that series exists.
-    if ($seriesid == null) {
-        $apibridge->create_course_series($courseid);
-        $seriesid = $apibridge->get_stored_seriesid($courseid);
-    }
+    // Get series ID, create a new one if necessary.
+    $seriesid = $apibridge->get_stored_seriesid($courseid, true);
 
     // Create the module.
     $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid,
