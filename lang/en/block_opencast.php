@@ -116,7 +116,7 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
-$string['backupopencastvideos'] = 'Backup Opencast videos';
+$string['backupopencastvideos'] = 'Include Opencast videos in this course';
 $string['blocksettings'] = 'Settings for a block instance';
 $string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Uploaded by';
