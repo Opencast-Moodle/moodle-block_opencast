@@ -57,6 +57,7 @@ class backup_opencast_block_task extends backup_block_task {
                 $setting = new backup_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN, false);
                 $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast'));
                 $this->add_setting($setting);
+                $this->plan->get_setting('blocks')->add_dependency($setting);
             }
         }
     }
