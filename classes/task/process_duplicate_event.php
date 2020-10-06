@@ -115,13 +115,42 @@ class process_duplicate_event extends \core\task\adhoc_task {
                 throw new \moodle_exception('error_workflow_not_exists', 'block_opencast', '', $a);
             }
 
+            // Set workflow configuration (in this case: the seriesID for the duplicated video).
             $params = [
                 'configuration' => json_encode((object) ['seriesID' => $data->seriesid])
             ];
 
-            if (!$result = $apibridge->start_workflow($data->eventid, $duplicateworkflow, $params)) {
+            // Start workflow in Opencast and remember the workflow ID.
+            $ocworkflowid = $apibridge->start_workflow($data->eventid, $duplicateworkflow, $params, true);
+
+            // If the workflow was not started.
+            if (!$ocworkflowid) {
                 throw new \moodle_exception('error_workflow_not_started', 'block_opencast', '', $a);
             }
+
+            // If requested and only if we have a OC workflow ID, schedule the Opencast LTI episode module to be cleaned up
+            // by writing the necessary episode information to the database. This will be read and processed by the
+            // \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+            if ($data->schedulemodulecleanup == true && is_number($ocworkflowid) &&
+                    $data->episodemodules != null && count((array)$data->episodemodules) > 0) {
+                // Iterate over the existing modules for this episode.
+                // Most probably, there will just be 0 or 1 instance, but we have to handle them all if there are more.
+                $now = time(); // This is fetched before the loop to ensure that all records for this workflow get the same time.
+                foreach ($data->episodemodules as $coursemoduleid => $oldepisodeid) {
+                    // Just proceed if the record does not already exist for some reason.
+                    if (!$DB->record_exists('block_opencast_ltiepisode_cu', array('cmid' => $coursemoduleid))) {
+                        $record = new \stdClass();
+                        $record->courseid = $course->id;
+                        $record->cmid = $coursemoduleid;
+                        $record->ocworkflowid = $ocworkflowid;
+                        $record->queuecount = 0;
+                        $record->timecreated = $now;
+                        $record->timemodified = $now;
+                        $DB->insert_record('block_opencast_ltiepisode_cu', $record);
+                    }
+                }
+            }
+
         } catch (\Exception $e) {
 
             // Increase failure counter.

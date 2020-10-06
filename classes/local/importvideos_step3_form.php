@@ -60,8 +60,13 @@ class importvideos_step3_form extends \moodleform {
         $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course(
                 $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
 
+        // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
+        $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
+                $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
+                array_keys($this->_customdata['coursevideos']));
+
         // If there is anything to be handled.
-        if (count($referencedseriesmodules) > 0) {
+        if (count($referencedseriesmodules) > 0 || count($referencedepisodemodules) > 0) {
             // Add intro.
             $notification = importvideosmanager::render_wizard_intro_notification(
                     get_string('importvideos_wizardstep3intro', 'block_opencast'));
@@ -83,6 +88,24 @@ class importvideos_step3_form extends \moodleform {
                 $handleseriesmodulelabel = get_string('importvideos_wizardstep3seriesmodulelabel', 'block_opencast');
                 $mform->addElement('checkbox', 'fixseriesmodules', $handleseriesmodulelabel);
                 $mform->setDefault('fixseriesmodules', 1);
+            }
+
+            // If there is any episode module which needs to be handled.
+            if (count($referencedepisodemodules) > 0) {
+                // Show heading for episode module.
+                $handleepisodeheadingstring = \html_writer::tag('h3',
+                        get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));
+                $mform->addElement('html', $handleepisodeheadingstring);
+
+                // Show explanation for episode module.
+                $handleepisodemodulestring = \html_writer::tag('p',
+                        get_string('importvideos_wizardstep3episodemoduleexplanation', 'block_opencast'));
+                $mform->addElement('html', $handleepisodemodulestring);
+
+                // Add checkbox to fix series module.
+                $handleepisodemodulelabel = get_string('importvideos_wizardstep3episodemodulelabel', 'block_opencast');
+                $mform->addElement('checkbox', 'fixepisodemodules', $handleepisodemodulelabel);
+                $mform->setDefault('fixepisodemodules', 1);
             }
 
             // Otherwise.

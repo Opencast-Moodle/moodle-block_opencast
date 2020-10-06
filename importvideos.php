@@ -31,6 +31,7 @@ $step = optional_param('step', 1, PARAM_INT);
 $sourcecourseid = optional_param('sourcecourseid', null, PARAM_INT);
 $coursevideos = optional_param_array('coursevideos', array(), PARAM_ALPHANUMEXT);
 $fixseriesmodules = optional_param('fixseriesmodules', false, PARAM_BOOL);
+$fixepisodemodules = optional_param('fixepisodemodules', false, PARAM_BOOL);
 
 // Set base URL.
 $baseurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));
@@ -59,10 +60,12 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:manualimporttarget', $coursecontext);
 
-// Check if the LTI series feature feature is enabled _and_ the user is allowed to use the feature,
+// Check if either the LTI series feature or the LTI episodes feature is enabled _and_ the user is allowed to use the feature,
 // we have to include step 3.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true &&
-        has_capability('block/opencast:addlti', $coursecontext)) {
+if ((\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true &&
+        has_capability('block/opencast:addlti', $coursecontext)) ||
+        (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
+                has_capability('block/opencast:addltiepisode', $coursecontext))) {
     $hasstep3 = true;
 } else {
     $hasstep3 = false;
@@ -163,7 +166,8 @@ switch ($step) {
                     array('courseid' => $courseid,
                           'sourcecourseid' => $sourcecourseid,
                           'coursevideos' => $coursevideos,
-                          'fixseriesmodules' => $fixseriesmodules));
+                          'fixseriesmodules' => $fixseriesmodules,
+                          'fixepisodemodules' => $fixepisodemodules));
         }
 
         break;
@@ -173,7 +177,8 @@ switch ($step) {
                 array('courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid,
                       'coursevideos' => $coursevideos,
-                      'fixseriesmodules' => $fixseriesmodules));
+                      'fixseriesmodules' => $fixseriesmodules,
+                      'fixepisodemodules' => $fixepisodemodules));
 
         // Redirect if the form was cancelled.
         if ($importvideosform->is_cancelled()) {
@@ -182,8 +187,16 @@ switch ($step) {
 
         // Process data.
         if ($data = $importvideosform->get_data()) {
-            // Duplicate the videos.
-            $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid, $coursevideos);
+            // If cleanup of the episode modules was requested and the user is allowed to do this.
+            if ($fixepisodemodules == true && has_capability('block/opencast:addltiepisode', $coursecontext)) {
+                // Duplicate the videos with episode module cleanup.
+                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid,
+                        $coursevideos, true);
+            } else {
+                // Duplicate the videos without episode module cleanup.
+                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid,
+                        $coursevideos, false);
+            }
 
             // If duplication did not complete correctly.
             if ($resultduplicate != true) {
@@ -194,8 +207,8 @@ switch ($step) {
                         \core\output\notification::NOTIFY_ERROR);
             }
 
-            // If cleanup of the series modules was requested.
-            if ($fixseriesmodules == true) {
+            // If cleanup of the series modules was requested and the user is allowed to do this.
+            if ($fixseriesmodules == true && has_capability('block/opencast:addlti', $coursecontext)) {
                 // Clean up the series modules.
                 $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($courseid, $sourcecourseid);
 

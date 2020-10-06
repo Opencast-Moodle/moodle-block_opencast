@@ -308,10 +308,11 @@ class importvideosmanager {
      * @param int $sourcecourseid The source course id.
      * @param int $targetcourseid The target course id.
      * @param array $coursevideos The array of video identifiers to be duplicated.
+     * @param bool $modulecleanup (optional) The switch if we want to cleanup the episode modules.
      *
      * @return bool
      */
-    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos) {
+    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
         // If the user is not allowed to import from the source course at all, return.
         $sourcecoursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
@@ -354,8 +355,23 @@ class importvideosmanager {
                 continue;
             }
 
-            // Create duplication task for this event.
-            $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier);
+            // If cleanup of the episode modules was requested, look for existing modules.
+            if ($modulecleanup == true) {
+                // Get the episode modules to be cleaned up.
+                $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
+                        $targetcourseid, $identifier);
+            }
+
+            // If there are existing modules to be cleaned up.
+            if ($modulecleanup == true && count($episodemodules) > 0) {
+                // Create duplication task for this event.
+                $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
+                        true, $episodemodules);
+            } else {
+                // Create duplication task for this event.
+                $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
+                        false, null);
+            }
 
             // If there was any problem with creating this task.
             if ($ret == false) {

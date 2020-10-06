@@ -482,7 +482,7 @@ class ltimodulemanager {
     public static function cleanup_series_modules($modulecourseid, $referencedcourseid) {
         global $CFG, $DB;
 
-        // Require grade library.
+        // Require grade library. For an unknown reason, this is needed when updating the module.
         require_once($CFG->libdir.'/gradelib.php');
 
         // If the user is not allowed to add series modules to the target course at all, return.
@@ -641,6 +641,183 @@ class ltimodulemanager {
     }
 
     /**
+     * Helperfunction to get Opencast LTI episode modules within a course which are linking to a video within the Opencast series
+     * of another course.
+     * This function is just an iterator for get_modules_for_episode_linking_to_other_course(), iterating over all course videos.
+     *
+     * @param int $modulecourseid The course where the module is located.
+     * @param int $referencedcourseid The course where the module is pointing to.
+     * @param array|null $onlytheseepisodes (optional) The array of the episode identifiers.
+     *                                      If given, only these identifiers will be evaluated.
+     *                                      If not given, all course videos will be evaluated.
+     *
+     * @return array
+     */
+    public static function get_modules_for_episodes_linking_to_other_course($modulecourseid, $referencedcourseid,
+            $onlytheseepisodes = null) {
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the course series of the referenced course.
+        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
+
+        // If the referenced course does not have any series configured, return.
+        if ($referencedseriesid == null) {
+            return array();
+        }
+
+        // Get episodes which are located in the referenced course.
+        $coursevideos = $apibridge->get_course_videos($referencedcourseid);
+
+        // Initialize modules to be returned as empty array.
+        $modules = array();
+
+        // Iterate over episodes.
+        foreach ($coursevideos->videos as $video) {
+            // Proceed only if we have to check this particular video.
+            if ($onlytheseepisodes == null || !in_array($video->identifier, $onlytheseepisodes)) {
+                continue;
+            }
+
+            // Check each episode individually.
+            $episodemodules = self::get_modules_for_episode_linking_to_other_course($modulecourseid, $video->identifier);
+
+            // And add the result to the array of modules.
+            $modules += $episodemodules;
+        }
+
+        // Return the LTI module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to get Opencast LTI episode modules within a course which are linking to a video within the Opencast series
+     * of another course.
+     * These modules will be searched in the mod_lti table, i.e. the function delivers all modules which are linking to the
+     * given episode.
+     * This especially catches modules which have been imported from one course to another course.
+     *
+     * @param int $modulecourseid The course where the module is located.
+     * @param int $referencedepisodeid The episode id where the module is pointing to.
+     *
+     * @return array
+     */
+    public static function get_modules_for_episode_linking_to_other_course($modulecourseid, $referencedepisodeid) {
+        global $DB;
+
+        // Get the id of the preconfigured tool.
+        $toolid = self::get_preconfigured_tool_for_episode();
+
+        // Initialize modules to be returned as empty array.
+        $modules = array();
+
+        // Get the LTI episode module(s) which point to the episode.
+        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l
+                JOIN {course_modules} AS cm
+                ON l.id = cm.instance
+                WHERE l.typeid = :toolid
+                       AND cm.course = :course
+                       AND '.$DB->sql_like('l.instructorcustomparameters', ':referencedepisodeid');
+        $params = array('toolid' => $toolid,
+                        'course' => $modulecourseid,
+                        'referencedepisodeid' => '%'.$referencedepisodeid.'%');
+        $episodemodules = $DB->get_fieldset_sql($sql, $params);
+
+        // If there are any existing episode modules in this course.
+        if (count($episodemodules) > 0) {
+            // Iterate over modules.
+            foreach ($episodemodules as $e) {
+                // Remember the episode module to be returned.
+                $modules[$e] = $referencedepisodeid;
+            }
+        }
+
+        // Return the LTI module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to cleanup the Opencast LTI episode modules for a given episode module from the job list in the database.
+     * This especially cleans up modules which have been imported from one course to another course.
+     * This function is primarily called by the \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+     * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
+     *
+     * @param int $modulecourseid The course which is cleaned up.
+     * @param array $episodemodules The array of episodemodules to be cleaned up.
+     * @param string $episodeid The episode ID where the modules should be pointing to in the end.
+     *
+     * @return bool
+     */
+    public static function cleanup_episode_modules($modulecourseid, $episodemodules, $episodeid) {
+        global $CFG, $DB;
+
+        // Require course module library.
+        require_once($CFG->dirroot . '/course/modlib.php');
+
+        // Require grade library. For an unknown reason, this is needed when updating the module.
+        require_once($CFG->libdir.'/gradelib.php');
+
+        // If there aren't any modules to be cleaned up given, return.
+        if (count($episodemodules) < 1) {
+            return true;
+        }
+
+        // Get Opencast LTI episode module in this course which points to the given episode.
+        $courseepisodemodule = ltimodulemanager::get_module_for_episode($modulecourseid, $episodeid);
+
+        // If there isn't an episode module for the given episode in this course yet.
+        if ($courseepisodemodule == false) {
+            // Get the module ID of the first existing episode module (which is most probably the one the teacher wants to keep)
+            // for the referenced episode.
+            $episodemoduleid = reset($episodemodules);
+
+            // Gather more information about this module so that we can update the module info in the end.
+            $episodemoduleobject = get_coursemodule_from_id('lti', $episodemoduleid, $modulecourseid);
+            $courseobject = get_course($modulecourseid);
+            list($unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw) =
+                    get_moduleinfo_data($episodemoduleobject, $courseobject);
+
+            // Replace the episode identifier in the module info.
+            $episodemoduledata->instructorcustomparameters = 'id='.$episodeid;
+
+            // Update the episode identifier within the episode module.
+            update_module($episodemoduledata);
+
+            // Remember this episode module id as the episode module of the course.
+            $record = new \stdClass();
+            $record->courseid = $modulecourseid;
+            $record->episodeuuid = $episodeid;
+            $record->cmid = $episodemoduleid;
+            $DB->insert_record('block_opencast_ltiepisode', $record);
+
+            // Remove this module from the array of existing modules and preserve the keys.
+            if (count ($episodemodules) > 1) {
+                $episodemodules = array_slice($episodemodules, 1, null, true);
+            } else {
+                $episodemodules = array();
+            }
+        }
+
+        // Now, there either existed an episode module for this course already and we just have to delete the modules which point
+        // to the referenced course.
+        // Or there wasn't a module for this course, but we rewrote the first module for the referenced course and removed it from
+        // the array afterwards.
+        // Either way, we can delete all remaining existing modules for the referenced course now.
+        foreach ($episodemodules as $cmid) {
+            try {
+                // Delete the module.
+                course_delete_module($cmid);
+            } catch (\Exception $e) {
+                // Something must have failed, return.
+                return false;
+            }
+        }
+
+        // Return success.
+        return true;
+    }
+
+    /**
      * Helperfunction to get the default Opencast LTI series module title.
      * This includes a fallback for the case that the admin has set it to an empty string.
      *
@@ -723,5 +900,25 @@ class ltimodulemanager {
 
         // Finally, return the course section array.
         return $sectionmenu;
+    }
+
+    /**
+     * Helperfunction to check if the given episode ID is a valid episode ID.
+     *
+     * We do not validate if the given episode is really published anywhere.
+     * But we validate if the given episode UUID is really a UUID.
+     * The test code is borrowed from /lib/tests/setuplib_tests.php.
+     *
+     * @param string $episodeid
+     *
+     * @return bool
+     */
+    public static function is_valid_episode_id($episodeid) {
+        $uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
+        if (strlen($episodeid) != 36 || preg_match($uuidv4pattern, $episodeid) !== 1) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

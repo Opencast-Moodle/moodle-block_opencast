@@ -79,6 +79,8 @@ class importvideos_step4_form extends \moodleform {
         }
         $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
         $mform->setType('fixseriesmodules', PARAM_BOOL);
+        $mform->addElement('hidden', 'fixepisodemodules', $this->_customdata['fixepisodemodules']);
+        $mform->setType('fixepisodemodules', PARAM_BOOL);
 
         // Add intro.
         $notification = importvideosmanager::render_wizard_intro_notification(
@@ -107,15 +109,31 @@ class importvideos_step4_form extends \moodleform {
         }
 
         // Summary item: Handle modules.
-        if ($this->_customdata['fixseriesmodules'] == true) {
+        if ($this->_customdata['fixseriesmodules'] == true || $this->_customdata['fixepisodemodules'] == true) {
             // Horizontal line.
             $mform->addElement('html', '<hr>');
 
-            // Show summary item.
-            $mform->addElement('static', 'summaryfixseriesmodules',
-                    get_string('importvideos_wizardstep3heading', 'block_opencast'),
-                    get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
-       }
+            // Handle series modules.
+            if ($this->_customdata['fixseriesmodules'] == true) {
+                // Show summary item.
+                $mform->addElement('static', 'summaryfixseriesmodules',
+                        get_string('importvideos_wizardstep3heading', 'block_opencast'),
+                        get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
+
+                // Remember this fact for the next summary item.
+                $summaryfixseriesmodulesshown = true;
+            } else {
+                // Remember the fact for the next summary item.
+                $summaryfixseriesmodulesshown = false;
+            }
+
+            // Handle episode modules.
+            if ($this->_customdata['fixepisodemodules'] == true) {
+                $mform->addElement('static', 'summaryfixepisodemodules',
+                        ($summaryfixseriesmodulesshown == false) ? get_string('importvideos_wizardstep3heading', 'block_opencast') : '',
+                        get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));
+            }
+        }
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlerunimport', 'block_opencast'));

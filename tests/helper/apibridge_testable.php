@@ -207,7 +207,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return $this->get_testdata('check_if_workflow_exists', $name);
     }
 
-    public function start_workflow($eventid, $duplicateworkflow, $params = array()) {
+    public function start_workflow($eventid, $duplicateworkflow, $params = array(), $returnworkflowid = false) {
         return $this->get_testdata('start_workflow', $duplicateworkflow);
     }
 
