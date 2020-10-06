@@ -56,12 +56,42 @@ class importvideos_step3_form extends \moodleform {
             $mform->setType('coursevideos', PARAM_BOOL);
         }
 
-        // TODO This step is a placeholder for LTI module handling which will be built in a separate commit.
+        // Get Opencast LTI series modules in this course which point to the source course's series.
+        $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course(
+                $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
 
-        // Add intro.
-        $notification = importvideosmanager::render_wizard_intro_notification(
-                get_string('importvideos_wizardstep3intro', 'block_opencast'));
-        $mform->addElement('html', $notification);
+        // If there is anything to be handled.
+        if (count($referencedseriesmodules) > 0) {
+            // Add intro.
+            $notification = importvideosmanager::render_wizard_intro_notification(
+                    get_string('importvideos_wizardstep3intro', 'block_opencast'));
+            $mform->addElement('html', $notification);
+
+            // If there is any series module which needs to be handled.
+            if (count($referencedseriesmodules) > 0) {
+                // Show heading for series module.
+                $handleseriesheadingstring = \html_writer::tag('h3',
+                        get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
+                $mform->addElement('html', $handleseriesheadingstring);
+
+                // Show explanation for series module.
+                $handleseriesmodulestring = \html_writer::tag('p',
+                        get_string('importvideos_wizardstep3seriesmoduleexplanation', 'block_opencast'));
+                $mform->addElement('html', $handleseriesmodulestring);
+
+                // Add checkbox to fix series module.
+                $handleseriesmodulelabel = get_string('importvideos_wizardstep3seriesmodulelabel', 'block_opencast');
+                $mform->addElement('checkbox', 'fixseriesmodules', $handleseriesmodulelabel);
+                $mform->setDefault('fixseriesmodules', 1);
+            }
+
+            // Otherwise.
+        } else {
+            // Add intro.
+            $notification = importvideosmanager::render_wizard_intro_notification(
+                    get_string('importvideos_wizardstep3skipintro', 'block_opencast'));
+            $mform->addElement('html', $notification);
+        }
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlecontinue', 'block_opencast'));

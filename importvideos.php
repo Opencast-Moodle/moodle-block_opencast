@@ -30,6 +30,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $step = optional_param('step', 1, PARAM_INT);
 $sourcecourseid = optional_param('sourcecourseid', null, PARAM_INT);
 $coursevideos = optional_param_array('coursevideos', array(), PARAM_ALPHANUMEXT);
+$fixseriesmodules = optional_param('fixseriesmodules', false, PARAM_BOOL);
 
 // Set base URL.
 $baseurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));
@@ -58,11 +59,10 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:manualimporttarget', $coursecontext);
 
-// Check if either the LTI series feature or the LTI episodes feature is enabled, we have to include step 3.
-if (false) {
-// TODO This check is a placeholder for LTI module handling which will be built in a separate commit.
-// if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true ||
-//        \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
+// Check if the LTI series feature feature is enabled _and_ the user is allowed to use the feature,
+// we have to include step 3.
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true &&
+        has_capability('block/opencast:addlti', $coursecontext)) {
     $hasstep3 = true;
 } else {
     $hasstep3 = false;
@@ -162,7 +162,8 @@ switch ($step) {
             $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
                     array('courseid' => $courseid,
                           'sourcecourseid' => $sourcecourseid,
-                          'coursevideos' => $coursevideos));
+                          'coursevideos' => $coursevideos,
+                          'fixseriesmodules' => $fixseriesmodules));
         }
 
         break;
@@ -171,7 +172,8 @@ switch ($step) {
         $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
                 array('courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid,
-                      'coursevideos' => $coursevideos));
+                      'coursevideos' => $coursevideos,
+                      'fixseriesmodules' => $fixseriesmodules));
 
         // Redirect if the form was cancelled.
         if ($importvideosform->is_cancelled()) {
@@ -181,24 +183,37 @@ switch ($step) {
         // Process data.
         if ($data = $importvideosform->get_data()) {
             // Duplicate the videos.
-            $result = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid, $coursevideos);
+            $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid, $coursevideos);
 
-            // Check if the duplication jobs were created successfully.
-            if ($result == true) {
-                // Redirect to Opencast videos overview page.
-                redirect($redirecturloverview,
-                        get_string('importvideos_importjobcreated', 'block_opencast'),
-                        null,
-                        \core\output\notification::NOTIFY_SUCCESS);
-
-                // Otherwise.
-            } else {
-                // Redirect to Opencast videos overview page.
+            // If duplication did not complete correctly.
+            if ($resultduplicate != true) {
+                // Redirect to Opencast videos overview page without cleaning up any modules.
                 redirect($redirecturloverview,
                         get_string('importvideos_importjobcreationfailed', 'block_opencast'),
                         null,
                         \core\output\notification::NOTIFY_ERROR);
             }
+
+            // If cleanup of the series modules was requested.
+            if ($fixseriesmodules == true) {
+                // Clean up the series modules.
+                $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($courseid, $sourcecourseid);
+
+                // If clean up did not completed correctly.
+                if ($resulthandleseries != true) {
+                    // Redirect to Opencast videos overview page with an error notification.
+                    redirect($redirecturloverview,
+                            get_string('importvideos_importseriescleanupfailed', 'block_opencast'),
+                            null,
+                            \core\output\notification::NOTIFY_ERROR);
+                }
+            }
+
+            // Everything seems to be fine, redirect to Opencast videos overview page.
+            redirect($redirecturloverview,
+                    get_string('importvideos_importjobcreated', 'block_opencast'),
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS);
         }
 
         break;

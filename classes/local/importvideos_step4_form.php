@@ -77,6 +77,8 @@ class importvideos_step4_form extends \moodleform {
             $mform->addElement('hidden', 'coursevideos['.$identifier.']', $checked);
             $mform->setType('coursevideos', PARAM_BOOL);
         }
+        $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
+        $mform->setType('fixseriesmodules', PARAM_BOOL);
 
         // Add intro.
         $notification = importvideosmanager::render_wizard_intro_notification(
@@ -85,7 +87,7 @@ class importvideos_step4_form extends \moodleform {
 
         // Summary item: Source course.
         $sourcecourse = get_course($this->_customdata['sourcecourseid']);
-        $mform->addElement('static', 'sourcecourse',
+        $mform->addElement('static', 'summarysourcecourse',
                 get_string('importvideos_wizardstep1sourcecourse', 'block_opencast'),
                 get_string('importvideos_wizardstep1sourcecourseoption', 'block_opencast',
                         array('id' => $sourcecourse->id, 'fullname' => $sourcecourse->fullname)));
@@ -98,11 +100,22 @@ class importvideos_step4_form extends \moodleform {
                 $this->_customdata['sourcecourseid'], $this->_customdata['coursevideos']);
         $importvideocounter = 1;
         foreach ($coursevideossummary as $identifier => $label) {
-            $mform->addElement('static', 'importvideo'.$importvideocounter,
+            $mform->addElement('static', 'summaryimportvideo'.$importvideocounter,
                     ($importvideocounter == 1) ? get_string('importvideos_wizardstep2coursevideos', 'block_opencast') : '',
                     $label);
             $importvideocounter++;
         }
+
+        // Summary item: Handle modules.
+        if ($this->_customdata['fixseriesmodules'] == true) {
+            // Horizontal line.
+            $mform->addElement('html', '<hr>');
+
+            // Show summary item.
+            $mform->addElement('static', 'summaryfixseriesmodules',
+                    get_string('importvideos_wizardstep3heading', 'block_opencast'),
+                    get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
+       }
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlerunimport', 'block_opencast'));

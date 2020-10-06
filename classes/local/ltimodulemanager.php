@@ -374,6 +374,8 @@ class ltimodulemanager {
 
     /**
      * Helperfunction to get the Opencast LTI series module of a course.
+     * This module will be picked from the block_opencast_ltimodule table, i.e. it delivers the only module linking to the course
+     * series which must have been created from within the Opencast videos overview page.
      * This includes a sanity check if the stored LTI series module still exists.
      *
      * @param int $courseid
@@ -406,6 +408,156 @@ class ltimodulemanager {
 
         // Return the LTI module id.
         return $moduleid;
+    }
+
+    /**
+     * Helperfunction to get Opencast LTI series modules within a course which are linking to the Opencast series of another course.
+     * These modules will be searched in the mod_lti table, i.e. the function delivers all modules which are linking to the
+     * given course' series.
+     * This especially catches modules which have been imported from one course to another course.
+     *
+     * @param int $modulecourseid The course where the module is located.
+     * @param int $referencedcourseid The course where the module is pointing to.
+     *
+     * @return array The array of course module IDs. The course module ID is used as array key, the references series ID as array value.
+     */
+    public static function get_modules_for_series_linking_to_other_course($modulecourseid, $referencedcourseid) {
+        global $DB;
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the course series of the referenced course.
+        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
+
+        // If the referenced course does not have any series configured, return.
+        if ($referencedseriesid == null) {
+            return array();
+        }
+
+        // Get the id of the preconfigured tool.
+        $toolid = self::get_preconfigured_tool_for_series();
+
+        // Initialize modules to be returned as empty array.
+        $modules = array();
+
+        // Get the LTI series module(s) which point to the series.
+        // If there is more than one module, the list will be ordered by the time when the module was added to the course.
+        // The oldest module is probably the module which should be kept when the modules are cleaned up later,
+        // the newer ones will probably be from additional course content imports.
+        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l
+                JOIN {course_modules} AS cm
+                ON l.id = cm.instance
+                WHERE l.typeid = :toolid
+                       AND cm.course = :course
+                       AND '.$DB->sql_like('l.instructorcustomparameters', ':referencedseriesid').'
+                ORDER BY cm.added ASC';
+        $params = array('toolid' => $toolid,
+                        'course' => $modulecourseid,
+                        'referencedseriesid' => '%'.$referencedseriesid.'%');
+        $seriesmodules = $DB->get_fieldset_sql($sql, $params);
+
+        // If there are any existing series modules in this course.
+        if (count($seriesmodules) > 0) {
+            // Iterate over modules.
+            foreach ($seriesmodules as $s) {
+                // Remember the series module to be returned.
+                $modules[$s] = $referencedseriesid;
+            }
+        }
+
+        // Return the LTI module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to cleanup the Opencast LTI series modules within a course.
+     * This especially cleans up modules which have been imported from one course to another course.
+     *
+     * @param int $modulecourseid The course which is cleaned up.
+     * @param int $referencedcourseid The course where the modules are pointing to.
+     *
+     * @return bool
+     */
+    public static function cleanup_series_modules($modulecourseid, $referencedcourseid) {
+        global $CFG, $DB;
+
+        // Require grade library.
+        require_once($CFG->libdir.'/gradelib.php');
+
+        // If the user is not allowed to add series modules to the target course at all, return.
+        $coursecontext = \context_course::instance($modulecourseid);
+        if (has_capability('block/opencast:addlti', $coursecontext) != true) {
+            return false;
+        }
+
+        // Get the existing series modules in the course.
+        $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($modulecourseid, $referencedcourseid);
+
+        // If there aren't any modules in the course to be cleaned up, return.
+        if (count($referencedseriesmodules) < 1) {
+            return true;
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the course series of the referenced course.
+        $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
+
+        // Get Opencast LTI series module in this course which point to the course's series.
+        $courseseriesmodule = ltimodulemanager::get_module_for_series($modulecourseid);
+
+        // If there isn't a series module for this course' series in this course yet.
+        if ($courseseriesmodule == false) {
+            // Get the module ID of the first existing series module (which is most probably the one the teacher wants to keep)
+            // for the referenced course.
+            reset($referencedseriesmodules);
+            $seriesmoduleid = key($referencedseriesmodules); // From PHP 7.3 on, there would also be array_key_first(),
+                                                             // but we want to keep this code as backwards-compatible as possible.
+
+            // Gather more information about this module so that we can update the module info in the end.
+            $seriesmoduleobject = get_coursemodule_from_id('lti', $seriesmoduleid, $modulecourseid);
+            $courseobject = get_course($modulecourseid);
+            list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) = get_moduleinfo_data($seriesmoduleobject, $courseobject);
+
+            // Replace the series identifier in the module info.
+            $seriesmoduledata->instructorcustomparameters = 'series='.$courseseries;
+
+            // Update the series identifier within the series module.
+            update_module($seriesmoduledata);
+
+            // Remember this series module id as the series module of the course.
+            $record = new \stdClass();
+            $record->courseid = $modulecourseid;
+            $record->cmid = $seriesmoduleid;
+            $DB->insert_record('block_opencast_ltimodule', $record);
+
+            // Remove this module from the array of existing modules and preserve the keys.
+            if (count ($referencedseriesmodules) > 1) {
+                $referencedseriesmodules = array_slice($referencedseriesmodules, 1, null, true);
+            } else {
+                $referencedseriesmodules = array();
+            }
+        }
+
+        // Now, there either existed a series module for this course already and we just have to delete the modules which point
+        // to the referenced course.
+        // Or there wasn't a module for this course, but we rewrote the first module for the referenced course and removed it from
+        // the array afterwards.
+        // Either way, we can delete all remaining existing modules for the referenced course now.
+        foreach ($referencedseriesmodules as $cmid => $seriesid) {
+            try {
+                // Delete the module.
+                course_delete_module($cmid);
+            } catch (\Exception $e) {
+                // Something must have failed, return.
+                return false;
+            }
+        }
+
+        // Return success.
+        return true;
     }
 
     /**
