@@ -24,17 +24,23 @@ require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG;
 
+// Handle submitted parameters of the form.
 $courseid = required_param('courseid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
+// Set base URL.
 $baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
+// Remember URLs for redirecting.
 $redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
+$redirecturlcancel = $redirecturloverview;
 
+// Require login and course membership.
 require_login($courseid, false);
 
+// Set page and navbar properties.
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
@@ -43,7 +49,7 @@ $PAGE->navbar->add(get_string('addlti_addbuttontitle', 'block_opencast'), $baseu
 
 // Check if the LTI module feature is enabled and working.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == false) {
-    print_error('add lti series module not enabled or working', 'block_opencast', $redirecturloverview);
+    print_error('addlti_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
 // Capability check.
@@ -58,14 +64,18 @@ if ($moduleid) {
             get_string('addlti_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
+// Use Add LTI form.
 $addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid));
 
+// Get API bridge instance.
 $apibridge = \block_opencast\local\apibridge::get_instance();
 
+// Redirect if the form was cancelled.
 if ($addltiform->is_cancelled()) {
     redirect($redirecturlcancel);
 }
 
+// Process data.
 if ($data = $addltiform->get_data()) {
     // Verify again that we have a title. If not, use the default title.
     if (!$data->title) {
@@ -138,8 +148,14 @@ if ($data = $addltiform->get_data()) {
     }
 }
 
+// Output the page header.
 echo $OUTPUT->header();
+
+// Output heading.
 echo $OUTPUT->heading(get_string('addlti_addbuttontitle', 'block_opencast'));
 
+// Output the form.
 $addltiform->display();
+
+// Output the page footer.
 echo $OUTPUT->footer();
