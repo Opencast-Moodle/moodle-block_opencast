@@ -120,7 +120,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast series feature.
      * This consists of a check if the feature is enabled by the admin and a sanity check if the configured tool is valid.
      *
-     * @return int|boolean
+     * @return boolean
      */
     public static function is_enabled_and_working_for_series() {
         // Get the status of the feature.
@@ -149,7 +149,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast episodes feature.
      * This consists of a check if the feature is enabled by the admin and a sanity check if the configured tool is valid.
      *
-     * @return int|boolean
+     * @return boolean
      */
     public static function is_enabled_and_working_for_episodes() {
         // Remember the status for subsequent calls.
