@@ -213,6 +213,16 @@ class importvideosmanager {
             return false;
         }
 
+        // Check the support of Opencast API Level >=v1.1.0.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apilevelsupported = $apibridge->supports_api_level('v1.1.0');
+
+        // If the API level is too old, then the feature is not working.
+        if ($apilevelsupported == false) {
+            // Inform the caller.
+            return false;
+        }
+
         // The feature is working.
         return true;
     }
