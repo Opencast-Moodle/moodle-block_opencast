@@ -56,24 +56,48 @@ class importvideos_step3_form extends \moodleform {
             $mform->setType('coursevideos', PARAM_BOOL);
         }
 
-        // Get Opencast LTI series modules in this course which point to the source course's series.
-        $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course(
-                $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
+        // Get course context.
+        $coursecontext = \context_course::instance($this->_customdata['courseid']);
 
-        // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
-        $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
-                $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
-                array_keys($this->_customdata['coursevideos']));
+        // Check if the handle series feature is enabled _and_ the user is allowed to use the feature.
+        if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working() == true &&
+                        has_capability('block/opencast:addlti', $coursecontext))) {
+            // Remember this fact.
+            $handleseriesmodules = true;
+
+            // Get Opencast LTI series modules in this course which point to the source course's series.
+            $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course(
+                    $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
+        } else {
+            // Remember this fact.
+            $handleseriesmodules = false;
+        }
+
+        // Check if the handle episode feature is enabled _and_ the user is allowed to use the feature.
+        if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working() == true &&
+                has_capability('block/opencast:addltiepisode', $coursecontext))) {
+            // Remember this fact.
+            $handleepisodemodules = true;
+
+            // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
+            $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
+                    $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
+                    array_keys($this->_customdata['coursevideos']));
+        } else {
+            // Remember this fact.
+            $handleepisodemodules = false;
+        }
 
         // If there is anything to be handled.
-        if (count($referencedseriesmodules) > 0 || count($referencedepisodemodules) > 0) {
+        if (($handleseriesmodules == true && count($referencedseriesmodules) > 0) ||
+                ($handleepisodemodules == true && count($referencedepisodemodules) > 0)) {
             // Add intro.
             $notification = importvideosmanager::render_wizard_intro_notification(
                     get_string('importvideos_wizardstep3intro', 'block_opencast'));
             $mform->addElement('html', $notification);
 
             // If there is any series module which needs to be handled.
-            if (count($referencedseriesmodules) > 0) {
+            if ($handleseriesmodules == true && count($referencedseriesmodules) > 0) {
                 // Show heading for series module.
                 $handleseriesheadingstring = \html_writer::tag('h3',
                         get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
@@ -91,7 +115,7 @@ class importvideos_step3_form extends \moodleform {
             }
 
             // If there is any episode module which needs to be handled.
-            if (count($referencedepisodemodules) > 0) {
+            if ($handleepisodemodules == true && count($referencedepisodemodules) > 0) {
                 // Show heading for episode module.
                 $handleepisodeheadingstring = \html_writer::tag('h3',
                         get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));

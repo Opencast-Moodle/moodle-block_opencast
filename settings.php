@@ -337,5 +337,37 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $additionalsettings->hide_if('block_opencast/importvideosmanualenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
     }
+
+    // Import videos: Handle Opencast series modules during manual import.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideoshandleseriesenabled',
+                    get_string('importvideos_settinghandleseriesenabled', 'block_opencast'),
+                    get_string('importvideos_settinghandleseriesenabled_desc', 'block_opencast'), 0));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+                'block_opencast/importvideosenabled', 'notchecked');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+                'block_opencast/duplicateworkflow', 'eq', '');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+                'block_opencast/importvideosmanualenabled', 'notchecked');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+                'block_opencast/addltienabled', 'notchecked');
+    }
+
+    // Import videos: Handle Opencast episode modules during manual import.
+    $additionalsettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideoshandleepisodeenabled',
+                    get_string('importvideos_settinghandleepisodeenabled', 'block_opencast'),
+                    get_string('importvideos_settinghandleepisodeenabled_desc', 'block_opencast'), 0));
+    if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+                'block_opencast/importvideosenabled', 'notchecked');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+                'block_opencast/duplicateworkflow', 'eq', '');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+                'block_opencast/importvideosmanualenabled', 'notchecked');
+        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+                'block_opencast/addltiepisodeenabled', 'notchecked');
+    }
 }
 $settings = null;

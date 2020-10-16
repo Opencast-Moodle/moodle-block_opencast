@@ -162,6 +162,62 @@ class importvideosmanager {
     }
 
     /**
+     * Helperfunction to get the status of the handle Opencast series modules feature.
+     *
+     * @return boolean
+     */
+    public static function handle_series_modules_is_enabled_and_working() {
+        // Get the status of the feature.
+        $config = get_config('block_opencast', 'importvideoshandleseriesenabled');
+
+        // If the setting is false, then the feature is not working.
+        if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get the status of the LTI module feature (which is the basis for this feature).
+        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series();
+
+        // If the LTI module is not working, then this feature is not working as well.
+        if ($basisfeature == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // The feature is working.
+        return true;
+    }
+
+    /**
+     * Helperfunction to get the status of the handle Opencast episode modules feature.
+     *
+     * @return boolean
+     */
+    public static function handle_episode_modules_is_enabled_and_working() {
+        // Get the status of the feature.
+        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled');
+
+        // If the setting is false, then the feature is not working.
+        if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get the status of the LTI module feature (which is the basis for this feature).
+        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes();
+
+        // If the LTI module is not working, then this feature is not working as well.
+        if ($basisfeature == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // The feature is working.
+        return true;
+    }
+
+    /**
      * Helperfunction to get the list of courses which can be used as import source during manual import.
      * This function fetches all courses
      * a) where I am allowed to import videos from

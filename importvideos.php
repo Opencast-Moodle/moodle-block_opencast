@@ -60,11 +60,11 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:manualimporttarget', $coursecontext);
 
-// Check if either the LTI series feature or the LTI episodes feature is enabled _and_ the user is allowed to use the feature,
+// Check if either the handle series feature or the handle episodes feature is enabled _and_ the user is allowed to use the feature,
 // we have to include step 3.
-if ((\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true &&
+if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working() == true &&
         has_capability('block/opencast:addlti', $coursecontext)) ||
-        (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
+        (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working() == true &&
                 has_capability('block/opencast:addltiepisode', $coursecontext))) {
     $hasstep3 = true;
 } else {

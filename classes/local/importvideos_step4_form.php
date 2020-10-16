@@ -77,10 +77,14 @@ class importvideos_step4_form extends \moodleform {
             $mform->addElement('hidden', 'coursevideos['.$identifier.']', $checked);
             $mform->setType('coursevideos', PARAM_BOOL);
         }
-        $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
-        $mform->setType('fixseriesmodules', PARAM_BOOL);
-        $mform->addElement('hidden', 'fixepisodemodules', $this->_customdata['fixepisodemodules']);
-        $mform->setType('fixepisodemodules', PARAM_BOOL);
+        if (isset($this->_customdata['fixseriesmodules'])) {
+            $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
+            $mform->setType('fixseriesmodules', PARAM_BOOL);
+        }
+        if (isset($this->_customdata['fixepisodemodules'])) {
+            $mform->addElement('hidden', 'fixepisodemodules', $this->_customdata['fixepisodemodules']);
+            $mform->setType('fixepisodemodules', PARAM_BOOL);
+        }
 
         // Add intro.
         $notification = importvideosmanager::render_wizard_intro_notification(
@@ -109,12 +113,13 @@ class importvideos_step4_form extends \moodleform {
         }
 
         // Summary item: Handle modules.
-        if ($this->_customdata['fixseriesmodules'] == true || $this->_customdata['fixepisodemodules'] == true) {
+        if ((isset($this->_customdata['fixseriesmodules']) && $this->_customdata['fixseriesmodules'] == true) ||
+                (isset($this->_customdata['fixepisodemodules']) && $this->_customdata['fixepisodemodules'] == true)) {
             // Horizontal line.
             $mform->addElement('html', '<hr>');
 
             // Handle series modules.
-            if ($this->_customdata['fixseriesmodules'] == true) {
+            if (isset($this->_customdata['fixseriesmodules']) && $this->_customdata['fixseriesmodules'] == true) {
                 // Show summary item.
                 $mform->addElement('static', 'summaryfixseriesmodules',
                         get_string('importvideos_wizardstep3heading', 'block_opencast'),
@@ -128,7 +133,7 @@ class importvideos_step4_form extends \moodleform {
             }
 
             // Handle episode modules.
-            if ($this->_customdata['fixepisodemodules'] == true) {
+            if (isset($this->_customdata['fixepisodemodules']) && $this->_customdata['fixepisodemodules'] == true) {
                 $mform->addElement('static', 'summaryfixepisodemodules',
                         ($summaryfixseriesmodulesshown == false) ? get_string('importvideos_wizardstep3heading', 'block_opencast') : '',
                         get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));
