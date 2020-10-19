@@ -41,8 +41,13 @@ class importvideos_step3_form extends \moodleform {
      * Form definition.
      */
     public function definition() {
+        global $PAGE;
+
         // Define mform.
         $mform = $this->_form;
+
+        // Get renderer.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -92,7 +97,7 @@ class importvideos_step3_form extends \moodleform {
         if (($handleseriesmodules == true && count($referencedseriesmodules) > 0) ||
                 ($handleepisodemodules == true && count($referencedepisodemodules) > 0)) {
             // Add intro.
-            $notification = importvideosmanager::render_wizard_intro_notification(
+            $notification = $renderer->wizard_intro_notification(
                     get_string('importvideos_wizardstep3intro', 'block_opencast'));
             $mform->addElement('html', $notification);
 
@@ -135,7 +140,7 @@ class importvideos_step3_form extends \moodleform {
             // Otherwise.
         } else {
             // Add intro.
-            $notification = importvideosmanager::render_wizard_intro_notification(
+            $notification = $renderer->wizard_intro_notification(
                     get_string('importvideos_wizardstep3skipintro', 'block_opencast'));
             $mform->addElement('html', $notification);
         }

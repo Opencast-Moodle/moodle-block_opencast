@@ -108,7 +108,7 @@ switch ($step) {
             echo $OUTPUT->header();
 
             // Output the progress bar.
-            echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+            echo $renderer->progress_bar($step, 4, $hasstep3);
 
             // Output heading.
             echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -130,7 +130,7 @@ switch ($step) {
                 echo $OUTPUT->header();
 
                 // Output the progress bar.
-                echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+                echo $renderer->progress_bar($step, 4, $hasstep3);
 
                 // Output heading.
                 echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -153,7 +153,7 @@ switch ($step) {
                 echo $OUTPUT->header();
 
                 // Output the progress bar.
-                echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+                echo $renderer->progress_bar($step, 4, $hasstep3);
 
                 // Output heading.
                 echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -214,7 +214,7 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, 4, $hasstep3);
 
         // Output heading.
         echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -254,7 +254,7 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, 4, $hasstep3);
 
         // Output heading.
         echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -325,7 +325,7 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, 4, $hasstep3);
 
         // Output heading.
         echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));

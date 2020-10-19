@@ -41,10 +41,14 @@ class importvideos_step2_form extends \moodleform
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
+        global $PAGE;
+
         // Define mform.
         $mform = $this->_form;
+
+        // Get renderer.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -61,7 +65,7 @@ class importvideos_step2_form extends \moodleform
         // If there isn't any course video in the course.
         if (count($coursevideos) < 1) {
             // We are in a dead end situation, no chance to add anything.
-            $notification = importvideosmanager::render_wizard_error_notification(
+            $notification = $renderer->wizard_error_notification(
                     get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
@@ -70,7 +74,7 @@ class importvideos_step2_form extends \moodleform
         }
 
         // Add intro.
-        $notification = importvideosmanager::render_wizard_intro_notification(
+        $notification = $renderer->wizard_intro_notification(
                 get_string('importvideos_wizardstep2intro', 'block_opencast'));
         $mform->addElement('html', $notification);
 

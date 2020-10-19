@@ -235,6 +235,11 @@ class importvideosmanager {
      * @return array
      */
     public static function get_import_source_course_videos_menu($sourcecourseid) {
+        global $PAGE;
+
+        // Get renderer.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
+
         // Initialize course videos as empty array;
         $coursevideos = array();
 
@@ -258,7 +263,7 @@ class importvideosmanager {
         // Move the course videos from the array of objects into the course videos array to be used by the caller.
         // During this movement, render the course video menu entry with all necessary information.
         foreach ($coursebackupvideos as $identifier => $video) {
-            $coursevideos[$identifier] = self::render_course_video_menu_entry($video);
+            $coursevideos[$identifier] = $renderer->course_video_menu_entry($video);
         }
 
         // Finally, return the list of course videos.
@@ -274,6 +279,11 @@ class importvideosmanager {
      * @return array
      */
     public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos) {
+        global $PAGE;
+
+        // Get renderer.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
+
         // Initialize course videos summary as empty array;
         $coursevideossummary = array();
 
@@ -309,7 +319,7 @@ class importvideosmanager {
 
             // Add the selected video to the course video summary.
             // During this step, render the course video menu entry with all necessary information.
-            $coursevideossummary[$identifier] = self::render_course_video_menu_entry($allcoursevideos[$identifier]);
+            $coursevideossummary[$identifier] = $renderer->course_video_menu_entry($allcoursevideos[$identifier]);
 
         }
 
@@ -398,133 +408,5 @@ class importvideosmanager {
 
         // Finally, inform the caller that the tasks have been created.
         return true;
-    }
-
-    /**
-     * Helperfunction to render the HTML code of a course menu entry.
-     *
-     * @param Object $course
-     *
-     * @return string
-     */
-    public static function render_course_menu_entry($course) {
-        // Add the course fullname.
-        $entrystring = $course->fullname;
-
-        // Add the course shortname, if set.
-        if (!empty($course->shortname)) {
-            $entrystring .= \html_writer::empty_tag('br');
-            $entrystring .= \html_writer::start_tag('small');
-            $entrystring .= $course->shortname;
-            $entrystring .= \html_writer::end_tag('small');
-        }
-
-        // Finally, return the menu entry code.
-        return $entrystring;
-    }
-
-    /**
-     * Helperfunction to render the HTML code of a course video menu entry.
-     *
-     * @param Object $video
-     *
-     * @return string
-     */
-    public static function render_course_video_menu_entry($video) {
-        // Add the video title.
-        $entrystring = $video->title;
-
-        // Add the start date, if set.
-        if (!empty($video->start)) {
-            $entrystring .= \html_writer::empty_tag('br');
-            $entrystring .= \html_writer::start_tag('small');
-            $entrystring .= get_string('startDate', 'block_opencast').': ';
-            $entrystring .= userdate(strtotime($video->start), get_string('strftimedatetime', 'langconfig'));
-            $entrystring .= \html_writer::end_tag('small');
-        }
-
-        // Add the presenter(s), if set.
-        if (count($video->presenter) > 0) {
-            $entrystring .= \html_writer::empty_tag('br');
-            $entrystring .= \html_writer::start_tag('small');
-            $entrystring .= get_string('creator', 'block_opencast').': ';
-            $entrystring .= implode(', ', $video->presenter);
-            $entrystring .= \html_writer::end_tag('small');
-        }
-
-        // Finally, return the menu entry code.
-        return $entrystring;
-    }
-
-    /**
-     * Helperfunction to render the HTML code of the progress bar.
-     *
-     * @param int $currentstep
-     * @param int $maxsteps
-     * @param bool $hasstep3
-     *
-     * @return string
-     */
-    public static function render_progress_bar($currentstep = 1, $maxsteps = 4, $hasstep3 = true) {
-        // If we don't have step 3, we have to respect that
-        if ($hasstep3 == false) {
-            // The whole progress bar has one step less.
-            $maxsteps -= 1;
-            // After step 3, the current step is one step less.
-            if ($currentstep > 3) {
-                $currentstep -= 1;
-            }
-        }
-
-        // Compose progress bar (based on Bootstrap).
-        $progressbar = \html_writer::start_div('progress my-3');
-        $progressbar .= \html_writer::start_div('progress-bar',
-                array('role' => 'progressbar',
-                      'style' => 'width: '.(floor(($currentstep / $maxsteps)*100)).'%',
-                      'aria-valuenow' => $currentstep,
-                      'aria-valuemin' => '0',
-                      'aria-valuemax' => $maxsteps));
-        $progressbar .= \html_writer::start_span('text-left pl-2');
-        $progressbar .= get_string('importvideos_progressbarstep', 'block_opencast', array('current' => $currentstep, 'last' => $maxsteps));
-        $progressbar .= \html_writer::end_span('');
-        $progressbar .= \html_writer::end_div();
-        $progressbar .= \html_writer::end_div();
-
-        // Finally, return the progress bar code.
-        return $progressbar;
-    }
-
-    /**
-     * Helperfunction to render an intro notification for the wizard.
-     *
-     * @param string $intromessage
-     *
-     * @return string
-     */
-    public static function render_wizard_intro_notification($intromessage) {
-        // Compose notification.
-        $notification = \html_writer::start_div('alert alert-info');
-        $notification .= $intromessage;
-        $notification .= \html_writer::end_div();
-
-        // Finally, return the intro notification code.
-        return $notification;
-    }
-
-    /**
-     * Helperfunction to render an error notification for the wizard.
-     *
-     * @param string $errormessage
-     *
-     * @return string
-     */
-    public static function render_wizard_error_notification($errormessage) {
-        // Compose notification.
-        $notification = \html_writer::start_div('alert alert-danger');
-        $notification .= $errormessage;
-        $notification .= \html_writer::end_div();
-
-        // Finally, return the error notification code.
-        return $notification;
     }
 }

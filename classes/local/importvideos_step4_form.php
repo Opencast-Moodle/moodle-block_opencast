@@ -41,8 +41,13 @@ class importvideos_step4_form extends \moodleform {
      * Form definition.
      */
     public function definition() {
+        global $PAGE;
+
         // Define mform.
         $mform = $this->_form;
+
+        // Get renderer.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -68,7 +73,7 @@ class importvideos_step4_form extends \moodleform {
         // This should not happen in this step, but we never know.
         if (!is_number($this->_customdata['sourcecourseid'])) {
             // We are in a dead end situation, no chance to add anything.
-            $notification = importvideosmanager::render_wizard_error_notification(
+            $notification = $renderer->wizard_error_notification(
                     get_string('importvideos_wizardstep4sourcecoursenone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
@@ -79,7 +84,7 @@ class importvideos_step4_form extends \moodleform {
         // This should not happen in this step, but we never know.
         if (count($this->_customdata['coursevideos']) < 1) {
             // We are in a dead end situation, no chance to add anything.
-            $notification = importvideosmanager::render_wizard_error_notification(
+            $notification = $renderer->wizard_error_notification(
                     get_string('importvideos_wizardstep4coursevideosnone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
@@ -87,13 +92,13 @@ class importvideos_step4_form extends \moodleform {
         }
 
         // Add intro.
-        $notification = importvideosmanager::render_wizard_intro_notification(
+        $notification = $renderer->wizard_intro_notification(
                 get_string('importvideos_wizardstep4intro', 'block_opencast'));
         $mform->addElement('html', $notification);
 
         // Summary item: Source course.
         $sourcecourse = get_course($this->_customdata['sourcecourseid']);
-        $courseentry = importvideosmanager::render_course_menu_entry($sourcecourse);
+        $courseentry = $renderer->course_menu_entry($sourcecourse);
         $mform->addElement('static', 'summarysourcecourse',
                 get_string('importvideos_wizardstep1sourcecourse', 'block_opencast'),
                 $courseentry);
