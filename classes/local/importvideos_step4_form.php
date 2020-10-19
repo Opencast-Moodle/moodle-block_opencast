@@ -44,6 +44,26 @@ class importvideos_step4_form extends \moodleform {
         // Define mform.
         $mform = $this->_form;
 
+        // Add hidden fields for transferring the wizard results and for wizard step processing.
+        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+        $mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'step', 4);
+        $mform->setType('step', PARAM_INT);
+        $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
+        $mform->setType('sourcecourseid', PARAM_INT);
+        foreach($this->_customdata['coursevideos'] as $identifier => $checked) {
+            $mform->addElement('hidden', 'coursevideos['.$identifier.']', $checked);
+            $mform->setType('coursevideos', PARAM_BOOL);
+        }
+        if (isset($this->_customdata['fixseriesmodules'])) {
+            $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
+            $mform->setType('fixseriesmodules', PARAM_BOOL);
+        }
+        if (isset($this->_customdata['fixepisodemodules'])) {
+            $mform->addElement('hidden', 'fixepisodemodules', $this->_customdata['fixepisodemodules']);
+            $mform->setType('fixepisodemodules', PARAM_BOOL);
+        }
+
         // If there wasn't any source course selected.
         // This should not happen in this step, but we never know.
         if (!is_number($this->_customdata['sourcecourseid'])) {
@@ -66,26 +86,6 @@ class importvideos_step4_form extends \moodleform {
             return;
         }
 
-        // Add hidden fields for transferring the wizard results and for wizard step processing.
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-        $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'step', 4);
-        $mform->setType('step', PARAM_INT);
-        $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
-        $mform->setType('sourcecourseid', PARAM_INT);
-        foreach($this->_customdata['coursevideos'] as $identifier => $checked) {
-            $mform->addElement('hidden', 'coursevideos['.$identifier.']', $checked);
-            $mform->setType('coursevideos', PARAM_BOOL);
-        }
-        if (isset($this->_customdata['fixseriesmodules'])) {
-            $mform->addElement('hidden', 'fixseriesmodules', $this->_customdata['fixseriesmodules']);
-            $mform->setType('fixseriesmodules', PARAM_BOOL);
-        }
-        if (isset($this->_customdata['fixepisodemodules'])) {
-            $mform->addElement('hidden', 'fixepisodemodules', $this->_customdata['fixepisodemodules']);
-            $mform->setType('fixepisodemodules', PARAM_BOOL);
-        }
-
         // Add intro.
         $notification = importvideosmanager::render_wizard_intro_notification(
                 get_string('importvideos_wizardstep4intro', 'block_opencast'));
@@ -93,10 +93,10 @@ class importvideos_step4_form extends \moodleform {
 
         // Summary item: Source course.
         $sourcecourse = get_course($this->_customdata['sourcecourseid']);
+        $courseentry = importvideosmanager::render_course_menu_entry($sourcecourse);
         $mform->addElement('static', 'summarysourcecourse',
                 get_string('importvideos_wizardstep1sourcecourse', 'block_opencast'),
-                get_string('importvideos_wizardstep1sourcecourseoption', 'block_opencast',
-                        array('id' => $sourcecourse->id, 'fullname' => $sourcecourse->fullname)));
+                $courseentry);
 
         // Horizontal line.
         $mform->addElement('html', '<hr>');

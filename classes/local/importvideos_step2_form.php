@@ -46,12 +46,19 @@ class importvideos_step2_form extends \moodleform
         // Define mform.
         $mform = $this->_form;
 
+        // Add hidden fields for transferring the wizard results and for wizard step processing.
+        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+        $mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'step', 2);
+        $mform->setType('step', PARAM_INT);
+        $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
+        $mform->setType('sourcecourseid', PARAM_INT);
+
         // Get list of course videos.
         $coursevideos = importvideosmanager::get_import_source_course_videos_menu(
                 $this->_customdata['sourcecourseid']);
 
         // If there isn't any course video in the course.
-        // This should not happen, but we never know.
         if (count($coursevideos) < 1) {
             // We are in a dead end situation, no chance to add anything.
             $notification = importvideosmanager::render_wizard_error_notification(
@@ -61,14 +68,6 @@ class importvideos_step2_form extends \moodleform
 
             return;
         }
-
-        // Add hidden fields for transferring the wizard results and for wizard step processing.
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-        $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'step', 2);
-        $mform->setType('step', PARAM_INT);
-        $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
-        $mform->setType('sourcecourseid', PARAM_INT);
 
         // Add intro.
         $notification = importvideosmanager::render_wizard_intro_notification(

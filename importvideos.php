@@ -26,10 +26,18 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $CFG;
 
 // Handle submitted parameters of the form.
+// This course id of the target course.
 $courseid = required_param('courseid', PARAM_INT);
+// The current step of the wizard.
 $step = optional_param('step', 1, PARAM_INT);
+// The course id of the course where the videos are imported from (this is submitted by the course search component in step 1 only).
+$importid = optional_param('importid', null, PARAM_INT);
+// The course id of the course where the videos are imported from (with this variable we carry the id though the wizard).
 $sourcecourseid = optional_param('sourcecourseid', null, PARAM_INT);
+// The list of course videos to import.
 $coursevideos = optional_param_array('coursevideos', array(), PARAM_ALPHANUMEXT);
+
+// The fact if we have to handle series and / or episode modules after the import.
 $fixseriesmodules = optional_param('fixseriesmodules', false, PARAM_BOOL);
 $fixepisodemodules = optional_param('fixepisodemodules', false, PARAM_BOOL);
 
@@ -71,28 +79,88 @@ if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled
     $hasstep3 = false;
 }
 
+// Get renderer.
+$renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
+
 // Deal with wizard step forms individually.
 switch ($step) {
     default:
     case 1:
-        // Use step 1 form.
-        $importvideosform = new \block_opencast\local\importvideos_step1_form(null,
-                array('courseid' => $courseid));
 
-        // Redirect if the form was cancelled.
-        if ($importvideosform->is_cancelled()) {
-            redirect($redirecturlcancel);
-        }
+        // While we use custom mforms in step 2 to 3, we rely on a Moodle core component in step 1.
+        // That's why step 1 is structured differently than the following steps.
 
-        // Process data.
-        if ($data = $importvideosform->get_data()) {
-            // Raise step variable (which is used for the progress bar and heading later on).
-            $step += 1;
+        // If there isn't any other course which can be used as import source.
+        $possiblesourcecourses = get_user_capability_course(
+                'block/opencast:manualimportsource', null, true, '', '', 1);
+        $possiblesourcecoursescount = count($possiblesourcecourses);
+        if ($possiblesourcecoursescount < 1 || ($possiblesourcecoursescount == 1 && $possiblesourcecourses[0]->id == $courseid)) {
+            // Use step 1 form.
+            $importvideosform = new \block_opencast\local\importvideos_step1_form(null,
+                    array('courseid' => $courseid));
 
-            // Replace form with next step.
-            $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
-                    array('courseid' => $courseid,
-                          'sourcecourseid' => $sourcecourseid));
+            // Redirect if the form was cancelled.
+            if ($importvideosform->is_cancelled()) {
+                redirect($redirecturlcancel);
+            }
+
+            // Output the page header.
+            echo $OUTPUT->header();
+
+            // Output the progress bar.
+            echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+            // Output heading.
+            echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+            // Output the form.
+            $importvideosform->display();
+
+            // Otherwise.
+        } else {
+            // If a course was not selected yet with the course search component.
+            if ($importid == null) {
+                // Prepare next step URL.
+                $url = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));
+
+                // Prepare course search component.
+                $search = new \block_opencast\local\importvideos_coursesearch(array('url' => $url), $courseid);
+
+                // Output the page header.
+                echo $OUTPUT->header();
+
+                // Output the progress bar.
+                echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+                // Output heading.
+                echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+                // Output course search component.
+                echo $renderer->importvideos_coursesearch($url, $search);
+            }
+
+            // If a course was selected with the course search component.
+            if ($importid != null) {
+                // Raise step variable (which is used for the progress bar and heading later on).
+                $step += 1;
+
+                // Set form for next step.
+                $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
+                        array('courseid' => $courseid,
+                              'sourcecourseid' => $importid));
+
+                // Output the page header.
+                echo $OUTPUT->header();
+
+                // Output the progress bar.
+                echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+                // Output heading.
+                echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+                // Output the form.
+                $importvideosform->display();
+            }
         }
 
         break;
@@ -142,6 +210,18 @@ switch ($step) {
             }
         }
 
+        // Output the page header.
+        echo $OUTPUT->header();
+
+        // Output the progress bar.
+        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+        // Output heading.
+        echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+        // Output the form.
+        $importvideosform->display();
+
         break;
     case 3:
         // Use step 3 form.
@@ -169,6 +249,18 @@ switch ($step) {
                           'fixseriesmodules' => $fixseriesmodules,
                           'fixepisodemodules' => $fixepisodemodules));
         }
+
+        // Output the page header.
+        echo $OUTPUT->header();
+
+        // Output the progress bar.
+        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+        // Output heading.
+        echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+        // Output the form.
+        $importvideosform->display();
 
         break;
     case 4:
@@ -229,20 +321,20 @@ switch ($step) {
                     \core\output\notification::NOTIFY_SUCCESS);
         }
 
+        // Output the page header.
+        echo $OUTPUT->header();
+
+        // Output the progress bar.
+        echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
+
+        // Output heading.
+        echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+
+        // Output the form.
+        $importvideosform->display();
+
         break;
 }
-
-// Output the page header.
-echo $OUTPUT->header();
-
-// Output the progress bar.
-echo \block_opencast\local\importvideosmanager::render_progress_bar($step, 4, $hasstep3);
-
-// Output heading.
-echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
-
-// Output the form.
-$importvideosform->display();
 
 // Output the page footer.
 echo $OUTPUT->footer();

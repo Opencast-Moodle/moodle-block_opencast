@@ -228,57 +228,6 @@ class importvideosmanager {
     }
 
     /**
-     * Helperfunction to get the list of courses which can be used as import source during manual import.
-     * This function fetches all courses
-     * a) where I am allowed to import videos from
-     * b) which have Opencast videos.
-     *
-     * @param int $targetcourseid The target course id.
-     *
-     * @return array
-     */
-    public static function get_import_source_courses_menu($targetcourseid) {
-        // Initialize source courses as empty array;
-        $sourcecourses = array();
-
-        // Get all the courses which the user is allowed to import courses from.
-        // TODO Currently the list is limited to 100 courses, sorted by ID desc. This will be done in a better way
-        // in a future commit.
-        $courses = get_user_capability_course('block/opencast:manualimportsource', null, true, 'fullname', 'id DESC', 100);
-
-        // If we didn't get any courses, return.
-        if (count($courses) < 1) {
-            return $sourcecourses;
-        }
-
-        // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-
-        // Move the courses from the array of objects into the source courses array to be used by the caller.
-        foreach ($courses as $key => $course) {
-            // Are we looking at the target course now?
-            if ($course->id == $targetcourseid) {
-                // We don't need this course in the list.
-                continue;
-            }
-
-            // Get course videos which are qualified to be imported.
-            $coursebackupvideos = $apibridge->get_course_videos_for_backup($course->id);
-
-            // If there are any videos.
-            if (count($coursebackupvideos) > 0) {
-                // Add course to source courses array.
-                $optionstring = get_string('importvideos_wizardstep1sourcecourseoption', 'block_opencast',
-                        array('id' => $course->id, 'fullname' => $course->fullname));
-                $sourcecourses[$course->id] = $optionstring;
-            }
-        }
-
-        // Finally, return the list of source courses.
-        return $sourcecourses;
-    }
-
-    /**
      * Helperfunction to get the list of course videos which are stored in the given source course to be selected during manual import.
      *
      * @param int $sourcecourseid The source course id.
@@ -449,6 +398,29 @@ class importvideosmanager {
 
         // Finally, inform the caller that the tasks have been created.
         return true;
+    }
+
+    /**
+     * Helperfunction to render the HTML code of a course menu entry.
+     *
+     * @param Object $course
+     *
+     * @return string
+     */
+    public static function render_course_menu_entry($course) {
+        // Add the course fullname.
+        $entrystring = $course->fullname;
+
+        // Add the course shortname, if set.
+        if (!empty($course->shortname)) {
+            $entrystring .= \html_writer::empty_tag('br');
+            $entrystring .= \html_writer::start_tag('small');
+            $entrystring .= $course->shortname;
+            $entrystring .= \html_writer::end_tag('small');
+        }
+
+        // Finally, return the menu entry code.
+        return $entrystring;
     }
 
     /**

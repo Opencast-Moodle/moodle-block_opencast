@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Manual import videos form (Step 1: Select source course).
+ * Import videos course search component for block_opencast.
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
@@ -26,35 +26,23 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/lib/formslib.php');
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+require_once($CFG->dirroot . '/backup/util/ui/import_extensions.php');
 
 /**
- * Manual import videos form (Step 1: Select source course - only used in dead end situations).
+ * Import videos course search component for block_opencast.
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step1_form extends \moodleform {
+class importvideos_coursesearch extends \import_course_search {
 
     /**
-     * Form definition.
+     * Sets up the access restrictions for the courses to be displayed in the search.
      */
-    public function definition() {
-        // Define mform.
-        $mform = $this->_form;
-
-        // Add hidden fields for transferring the wizard results and for wizard step processing.
-        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-        $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'step', 1);
-        $mform->setType('step', PARAM_INT);
-
-        // We are in a dead end situation, no chance to add anything.
-        $notification = importvideosmanager::render_wizard_error_notification(
-                get_string('importvideos_wizardstep1sourcecoursenone', 'block_opencast'));
-        $mform->addElement('html', $notification);
-        $mform->addElement('cancel');
-        return;
+    protected function setup_restrictions() {
+        $this->require_capability('block/opencast:manualimportsource');
     }
 }
