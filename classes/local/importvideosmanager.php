@@ -72,6 +72,15 @@ class importvideosmanager {
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
+            // Inform the caller.
+            return false;
+        }
+
         // Verify that the workflow exists in Opencast.
         $workflowexists = $apibridge->check_if_workflow_exists($workflow);
 
@@ -122,6 +131,15 @@ class importvideosmanager {
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
+            // Inform the caller.
+            return false;
+        }
+
         // Verify that the workflow exists in Opencast.
         $workflowexists = $apibridge->check_if_workflow_exists($workflow);
 
@@ -136,32 +154,6 @@ class importvideosmanager {
     }
 
     /**
-     * Helperfunction to get the list of available workflows to be used by the import videos feature.
-     * Please note that this function does not filter for workflows targeted at duplicated events,
-     * it just fetches all available workflows.
-     *
-     * @param bool $withnoworkflow Add a 'no workflow' item to the list of workflows
-     *
-     * @return string
-     */
-    public static function get_available_workflows($withnoworkflow = false) {
-        // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-
-        // Get the workflow list.
-        $workflows = $apibridge->get_existing_workflows('api');
-
-        // If requested, add the 'no workflow' item to the list of workflows.
-        if ($withnoworkflow == true) {
-            $noworkflow = [null => get_string('adminchoice_noworkflow', 'block_opencast')];
-            $workflows = array_merge($noworkflow, $workflows);
-        }
-
-        // Finally, return the list of workflows.
-        return $workflows;
-    }
-
-    /**
      * Helperfunction to get the status of the handle Opencast series modules feature.
      *
      * @return boolean
@@ -172,6 +164,18 @@ class importvideosmanager {
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
             // Inform the caller.
             return false;
         }
@@ -200,6 +204,18 @@ class importvideosmanager {
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
             // Inform the caller.
             return false;
         }

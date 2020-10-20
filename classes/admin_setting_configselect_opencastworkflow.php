@@ -34,6 +34,52 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_configselect_opencastworkflow extends \admin_setting_configselect {
+    /** @var string Workflow tag */
+    private $workflowtag;
+
+    /**
+     * Constructor.
+     *
+     * @param string $name Unique ascii name.
+     * @param string $visiblename The localised name.
+     * @param string $description The long localised information.
+     * @param string $workflowtag The workflow tag which should be used to load the choices.
+     */
+    public function __construct($name, $visiblename, $description, $workflowtag = '') {
+        // Remember the given workflow tag.
+        $this->workflowtag = $workflowtag;
+
+        // Call parent constructor with specific arguments.
+        parent::__construct($name, $visiblename, $description, null, null);
+    }
+
+    /**
+     * Load workflows as choices.
+     *
+     * @return bool true=>success, false=>error.
+     */
+    public function load_choices() {
+        // Don't load anything during initial installation.
+        // This is important as the Opencast API is not set up during initial installation.
+        if (during_initial_install()) {
+            return false;
+        }
+
+        // If the choices are already set, we are already done.
+        if (is_array($this->choices)) {
+            return true;
+        }
+
+        // Get the available workflows.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $workflows = $apibridge->get_available_workflows_for_menu($this->workflowtag, true);
+
+        // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
+        $this->choices = $workflows;
+
+        // Return.
+        return true;
+    }
 
     /**
      * Save a setting.

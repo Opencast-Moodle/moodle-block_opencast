@@ -141,6 +141,18 @@ class ltimodulemanager {
             return false;
         }
 
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
+            // Inform the caller.
+            return false;
+        }
+
         // The feature is working.
         return true;
     }
@@ -182,6 +194,18 @@ class ltimodulemanager {
                 // Inform the caller.
                 $enabledandworking = false;
             }
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the APIbridge configuration status.
+        $apibridgeworking = $apibridge->check_api_configuration();
+
+        // If the status is false, then the feature is not working.
+        if (!$apibridgeworking) {
+            // Inform the caller.
+            return false;
         }
 
         // If everything was fine up to now, we should be sure that the feature is working.

@@ -301,18 +301,15 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
     // Import videos: Duplicate workflow.
-    $duplicateworkflows = \block_opencast\local\importvideosmanager::get_available_workflows(true);
     $additionalsettings->add(
             new \block_opencast\admin_setting_configselect_opencastworkflow('block_opencast/duplicateworkflow',
                     get_string('duplicateworkflow', 'block_opencast'),
                     get_string('duplicateworkflowdesc', 'block_opencast'),
-                    null,
-                    $duplicateworkflows));
+                    'api'));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
         $additionalsettings->hide_if('block_opencast/duplicateworkflow',
                 'block_opencast/importvideosenabled', 'notchecked');
     }
-    unset ($duplicateworkflows);
 
     // Import videos: Enable import videos within Moodle core course import wizard feature.
     $additionalsettings->add(

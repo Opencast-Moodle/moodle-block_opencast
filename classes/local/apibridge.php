@@ -78,6 +78,27 @@ class apibridge {
     }
 
     /**
+     * Check, whether the Opencast API has been setup correctly.
+     * This does not check if the Opencast server is up and running.
+     * It just checks if the Opencast API configuration is fine by requesting an instance of the Opencast API from tool_opencast.
+     *
+     * @return boolean
+     */
+    public function check_api_configuration() {
+        // Try to get an instance of the Opencast API from tool_opencast.
+        try {
+            $api = $this->get_instance();
+
+            // If the API is not set up correctly, the constructor will throw an exception.
+        } catch (\moodle_exception $e) {
+            return false;
+        }
+
+        // Otherwise the API should be set up correctly.
+        return true;
+    }
+
+    /**
      * Get videos to show in block. Items are limited and ready to use by renderer.
      * Note that we try to receive one item more than configurated to decide whether
      * to display a "more videos" link.
@@ -1379,6 +1400,36 @@ class apibridge {
             }
         }
         return $this->workflows[$tag];
+    }
+
+    /**
+     * Helperfunction to get the list of available workflows to be used in the plugin's settings.
+     *
+     * @param string $tag If not empty the workflows are filtered according to this tag.
+     * @param bool $withnoworkflow Add a 'no workflow' item to the list of workflows.
+     *
+     * @return array Returns array of OC workflows.
+     *               If the list of workflows can't be retrieved from Opencast, an array with a nice error message is returned.
+     */
+    public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
+        // Be prepared that the OC API is not functional yet.
+        try {
+            // Get the workflow list.
+            $workflows = $this->get_existing_workflows($tag);
+
+            // Something went wrong and the list of workflows could not be retrieved.
+        } catch (\moodle_exception $e) {
+            return [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
+
+        // If requested, add the 'no workflow' item to the list of workflows.
+        if ($withnoworkflow == true) {
+            $noworkflow = [null => get_string('adminchoice_noworkflow', 'block_opencast')];
+            $workflows = array_merge($noworkflow, $workflows);
+        }
+
+        // Finally, return the list of workflows.
+        return $workflows;
     }
 
     /**
