@@ -178,63 +178,89 @@ class block_opencast_backup_testcase extends advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
 
+        // Configure all necessary plugin configuration to allow video backups.
+        // If this is not done, video backups are not offered by the backup wizard at all.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
         set_config('apiurl', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
+        set_config('importvideosenabled', true, 'block_opencast');
+        set_config('duplicateworkflow', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+        $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
+        set_config('importvideoscoreenabled', true, 'block_opencast');
 
-        // Setup course with block, groups and users.
+        // Create a course with block opencast.
         $generator = $this->getDataGenerator();
-
-        // Create course with block opencast.
         $course = $generator->create_course();
         $coursecontext = context_course::instance($course->id);
         $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
 
         // Setup simulation data for api.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
 
-        // Backup with videos.
+        // Backup the course with videos.
         $backupid = $this->backup_course($course->id, true, $USER->id);
 
-        // Prepare server simulation (viea apibridge).
+        // Prepare server simulation (via apibridge).
         $apibridge->set_testdata('supports_api_level', 'level', 'v1.1.0');
         $apibridge->set_testdata('create_course_series', 'newcourse', '1234-1234-1234');
 
+        // Restore the course with videos.
         $newcourse = $this->restore_course($backupid, 0, true, $USER->id);
+
+        // Check that a course was restored.
         $this->assertNotEmpty($newcourse);
 
-        // Check generated tasks.
+        // Check that a task was generated.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($taskrecords));
 
-        // Workflow Task not properly created, so task should fail.
+        // Revert the duplicateworkflow setting to make sure that the generated task would fail in the case that the task was
+        // created despite of all safety nets but then the workflow is not set (anymore).
+        set_config('duplicateworkflow', '', 'block_opencast');
+
+        // The workflow is now not properly set, so the task should fail.
         $this->check_task_fail_with_error('error_workflow_setup_missing', 1);
 
-        // Configure workflow, but delete series for course in moodle.
+        // Configure the workflow again.
         set_config('duplicateworkflow', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+
+        // But delete the course series in Moodle.
         $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id));
         $mapping->delete();
-        // Series missing so task should fail.
+
+        // The series is now missing, so the task should fail.
         $this->check_task_fail_with_error('error_seriesid_missing_course', 2);
 
-        // Create wrong series for course.
+        // Create a wrong course series for the course.
         $mappingwrong = new seriesmapping();
         $mappingwrong->set('courseid', $newcourse->id);
         $mappingwrong->set('series', 'wrong-series-id');
         $mappingwrong->create();
+
+        // The series is now incorrect, so the task should fail.
         $this->check_task_fail_with_error('error_seriesid_not_matching', 3);
 
-        // Create right series for course.
+        // Create a correct course series for the course.
         $mappingwrong->delete();
         $mapping->create();
+
+        // The course series is now correct but missing in Opencast, so the task should fail.
         $this->check_task_fail_with_error('error_seriesid_missing_opencast', 4);
 
-        // Setup series in opencast simulation.
+        // Setup a series in the Opencast simulation.
         $apibridge->set_testdata('get_course_series', $newcourse->id, '1234-1234-1234');
+
+        // Revert the mockuped workflow to make sure that the generated task would fail in the case that the task was
+        // created despite of all safety nets but then the workflow does not exist (anymore).
+        $apibridge->unset_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW);
+
+        // The workflow does not exist now, so the task should fail.
         $this->check_task_fail_with_error('error_workflow_not_exists', 5);
 
-        // Setup workflow in opencast system.
+        // Setup the mockuped workflow again.
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
+
+        // The workflow exists now, but it is not started.
         $this->check_task_fail_with_error('error_workflow_not_started', 6);
 
         // Setup succesful start workflow in opencast system.
@@ -244,7 +270,7 @@ class block_opencast_backup_testcase extends advanced_testcase {
         $taskrecord = array_shift($taskrecords);
         $output = $this->execute_adhoc_task($taskrecord);
 
-        // Task is deleted.
+        // Check that the task is deleted.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($taskrecords));
 

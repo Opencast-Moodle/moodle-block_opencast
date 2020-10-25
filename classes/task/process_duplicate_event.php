@@ -154,7 +154,11 @@ class process_duplicate_event extends \core\task\adhoc_task {
         } catch (\Exception $e) {
 
             // Increase failure counter.
-            $data->countfailed++;
+            if (isset($data->countfailed)) {
+                $data->countfailed++;
+            } else {
+                $data->countfailed = 1;
+            }
             // Will be saved by \core\task\manager.
             $this->set_custom_data($data);
 
