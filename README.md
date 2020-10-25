@@ -180,12 +180,19 @@ In this section you can enable a feature to add Opencast studio support to the b
 #### Control episode visibility
 In this section you can configure if the teacher is allowed to control the visibility of an Opencast episode after the episode has been processed.
 
-#### Add Opencast LTI modules to courses
+LTI module features
+-------------------
+
+#### Add Opencast LTI series modules to courses
 In this section you can enable a feature to let teachers add an Opencast LTI series module to the course. This LTI series module will be pointing to the course's Opencast series.
 To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast series first.
 
-You can also enable a feature to let teachers add Opencast LTI episode modules to the course. These LTI episode modules will be pointing to an Opencast episode.
+#### Add Opencast LTI episode modules to courses
+In this section you can enable a feature to let teachers add Opencast LTI episode modules to the course. These LTI episode modules will be pointing to an Opencast episode.
 To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast episodes first.
+
+Import videos features
+----------------------
 
 ### Import videos from other courses
 In this section you can enable one or two subfeatures to let teachers import existing video files from other Moodle courses to their Moodle course.

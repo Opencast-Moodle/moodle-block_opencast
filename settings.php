@@ -35,9 +35,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         get_string('general_settings', 'block_opencast'),
         new moodle_url('/blocks/opencast/adminsettings.php')));
 
+    // Appearance settings page.
     $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',
             get_string('appearance_settings', 'block_opencast'));
-
     $ADMIN->add('block_opencast_folder', $appearancesettings);
 
     $appearancesettings->add(
@@ -60,9 +60,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('appearance_overview_settingshowlocation', 'block_opencast'),
                     get_string('appearance_overview_settingshowlocation_desc', 'block_opencast'), 1));
 
+    // Additional settings page.
     $additionalsettings = new admin_settingpage('block_opencast_additionalsettings',
         get_string('additional_settings', 'block_opencast'));
-
     $ADMIN->add('block_opencast_folder', $additionalsettings);
 
     $installedplugins = core_plugin_manager::instance()->get_installed_plugins('local');
@@ -134,27 +134,32 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/aclcontrolafter', 'notchecked');
     }
 
-    // Add LTI modules section.
-    $additionalsettings->add(
+    // LTI module features page.
+    $ltimodulesettings = new admin_settingpage('block_opencast_ltimodulesettings',
+            get_string('ltimodule_settings', 'block_opencast'));
+    $ADMIN->add('block_opencast_folder', $ltimodulesettings);
+
+    // Add LTI series modules section.
+    $ltimodulesettings->add(
         new admin_setting_heading('block_opencast/addlti_settingheader',
             get_string('addlti_settingheader', 'block_opencast'),
             ''));
 
     // Add LTI series modules: Enable feature.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
         new admin_setting_configcheckbox('block_opencast/addltienabled',
             get_string('addlti_settingenabled', 'block_opencast'),
             get_string('addlti_settingenabled_desc', 'block_opencast'), 0));
 
     // Add LTI series modules: Default LTI series module title.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
         new admin_setting_configtext('block_opencast/addltidefaulttitle',
             get_string('addlti_settingdefaulttitle', 'block_opencast'),
             get_string('addlti_settingdefaulttitle_desc', 'block_opencast'),
             get_string('addlti_defaulttitle', 'block_opencast'),
             PARAM_TEXT));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltidefaulttitle',
+        $ltimodulesettings->hide_if('block_opencast/addltidefaulttitle',
                 'block_opencast/addltienabled', 'notchecked');
     }
 
@@ -162,7 +167,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $tools = \block_opencast\local\ltimodulemanager::get_preconfigured_tools();
     // If there are any tools to be selected.
     if (count($tools) > 0) {
-        $additionalsettings->add(
+        $ltimodulesettings->add(
             new admin_setting_configselect('block_opencast/addltipreconfiguredtool',
                 get_string('addlti_settingpreconfiguredtool', 'block_opencast'),
                 get_string('addlti_settingpreconfiguredtool_desc', 'block_opencast'),
@@ -176,33 +181,33 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $url = '/admin/settings.php?section=modsettinglti';
         $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
         $description = get_string('addlti_settingpreconfiguredtool_notools', 'block_opencast', $link);
-        $additionalsettings->add(
+        $ltimodulesettings->add(
             new admin_setting_configempty('block_opencast/addltipreconfiguredtool',
                 get_string('addlti_settingpreconfiguredtool', 'block_opencast'),
                 $description));
     }
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltipreconfiguredtool',
+        $ltimodulesettings->hide_if('block_opencast/addltipreconfiguredtool',
                 'block_opencast/addltienabled', 'notchecked');
     }
 
     // Add LTI series modules: Intro.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiintro',
                     get_string('addlti_settingintro', 'block_opencast'),
                     get_string('addlti_settingintro_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiintro',
+        $ltimodulesettings->hide_if('block_opencast/addltiintro',
                 'block_opencast/addltienabled', 'notchecked');
     }
 
     // Add LTI series modules: Section.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltisection',
                     get_string('addlti_settingsection', 'block_opencast'),
                     get_string('addlti_settingsection_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltisection',
+        $ltimodulesettings->hide_if('block_opencast/addltisection',
                 'block_opencast/addltienabled', 'notchecked');
     }
 
@@ -211,17 +216,23 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
     $description = get_string('addlti_settingavailability_desc', 'block_opencast').'<br />'.
             get_string('addlti_settingavailability_note', 'block_opencast', $link);
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiavailability',
                     get_string('addlti_settingavailability', 'block_opencast'),
                     $description, 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiavailability',
+        $ltimodulesettings->hide_if('block_opencast/addltiavailability',
                 'block_opencast/addltienabled', 'notchecked');
     }
 
+    // Add LTI episode modules section.
+    $ltimodulesettings->add(
+            new admin_setting_heading('block_opencast/addltiepisode_settingheader',
+                    get_string('addltiepisode_settingheader', 'block_opencast'),
+                    ''));
+
     // Add LTI episode modules: Enable feature.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiepisodeenabled',
                     get_string('addltiepisode_settingenabled', 'block_opencast'),
                     get_string('addltiepisode_settingenabled_desc', 'block_opencast'), 0));
@@ -230,7 +241,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $tools = \block_opencast\local\ltimodulemanager::get_preconfigured_tools();
     // If there are any tools to be selected.
     if (count($tools) > 0) {
-        $additionalsettings->add(
+        $ltimodulesettings->add(
                 new admin_setting_configselect('block_opencast/addltiepisodepreconfiguredtool',
                         get_string('addltiepisode_settingpreconfiguredtool', 'block_opencast'),
                         get_string('addltiepisode_settingpreconfiguredtool_desc', 'block_opencast'),
@@ -244,33 +255,33 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $url = '/admin/settings.php?section=modsettinglti';
         $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
         $description = get_string('addltiepisode_settingpreconfiguredtool_notools', 'block_opencast', $link);
-        $additionalsettings->add(
+        $ltimodulesettings->add(
                 new admin_setting_configempty('block_opencast/addltiepisodepreconfiguredtool',
                         get_string('addltiepisode_settingpreconfiguredtool', 'block_opencast'),
                         $description));
     }
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiepisodepreconfiguredtool',
+        $ltimodulesettings->hide_if('block_opencast/addltiepisodepreconfiguredtool',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 
     // Add LTI episode modules: Intro.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiepisodeintro',
                     get_string('addltiepisode_settingintro', 'block_opencast'),
                     get_string('addltiepisode_settingintro_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiepisodeintro',
+        $ltimodulesettings->hide_if('block_opencast/addltiepisodeintro',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 
     // Add LTI episode modules: Section.
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiepisodesection',
                     get_string('addltiepisode_settingsection', 'block_opencast'),
                     get_string('addltiepisode_settingsection_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiepisodesection',
+        $ltimodulesettings->hide_if('block_opencast/addltiepisodesection',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 
@@ -279,92 +290,93 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
     $description = get_string('addltiepisode_settingavailability_desc', 'block_opencast').'<br />'.
             get_string('addlti_settingavailability_note', 'block_opencast', $link);
-    $additionalsettings->add(
+    $ltimodulesettings->add(
             new admin_setting_configcheckbox('block_opencast/addltiepisodeavailability',
                     get_string('addltiepisode_settingavailability', 'block_opencast'),
                     $description, 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/addltiepisodeavailability',
+        $ltimodulesettings->hide_if('block_opencast/addltiepisodeavailability',
                 'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 
+    // Import videos features page.
+    $importvideossettings = new admin_settingpage('block_opencast_importvideossettings',
+            get_string('importvideos_settings', 'block_opencast'));
+    $ADMIN->add('block_opencast_folder', $importvideossettings);
+
     // Import videos section.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_heading('block_opencast/importvideos_settingheader',
                     get_string('importvideos_settingheader', 'block_opencast'),
                     ''));
 
     // Import videos: Enable feature.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideosenabled',
                     get_string('importvideos_settingenabled', 'block_opencast'),
                     get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
     // Import videos: Duplicate workflow.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new \block_opencast\admin_setting_configselect_opencastworkflow('block_opencast/duplicateworkflow',
                     get_string('duplicateworkflow', 'block_opencast'),
                     get_string('duplicateworkflowdesc', 'block_opencast'),
                     'api'));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/duplicateworkflow',
+        $importvideossettings->hide_if('block_opencast/duplicateworkflow',
                 'block_opencast/importvideosenabled', 'notchecked');
     }
 
     // Import videos: Enable import videos within Moodle core course import wizard feature.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideoscoreenabled',
                     get_string('importvideos_settingcoreenabled', 'block_opencast'),
                     get_string('importvideos_settingcoreenabled_desc', 'block_opencast'), 1));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/importvideoscoreenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoscoreenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideoscoreenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoscoreenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
     }
 
     // Import videos: Enable manual import videos feature.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideosmanualenabled',
                     get_string('importvideos_settingmanualenabled', 'block_opencast'),
                     get_string('importvideos_settingmanualenabled_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/importvideosmanualenabled',
+        $importvideossettings->hide_if('block_opencast/importvideosmanualenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideosmanualenabled',
+        $importvideossettings->hide_if('block_opencast/importvideosmanualenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
     }
 
     // Import videos: Handle Opencast series modules during manual import.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideoshandleseriesenabled',
                     get_string('importvideos_settinghandleseriesenabled', 'block_opencast'),
                     get_string('importvideos_settinghandleseriesenabled_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
                 'block_opencast/importvideosmanualenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleseriesenabled',
-                'block_opencast/addltienabled', 'notchecked');
     }
 
     // Import videos: Handle Opencast episode modules during manual import.
-    $additionalsettings->add(
+    $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideoshandleepisodeenabled',
                     get_string('importvideos_settinghandleepisodeenabled', 'block_opencast'),
                     get_string('importvideos_settinghandleepisodeenabled_desc', 'block_opencast'), 0));
     if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+        $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosmanualenabled', 'notchecked');
-        $additionalsettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
-                'block_opencast/addltiepisodeenabled', 'notchecked');
     }
 }
 $settings = null;
