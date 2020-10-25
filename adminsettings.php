@@ -33,7 +33,7 @@ require_login();
 $PAGE->set_url('/blocks/opencast/adminsettings');
 
 if (has_capability('moodle/site:config', context_system::instance())) {
-    admin_externalpage_setup('block_opencast');
+    admin_externalpage_setup('block_opencast_generalsettings');
 
     $mform = new block_opencast\admin_form();
 
