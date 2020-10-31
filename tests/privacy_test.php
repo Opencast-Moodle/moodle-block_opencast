@@ -41,7 +41,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
     /**
      * Overriding setUp() function to always reset after tests.
      */
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest(true);
     }
 

@@ -18,27 +18,24 @@ php:
   - 7.3
   - 7.4
 
-
-
 env:
  jobs:
   - DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
-  - DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE
-  #- DB=pgsql MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=pgsql MOODLE_BRANCH=MOODLE_310_STABLE
   - DB=pgsql MOODLE_BRANCH=master
   - DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
-  #- DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_310_STABLE
   - DB=mysqli MOODLE_BRANCH=master
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install v14
   - cd ../..
   - composer selfupdate
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci dev-master
+  - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
   - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
@@ -51,8 +48,8 @@ jobs:
   include:
     # Prechecks against latest Moodle stable only.
     - stage: static
-      php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+      php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_310_STABLE
       install:
       - moodle-plugin-ci install --no-init
       script:
@@ -67,20 +64,8 @@ jobs:
 
     # Smaller build matrix for development builds
     - stage: develop
-      php: 7.3
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
-      before_install:
-        - phpenv config-rm xdebug.ini
-        - nvm install v14
-        - cd ../..
-        - composer selfupdate
-        - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci dev-master
-        - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
-        - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
-        - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
-        - cd /tmp/opencast-docker
-        - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
-        - cd -
+      php: 7.4
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_310_STABLE
   exclude:
     - php: 7.3
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
@@ -90,14 +75,9 @@ jobs:
       env: DB=mysqli MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.4
       env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
-    - php: 7.4
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_37_STABLE
-    - php: 7.4
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
 
 # Unit tests and behat tests against full matrix.
 install:
-  - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm selenium/standalone-firefox:2.53.1
   - moodle-plugin-ci install
 
 script:

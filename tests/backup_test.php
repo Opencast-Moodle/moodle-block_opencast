@@ -43,12 +43,12 @@ class block_opencast_backup_testcase extends advanced_testcase {
     /** var string apiurl for the testcase, must NOT be a real server! */
     private $apiurl = 'server.opencast.testcase';
 
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
         \block_opencast\local\apibridge::set_testing(true);
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         \block_opencast\local\apibridge::set_testing(false);
     }
