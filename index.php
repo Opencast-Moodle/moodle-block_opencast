@@ -220,6 +220,8 @@ if ($videodata->error == 0) {
 
     $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
 
+    $engageurl = get_config('filter_opencast', 'engageurl');
+
     foreach ($videodata->videos as $video) {
 
         $row = array();
@@ -239,7 +241,11 @@ if ($videodata->error == 0) {
         }
 
         // Title column.
-        $row[] = $video->title;
+        if ($engageurl) {
+            $row[] = format_text(html_writer::link($engageurl . '/play/' . $video->identifier, $video->title));
+        } else {
+            $row[] = $video->title;
+        }
 
         // Location column.
         if (get_config('block_opencast', 'showlocation')) {
