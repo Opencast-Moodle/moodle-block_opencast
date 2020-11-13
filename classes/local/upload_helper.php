@@ -122,7 +122,7 @@ class upload_helper {
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
         $items = array();
-        
+
         if (isset($options->presentation) && !empty($options->presentation)) {
             $items[] = $options->presentation;
         } else {
@@ -142,14 +142,14 @@ class upload_helper {
                         AND f.filearea = :filearea 
                         AND f.filename <> '.'
                         AND f.itemid {$insql}";
-        
+
         $currentjobfiles = $DB->get_records_sql($sql, $params);
         $job = new \stdClass();
         foreach ($currentjobfiles as $file) {
             if (isset($options->presenter) && $options->presenter == $file->itemid) {
                 $job->presenter_fileid = $file->id;
                 $job->contenthash_presenter = $file->contenthash;
-            } 
+            }
             if (isset($options->presentation) && $options->presentation == $file->itemid) {
                 $job->presentation_fileid = $file->id;
                 $job->contenthash_presenter = $file->contenthash;
@@ -317,7 +317,7 @@ class upload_helper {
             }
         }
 
-        
+
     }
 
     protected function upload_failed($job, $errormessage) {
@@ -548,6 +548,10 @@ class upload_helper {
 
         $limituploadjobs = get_config('block_opencast', 'limituploadjobs');
 
+        if (!$limituploadjobs) {
+            $limituploadjobs = 0;
+        }
+
         $jobs = $DB->get_records_sql($sql, array(self::STATUS_TRANSFERRED), 0, $limituploadjobs);
 
         if (!$jobs) {
@@ -560,7 +564,7 @@ class upload_helper {
                 $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields='metadata', $strictness=IGNORE_MISSING);
                 if ($joboptions) {
                     $job = (object) array_merge((array)$job, (array)$joboptions );
-                } 
+                }
                 $event = $this->process_upload_job($job);
                 if ($event) {
                     $this->upload_succeeded($job, $event->identifier);
