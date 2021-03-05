@@ -122,7 +122,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $additionalsettings->add(
             new admin_setting_configcheckbox('block_opencast/aclcontrolafter',
                     get_string('acl_settingcontrolafter', 'block_opencast'),
-                    get_string('acl_settingcontrolafter_desc', 'block_opencast'), 1));
+                    get_string('acl_settingcontrolafter_desc', 'block_opencast'), 0));
 
     // Control ACL: Enable group restriction.
     $additionalsettings->add(
