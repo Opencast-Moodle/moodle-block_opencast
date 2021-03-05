@@ -71,7 +71,7 @@ if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1
 $addltiform = new \block_opencast\local\addltiepisode_form(null, array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
 
 if ($addltiform->is_cancelled()) {
-    redirect($redirecturlcancel);
+    redirect($redirecturloverview);
 }
 
 if ($data = $addltiform->get_data()) {

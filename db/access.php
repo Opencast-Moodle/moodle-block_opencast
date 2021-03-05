@@ -69,6 +69,24 @@ $capabilities = array(
                     'manager' => CAP_ALLOW
             )
     ),
+    'block/opencast:addactivity' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+    'block/opencast:addactivityepisode' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
     'block/opencast:viewunpublishedvideos' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'read',
