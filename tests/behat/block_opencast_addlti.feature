@@ -35,7 +35,7 @@ Feature: Add Opencast LTI series module as Teacher
       | Default launch container | Embed, without blocks |
       # The Opencast LTI provider does not need to be functional for this test. It just needs to be preconfigured in Moodle.
     And I press "Save changes"
-    And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
+    And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
     And I set the following fields to these values:
       | Enable ”Add LTI series module"            | 1               |
       | Default LTI series module title           | Opencast videos |
@@ -178,7 +178,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I click on "#lti_configured_tools_container a.editing_delete" "css_element"
-    And I navigate to "Plugins > Blocks > Opencast Videos > Additional features" in site administration
+    And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
     Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast series LTI tool first"
 
   Scenario: The admin has not allowed to add an intro for the LTI module.

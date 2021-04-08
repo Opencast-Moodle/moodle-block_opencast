@@ -264,13 +264,16 @@ class event {
     }
 
     /**
-     * Create an adhoc task that will start diplication workflows.
+     * Create an adhoc task that will start duplication workflows.
      *
-     * @param string $seriesid
-     * @param string $eventid
+     * @param string $courseid The course ID.
+     * @param string $seriesid The course series identifier.
+     * @param string $eventid The event identifier.
+     * @param bool $modulecleanup (optional) The switch if we want to cleanup the episode modules.
+     * @param array|null $episodemodules (optional) The array of episode modules to be cleaned up.
      * @return mixed false if task could not be created, id of inserted task otherwise.
      */
-    public static function create_duplication_task($courseid, $seriesid, $eventid) {
+    public static function create_duplication_task($courseid, $seriesid, $eventid, $modulecleanup = false, $episodemodules = null) {
 
         $task = new \block_opencast\task\process_duplicate_event();
 
@@ -278,7 +281,8 @@ class event {
                 'courseid' => $courseid,
                 'seriesid' => $seriesid,
                 'eventid' => $eventid,
-                'countfailed' => 0
+                'schedulemodulecleanup' => $modulecleanup,
+                'episodemodules' => $episodemodules
         ];
         $task->set_custom_data($data);
         return \core\task\manager::queue_adhoc_task($task, true);

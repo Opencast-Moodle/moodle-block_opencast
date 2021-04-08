@@ -108,5 +108,22 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array()
-    )
+    ),
+    'block/opencast:manualimporttarget' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+                'editingteacher' => CAP_ALLOW,
+                'manager' => CAP_ALLOW
+        )
+    ),
+    'block/opencast:manualimportsource' => array(
+            'captype' => 'read',
+            'contextlevel' => CONTEXT_COURSE,
+            'archetypes' => array(
+                    'editingteacher' => CAP_ALLOW,
+                    'manager' => CAP_ALLOW
+            )
+    ),
 );

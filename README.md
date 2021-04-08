@@ -180,12 +180,23 @@ In this section you can enable a feature to add Opencast studio support to the b
 #### Control episode visibility
 In this section you can configure if the teacher is allowed to control the visibility of an Opencast episode after the episode has been processed.
 
-#### Add Opencast LTI modules to courses
+LTI module features
+-------------------
+
+#### Add Opencast LTI series modules to courses
 In this section you can enable a feature to let teachers add an Opencast LTI series module to the course. This LTI series module will be pointing to the course's Opencast series.
 To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast series first.
 
-You can also enable a feature to let teachers add Opencast LTI episode modules to the course. These LTI episode modules will be pointing to an Opencast episode.
+#### Add Opencast LTI episode modules to courses
+In this section you can enable a feature to let teachers add Opencast LTI episode modules to the course. These LTI episode modules will be pointing to an Opencast episode.
 To be able to use this feature, you have to create a preconfigured LTI tool for showing Opencast episodes first.
+
+Import videos features
+----------------------
+
+### Import videos from other courses
+In this section you can enable one or two subfeatures to let teachers import existing video files from other Moodle courses to their Moodle course.
+To be able to use this feature, you have to provide a duplication workflow in Opencast.
 
 Capabilities
 ------------
@@ -193,12 +204,17 @@ There are additional capabilities, with which you can control the access to the 
 
 | Capability                           | Role in default configuration | Description                                                                                          |
 |--------------------------------------|-------------------------------|------------------------------------------------------------------------------------------------------|
-| block/opencast:addvideo              | editingteacher, manager       | Add a video via moodle to opencast.                                                                   |
+| block/opencast:addvideo              | editingteacher, manager       | Add a video via moodle to opencast.                                                                  |
 | block/opencast:viewunpublishedvideos | editingteacher, manager       | View the list of all videos of the course, which are available in opencast (even not published ones) |
-| block/opencast:defineseriesforcourse | manager       | Change the series ID which is associated with the block instance or rather course |
-| block/opencast:createseriesforcourse | manager       | Create a new series if block/course is not yet associated with one |
-| block/opencast:deleteevent           | editingteacher, manager       | Allows to delete a video as specified above. |
-| block/opencast:unassignevent         | -                              | Allows to unassign a video from the series of the course as specified above. |
+| block/opencast:defineseriesforcourse | manager                       | Change the series ID which is associated with the block instance or rather course                    |
+| block/opencast:createseriesforcourse | manager                       | Create a new series if block/course is not yet associated with one                                   |
+| block/opencast:deleteevent           | editingteacher, manager       | Allows to delete a video as specified above.                                                         |
+| block/opencast:unassignevent         | -                             | Allows to unassign a video from the series of the course as specified above.                         |
+| block/opencast:addlti                | editingteacher, manager       | Add Opencast LTI series module to course                                                             |
+| block/opencast:addltiepisode         | editingteacher, manager       | Add Opencast LTI episode module to course                                                            |
+| block/opencast:manualimporttarget    | editingteacher, manager       | Manually import videos from other courses                                                            |
+| block/opencast:manualimportsource    | editingteacher, manager       | Manually import videos from a course                                                                 |
+
 
 Logging
 -------

@@ -45,15 +45,20 @@ class backup_opencast_block_task extends backup_block_task {
      */
     protected function define_my_settings() {
 
-        // Check, whether there are course videos available.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-        $courseid = $this->get_courseid();
-        $videostobackup = $apibridge->get_course_videos_for_backup($courseid);
+        // Check whether this feature is enabled and working at all.
+        if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport() == true) {
 
-        if (count($videostobackup) > 0) {
-            $setting = new backup_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN, false);
-            $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast'));
-            $this->add_setting($setting);
+            // Check, whether there are course videos available.
+            $apibridge = \block_opencast\local\apibridge::get_instance();
+            $courseid = $this->get_courseid();
+            $videostobackup = $apibridge->get_course_videos_for_backup($courseid);
+
+            if (count($videostobackup) > 0) {
+                $setting = new backup_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN, false);
+                $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast'));
+                $this->add_setting($setting);
+                $this->plan->get_setting('blocks')->add_dependency($setting);
+            }
         }
     }
 

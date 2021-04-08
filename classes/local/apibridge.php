@@ -78,6 +78,27 @@ class apibridge {
     }
 
     /**
+     * Check, whether the Opencast API has been setup correctly.
+     * This does not check if the Opencast server is up and running.
+     * It just checks if the Opencast API configuration is fine by requesting an instance of the Opencast API from tool_opencast.
+     *
+     * @return boolean
+     */
+    public function check_api_configuration() {
+        // Try to get an instance of the Opencast API from tool_opencast.
+        try {
+            $api = $this->get_instance();
+
+            // If the API is not set up correctly, the constructor will throw an exception.
+        } catch (\moodle_exception $e) {
+            return false;
+        }
+
+        // Otherwise the API should be set up correctly.
+        return true;
+    }
+
+    /**
      * Get videos to show in block. Items are limited and ready to use by renderer.
      * Note that we try to receive one item more than configurated to decide whether
      * to display a "more videos" link.
@@ -386,16 +407,38 @@ class apibridge {
      * Retrieves the id of the series, which is stored in the admin tool.
      *
      * @param int $courseid id of the course.
+     * @param bool $createifempty Create a series on-the-fly if there isn't a series stored yet.
      *
      * @return string id of the series
      */
-    public function get_stored_seriesid($courseid) {
+    public function get_stored_seriesid($courseid, $createifempty = false) {
+        // Get series mapping.
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
+        // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
-            return null;
+            $seriesid = null;
         }
 
+        // If no series exists and if requested, ensure that a series exists.
+        if ($seriesid == null && $createifempty == true) {
+            // Create a series on-the-fly.
+            $seriescreated = $this->create_course_series($courseid);
+
+            // The series was created.
+            if ($seriescreated == true) {
+                // Fetch the created series' id.
+                $seriesid = $this->get_stored_seriesid($courseid);
+
+                // Otherwise there must have been some problem.
+            }
+            else {
+                // Remember series id as null.
+                $seriesid = null;
+            }
+        }
+
+        // Return series id.
         return $seriesid;
     }
 
@@ -1226,11 +1269,15 @@ class apibridge {
      * Starts a workflow in the opencast system.
      * @param string $eventid event id in the opencast system.
      * @param string $workflow identifier of the workflow to be started.
-     * @return bool true, if successfully started.
+     * @param array $params (optional) The workflow configuration.
+     * @param bool $returnworkflowid (optional) Return the workflow ID instead of just a boolean.
+     *                               This is only supported for API level >=v1.1.0.
+     * @return bool|int false if the workflow was not successfully started;
+     *                  true or the workflow ID (if $returnworkflowid was set) if the workflow was successfully started.
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public function start_workflow($eventid, $workflow, $params = array()) {
+    public function start_workflow($eventid, $workflow, $params = array(), $returnworkflowid = false) {
         if (!$workflow) {
             return false;
         }
@@ -1260,10 +1307,18 @@ class apibridge {
             $params['event_identifier'] = $eventid;
 
             $api = new api();
-            $api->oc_post($resource, $params);
+            $result = $api->oc_post($resource, $params);
 
             if ($api->get_http_code() != 201) {
                 return false;
+            }
+
+            // If requested, return the workflow ID now instead of just a boolean at the end of the function.
+            if ($returnworkflowid == true) {
+                $returnobject = json_decode($result);
+                if (isset($returnobject->identifier) && is_number($returnobject->identifier)) {
+                    return $returnobject->identifier;
+                }
             }
         }
 
@@ -1345,6 +1400,36 @@ class apibridge {
             }
         }
         return $this->workflows[$tag];
+    }
+
+    /**
+     * Helperfunction to get the list of available workflows to be used in the plugin's settings.
+     *
+     * @param string $tag If not empty the workflows are filtered according to this tag.
+     * @param bool $withnoworkflow Add a 'no workflow' item to the list of workflows.
+     *
+     * @return array Returns array of OC workflows.
+     *               If the list of workflows can't be retrieved from Opencast, an array with a nice error message is returned.
+     */
+    public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
+        // Be prepared that the OC API is not functional yet.
+        try {
+            // Get the workflow list.
+            $workflows = $this->get_existing_workflows($tag);
+
+            // Something went wrong and the list of workflows could not be retrieved.
+        } catch (\moodle_exception $e) {
+            return [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
+
+        // If requested, add the 'no workflow' item to the list of workflows.
+        if ($withnoworkflow == true) {
+            $noworkflow = [null => get_string('adminchoice_noworkflow', 'block_opencast')];
+            $workflows = array_merge($noworkflow, $workflows);
+        }
+
+        // Finally, return the list of workflows.
+        return $workflows;
     }
 
     /**
@@ -1524,4 +1609,77 @@ class apibridge {
         return false;
     }
 
+    /**
+     * Get the episode id of the episode which was created in a duplication workflow.
+     * This is only supported for API level >v1.1.0.
+     *
+     * @param $workflowid int The workflow ID of the dupliation workflow.
+     *
+     * @return string|bool The episode ID, if an episode ID was found.
+     *                     An empty string, if the workflow does not contain an episode ID yet.
+     *                     False, if the workflow does not exist at all,
+     *                         if we don't look at an duplication workflow at all,
+     *                         if the found episode ID isn't a valid episode ID at all,
+     *                         if the workflow has ended but there still isn't an episode ID or
+     *                         if the API does not support API level >=v1.1.0.
+     */
+    public function get_duplicated_episodeid($workflowid) {
+
+        // If we don't have a number, return.
+        if (!is_number($workflowid)) {
+            return false;
+        }
+
+        // Get API.
+        $api = new api();
+
+        // If API does not support API level >=v1.1.0, return.
+        if (!$api->supports_api_level('v1.1.0')) {
+            return false;
+        }
+
+        // Build API request.
+        $resource = '/api/workflows/'.$workflowid.'?withconfiguration=true';
+
+        // Run API request.
+        $result = $api->oc_get($resource);
+
+        // If the given workflow was not found, return.
+        if ($api->get_http_code() != 200) {
+            return false;
+        }
+
+        // Decode the result, return if the decoding fails.
+        if (!$workflowconfiguration = json_decode($result)) {
+            return false;
+        }
+
+        // If we are not looking at a duplication workflow at all, return.
+        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
+        if (isset($workflowconfiguration->workflow_definition_identifier) &&
+                $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
+            return false;
+        }
+
+        // If the workflow is not running anymore and there is no chance that there will be a (valid) episode ID anymore, return.
+        if (isset($workflowconfiguration->state) &&
+                !($workflowconfiguration->state == 'instantiated' || $workflowconfiguration->state == 'running' ||
+                        $workflowconfiguration->state == 'paused') &&
+                (!isset($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
+                        empty($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
+                        ltimodulemanager::is_valid_episode_id(
+                                $workflowconfiguration->configuration->duplicate_media_package_1_id) == false)) {
+            return false;
+        }
+
+        // Now, regardless if the workflow has finished already or not, check if there is already a valid episode ID.
+        if (isset($workflowconfiguration->configuration->duplicate_media_package_1_id) &&
+                ltimodulemanager::is_valid_episode_id($workflowconfiguration->configuration->duplicate_media_package_1_id) == true) {
+            // Pick the episode ID from the workflow configuration and return it.
+            return $workflowconfiguration->configuration->duplicate_media_package_1_id;
+        }
+
+        // In all other cases, return an empty string to let the caller try again later.
+        return '';
+    }
 }
