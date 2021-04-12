@@ -104,6 +104,12 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes(
     $headers[] = 'provide';
 }
 
+// If enabled and working, add the provide-activity column.
+if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true) {
+    $columns[] = 'provide-activity';
+    $headers[] = 'provide';
+}
+
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
         $headers[$i] = get_string('h' . $header, 'block_opencast');
@@ -118,6 +124,7 @@ $table->define_baseurl($baseurl);
 
 $table->no_sorting('action');
 $table->no_sorting('provide');
+$table->no_sorting('provide-activity');
 $table->no_sorting('published');
 $table->sortable(true, 'start_date', SORT_DESC);
 
@@ -303,7 +310,7 @@ if ($videodata->error == 0) {
             // Pick existing LTI episode module for this episode.
             $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
                     $video->identifier);
-
+            $ltiicon = '';
             // If there is already a LTI episode module created for this episode.
             if ($moduleid) {
                 // Build icon to view the LTI episode module.
@@ -317,6 +324,28 @@ if ($videodata->error == 0) {
 
             // Add icons to row.
             $row[] = $ltiicon;
+        }
+
+        // Provide Opencast Activity episode module column.
+        if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true) {
+            // Pick existing Opencast Activity episode module for this episode.
+            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid,
+                $video->identifier);
+
+            $activityicon = '';
+            // If there is already a Opencast Activity episode module created for this episode.
+            if ($moduleid) {
+                // Build icon to view the Opencast Activity episode module.
+                $activityicon = $renderer->render_view_activity_episode_icon($moduleid);
+
+                // If there isn't a Opencast Activity episode module yet in this course and the user is allowed to add one.
+            } else if (has_capability('block/opencast:addactivityepisode', $coursecontext)) {
+                // Build icon to add the Opencast Activity episode module.
+                $activityicon = $renderer->render_add_activity_episode_icon($courseid, $video->identifier);
+            }
+
+            // Add icons to row.
+            $row[] = $activityicon;
         }
         $table->add_data($row);
     }
@@ -368,6 +397,52 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() 
         if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
                 count($videodata->videos) > 0) {
             echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
+        }
+    }
+}
+
+// If enabled and working, add Opencast Activity series module feature.
+if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series() == true) {
+
+    // Fetch existing Opencast Activity series module for this course.
+    $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($courseid);
+
+    // If there is already a Opencast Activity series module created in this course.
+    if ($moduleid) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('addactivity_header', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('addactivity_viewbuttonexplanation', 'block_opencast'));
+
+        // Show button to view the Opencast Activity series module.
+        $viewactivityurl = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
+        $viewactivitybutton = $OUTPUT->single_button($viewactivityurl, get_string('addactivity_viewbuttontitle', 'block_opencast'), 'get');
+        echo html_writer::tag('p', $viewactivitybutton);
+
+        // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
+        if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true &&
+            count($videodata->videos) > 0) {
+            echo html_writer::tag('p', get_string('addactivityepisode_explanation', 'block_opencast'));
+        }
+
+        // If there isn't a Opencast Activity series module yet in this course and the user is allowed to add one.
+    } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
+        // Show heading.
+        echo $OUTPUT->heading(get_string('addactivity_header', 'block_opencast'));
+
+        // Show explanation.
+        echo html_writer::tag('p', get_string('addactivity_addbuttonexplanation', 'block_opencast'));
+
+        // Show button to add the Opencast Activity series module.
+        $addactivityurl = new moodle_url('/blocks/opencast/addactivity.php', array('courseid' => $courseid));
+        $addactivitybutton = $OUTPUT->single_button($addactivityurl, get_string('addactivity_addbuttontitle', 'block_opencast'), 'get');
+        echo html_writer::tag('p', $addactivitybutton);
+
+        // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
+        if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true &&
+            count($videodata->videos) > 0) {
+            echo html_writer::tag('p', get_string('addactivityepisode_explanation', 'block_opencast'));
         }
     }
 }
