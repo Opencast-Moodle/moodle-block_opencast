@@ -75,7 +75,7 @@ $addltiform = new \block_opencast\local\addltiepisode_form(null, array('episodeu
 
 // Redirect if the form was cancelled.
 if ($addltiform->is_cancelled()) {
-    redirect($redirecturlcancel);
+    redirect($redirecturloverview);
 }
 
 // Process data.

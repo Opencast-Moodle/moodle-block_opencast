@@ -1509,6 +1509,7 @@ class apibridge {
             return [];
         }
 
+        // TODO log this!
         if ($result->error != 0) {
             return [];
         }
