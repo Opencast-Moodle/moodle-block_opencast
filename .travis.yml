@@ -40,6 +40,7 @@ before_install:
   - moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
   - git clone https://github.com/opencast/opencast-docker.git /tmp/opencast-docker --depth=1
   - cd /tmp/opencast-docker
+  - echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker-compose -p opencast-allinone -f docker-compose/docker-compose.allinone.h2.yml up -d
   - cd -
 
