@@ -52,21 +52,21 @@ $PAGE->navbar->add(get_string('deletedraft', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$uploadjobs  = upload_helper::get_upload_jobs($courseid);
+$uploadjobs = upload_helper::get_upload_jobs($courseid);
 $jobtodelete = null;
 foreach ($uploadjobs as $uploadjob) {
-    if($uploadjob->id == $identifier) {
+    if ($uploadjob->id == $identifier) {
         $jobtodelete = $uploadjob;
         break;
     }
 }
-if(!$jobtodelete) {
+if (!$jobtodelete) {
     $message = get_string('videodraftnotfound', 'block_opencast');
     redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
 }
-if($jobtodelete->status != upload_helper::STATUS_READY_TO_UPLOAD) {
+if ($jobtodelete->status != upload_helper::STATUS_READY_TO_UPLOAD) {
     $message = get_string('videodraftnotdeletable', 'block_opencast',
-                          upload_helper::get_status_string($jobtodelete->status));
+        upload_helper::get_status_string($jobtodelete->status));
     redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
 }
 
@@ -75,8 +75,8 @@ if (($action == 'delete') && confirm_sesskey()) {
     $deleted = upload_helper::delete_video_draft($jobtodelete);
 
     $message = $deleted ? get_string('videodraftdeletionsucceeded', 'block_opencast') :
-                          get_string('videodraftnotdeletable',      'block_opencast',
-                                  upload_helper::get_status_string($jobtodelete->status));
+        get_string('videodraftnotdeletable', 'block_opencast',
+            upload_helper::get_status_string($jobtodelete->status));
     redirect($redirecturl, $message);
 }
 
@@ -87,9 +87,9 @@ $html .= $renderer->render_upload_jobs([$jobtodelete], false);
 
 $label = get_string('dodeletedraft', 'block_opencast');
 $params = array(
-        'identifier' => $identifier,
-        'courseid' => $courseid,
-        'action' => 'delete'
+    'identifier' => $identifier,
+    'courseid' => $courseid,
+    'action' => 'delete'
 );
 $urldelete = new \moodle_url('/blocks/opencast/deletedraft.php', $params);
 $html .= $OUTPUT->confirm($label, $urldelete, $redirecturl);

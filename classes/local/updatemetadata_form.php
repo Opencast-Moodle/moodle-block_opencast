@@ -31,7 +31,8 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class updatemetadata_form extends \moodleform {
+class updatemetadata_form extends \moodleform
+{
 
     public function definition() {
 
@@ -48,23 +49,23 @@ class updatemetadata_form extends \moodleform {
                 $attributes = [
                     'multiple' => true,
                     'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
-                    $this->try_get_string($field->name, 'block_opencast')),
+                        $this->try_get_string($field->name, 'block_opencast')),
                     'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
-                    $this->try_get_string($field->name, 'block_opencast')),
+                        $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
                 foreach ($value as $val) {
                     $param[$val] = $val;
                 }
             }
-            
+
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
-            
+
             if ($field->datatype == 'text') {
                 $mform->setType($field->name, PARAM_TEXT);
             }
-            
+
             if ($field->required) {
                 $mform->addRule($field->name, get_string('required'), 'required');
             }
@@ -72,7 +73,7 @@ class updatemetadata_form extends \moodleform {
             if ($value) {
                 $mform->setDefault($field->name, $value);
             }
-                  
+
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
@@ -84,6 +85,7 @@ class updatemetadata_form extends \moodleform {
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
+
     /**
      * Tries to get the string for identifier and component.
      * As a fallback it outputs the identifier itself with the first letter being uppercase.

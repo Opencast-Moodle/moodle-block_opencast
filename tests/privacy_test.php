@@ -36,7 +36,8 @@ use \block_opencast\privacy\provider;
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testcase {
+class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testcase
+{
 
     /**
      * Overriding setUp() function to always reset after tests.
@@ -215,7 +216,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 3;
         $job->presentation_fileid = 4;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -280,7 +281,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -384,7 +385,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -409,7 +410,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -469,7 +470,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -487,7 +488,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job = new \stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
-        $job->presenter_contenthash = '98765432100' ;
+        $job->presenter_contenthash = '98765432100';
         $job->presentation_contenthash = '987654321000';
         $job->opencasteventid = '';
         $job->countfailed = 0;
@@ -504,7 +505,6 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         // Test the created block_opencast records for Teacher 1 equals test number of jobs specified.
         $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher1->id]);
         $this->assertCount(4, $jobs);
-
 
         // Test the created block_opencast records for Teacher 2 equals test number of jobs specified.
         $jobs = $DB->get_records('block_opencast_uploadjob', ['userid' => $teacher2->id]);

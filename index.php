@@ -23,6 +23,7 @@
  */
 require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
+
 use block_opencast\local\apibridge;
 
 global $PAGE, $OUTPUT, $CFG;
@@ -87,8 +88,8 @@ $headers[] = 'workflow_state';
 
 // If configured, add the visibility column.
 $toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
-        (get_config('block_opencast', 'workflow_roles') != "") &&
-        (get_config('block_opencast', 'aclcontrolafter') == true);
+    (get_config('block_opencast', 'workflow_roles') != "") &&
+    (get_config('block_opencast', 'aclcontrolafter') == true);
 if ($toggleaclroles) {
     $columns[] = 'visibility';
     $headers[] = 'visibility';
@@ -177,8 +178,8 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
         echo $OUTPUT->heading(get_string('uploadrecordvideos', 'block_opencast'));
 
         // Show explanation.
-        echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast').'<br />'.
-        get_string('uploadprocessingexplanation', 'block_opencast'));
+        echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast') . '<br />' .
+            get_string('uploadprocessingexplanation', 'block_opencast'));
 
         // If Opencast Studio is not enabled.
     } else {
@@ -186,8 +187,8 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
         echo $OUTPUT->heading(get_string('uploadvideos', 'block_opencast'));
 
         // Show explanation.
-        echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast').'<br />'.
-                get_string('uploadprocessingexplanation', 'block_opencast'));
+        echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast') . '<br />' .
+            get_string('uploadprocessingexplanation', 'block_opencast'));
     }
 
     // Show "Add video" button.
@@ -240,9 +241,8 @@ if ($videodata->error == 0) {
         if (get_config('block_opencast', 'showenddate')) {
             if (property_exists($video, 'duration') && $video->duration) {
                 $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
-                        get_string('strftimedatetime', 'langconfig'));
-            }
-            else {
+                    get_string('strftimedatetime', 'langconfig'));
+            } else {
                 $row[] = "";
             }
         }
@@ -309,7 +309,7 @@ if ($videodata->error == 0) {
         if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
             // Pick existing LTI episode module for this episode.
             $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
-                    $video->identifier);
+                $video->identifier);
             $ltiicon = '';
             // If there is already a LTI episode module created for this episode.
             if ($moduleid) {
@@ -376,7 +376,7 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() 
 
         // If enabled and working, add additional explanation for LTI episodes module feature.
         if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
-                count($videodata->videos) > 0) {
+            count($videodata->videos) > 0) {
             echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
         }
 
@@ -395,7 +395,7 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() 
 
         // If enabled and working, add additional explanation for LTI episodes module feature.
         if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true &&
-                count($videodata->videos) > 0) {
+            count($videodata->videos) > 0) {
             echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
         }
     }
@@ -456,7 +456,7 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 
         // Show explanation.
         echo html_writer::tag('p', get_string('importvideos_sectionexplanation', 'block_opencast') . '<br />' .
-                get_string('importvideos_processingexplanation', 'block_opencast'));
+            get_string('importvideos_processingexplanation', 'block_opencast'));
 
         // Show "Import videos" button.
         $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));

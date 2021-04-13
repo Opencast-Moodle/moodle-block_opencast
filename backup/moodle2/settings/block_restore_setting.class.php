@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_backup_setting.class.php');
+
 /**
  * Extends the restore settings class.
  *
@@ -33,4 +34,6 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_bac
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_block_opencast_setting extends \backup_block_opencast_setting {}
+class restore_block_opencast_setting extends \backup_block_opencast_setting
+{
+}

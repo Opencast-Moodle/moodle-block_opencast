@@ -104,7 +104,8 @@ if ($data = $changevisibilityform->get_data()) {
         if ($code = $apibridge->change_visibility($identifier, $courseid, $data->visibility, $groups)) {
             redirect($redirecturl, get_string($code, 'block_opencast', $video), null, \core\output\notification::NOTIFY_SUCCESS);
         } else {
-            redirect($redirecturl, get_string('aclroleschangeerror', 'block_opencast', $video), null, \core\output\notification::NOTIFY_ERROR);
+            redirect($redirecturl, get_string('aclroleschangeerror', 'block_opencast', $video),
+                null, \core\output\notification::NOTIFY_ERROR);
         }
     }
 }

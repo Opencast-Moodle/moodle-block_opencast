@@ -28,7 +28,8 @@ global $CFG;
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/restore_opencast_stepslib.php');
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_restore_setting.class.php');
 
-class restore_opencast_block_task extends restore_block_task {
+class restore_opencast_block_task extends restore_block_task
+{
 
     /**
      * Check, if it is possible to restore events into given target course.
@@ -73,11 +74,12 @@ class restore_opencast_block_task extends restore_block_task {
             return;
         }
 
-        // Check, whether we may may import or restore events into the target course .
+        // Check, whether we may may import or restore events into the target course.
         $canrestore = $this->can_restore_events();
         $locktype = ($canrestore) ? backup_setting::NOT_LOCKED : backup_setting::LOCKED_BY_CONFIG;
 
-        $setting = new restore_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN, $canrestore, backup_setting::VISIBLE, $locktype);
+        $setting = new restore_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN,
+            $canrestore, backup_setting::VISIBLE, $locktype);
         $setting->get_ui()->set_label(get_string('restoreopencastvideos', 'block_opencast'));
 
         $this->add_setting($setting);
@@ -88,7 +90,7 @@ class restore_opencast_block_task extends restore_block_task {
      */
     protected function define_my_steps() {
 
-        // Settings, does not exists, if opencast system does not support copiing workflow.
+        // Settings, does not exists, if opencast system does not support copying workflow.
         if (!$this->setting_exists('opencast_videos_include')) {
             return;
         }
@@ -124,7 +126,7 @@ class restore_opencast_block_task extends restore_block_task {
      * @return array
      */
     public function get_configdata_encoded_attributes() {
-        return array(); // We need to encode some attrs in configdata
+        return array(); // We need to encode some attrs in configdata.
     }
 
     /**

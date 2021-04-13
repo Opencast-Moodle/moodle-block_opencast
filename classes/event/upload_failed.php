@@ -21,11 +21,13 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-class upload_failed extends \core\event\base {
+class upload_failed extends \core\event\base
+{
 
     /**
      * Init method.

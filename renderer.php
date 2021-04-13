@@ -31,7 +31,8 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2017 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_renderer extends plugin_renderer_base {
+class block_opencast_renderer extends plugin_renderer_base
+{
     const VISIBLE = 1;
     const MIXED_VISIBLITY = 3;
     const HIDDEN = 0;
@@ -159,15 +160,15 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_status($statuscode, $countfailed = 0) {
         // Get understandable status string.
-        $status_string = \block_opencast\local\upload_helper::get_status_string($statuscode);
+        $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
 
         // If needed, add the number of failed uploads.
         if ($countfailed > 1) {
-            $status_string .= '<br />'.get_string('failedtransferattempts', 'block_opencast', $countfailed);
+            $statusstring .= '<br />' . get_string('failedtransferattempts', 'block_opencast', $countfailed);
         }
 
         // Return string.
-        return $status_string;
+        return $statusstring;
     }
 
     /**
@@ -188,13 +189,13 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presentationfile', 'block_opencast'),
             get_string('status'),
             get_string('createdby', 'block_opencast'));
-        if($showdeletebutton) {
+        if ($showdeletebutton) {
             $table->head[] = '';
         }
 
         foreach ($uploadjobs as $uploadjob) {
 
-            $uploadjob->metadata ? $metadata = json_decode($uploadjob->metadata): $metadata = '';
+            $uploadjob->metadata ? $metadata = json_decode($uploadjob->metadata) : $metadata = '';
             $title = '';
             if ($metadata) {
                 foreach ($metadata as $ms) {
@@ -210,14 +211,14 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row[] = $title;
             if ($uploadjob->presenter_filename) {
                 if ($uploadjob->presenter_filesize) {
-                    $row[] = $uploadjob->presenter_filename.' ('.display_size($uploadjob->presenter_filesize).')';
+                    $row[] = $uploadjob->presenter_filename . ' (' . display_size($uploadjob->presenter_filesize) . ')';
                 } else {
                     $row[] = $uploadjob->presenter_filename;
                 }
             } else if (property_exists($uploadjob, 'presenter_chunkupload_filename')) {
                 if ($uploadjob->presenter_chunkupload_filesize) {
-                    $row[] = $uploadjob->presenter_chunkupload_filename.
-                        ' ('.display_size($uploadjob->presenter_chunkupload_filesize).')';
+                    $row[] = $uploadjob->presenter_chunkupload_filename .
+                        ' (' . display_size($uploadjob->presenter_chunkupload_filesize) . ')';
                 } else {
                     $row[] = $uploadjob->presenter_chunkupload_filename;
                 }
@@ -226,14 +227,14 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             if ($uploadjob->presentation_filename) {
                 if ($uploadjob->presentation_filesize) {
-                    $row[] = $uploadjob->presentation_filename.' ('.display_size($uploadjob->presentation_filesize).')';
+                    $row[] = $uploadjob->presentation_filename . ' (' . display_size($uploadjob->presentation_filesize) . ')';
                 } else {
                     $row[] = $uploadjob->presentation_filename;
                 }
             } else if (property_exists($uploadjob, 'presentation_chunkupload_filename')) {
                 if ($uploadjob->presentation_chunkupload_filesize) {
-                    $row[] = $uploadjob->presentation_chunkupload_filename.
-                        ' ('.display_size($uploadjob->presentation_chunkupload_filesize).')';
+                    $row[] = $uploadjob->presentation_chunkupload_filename .
+                        ' (' . display_size($uploadjob->presentation_chunkupload_filesize) . ')';
                 } else {
                     $row[] = $uploadjob->presentation_chunkupload_filename;
                 }
@@ -242,7 +243,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             $row[] = fullname($uploadjob);
-            if($showdeletebutton) {
+            if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);
                 // the one who is allowed to add the video is also allowed to delete the video before it is uploaded
                 $row[] = ($uploadjob->status == \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD &&
@@ -342,8 +343,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $label = get_string('dodeleteaclgroup', 'block_opencast');
         $params = array(
             'identifier' => $video->identifier,
-            'courseid'   => $courseid,
-            'action'     => 'delete'
+            'courseid' => $courseid,
+            'action' => 'delete'
         );
         $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php', $params);
         $html .= $this->output->single_button($url, $label);
@@ -437,7 +438,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the link to delete a draft file.
      *
-     * @param int    $courseid
+     * @param int $courseid
      * @param string $videoidentifier
      * @return string
      * @throws coding_exception
@@ -453,7 +454,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
-    //metadata
+    // Metadata.
+
     /**
      * Render the link to update metadata.
      *
@@ -486,12 +488,12 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $table = new \html_table();
         $table->head = array();
-        $table->head []= get_string('hstart_date', 'block_opencast');
-        $table->head []= get_string('htitle', 'block_opencast');
+        $table->head [] = get_string('hstart_date', 'block_opencast');
+        $table->head [] = get_string('htitle', 'block_opencast');
         if (get_config('block_opencast', 'showpublicationchannels')) {
             $table->head [] = get_string('hpublished', 'block_opencast');
         };
-        $table->head []= get_string('hworkflow_state', 'block_opencast');
+        $table->head [] = get_string('hworkflow_state', 'block_opencast');
 
         $row = array();
 

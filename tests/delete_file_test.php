@@ -73,32 +73,32 @@ class block_opencast_delete_file_testcase extends advanced_testcase {
         $fs->create_file_from_string($filerecord, 'test2');
         $storedfile2 = $DB->get_record('files', $filerecord);
 
-        $draftid_editor = file_get_submitted_draft_itemid('video_filemanager');
-        file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid);
-        file_deletionmanager::track_draftitemid($contextid, $draftid_editor);
+        $draftideditor = file_get_submitted_draft_itemid('video_filemanager');
+        file_prepare_draft_area($draftideditor, $contextid, $component, $filearea, $itemid);
+        file_deletionmanager::track_draftitemid($contextid, $draftideditor);
 
         // Check user draft files are created for this user.
         $userdraft = $DB->get_records('files', ['component' => 'user', 'contenthash' => $storedfile->contenthash]);
         $this->assertEquals(1, count($userdraft));
 
-        $draftid_editor = file_get_submitted_draft_itemid('video_filemanager');
-        file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid);
-        file_deletionmanager::track_draftitemid($contextid, $draftid_editor);
+        $draftideditor = file_get_submitted_draft_itemid('video_filemanager');
+        file_prepare_draft_area($draftideditor, $contextid, $component, $filearea, $itemid);
+        file_deletionmanager::track_draftitemid($contextid, $draftideditor);
 
         // Check user draft files are created for this user.
         $userdraft = $DB->get_records('files', ['component' => 'user', 'contenthash' => $storedfile->contenthash]);
         $this->assertEquals(2, count($userdraft));
 
-        // Delete file,
+        // Delete file.
         $fs->delete_area_files(1, 'block_opencast_test');
 
-        // Confirm delete,
+        // Confirm delete.
         $count = $DB->count_records('files', $filerecord);
         $this->assertEquals(0, $count);
 
-        $draftid_editor = file_get_submitted_draft_itemid('video_filemanager');
-        file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid);
-        file_deletionmanager::track_draftitemid($contextid, $draftid_editor);
+        $draftideditor = file_get_submitted_draft_itemid('video_filemanager');
+        file_prepare_draft_area($draftideditor, $contextid, $component, $filearea, $itemid);
+        file_deletionmanager::track_draftitemid($contextid, $draftideditor);
 
         // Check trashdir.
         $filedir = new \block_opencast\local\file_system_filedir();
@@ -132,9 +132,9 @@ class block_opencast_delete_file_testcase extends advanced_testcase {
         $storedfile = $DB->get_record('files', $filerecord);
 
         $this->setUser($user1);
-        $draftid_editor = file_get_submitted_draft_itemid('video_filemanager');
-        file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid);
-        file_deletionmanager::track_draftitemid($contextid, $draftid_editor);
+        $draftideditor = file_get_submitted_draft_itemid('video_filemanager');
+        file_prepare_draft_area($draftideditor, $contextid, $component, $filearea, $itemid);
+        file_deletionmanager::track_draftitemid($contextid, $draftideditor);
 
         // Check user draft files are created for this user.
         $userdraft = $DB->get_records('files', ['component' => 'user', 'contenthash' => $storedfile2->contenthash]);
@@ -150,7 +150,7 @@ class block_opencast_delete_file_testcase extends advanced_testcase {
         $storedfiles = $DB->get_records('files', $filerecord);
         $this->assertEquals(1, count($storedfiles));
 
-        // Delete file,
+        // Delete file.
         $fs->delete_area_files(1, 'block_opencast_test');
 
         $exists = $filedir->file_exists_in_trashdir($contenthash2);

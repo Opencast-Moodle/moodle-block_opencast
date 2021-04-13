@@ -56,7 +56,7 @@ $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode(
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
-            get_string('addactivityepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+        get_string('addactivityepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
 // Episode UUID Check.
@@ -68,7 +68,8 @@ if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1
     print_error('The given episode UUID is not valid', 'block_opencast', $redirecturloverview);
 }
 
-$addactivityform = new \block_opencast\local\addactivityepisode_form(null, array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
+$addactivityform = new \block_opencast\local\addactivityepisode_form(null,
+    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
 
 if ($addactivityform->is_cancelled()) {
     redirect($redirecturloverview);
@@ -102,7 +103,7 @@ if ($data = $addactivityform->get_data()) {
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
     if (get_config('block_opencast', 'addactivityepisodeavailability') != true || empty($CFG->enableavailability) ||
-            !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
+        !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 
         // Otherwise.
@@ -112,7 +113,7 @@ if ($data = $addactivityform->get_data()) {
 
     // Create the module.
     $result = \block_opencast\local\activitymodulemanager::create_module_for_episode($courseid, $data->title, $episodeuuid,
-            $sectionid, $introtext, $introformat, $availability);
+        $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.
     if ($result == true) {
@@ -120,26 +121,26 @@ if ($data = $addactivityform->get_data()) {
         if ($submitbutton2) {
             // Redirect to course overview.
             redirect($redirecturlcourse,
-                    get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
-                    null,
-                    \core\output\notification::NOTIFY_SUCCESS);
+                get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_SUCCESS);
 
             // Form was submitted with first submit button.
         } else {
             // Redirect to Opencast videos overview page.
             redirect($redirecturloverview,
-                    get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
-                    null,
-                    \core\output\notification::NOTIFY_SUCCESS);
+                get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_SUCCESS);
         }
 
         // Otherwise.
     } else {
         // Redirect to Opencast videos overview page.
         redirect($redirecturloverview,
-                get_string('addactivityepisode_modulenotcreated', 'block_opencast', $data->title),
-                null,
-                \core\output\notification::NOTIFY_ERROR);
+            get_string('addactivityepisode_modulenotcreated', 'block_opencast', $data->title),
+            null,
+            \core\output\notification::NOTIFY_ERROR);
     }
 }
 

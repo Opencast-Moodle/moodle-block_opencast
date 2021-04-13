@@ -34,17 +34,18 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class addvideo_form extends \moodleform {
+class addvideo_form extends \moodleform
+{
 
     public function definition() {
         global $CFG;
-        $use_chunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
+        $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload');
 
-        if ($use_chunkupload) {
+        if ($usechunkupload) {
             \MoodleQuickForm::registerElementType('chunkupload',
-                    "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
-                    'local_chunkupload\chunkupload_form_element');
+                "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
+                'local_chunkupload\chunkupload_form_element');
         }
 
 
@@ -55,50 +56,50 @@ class addvideo_form extends \moodleform {
         $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
-            $set_title = true;
-            foreach ($this->_customdata['metadata_catalog'] as $field) {
-                $param = array();
-                $attributes = array();
-                if ($field->name == 'title') {
-                    if ($field->required) {
-                        $set_title = false;
-                    } else {
-                        continue;
-                    }
-                }
-                if ($field->param_json) {
-                    $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
-                }
-                if ($field->datatype == 'autocomplete') {
-                    $attributes = [
-                        'multiple' => true,
-                        'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
-                            $this->try_get_string($field->name, 'block_opencast')),
-                        'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
-                        'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
-                            $this->try_get_string($field->name, 'block_opencast')),
-                        'tags' => true
-                    ];
-                }
-
-                $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
-
-                if ($field->datatype == 'text') {
-                    $mform->setType($field->name, PARAM_TEXT);
-                }
-
+        $settitle = true;
+        foreach ($this->_customdata['metadata_catalog'] as $field) {
+            $param = array();
+            $attributes = array();
+            if ($field->name == 'title') {
                 if ($field->required) {
-                    $mform->addRule($field->name, get_string('required'), 'required');
+                    $settitle = false;
+                } else {
+                    continue;
                 }
-                $mform->setAdvanced($field->name, !$field->required);
             }
-            if ($set_title) {
-                $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
-                $mform->addRule('title', get_string('required'), 'required');
-                $mform->setType('title', PARAM_TEXT);
+            if ($field->param_json) {
+                $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
             }
-            $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
-            $mform->setAdvanced('startDate');
+            if ($field->datatype == 'autocomplete') {
+                $attributes = [
+                    'multiple' => true,
+                    'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
+                        $this->try_get_string($field->name, 'block_opencast')),
+                    'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
+                    'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
+                        $this->try_get_string($field->name, 'block_opencast')),
+                    'tags' => true
+                ];
+            }
+
+            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+
+            if ($field->datatype == 'text') {
+                $mform->setType($field->name, PARAM_TEXT);
+            }
+
+            if ($field->required) {
+                $mform->addRule($field->name, get_string('required'), 'required');
+            }
+            $mform->setAdvanced($field->name, !$field->required);
+        }
+        if ($settitle) {
+            $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
+            $mform->addRule('title', get_string('required'), 'required');
+            $mform->setType('title', PARAM_TEXT);
+        }
+        $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
+        $mform->setAdvanced('startDate');
 
         $mform->closeHeaderBefore('upload_filepicker');
 
@@ -108,60 +109,60 @@ class addvideo_form extends \moodleform {
         $explanation = \html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
-            $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
-            if (empty($videotypescfg)) {
-                // Fallback. Use Moodle defined video file types.
-                $videotypes = ['video'];
-            } else {
-                $videotypes = [];
-                foreach (explode(',', $videotypescfg) as $videotype) {
-                    if (empty($videotype)) {
-                        continue;
-                    }
-                    $videotypes[] = $videotype;
+        $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
+        if (empty($videotypescfg)) {
+            // Fallback. Use Moodle defined video file types.
+            $videotypes = ['video'];
+        } else {
+            $videotypes = [];
+            foreach (explode(',', $videotypescfg) as $videotype) {
+                if (empty($videotype)) {
+                    continue;
                 }
+                $videotypes[] = $videotype;
             }
+        }
 
-            $maxuploadsize = get_config('block_opencast', 'uploadfilelimit');
+        $maxuploadsize = get_config('block_opencast', 'uploadfilelimit');
 
-            $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
-            $mform->addElement('html', $presenterdesc);
+        $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
+        $mform->addElement('html', $presenterdesc);
 
-            if ($use_chunkupload) {
-                $mform->addElement('checkbox', 'presenter_already_uploaded',
-                        get_string('video_already_uploaded', 'block_opencast'));
-            }
-            $mform->addElement('filepicker', 'video_presenter',
-                get_string('presenter', 'block_opencast'),
-                null, ['accepted_types' => $videotypes]);
-            if ($use_chunkupload) {
-                $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
-                $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
-                        array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-                $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
-            }
+        if ($usechunkupload) {
+            $mform->addElement('checkbox', 'presenter_already_uploaded',
+                get_string('video_already_uploaded', 'block_opencast'));
+        }
+        $mform->addElement('filepicker', 'video_presenter',
+            get_string('presenter', 'block_opencast'),
+            null, ['accepted_types' => $videotypes]);
+        if ($usechunkupload) {
+            $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
+            $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
+                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+            $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
+        }
 
-            $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
-            $mform->addElement('html', $presentationdesc);
+        $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
+        $mform->addElement('html', $presentationdesc);
 
-            if ($use_chunkupload) {
-                $mform->addElement('checkbox', 'presentation_already_uploaded',
-                        get_string('video_already_uploaded', 'block_opencast'));
-            }
-            $mform->addElement('filepicker', 'video_presentation',
-                get_string('presentation', 'block_opencast'),
-                null, ['accepted_types' => $videotypes]);
-            if ($use_chunkupload) {
-                $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
-                $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
-                        array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-                $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
-            }
+        if ($usechunkupload) {
+            $mform->addElement('checkbox', 'presentation_already_uploaded',
+                get_string('video_already_uploaded', 'block_opencast'));
+        }
+        $mform->addElement('filepicker', 'video_presentation',
+            get_string('presentation', 'block_opencast'),
+            null, ['accepted_types' => $videotypes]);
+        if ($usechunkupload) {
+            $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
+            $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
+                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+            $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
+        }
 
-            $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
-            $mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
+        $mform->setType('courseid', PARAM_INT);
 
-            $mform->closeHeaderBefore('buttonar');
+        $mform->closeHeaderBefore('buttonar');
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
@@ -175,25 +176,25 @@ class addvideo_form extends \moodleform {
      */
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $chunkupload_installed = class_exists('\local_chunkupload\chunkupload_form_element');
-        if (!$chunkupload_installed ||
-                isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
-            $presenter_file = $this->get_draft_files('video_presenter');
+        $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
+        if (!$chunkuploadinstalled ||
+            isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
+            $presenterfile = $this->get_draft_files('video_presenter');
         } else {
-            $presenter_file = isset($data['video_presenter_chunk']) &&
-                    chunkupload_form_element::is_file_uploaded($data['video_presenter_chunk']);
+            $presenterfile = isset($data['video_presenter_chunk']) &&
+                chunkupload_form_element::is_file_uploaded($data['video_presenter_chunk']);
         }
-        if (!$chunkupload_installed ||
-                isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
-            $presentation_file = $this->get_draft_files('video_presentation');
+        if (!$chunkuploadinstalled ||
+            isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
+            $presentationfile = $this->get_draft_files('video_presentation');
         } else {
-            $presentation_file = isset($data['video_presentation_chunk']) &&
-                    chunkupload_form_element::is_file_uploaded($data['video_presentation_chunk']);
+            $presentationfile = isset($data['video_presentation_chunk']) &&
+                chunkupload_form_element::is_file_uploaded($data['video_presentation_chunk']);
         }
 
-        if (!$presenter_file && !$presentation_file) {
-            $errors['presenter_already_uploaded'] =  get_string('emptyvideouploaderror', 'block_opencast');
-            $errors['presentation_already_uploaded'] =  get_string('emptyvideouploaderror', 'block_opencast');
+        if (!$presenterfile && !$presentationfile) {
+            $errors['presenter_already_uploaded'] = get_string('emptyvideouploaderror', 'block_opencast');
+            $errors['presentation_already_uploaded'] = get_string('emptyvideouploaderror', 'block_opencast');
         }
 
         return $errors;

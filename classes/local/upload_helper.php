@@ -29,7 +29,8 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 use block_opencast\opencast_state_exception;
 use local_chunkupload\chunkupload_form_element;
 
-class upload_helper {
+class upload_helper
+{
 
     const OC_FILEAREA = 'videotoupload';
     const STATUS_READY_TO_UPLOAD = 10;
@@ -114,7 +115,7 @@ class upload_helper {
      * 2. Remove upload job, when status is readytoupload.
      *
      */
-    public static function save_upload_jobs($courseid, $coursecontext , $options) {
+    public static function save_upload_jobs($courseid, $coursecontext, $options) {
         global $DB, $USER;
 
         //find the current files for the jobs
@@ -136,7 +137,7 @@ class upload_helper {
         }
 
         list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
-        $params+=$inparams;
+        $params += $inparams;
         $sql = "SELECT f.id, f.contenthash, f.itemid, f.filename, f.filesize FROM {files} f 
                     WHERE f.component = :component 
                         AND f.filearea = :filearea 
@@ -232,13 +233,13 @@ class upload_helper {
     public static function delete_video_draft($jobtodelete) {
         global $DB;
         // check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD
-        if($DB->record_exists('block_opencast_uploadjob',
+        if ($DB->record_exists('block_opencast_uploadjob',
             ['id' => $jobtodelete->id, 'status' => self::STATUS_READY_TO_UPLOAD])) {
 
             $DB->delete_records('block_opencast_uploadjob', ['id' => $jobtodelete->id]);
             $DB->delete_records('block_opencast_metadata', ['uploadjobid' => $jobtodelete->id]);
             // Delete from files table.
-            $fs    = get_file_storage();
+            $fs = get_file_storage();
             $files = array();
             $jobtodelete->presenter_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presenter_fileid) : null;
             $jobtodelete->presentation_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presentation_fileid) : null;
@@ -297,11 +298,11 @@ class upload_helper {
         $context = \context_course::instance($job->courseid);
         $event = \block_opencast\event\upload_succeeded::create(
             array(
-                'context'  => $context,
+                'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
-                'userid'   => $job->userid,
-                'other'    => array('filename' => implode(' & ', $filenames))
+                'userid' => $job->userid,
+                'other' => array('filename' => implode(' & ', $filenames))
             )
         );
 
@@ -345,14 +346,14 @@ class upload_helper {
         $context = \context_course::instance($job->courseid);
         $event = \block_opencast\event\upload_failed::create(
             array(
-                'context'  => $context,
+                'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
-                'userid'   => $job->userid,
-                'other'    => array(
-                    'filename'     => /* $filename */implode(' & ', $filenames),
+                'userid' => $job->userid,
+                'other' => array(
+                    'filename' => /* $filename */ implode(' & ', $filenames),
                     'errormessage' => $errormessage,
-                    'countfailed'  => $job->countfailed
+                    'countfailed' => $job->countfailed
                 )
             )
         );
@@ -363,11 +364,11 @@ class upload_helper {
     /**
      * Updates the status of a job and sets the time values accordingly.
      *
-     * @param object $job          job to be updated.
-     * @param int    $status       the new status of the job. See the predefined constants of the class for available choices.
-     * @param bool   $setmodified  if true, the value timemodified of the job is set to the current time.
-     * @param bool   $setstarted   if true, the value timestarted of the job is set to the current time.
-     * @param bool   $setsucceeded if true, the value timesucceeded of the job is set to the current time.
+     * @param object $job job to be updated.
+     * @param int $status the new status of the job. See the predefined constants of the class for available choices.
+     * @param bool $setmodified if true, the value timemodified of the job is set to the current time.
+     * @param bool $setstarted if true, the value timestarted of the job is set to the current time.
+     * @param bool $setsucceeded if true, the value timesucceeded of the job is set to the current time.
      */
     protected function update_status(&$job, $status, $setmodified = true, $setstarted = false, $setsucceeded = false) {
         global $DB;
@@ -561,9 +562,9 @@ class upload_helper {
         foreach ($jobs as $job) {
             mtrace('proceed: ' . $job->id);
             try {
-                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields='metadata', $strictness=IGNORE_MISSING);
+                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields = 'metadata', $strictness = IGNORE_MISSING);
                 if ($joboptions) {
-                    $job = (object) array_merge((array)$job, (array)$joboptions );
+                    $job = (object)array_merge((array)$job, (array)$joboptions);
                 }
                 $event = $this->process_upload_job($job);
                 if ($event) {
@@ -618,7 +619,7 @@ class upload_helper {
         global $DB;
 
         if ($condition) {
-            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition,  $fields );
+            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition, $fields);
         } else {
             $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
         }

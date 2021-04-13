@@ -48,7 +48,7 @@ class addactivity_form extends \moodleform {
             $mform->addElement('editor', 'intro', get_string('addactivity_formactivityintro', 'block_opencast'),
                     array('rows' => 5),
                     array('maxfiles' => 0, 'noclean' => true));
-            $mform->setType('intro', PARAM_RAW); // no XSS prevention here, users must be trusted
+            $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted
         }
 
         if (get_config('block_opencast', 'addactivitysection') == true) {

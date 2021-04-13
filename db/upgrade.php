@@ -213,10 +213,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         // Define table block_opencast_catalog to be created.
         $table = new xmldb_table('block_opencast_catalog');
-        
+
         // Adding fields to table block_opencast_catalog.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
@@ -224,15 +224,14 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('required', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('readonly', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('param_json', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        
+
         // Adding keys to table block_opencast_catalog.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        
+
         // Conditionally launch create table for block_opencast_catalog.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-
 
         // Define table block_opencast_metadata to be created.
         $table = new xmldb_table('block_opencast_metadata');
@@ -251,7 +250,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        //Catalog
+        // Catalog.
         $catalog = array();
         $catalog[0] = new \stdClass();
         $catalog[0]->name = 'title';

@@ -69,7 +69,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
 echo $renderer->render_lti_form($ltiendpoint, $params);
 
-$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler','init');
+$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
 echo $OUTPUT->footer();
 
 /**
@@ -132,8 +132,8 @@ function block_opencast_create_lti_parameters($endpoint, $seriesid) {
 
     $params['launch_presentation_document_target'] = 'iframe';
     $params['oauth_signature_method'] = 'HMAC-SHA1';
-    $signed_params = lti_sign_parameters($params, $endpoint, "POST", $consumerkey, $consumersecret);
-    $params['oauth_signature'] = $signed_params['oauth_signature']; 
+    $signedparams = lti_sign_parameters($params, $endpoint, "POST", $consumerkey, $consumersecret);
+    $params['oauth_signature'] = $signedparams['oauth_signature'];
 
     return $params;
 }

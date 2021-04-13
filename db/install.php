@@ -59,7 +59,7 @@ function xmldb_block_opencast_install() {
     // Insert new record.
     $DB->insert_records('block_opencast_roles', $record);
 
-    //Catalog
+    // Catalog.
     $catalog = array();
     $catalog[0] = new \stdClass();
     $catalog[0]->name = 'title';

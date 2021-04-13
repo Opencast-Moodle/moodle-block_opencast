@@ -50,5 +50,3 @@ class backup_block_opencast_setting extends backup_setting {
     }
 
 }
-
-// class restore_block_opencast_setting extends backup_block_opencast_setting {}

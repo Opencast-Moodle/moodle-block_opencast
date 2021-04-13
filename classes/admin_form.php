@@ -32,7 +32,8 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/formslib.php');
 
-class admin_form extends moodleform {
+class admin_form extends moodleform
+{
     protected function definition() {
         global $CFG;
         $mform = $this->_form;
@@ -78,10 +79,10 @@ class admin_form extends moodleform {
         $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
 
-         // Allow unassign.
+        // Allow unassign.
         $name = 'allowunassign';
-        $title =   get_string('allowunassign', 'block_opencast');
-        $description =    get_string('allowunassigndesc', 'block_opencast');
+        $title = get_string('allowunassign', 'block_opencast');
+        $description = get_string('allowunassigndesc', 'block_opencast');
         $mform->addElement('advcheckbox', $name, $title);
         $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -101,8 +102,8 @@ class admin_form extends moodleform {
         // The plugin deletes all files in users draft area, which are related to
         // uploaded video and removes the video file from trash also.
         $name = 'adhocfiledeletion';
-        $title =   get_string('adhocfiledeletion', 'block_opencast');
-        $description =    get_string('adhocfiledeletiondesc', 'block_opencast');
+        $title = get_string('adhocfiledeletion', 'block_opencast');
+        $description = get_string('adhocfiledeletiondesc', 'block_opencast');
         $mform->addElement('selectyesno', $name, $title);
         $mform->setDefault($name, 0);
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -110,7 +111,7 @@ class admin_form extends moodleform {
         // Supported file extensions.
         $name = 'uploadfileextensions';
         $title = get_string('uploadfileextensions', 'block_opencast');
-        $description = get_string('uploadfileextensionsdesc', 'block_opencast', $CFG->wwwroot.'/admin/tool/filetypes/index.php');
+        $description = get_string('uploadfileextensionsdesc', 'block_opencast', $CFG->wwwroot . '/admin/tool/filetypes/index.php');
         $mform->addElement('filetypes', $name, $title);
         $mform->setDefault($name, '');
         $mform->addElement('static', 'description' . $name, '', $description);
@@ -205,9 +206,9 @@ class admin_form extends moodleform {
         // Add Table.
         $mform->addElement('html', $this->tablehead());
         $this->table_body();
-        //End Acl Roles
+        // End Acl Roles.
 
-        // Metadata Catalog Setting
+        // Metadata Catalog Setting.
         $mform->addElement('header', 'catalog_header', get_string('metadata', 'block_opencast'));
         $mform->setExpanded('catalog_header');
         // New catalog name.
@@ -255,7 +256,7 @@ class admin_form extends moodleform {
         // Add Table.
         $mform->addElement('html', $this->tablehead('catalog'));
         $this->table_body('catalog');
-        // End Metadata Catalog
+        // End Metadata Catalog.
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
     }
@@ -265,16 +266,16 @@ class admin_form extends moodleform {
      * @return string
      */
     public function tablehead($field = 'role') {
-        $table_attributes = array();
-        $th_attributes = array();
+        $tableattributes = array();
+        $thattributes = array();
         if ($field == 'role') {
 
-            $table_attributes = [
+            $tableattributes = [
                 'class' => 'generaltable',
                 'id' => 'roles_table'
             ];
 
-            $th_attributes = [
+            $thattributes = [
                 'heading_role' => [
                     'class' => 'header c0',
                     'scope' => 'col'
@@ -294,12 +295,12 @@ class admin_form extends moodleform {
             ];
 
         } else if ($field == 'catalog') {
-            $table_attributes = [
+            $tableattributes = [
                 'class' => 'generaltable',
                 'id' => 'catalog_table'
             ];
 
-            $th_attributes = [
+            $thattributes = [
                 'heading_position' => [
                     'class' => 'header c0',
                     'scope' => 'col'
@@ -331,12 +332,12 @@ class admin_form extends moodleform {
             ];
         }
 
-        $output = html_writer::start_tag('table', $table_attributes);
+        $output = html_writer::start_tag('table', $tableattributes);
 
         $output .= html_writer::start_tag('thead', array());
         $output .= html_writer::start_tag('tr', array());
 
-        foreach ($th_attributes as $name =>$th) {
+        foreach ($thattributes as $name => $th) {
             $output .= html_writer::tag('th', get_string($name, 'block_opencast'), $th);
         }
 
@@ -448,7 +449,7 @@ class admin_form extends moodleform {
         $mform->addElement('html', '</table>');
     }
 
-     /**
+    /**
      * Returns metadata catalog.
      * @return array
      */
@@ -510,43 +511,43 @@ class admin_form extends moodleform {
             }
 
             // Validate roles workflow.
-            if ( $data['workflow_roles'] !== "" ) {
+            if ($data['workflow_roles'] !== "") {
                 // Verify workflow.
-                if ( ! $apibridge->check_if_workflow_exists( $data['workflow_roles'] ) ) {
-                    $error['workflow_roles'] = get_string( 'workflow_not_existing', 'block_opencast' );
+                if (!$apibridge->check_if_workflow_exists($data['workflow_roles'])) {
+                    $error['workflow_roles'] = get_string('workflow_not_existing', 'block_opencast');
                 }
             }
 
             // Validate group name if a group should be created.
-            if ( $data['group_creation'] === "1" ) {
+            if ($data['group_creation'] === "1") {
                 // Group name must not be empty.
-                if ( empty($data['group_name']) ) {
-                    $error['group_name'] = get_string( 'group_name_empty', 'block_opencast' );
+                if (empty($data['group_name'])) {
+                    $error['group_name'] = get_string('group_name_empty', 'block_opencast');
                 }
             }
 
             // Validate series name.
-            if ( empty($data['series_name']) ) {
+            if (empty($data['series_name'])) {
                 // Series name must not be empty.
-                $error['series_name'] = get_string( 'series_name_empty', 'block_opencast' );
+                $error['series_name'] = get_string('series_name_empty', 'block_opencast');
             }
         }
 
         foreach ($this->getcatalogs() as $catalog) {
-            $catalog_datatype = "catalog_datatype_{$catalog->id}";
-            $catalog_readonly = "catalog_readonly_{$catalog->id}";
-            $catalog_params = "catalog_params_{$catalog->id}";
+            $catalogdatatype = "catalog_datatype_{$catalog->id}";
+            $catalogreadonly = "catalog_readonly_{$catalog->id}";
+            $catalogparams = "catalog_params_{$catalog->id}";
             // Check for non empty params of static fields.
-            if ($data[$catalog_readonly] == true &&
-                empty($data[$catalog_params])) {
-                $error[$catalog_params] = get_string( 'catalog_static_params_empty', 'block_opencast' );
+            if ($data[$catalogreadonly] == true &&
+                empty($data[$catalogparams])) {
+                $error[$catalogparams] = get_string('catalog_static_params_empty', 'block_opencast');
             }
             // Check for empty or array/object parsable params of all other fields.
-            if ($data[$catalog_readonly] == false &&
-                    !empty($data[$catalog_params]) &&
-                    !is_array(json_decode($data[$catalog_params])) &&
-                    !is_object(json_decode($data[$catalog_params]))) {
-                $error[$catalog_params] = get_string( 'catalog_params_noarray', 'block_opencast');
+            if ($data[$catalogreadonly] == false &&
+                !empty($data[$catalogparams]) &&
+                !is_array(json_decode($data[$catalogparams])) &&
+                !is_object(json_decode($data[$catalogparams]))) {
+                $error[$catalogparams] = get_string('catalog_params_noarray', 'block_opencast');
             }
         }
 

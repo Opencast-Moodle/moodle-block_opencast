@@ -50,41 +50,42 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance();
 $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
-$metadata_catalog = upload_helper::get_opencast_metadata_catalog();
+$metadatacatalog = upload_helper::get_opencast_metadata_catalog();
 
-$updatemetadataform = new \block_opencast\local\updatemetadata_form(null, array('metadata' => $metadata, 'metadata_catalog' => $metadata_catalog, 'courseid' => $courseid, 'identifier' => $identifier));
+$updatemetadataform = new \block_opencast\local\updatemetadata_form(null,
+    array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier));
 
 if ($updatemetadataform->is_cancelled()) {
     redirect($redirecturl);
 }
 
 if ($data = $updatemetadataform->get_data()) {
-    $new_metadata = [];
-    $metadata_ids = array_column($metadata, 'id');
-    foreach ($metadata_ids as $key) {
+    $newmetadata = [];
+    $metadataids = array_column($metadata, 'id');
+    foreach ($metadataids as $key) {
         if (array_key_exists($key, $data)) {
-            $content_obj = [
+            $contentobj = [
                 'id' => $key,
                 'value' => $key == 'startDate' ? date('Y-m-d', $data->startDate) : $data->$key
             ];
-            $new_metadata[] = $content_obj;
+            $newmetadata[] = $contentobj;
             if ($key == 'startDate') {
-                $startTime = [
+                $starttime = [
                     'id' => 'startTime',
                     'value' => date('H:i:sz', $data->startDate)
                 ];
-                $new_metadata[] = $startTime;
+                $newmetadata[] = $starttime;
             }
         }
     }
     $msg = '';
-    $res = $opencast->update_event_metadata($identifier, $new_metadata);
+    $res = $opencast->update_event_metadata($identifier, $newmetadata);
     if ($res) {
         $msg = get_string('updatemetadatasaved', 'block_opencast');
     }
     redirect($redirecturl, $msg);
 }
-$PAGE->requires->js_call_amd('block_opencast/block_form_handler','init');
+$PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();

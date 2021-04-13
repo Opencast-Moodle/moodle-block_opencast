@@ -101,27 +101,27 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             $DB->insert_record('block_opencast_roles', $record, false);
             redirect($PAGE->url . '#id_roles_header');
             exit();
-        } else if (isset($data->addcatalogbutton)) { //Adding new Metadata Catalog
+        } else if (isset($data->addcatalogbutton)) { // Adding new Metadata Catalog.
             $ret = get_string('addnewcatalogfield', 'block_opencast');
-            $notify =  \core\notification::SUCCESS;
+            $notify = \core\notification::SUCCESS;
             if (trim($data->catalogname)) {
                 $newcatalog = new \stdClass();
-                $newcatalog->name = str_replace(' ', '',  strtolower($data->catalogname));
-                $newcatalog->datatype = $data->catalogreadonly  == 1 ? 'static' : $data->catalogdatatype;
-                $newcatalog->required = $data->catalogreadonly  == 1 ? 0 : ($data->catalogrequired == 1 ? 1 : 0) ;
-                $newcatalog->readonly = $data->catalogreadonly  == 1 ? 1 : 0;
+                $newcatalog->name = str_replace(' ', '', strtolower($data->catalogname));
+                $newcatalog->datatype = $data->catalogreadonly == 1 ? 'static' : $data->catalogdatatype;
+                $newcatalog->required = $data->catalogreadonly == 1 ? 0 : ($data->catalogrequired == 1 ? 1 : 0);
+                $newcatalog->readonly = $data->catalogreadonly == 1 ? 1 : 0;
                 $newcatalog->param_json = $data->catalogparam;
 
-                if ( !$DB->record_exists('block_opencast_catalog', array('name'=> $newcatalog->name)) ) {
+                if (!$DB->record_exists('block_opencast_catalog', array('name' => $newcatalog->name))) {
                     $DB->insert_record('block_opencast_catalog', $newcatalog, false);
                 } else {
-                    $ret = get_string( 'exists_catalogname', 'block_opencast' );
-                    $notify =  \core\notification::ERROR;
+                    $ret = get_string('exists_catalogname', 'block_opencast');
+                    $notify = \core\notification::ERROR;
                 }
                 // Insert new record.
             } else {
-                $ret = get_string( 'empty_catalogname', 'block_opencast' );
-                $notify =  \core\notification::ERROR;
+                $ret = get_string('empty_catalogname', 'block_opencast');
+                $notify = \core\notification::ERROR;
             }
 
             redirect($PAGE->url . '#id_catalog_header', $ret, null, $notify);
@@ -137,9 +137,9 @@ if (has_capability('moodle/site:config', context_system::instance())) {
             // Update roles.
             $roles = $DB->get_records('block_opencast_roles');
             foreach ($roles as $role) {
-                $rname = 'role_'.$role->id;
-                $aname = 'action_'.$role->id;
-                $pname = 'permanent_'.$role->id;
+                $rname = 'role_' . $role->id;
+                $aname = 'action_' . $role->id;
+                $pname = 'permanent_' . $role->id;
 
                 // Update db entry.
                 if ($data->$rname !== $role->rolename || $data->$aname !== $role->actions || $data->$pname !== $role->permanent) {
@@ -153,22 +153,22 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                 }
             }
 
-            //Update Metadata Catalog
+            // Update Metadata Catalog.
             $catalogs = $DB->get_records('block_opencast_catalog');
             foreach ($catalogs as $catalog) {
-                $catalog_name = "catalog_name_{$catalog->id}";
-                $catalog_datatype = "catalog_datatype_{$catalog->id}";
-                $catalog_required = "catalog_required_{$catalog->id}";
-                $catalog_readonly = "catalog_readonly_{$catalog->id}";
-                $catalog_params = "catalog_params_{$catalog->id}";
+                $catalogname = "catalog_name_{$catalog->id}";
+                $catalogdatatype = "catalog_datatype_{$catalog->id}";
+                $catalogrequired = "catalog_required_{$catalog->id}";
+                $catalogreadonly = "catalog_readonly_{$catalog->id}";
+                $catalogparams = "catalog_params_{$catalog->id}";
 
                 $newcatalog = new \stdClass();
                 $newcatalog->id = $catalog->id;
-                $newcatalog->name = $data->$catalog_name;
-                $newcatalog->datatype = $data->$catalog_readonly == 1 ? 'static' : $data->$catalog_datatype;
-                $newcatalog->required = $data->$catalog_readonly == 1 ? 0 : ($data->$catalog_required == 1 ? 1 : 0) ;
-                $newcatalog->readonly = $data->$catalog_readonly == 1 ? 1 : 0 ;
-                $newcatalog->param_json = $data->$catalog_params;
+                $newcatalog->name = $data->$catalogname;
+                $newcatalog->datatype = $data->$catalogreadonly == 1 ? 'static' : $data->$catalogdatatype;
+                $newcatalog->required = $data->$catalogreadonly == 1 ? 0 : ($data->$catalogrequired == 1 ? 1 : 0);
+                $newcatalog->readonly = $data->$catalogreadonly == 1 ? 1 : 0;
+                $newcatalog->param_json = $data->$catalogparams;
 
                 // Update db entry.
                 if ($newcatalog->name !== $catalog->name ||
@@ -176,7 +176,7 @@ if (has_capability('moodle/site:config', context_system::instance())) {
                     $newcatalog->required != $catalog->required ||
                     $newcatalog->readonly != $catalog->readonly ||
                     $newcatalog->param_json !== $catalog->param_json
-                 ) {
+                ) {
                     $DB->update_record('block_opencast_catalog', $newcatalog);
                 }
             }

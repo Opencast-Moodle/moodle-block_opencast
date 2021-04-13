@@ -106,7 +106,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
      * @return mixed Returns true if ok, a string if an error was found
      */
     public function validate($data) {
-        // Do only if a workflow was set
+        // Do only if a workflow was set.
         if ($data != null) {
             // Get an APIbridge instance.
             $apibridge = \block_opencast\local\apibridge::get_instance();
