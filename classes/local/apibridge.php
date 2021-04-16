@@ -35,9 +35,10 @@ use block_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
-require_once($CFG->dirroot.'/blocks/opencast/tests/helper/apibridge_testable.php');
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
 
-class apibridge {
+class apibridge
+{
 
     private $config;
 
@@ -245,19 +246,18 @@ class apibridge {
                 $video->processing_state = "PLANNED";
             }
         } else {
-                if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
-                        && count($video->publication_status) == 1 && $video->publication_status[0] == "internal") {
-                    $video->processing_state = "NEEDSCUTTING";
-                } else if ($video->status === "EVENTS.EVENTS.STATUS.SCHEDULED") {
-                    $video->processing_state = "PLANNED";
-                } else if ($video->status === "EVENTS.EVENTS.STATUS.RECORDING") {
-                    $video->processing_state = "CAPTURING";
-                } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
-                    $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
-                    $video->processing_state = "RUNNING";
-                }
+            if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
+                && count($video->publication_status) == 1 && $video->publication_status[0] == "internal") {
+                $video->processing_state = "NEEDSCUTTING";
+            } else if ($video->status === "EVENTS.EVENTS.STATUS.SCHEDULED") {
+                $video->processing_state = "PLANNED";
+            } else if ($video->status === "EVENTS.EVENTS.STATUS.RECORDING") {
+                $video->processing_state = "CAPTURING";
+            } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
+                $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
+                $video->processing_state = "RUNNING";
+            }
         }
-
     }
 
     public function get_opencast_video($identifier) {
@@ -397,7 +397,7 @@ class apibridge {
                 $groupaccess->set('groups', implode(',', $groups));
                 $groupaccess->create();
             }
-        } catch (\moodle_exception $e){
+        } catch (\moodle_exception $e) {
             return false;
         }
         return true;
@@ -431,8 +431,7 @@ class apibridge {
                 $seriesid = $this->get_stored_seriesid($courseid);
 
                 // Otherwise there must have been some problem.
-            }
-            else {
+            } else {
                 // Remember series id as null.
                 $seriesid = null;
             }
@@ -512,7 +511,7 @@ class apibridge {
                 $result [] = str_replace('[COURSEGROUPID]', $courseid, $title);
             }
         } else {
-            $result []= $title;
+            $result [] = $title;
         }
 
         return $result;
@@ -529,7 +528,7 @@ class apibridge {
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
         $title = str_replace('[COURSEID]', $courseid, $title);
-        return '/' . str_replace('[COURSEGROUPID]', 'G\\d*', $title) . '/' ;
+        return '/' . str_replace('[COURSEGROUPID]', 'G\\d*', $title) . '/';
     }
 
     /**
@@ -576,8 +575,8 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $acl[] = (object) array('allow' => true, 'action' => $action,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0]);
+                $acl[] = (object)array('allow' => true, 'action' => $action,
+                    'role' => $this->replace_placeholders($role->rolename, $courseid)[0]);
             }
         }
 
@@ -669,9 +668,9 @@ class apibridge {
                     }
                 }
 
-                $acl[] = (object) array('allow' => true,
-                                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
-                                        'action' => $action);
+                $acl[] = (object)array('allow' => true,
+                    'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
+                    'action' => $action);
             }
         }
 
@@ -775,7 +774,7 @@ class apibridge {
                 $valid_storedfile = false;
             }
         }
-        if ($job->presentation_fileid ) {
+        if ($job->presentation_fileid) {
             $event->set_presentation($job->presentation_fileid);
             if (!$event->get_presentation()) {
                 $valid_storedfile = false;
@@ -800,7 +799,7 @@ class apibridge {
         }
 
         if ($job->metadata) {
-            foreach (json_decode($job->metadata) as $metadata ) {
+            foreach (json_decode($job->metadata) as $metadata) {
                 $event->add_meta_data($metadata->id, $metadata->value);
             }
         }
@@ -880,7 +879,7 @@ class apibridge {
      * Post group to control access.
      *
      * @param string $eventidentifier
-     * @param int    $courseid
+     * @param int $courseid
      *
      * @return boolean true if succeeded
      */
@@ -947,7 +946,7 @@ class apibridge {
      * Remove the group role assignment for the event.
      *
      * @param string $eventidentifier
-     * @param int    $courseid
+     * @param int $courseid
      *
      * @return boolean true if succeeded
      */
@@ -1073,9 +1072,12 @@ class apibridge {
         // Trigger workflow.
         if ($this->update_metadata($eventidentifier)) {
             switch ($visibility) {
-                case block_opencast_renderer::VISIBLE: return 'aclrolesadded';
-                case block_opencast_renderer::HIDDEN: return 'aclrolesdeleted';
-                case block_opencast_renderer::GROUP: return 'aclrolesaddedgroup';
+                case block_opencast_renderer::VISIBLE:
+                    return 'aclrolesadded';
+                case block_opencast_renderer::HIDDEN:
+                    return 'aclrolesdeleted';
+                case block_opencast_renderer::GROUP:
+                    return 'aclrolesaddedgroup';
             }
         }
         return false;
@@ -1149,7 +1151,7 @@ class apibridge {
             case block_opencast_renderer::VISIBLE:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        $result [] = (object) array(
+                        $result [] = (object)array(
                             'allow' => true,
                             'action' => $action,
                             'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
@@ -1163,7 +1165,7 @@ class apibridge {
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
                         foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule)
-                            $result [] = (object) array(
+                            $result [] = (object)array(
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rule,
@@ -1204,7 +1206,7 @@ class apibridge {
             if (!$event->has_acl($acl->allow, $acl->action, $acl->role)) {
                 $hasallvisibleacls = false;
             } else {
-                if (!in_array($acl, $groupacl)){
+                if (!in_array($acl, $groupacl)) {
                     $hasaclnotingroup = true;
                 }
                 $hasnovisibleacls = true;
@@ -1382,7 +1384,7 @@ class apibridge {
             } else {
                 $resource = '/api/workflow-definitions';
                 $api = new api();
-                $resource .= '?filter=tag:'.$tag;
+                $resource .= '?filter=tag:' . $tag;
                 $result = $api->oc_get($resource);
                 if ($api->get_http_code() === 200) {
                     $returnedworkflows = json_decode($result);
@@ -1509,7 +1511,6 @@ class apibridge {
             return [];
         }
 
-        // TODO log this!
         if ($result->error != 0) {
             return [];
         }
@@ -1536,7 +1537,7 @@ class apibridge {
         try {
             return $api->supports_api_level($level);
         } catch (\moodle_exception $e) {
-            debugging('Api level '.$level.' not supported.');
+            debugging('Api level ' . $level . ' not supported.');
             return false;
         }
         return false;
@@ -1580,7 +1581,7 @@ class apibridge {
         $metadata = $api->oc_get($resource);
 
         if ($api->get_http_code() != 200) {
-            return  $api->get_http_code();
+            return $api->get_http_code();
         }
 
         return json_decode($metadata);
@@ -1640,7 +1641,7 @@ class apibridge {
         }
 
         // Build API request.
-        $resource = '/api/workflows/'.$workflowid.'?withconfiguration=true';
+        $resource = '/api/workflows/' . $workflowid . '?withconfiguration=true';
 
         // Run API request.
         $result = $api->oc_get($resource);
@@ -1658,24 +1659,24 @@ class apibridge {
         // If we are not looking at a duplication workflow at all, return.
         $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
         if (isset($workflowconfiguration->workflow_definition_identifier) &&
-                $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
+            $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
             return false;
         }
 
         // If the workflow is not running anymore and there is no chance that there will be a (valid) episode ID anymore, return.
         if (isset($workflowconfiguration->state) &&
-                !($workflowconfiguration->state == 'instantiated' || $workflowconfiguration->state == 'running' ||
-                        $workflowconfiguration->state == 'paused') &&
-                (!isset($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
-                        empty($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
-                        ltimodulemanager::is_valid_episode_id(
-                                $workflowconfiguration->configuration->duplicate_media_package_1_id) == false)) {
+            !($workflowconfiguration->state == 'instantiated' || $workflowconfiguration->state == 'running' ||
+                $workflowconfiguration->state == 'paused') &&
+            (!isset($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
+                empty($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
+                ltimodulemanager::is_valid_episode_id(
+                    $workflowconfiguration->configuration->duplicate_media_package_1_id) == false)) {
             return false;
         }
 
         // Now, regardless if the workflow has finished already or not, check if there is already a valid episode ID.
         if (isset($workflowconfiguration->configuration->duplicate_media_package_1_id) &&
-                ltimodulemanager::is_valid_episode_id($workflowconfiguration->configuration->duplicate_media_package_1_id) == true) {
+            ltimodulemanager::is_valid_episode_id($workflowconfiguration->configuration->duplicate_media_package_1_id) == true) {
             // Pick the episode ID from the workflow configuration and return it.
             return $workflowconfiguration->configuration->duplicate_media_package_1_id;
         }
