@@ -256,6 +256,8 @@ class apibridge
             } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
                 $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
                 $video->processing_state = "RUNNING";
+            } else if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED") {
+                $video->processing_state = "SUCCEEDED";
             }
         }
     }
