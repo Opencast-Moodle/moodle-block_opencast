@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         php: ['7.4']
-        moodle-branch: ['MOODLE_310_STABLE']
+        moodle-branch: ['MOODLE_311_STABLE']
         database: ['mariadb']
         opencast: ['9.3']
 
@@ -111,7 +111,7 @@ jobs:
     strategy:
       matrix:
         php: ['7.4']
-        moodle-branch: ['MOODLE_310_STABLE']
+        moodle-branch: ['MOODLE_311_STABLE']
         database: ['mariadb']
         opencast: ['9.3']
 
@@ -189,13 +189,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4']
-        moodle-branch: ['MOODLE_38_STABLE', 'MOODLE_39_STABLE', 'MOODLE_310_STABLE']
+        php: ['7.3', '7.4']
+        moodle-branch: ['MOODLE_38_STABLE', 'MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['9.3']
         include:
-          - {php: '7.2', moodle-branch: 'MOODLE_35_STABLE', database: 'mariadb', opencast: '9.3'}
-          - {php: '7.2', moodle-branch: 'MOODLE_35_STABLE', database: 'pgsql', opencast: '9.3'}
+          - {php: '7.3', moodle-branch: 'MOODLE_35_STABLE', database: 'mariadb', opencast: '9.3'}
+          - {php: '7.3', moodle-branch: 'MOODLE_35_STABLE', database: 'pgsql', opencast: '9.3'}
           - {php: '7.4', moodle-branch: 'master', database: 'mariadb', opencast: '9.3'}
           - {php: '7.4', moodle-branch: 'master', database: 'pgsql', opencast: '9.3'}
 
