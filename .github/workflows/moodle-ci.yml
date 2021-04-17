@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   static:
     runs-on: ubuntu-latest
+    name: static
 
     strategy:
       matrix:
@@ -107,6 +108,7 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     needs: static
+    name: coverage
 
     strategy:
       matrix:
@@ -184,7 +186,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: coverage
+    needs: static
+    name: test (${{matrix.moodle-branch}}/${{matrix.php}}/${{matrix.database}})
 
     strategy:
       fail-fast: false
@@ -194,8 +197,6 @@ jobs:
         database: ['mariadb', 'pgsql']
         opencast: ['9.3']
         include:
-          - {php: '7.3', moodle-branch: 'MOODLE_35_STABLE', database: 'mariadb', opencast: '9.3'}
-          - {php: '7.3', moodle-branch: 'MOODLE_35_STABLE', database: 'pgsql', opencast: '9.3'}
           - {php: '7.4', moodle-branch: 'master', database: 'mariadb', opencast: '9.3'}
           - {php: '7.4', moodle-branch: 'master', database: 'pgsql', opencast: '9.3'}
 
