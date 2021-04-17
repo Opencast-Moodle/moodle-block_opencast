@@ -74,10 +74,13 @@ class upload_helper
      * @return array
      */
     public static function get_upload_jobs($courseid) {
-        global $DB;
+        global $DB, $CFG;
 
-        $allnamefields = get_all_user_name_fields(true, 'u');
-
+        if ($CFG->branch >= 311) {
+            $allnamefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+        } else {
+            $allnamefields = get_all_user_name_fields(true, 'u');
+        }
         $select = "SELECT uj.*, $allnamefields, md.metadata,
                 f1.filename as presenter_filename, f1.filesize as presenter_filesize,
                 f2.filename as presentation_filename, f2.filesize as presentation_filesize";
