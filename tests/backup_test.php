@@ -161,7 +161,8 @@ class block_opencast_backup_testcase extends advanced_testcase {
         $a->duplicateworkflow = block_opencast_apibridge_testable::DUPLICATE_WORKFLOW;
 
         $output = $this->execute_adhoc_task($taskrecord);
-        $this->assertContains(get_string($expectederrortextkey, 'block_opencast', $a), $output);
+        $this->assertIsString($output);
+        $this->assertStringContainsString(get_string($expectederrortextkey, 'block_opencast', $a), $output);
 
         // Task is not deleted and countfailed sould be increased.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);

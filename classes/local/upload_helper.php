@@ -74,10 +74,13 @@ class upload_helper
      * @return array
      */
     public static function get_upload_jobs($courseid) {
-        global $DB;
+        global $DB, $CFG;
 
-        $allnamefields = get_all_user_name_fields(true, 'u');
-
+        if ($CFG->branch >= 311) {
+            $allnamefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+        } else {
+            $allnamefields = get_all_user_name_fields(true, 'u');
+        }
         $select = "SELECT uj.*, $allnamefields, md.metadata,
                 f1.filename as presenter_filename, f1.filesize as presenter_filesize,
                 f2.filename as presentation_filename, f2.filesize as presentation_filesize";
@@ -159,14 +162,14 @@ class upload_helper
 
         // Add chunkupload references.
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
-            if ($options->chunkupload_presenter) {
+            if (isset($options->chunkupload_presenter) && $options->chunkupload_presenter) {
                 $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presenter),
                     '*', IGNORE_MISSING);
                 if ($record && $record->state == 2) {
                     $job->chunkupload_presenter = $options->chunkupload_presenter;
                 }
             }
-            if ($options->chunkupload_presentation) {
+            if (isset($options->chunkupload_presenter) && $options->chunkupload_presenter) {
                 $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
                     '*', IGNORE_MISSING);
                 if ($record && $record->state == 2) {
