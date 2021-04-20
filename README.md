@@ -2,7 +2,7 @@ moodle-block_opencast
 =====================
 
 This block can be used to link moodle courses to opencast series.
-Users with respective priviledges (in the following called teacher) can use this block to upload videos via moodle to opencast. 
+Users with respective privileges (in the following called teacher) can use this block to upload videos via moodle to opencast. 
 These videos are transmitted to the opencast system by the cronjob and create a event for the respective series there.
 The block can be used to automatically set the access privileges of moodle users enrolled in the course.
 All events belonging to the series are displayed in the block. 
