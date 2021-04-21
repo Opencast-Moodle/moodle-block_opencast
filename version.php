@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version = 2021042100;
 $plugin->requires = 2017111300;
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.10-r1'; 
+$plugin->release   = 'v3.10-r2'; 
 $plugin->component = 'block_opencast';
 $plugin->dependencies = array('tool_opencast' => 2020090700);
