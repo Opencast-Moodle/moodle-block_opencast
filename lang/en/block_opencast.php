@@ -352,6 +352,11 @@ $string['series_does_not_exist'] = 'The series assigned to this course is not va
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
 $string['series_name_empty'] = 'Series name must not be empty.';
+$string['termsofuse'] = 'Terms of use';
+$string['termsofuse_accept'] = 'I have read and agree to the {$a}.';
+$string['termsofuse_accept_toggle'] = 'terms of use';
+$string['termsofuse_desc'] = 'If you enter some text, a checkbox with the terms of use will appear on the "Video upload" page. 
+The users must accept the entered terms of use before they can upload the video.';
 $string['catalog_static_params_empty'] = "Read only fields need to define a text in the parameters field.";
 $string['catalog_params_noarray'] = "Parameters have to be either empty or a JSON representation of an array or an object.";
 $string['settings'] = 'Opencast Videos';
