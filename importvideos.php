@@ -92,7 +92,7 @@ switch ($step) {
 
         // If there isn't any other course which can be used as import source.
         $possiblesourcecourses = get_user_capability_course(
-                'block/opencast:manualimportsource', null, true, '', '', 1);
+                'block/opencast:manualimportsource');
         $possiblesourcecoursescount = count($possiblesourcecourses);
         if ($possiblesourcecoursescount < 1 || ($possiblesourcecoursescount == 1 && $possiblesourcecourses[0]->id == $courseid)) {
             // Use step 1 form.
