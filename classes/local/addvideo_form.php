@@ -159,6 +159,17 @@ class addvideo_form extends \moodleform
             $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
         }
 
+        if (!empty(get_config('block_opencast', 'termsofuse'))) {
+            $toggle_span = '<a href="#!" id="termsofuse_toggle">' . get_string('termsofuse_accept_toggle', 'block_opencast') . '</a>';
+
+            $mform->addElement('checkbox', 'termsofuse', get_string('termsofuse', 'block_opencast'),
+                get_string('termsofuse_accept', 'block_opencast', $toggle_span));
+            $mform->addRule('termsofuse', get_string('required'), 'required');
+            $options['filter'] = false;
+            $mform->addElement('html', '<div class="row justify-content-end" id="termsofuse"><div class="col-md-9">' .
+                format_text(get_config('block_opencast', 'termsofuse'), FORMAT_HTML, $options) . '</div></div>');
+        }
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 

@@ -167,6 +167,118 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/aclcontrolafter', 'notchecked');
         }
 
+
+        if (core_plugin_manager::instance()->get_plugin_info('mod_opencast')) {
+
+            // Add Opencast Activity modules section.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/addactivity_settingheader',
+                    get_string('addactivity_settingheader', 'block_opencast'),
+                    ''));
+
+            // Add Opencast Activity series modules: Enable feature.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityenabled',
+                    get_string('addactivity_settingenabled', 'block_opencast'),
+                    get_string('addactivity_settingenabled_desc', 'block_opencast'), 0));
+
+            // Add Opencast Activity series modules: Default Opencast Activity series module title.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/addactivitydefaulttitle',
+                    get_string('addactivity_settingdefaulttitle', 'block_opencast'),
+                    get_string('addactivity_settingdefaulttitle_desc', 'block_opencast'),
+                    get_string('addactivity_defaulttitle', 'block_opencast'),
+                    PARAM_TEXT));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivitydefaulttitle',
+                    'block_opencast/addactivityenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity series modules: Intro.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityintro',
+                    get_string('addactivity_settingintro', 'block_opencast'),
+                    get_string('addactivity_settingintro_desc', 'block_opencast'), 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivityintro',
+                    'block_opencast/addactivityenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity series modules: Section.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivitysection',
+                    get_string('addactivity_settingsection', 'block_opencast'),
+                    get_string('addactivity_settingsection_desc', 'block_opencast'), 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivitysection',
+                    'block_opencast/addactivityenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity series modules: Availability.
+            $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
+            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+            $description = get_string('addactivity_settingavailability_desc', 'block_opencast') . '<br />' .
+                get_string('addactivity_settingavailability_note', 'block_opencast', $link);
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityavailability',
+                    get_string('addactivity_settingavailability', 'block_opencast'),
+                    $description, 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivityavailability',
+                    'block_opencast/addactivityenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity episode modules: Enable feature.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityepisodeenabled',
+                    get_string('addactivityepisode_settingenabled', 'block_opencast'),
+                    get_string('addactivityepisode_settingenabled_desc', 'block_opencast'), 0));
+
+            // Add Opencast Activity episode modules: Intro.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityepisodeintro',
+                    get_string('addactivityepisode_settingintro', 'block_opencast'),
+                    get_string('addactivityepisode_settingintro_desc', 'block_opencast'), 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivityepisodeintro',
+                    'block_opencast/addactivityepisodeenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity episode modules: Section.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityepisodesection',
+                    get_string('addactivityepisode_settingsection', 'block_opencast'),
+                    get_string('addactivityepisode_settingsection_desc', 'block_opencast'), 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivityepisodesection',
+                    'block_opencast/addactivityepisodeenabled', 'notchecked');
+            }
+
+            // Add Opencast Activity episode modules: Availability.
+            $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
+            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+            $description = get_string('addactivityepisode_settingavailability_desc', 'block_opencast') . '<br />' .
+                get_string('addactivity_settingavailability_note', 'block_opencast', $link);
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/addactivityepisodeavailability',
+                    get_string('addactivityepisode_settingavailability', 'block_opencast'),
+                    $description, 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/addactivityepisodeavailability',
+                    'block_opencast/addactivityepisodeenabled', 'notchecked');
+            }
+        }
+
+        // Terms of use
+        $additionalsettings->add(
+            new admin_setting_heading('block_opencast/terms_of_use',
+                get_string('termsofuse', 'block_opencast'),
+                ''));
+        $additionalsettings->add(new admin_setting_confightmleditor(
+            'block_opencast/termsofuse',
+            get_string('termsofuse', 'block_opencast'),
+            get_string('termsofuse_desc', 'block_opencast'), null));
+
         // Settings page: LTI module features.
         $ltimodulesettings = new admin_settingpage('block_opencast_ltimodulesettings',
             get_string('ltimodule_settings', 'block_opencast'));
@@ -410,107 +522,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/duplicateworkflow', 'eq', '');
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosmanualenabled', 'notchecked');
-        }
-
-        if (core_plugin_manager::instance()->get_plugin_info('mod_opencast')) {
-
-            // Add Opencast Activity modules section.
-            $additionalsettings->add(
-                new admin_setting_heading('block_opencast/addactivity_settingheader',
-                    get_string('addactivity_settingheader', 'block_opencast'),
-                    ''));
-
-            // Add Opencast Activity series modules: Enable feature.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityenabled',
-                    get_string('addactivity_settingenabled', 'block_opencast'),
-                    get_string('addactivity_settingenabled_desc', 'block_opencast'), 0));
-
-            // Add Opencast Activity series modules: Default Opencast Activity series module title.
-            $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/addactivitydefaulttitle',
-                    get_string('addactivity_settingdefaulttitle', 'block_opencast'),
-                    get_string('addactivity_settingdefaulttitle_desc', 'block_opencast'),
-                    get_string('addactivity_defaulttitle', 'block_opencast'),
-                    PARAM_TEXT));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivitydefaulttitle',
-                    'block_opencast/addactivityenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity series modules: Intro.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityintro',
-                    get_string('addactivity_settingintro', 'block_opencast'),
-                    get_string('addactivity_settingintro_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivityintro',
-                    'block_opencast/addactivityenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity series modules: Section.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivitysection',
-                    get_string('addactivity_settingsection', 'block_opencast'),
-                    get_string('addactivity_settingsection_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivitysection',
-                    'block_opencast/addactivityenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity series modules: Availability.
-            $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
-            $description = get_string('addactivity_settingavailability_desc', 'block_opencast') . '<br />' .
-                get_string('addactivity_settingavailability_note', 'block_opencast', $link);
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityavailability',
-                    get_string('addactivity_settingavailability', 'block_opencast'),
-                    $description, 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivityavailability',
-                    'block_opencast/addactivityenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity episode modules: Enable feature.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityepisodeenabled',
-                    get_string('addactivityepisode_settingenabled', 'block_opencast'),
-                    get_string('addactivityepisode_settingenabled_desc', 'block_opencast'), 0));
-
-            // Add Opencast Activity episode modules: Intro.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityepisodeintro',
-                    get_string('addactivityepisode_settingintro', 'block_opencast'),
-                    get_string('addactivityepisode_settingintro_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivityepisodeintro',
-                    'block_opencast/addactivityepisodeenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity episode modules: Section.
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityepisodesection',
-                    get_string('addactivityepisode_settingsection', 'block_opencast'),
-                    get_string('addactivityepisode_settingsection_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivityepisodesection',
-                    'block_opencast/addactivityepisodeenabled', 'notchecked');
-            }
-
-            // Add Opencast Activity episode modules: Availability.
-            $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
-            $description = get_string('addactivityepisode_settingavailability_desc', 'block_opencast') . '<br />' .
-                get_string('addactivity_settingavailability_note', 'block_opencast', $link);
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/addactivityepisodeavailability',
-                    get_string('addactivityepisode_settingavailability', 'block_opencast'),
-                    $description, 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $additionalsettings->hide_if('block_opencast/addactivityepisodeavailability',
-                    'block_opencast/addactivityepisodeenabled', 'notchecked');
-            }
         }
     }
 }
