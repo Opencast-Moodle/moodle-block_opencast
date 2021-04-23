@@ -115,13 +115,16 @@ if ($data = $addvideoform->get_data()) {
         ];
         $metadata[] = $titleobj;
     }
+
+    $sd = new DateTime("now", new DateTimeZone("UTC"));
+    $sd->setTimestamp($data->startDate);
     $startdate = [
         'id' => 'startDate',
-        'value' => date('Y-m-d', $data->startDate)
+        'value' => $sd->format('Y-m-d')
     ];
     $starttime = [
         'id' => 'startTime',
-        'value' => date('H:i:s', $data->startDate) . 'Z'
+        'value' => $sd->format('H:i:s') . 'Z'
     ];
     $metadata[] = $startdate;
     $metadata[] = $starttime;
