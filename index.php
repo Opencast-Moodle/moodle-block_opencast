@@ -35,6 +35,7 @@ $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
 
+$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
@@ -305,6 +306,8 @@ if ($videodata->error == 0) {
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
             }
+
+            $actions .= $renderer->render_report_problem_icon($courseid, $video->identifier);
 
             $row[] = $actions;
         }

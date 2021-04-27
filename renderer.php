@@ -589,4 +589,10 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link($url, $icon);
 
     }
+
+    public function render_report_problem_icon($courseid, $identifier) {
+        // TODO alt text for icon
+        $icon = $this->output->pix_icon('t/message', 'TODO');
+        return \html_writer::link('#!', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
+    }
 }
