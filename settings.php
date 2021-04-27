@@ -145,6 +145,18 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('lticonsumersecret', 'block_opencast'),
                 get_string('lticonsumersecret_desc', 'block_opencast'), ""));
 
+        // Download section.
+        $additionalsettings->add(
+            new admin_setting_heading('block_opencast/download_settingheader',
+                get_string('download_settingheader', 'block_opencast'),
+                ''));
+
+        $additionalsettings->add(
+            new admin_setting_configtext('block_opencast/download_channel',
+                get_string('download_setting', 'block_opencast'),
+                get_string('download_settingdesc', 'block_opencast'), "lms-download"));
+
+
         // Control ACL section.
         $additionalsettings->add(
             new admin_setting_heading('block_opencast/acl_settingheader',

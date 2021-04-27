@@ -580,4 +580,13 @@ class block_opencast_renderer extends plugin_renderer_base
         return $content;
     }
 
+    public function render_download_event_icon($courseid, $identifier) {
+        $url = new \moodle_url('/blocks/opencast/downloadvideo.php', array('video_identifier' => $identifier, 'courseid' => $courseid));
+        $text = get_string('downloadvideo', 'block_opencast');
+
+        $icon = $this->output->pix_icon('t/down', $text);
+
+        return \html_writer::link($url, $icon);
+
+    }
 }

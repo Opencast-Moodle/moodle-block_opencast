@@ -190,6 +190,10 @@ $string['deletegroupacldesc'] = 'You are about to delete the access to this vide
 $string['deleteworkflow'] = 'Workflow to start before event is be deleted';
 $string['deleteworkflowdesc'] = 'Before deleting a video, a workflow can be defined, which is called to retract the event from all publication channels.';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
+$string['downloadvideo'] = 'Download video';
+$string['download_settingheader'] = 'Download videos';
+$string['download_setting'] = 'Download channel';
+$string['download_settingdesc'] = 'Opencast publication channel from which the videos are served when downloading them.';
 $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for importing opencast events from one course into another. If not set, it is not possible to import Opencast events.';
 $string['editseriesforcourse'] = 'Edit series mapping';
@@ -495,3 +499,5 @@ $string['uploadfilelimit'] = 'Video size limit';
 $string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
 
 $string['video_already_uploaded'] = 'Video already uploaded';
+$string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
+$string['video_not_downloadable'] = 'This video was not published in the download channel.';

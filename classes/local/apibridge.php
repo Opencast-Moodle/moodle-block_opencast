@@ -218,6 +218,7 @@ class apibridge
         if ($result->error == 0) {
             foreach ($videos as $video) {
                 $this->extend_video_status($video);
+                $this->set_download_state($video);
             }
         }
 
@@ -262,9 +263,21 @@ class apibridge
         }
     }
 
-    public function get_opencast_video($identifier) {
+    private function set_download_state(&$video) {
+        if (in_array(get_config('block_opencast', 'download_channel'), $video->publication_status)) {
+            $video->is_downloadable = true;
+        } else {
+            $video->is_downloadable = false;
+        }
+    }
+
+    public function get_opencast_video($identifier, bool $with_publications = false) {
 
         $resource = '/api/events/' . $identifier;
+
+        if ($with_publications) {
+            $resource .= '?withpublications=true';
+        }
 
         $withroles = array();
 
@@ -288,6 +301,7 @@ class apibridge
 
         // Enrich processing state.
         $this->extend_video_status($video);
+        $this->set_download_state($video);
 
         $result->video = $video;
 

@@ -104,6 +104,14 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'block/opencast:downloadvideo' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
     'block/opencast:createseriesforcourse' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

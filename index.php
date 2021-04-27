@@ -298,6 +298,10 @@ if ($videodata->error == 0) {
                 }
             }
 
+            if (has_capability('block/opencast:addvideo', $coursecontext) && $video->is_downloadable) {
+                $actions .= $renderer->render_download_event_icon($courseid, $video->identifier);
+            }
+
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
             }
