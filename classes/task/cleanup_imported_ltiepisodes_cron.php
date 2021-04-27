@@ -101,7 +101,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
 
                 // If we have no chance to get an episode ID - not now and not if we postpone the job.
                 // (See function get_duplicated_episodeid() in apibridge for details when this can happen).
-                if ($episodeid == false) {
+                if ($episodeid === false) {
                     // Remove the cleanup job.
                     $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
                     mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
@@ -109,7 +109,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                 }
 
                 // If the OC workflow exists but if there isn't an episode ID (yet).
-                if ($episodeid == '') {
+                if ($episodeid === '') {
                     // Postpone the cleanup job.
                     $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid);
                     $DB->execute('UPDATE {block_opencast_ltiepisode_cu}
