@@ -298,7 +298,7 @@ if ($videodata->error == 0) {
                 }
             }
 
-            if (has_capability('block/opencast:addvideo', $coursecontext) && $video->is_downloadable) {
+            if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                 $actions .= $renderer->render_download_event_icon($courseid, $video->identifier);
             }
 
