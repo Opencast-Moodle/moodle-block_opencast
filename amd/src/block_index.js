@@ -21,13 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url'], function ($, ModalFactory, ModalEvents, str, url) {
+define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url'],
+    function($, ModalFactory, ModalEvents, str, url) {
 
-    /**
+    /*
      * Initialise all of the modules for the opencast block.
-     *
      */
-    var init = function (courseid) {
+    var init = function(courseid) {
         // Load strings
         var strings = [
             {
@@ -53,21 +53,23 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
         ];
         str.get_strings(strings).then(function(results) {
             $('.report-problem').on('click', function(e) {
+                e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
                 ModalFactory.create({
                     type: ModalFactory.types.SAVE_CANCEL,
                     title: results[0],
-                    body: '<form id="reportProblemForm" action="' + url.relativeUrl('blocks/opencast/reportproblem.php', {
+                    body: '<form id="reportProblemForm" method="post" action="' +
+                        url.relativeUrl('blocks/opencast/reportproblem.php', {
                             'courseid': courseid,
                             'videoid': clickedVideo.data('id')
                         }) + '"><div class="form-group">' +
                         '<label for="inputMessage">' + results[1] + '</label>' +
-                        '<textarea class="form-control" id="inputMessage" rows="4" placeholder="' +
+                        '<textarea class="form-control" id="inputMessage" name="inputMessage" rows="4" placeholder="' +
                         results[2] + '">' + '</textarea>' +
                         '  <div class="invalid-feedback d-none" id="messageValidation">' + results[3] + '</div>' +
                         '</div></form>'
                 })
-                    .then(function (modal) {
+                    .then(function(modal) {
                         modal.setSaveButtonText(results[4]);
                         var root = modal.getRoot();
                         root.on(ModalEvents.save, function(e) {
@@ -82,7 +84,6 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                         modal.show();
 
                     });
-                e.preventDefault();
             });
         });
     };

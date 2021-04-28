@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class notifications {
+class notifications
+{
 
     /**
      * Helperfunction to send all following messages .
@@ -45,7 +46,7 @@ class notifications {
      * @param \stored_file $attachment
      * @param object $fromuser
      */
-    private static function send_message($messagetype, $touser, $subject, $body) {
+    private static function send_message($messagetype, $touser, $subject, $body, $format = FORMAT_PLAIN) {
 
         $message = new \core\message\message();
         $message->courseid = SITEID;
@@ -55,7 +56,7 @@ class notifications {
         $message->userto = $touser;
         $message->subject = $subject;
         $message->fullmessage = html_to_text($body);
-        $message->fullmessageformat = FORMAT_PLAIN;
+        $message->fullmessageformat = $format;
         $message->fullmessagehtml = $body;
         $message->smallmessage = '';
         $message->notification = 1;
@@ -72,9 +73,9 @@ class notifications {
     public static function notify_failed_course_series($courseid, $backupeventids) {
         global $DB, $PAGE;
 
-        $a = (object) [
-                'courseid' => $courseid,
-                'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -101,9 +102,9 @@ class notifications {
     public static function notify_missing_events($courseid, $missingevents) {
         global $DB, $PAGE;
 
-        $a = (object) [
-                'courseid' => $courseid,
-                'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -133,7 +134,7 @@ class notifications {
 
         $message = empty($e) ? '' : $e->getMessage();
         $errorstr = get_string($identifier, 'block_opencast', $identifier);
-        $a = (object) [
+        $a = (object)[
             'message' => $message,
             'errorstr' => $errorstr
         ];
@@ -144,4 +145,11 @@ class notifications {
         self::send_message('error', $admin, $subject, $body);
     }
 
+
+    public static function notify_problem_reported($message) {
+        global $USER;
+
+        self::send_message('reportproblem_confirmation', $USER,
+            get_string('reportproblem_subject', 'block_opencast'), nl2br($message), FORMAT_MOODLE);
+    }
 }

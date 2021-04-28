@@ -307,7 +307,9 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
             }
 
-            $actions .= $renderer->render_report_problem_icon($courseid, $video->identifier);
+            if(!empty(get_config('block_opencast', 'support_email'))) {
+                $actions .= $renderer->render_report_problem_icon($video->identifier);
+            }
 
             $row[] = $actions;
         }

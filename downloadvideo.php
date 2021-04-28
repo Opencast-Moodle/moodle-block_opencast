@@ -29,7 +29,7 @@ global $PAGE, $OUTPUT, $CFG;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$videoid = required_param('video_identifier', PARAM_STRINGID);
+$videoid = required_param('video_identifier', PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/downloadvideo.php', array('courseid' => $courseid, 'video_identifier' => $videoid));
 $PAGE->set_url($baseurl);

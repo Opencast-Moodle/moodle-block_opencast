@@ -305,6 +305,7 @@ $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cron
 $string['limitvideos'] = 'Number of videos';
 $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
 $string['messageprovider:error'] = 'Processing error notification';
+$string['messageprovider:reportproblem_confirmation'] = 'Copy of reported problems for Opencast videos';
 $string['missingevent'] = 'Creation of event failed';
 $string['missinggroup'] = 'Missing group in opencast';
 $string['missingseries'] = 'Missing series in opencast';
@@ -346,6 +347,17 @@ $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rolename'] = 'Role name';
+$string['reportproblem_modal_title'] = 'Report a problem';
+$string['reportproblem_modal_body'] = 'If you there is a problem with a video, you can report it to the support team.';
+$string['reportproblem_modal_placeholder'] = 'Please explain the problem.';
+$string['reportproblem_modal_submit'] = 'Report problem';
+$string['reportproblem_modal_required'] = 'Please enter a message.';
+$string['reportproblem_notallowed'] = 'You are not allowed to report a problem because the video is not part of the course series.';
+$string['reportproblem_success'] = 'The email was successfully sent to the support team.';
+$string['reportproblem_failure'] = 'The email could not be sent. Please contact the support team manually.';
+$string['reportproblem_notification'] = '#### This is a copy of the email sent to the support team. ####<br>';
+$string['reportproblem_email'] = 'This is an automatic notification of the Moodle Opencast plugin.<br>Somebody reported a problem with a video.<br><br><b>User: </b>{$a->username}<br><b>User email: </b>{$a->useremail}<br><b>Moodle course: </b><a href="{$a->courselink}">{$a->course}</a><br><b>Opencast series: </b>{$a->series} (Id: {$a->seriesid})<br><b>Opencast event id: </b>{$a->event} (Id: {$a->eventid})<br><b>Message:</b><br><hr>{$a->message}<hr>';
+$string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
 $string['seriescreated'] = 'Series was created.';
 $string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
@@ -414,6 +426,10 @@ $string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date th
 $string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
 $string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
 $string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
+
+$string['support_setting'] = 'Support email';
+$string['support_settingdesc'] = 'Email address to which reports are sent if users report problems with videos.';
+$string['support_setting_notset'] = 'Support email is not set. Please contact the administrator and resubmit the report.';
 
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
