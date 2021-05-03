@@ -160,7 +160,7 @@ class addvideo_form extends \moodleform
         }
 
         if (!empty(get_config('block_opencast', 'termsofuse'))) {
-            $toggle_span = '<a href="#!" id="termsofuse_toggle">' . get_string('termsofuse_accept_toggle', 'block_opencast') . '</a>';
+            $toggle_span = '<span class="btn-link" id="termsofuse_toggle">' . get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
 
             $mform->addElement('checkbox', 'termsofuse', get_string('termsofuse', 'block_opencast'),
                 get_string('termsofuse_accept', 'block_opencast', $toggle_span));
