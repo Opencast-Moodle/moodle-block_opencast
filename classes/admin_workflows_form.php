@@ -53,7 +53,6 @@ class admin_workflows_form extends moodleform
                 $element = $renderer->render_workflow_admin_checkbox('workflow_' . $workflow->identifier, false,
                     $workflow->title, get_string('setting_workflowdesc', 'block_opencast'), get_string('new_workflowdef', 'block_opencast'));
             } else {
-                // TODO what about id if old/new api=
                 $element = $renderer->render_workflow_admin_checkbox('workflow_' . $workflow->identifier, $dbworkflow->enabled,
                     $workflow->title, get_string('setting_workflowdesc', 'block_opencast'));
             }
@@ -83,5 +82,4 @@ class admin_workflows_form extends moodleform
 
         $mform->addElement('submit', 'submitbutton', get_string('submit', 'block_opencast'));
     }
-    // TODO maybe make more beautiful
 }
