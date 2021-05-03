@@ -61,6 +61,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             get_string('importvideos_settings', 'block_opencast'));
         $ADMIN->add('block_opencast', $settingspage);
 
+        // Setting page: Workflows.
+        $ADMIN->add('block_opencast', new admin_externalpage('block_opencast_workflowsettings',
+            get_string('workflow_settings', 'block_opencast'),
+            new moodle_url('/blocks/opencast/workflowsettings.php')));
+
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
         // Setting page: General.
@@ -271,7 +276,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         }
 
         // Additional Settings.
-        // Terms of use. Downlaod channel. Support email.
+        // Terms of use. Downlaod channel. Custom workflows channel. Support email.
         $additionalsettings->add(
             new admin_setting_heading('block_opencast/download_settingheader',
                 get_string('additional_settings', 'block_opencast'),
@@ -281,6 +286,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             new admin_setting_configtext('block_opencast/download_channel',
                 get_string('download_setting', 'block_opencast'),
                 get_string('download_settingdesc', 'block_opencast'), "lms-download"));
+
+
+        $additionalsettings->add(
+            new admin_setting_configtext('block_opencast/workflow_tag',
+                get_string('workflowtag_setting', 'block_opencast'),
+                get_string('workflowtag_settingdesc', 'block_opencast'), "lms"));
 
         $additionalsettings->add(
             new admin_setting_configtext('block_opencast/support_email',
@@ -536,6 +547,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosmanualenabled', 'notchecked');
         }
+
+        // Setting page: Workflows.
+        $ADMIN->add('block_opencast', new admin_externalpage('block_opencast_workflowsettings',
+            get_string('workflow_settings', 'block_opencast'),
+            new moodle_url('/blocks/opencast/workflowsettings.php')));
     }
 }
 $settings = null;

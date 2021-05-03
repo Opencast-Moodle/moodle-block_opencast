@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\apibridge;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $DB;
 
 $courseid = required_param('courseid', PARAM_INT);
 
@@ -35,15 +35,27 @@ $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
 
-$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid]);
+// Capability check.
+$coursecontext = context_course::instance($courseid);
+require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
+
+$workflows = $DB->get_records("block_opencast_workflowdefs", array('enabled' => 1));
+$workflowsavailable = count($workflows) > 0;
+
+$apibridge = apibridge::get_instance();
+$workflowsjs = array();
+foreach ($workflows as $workflow) {
+    $def = $apibridge->get_workflow_definition($workflow->workflowdefinitionid);
+    if($def) {
+        $workflowsjs[$workflow->workflowdefinitionid] = array('title' => $def->title, 'description' => $def->description);
+    }
+}
+
+$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $workflowsjs]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
-
-// Capability check.
-$coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 // Invalidate Block cache;
 cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
@@ -291,13 +303,10 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
             }
 
-            // in order to add metadata config
-            if ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
-                $video->processing_state == "STOPPED") {
-                if ($opencast->can_update_event_metadata($video, $courseid)) {
-                    $actions .= $renderer->render_update_metadata_event_icon($courseid, $video->identifier);
-                }
-            }
+            // Edit actions.
+            $updatemetadata = ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
+                    $video->processing_state == "STOPPED") && $opencast->can_update_event_metadata($video, $courseid);
+            $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable);
 
             if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                 $actions .= $renderer->render_download_event_icon($courseid, $video->identifier);
@@ -307,7 +316,7 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
             }
 
-            if(!empty(get_config('block_opencast', 'support_email'))) {
+            if (!empty(get_config('block_opencast', 'support_email'))) {
                 $actions .= $renderer->render_report_problem_icon($video->identifier);
             }
 

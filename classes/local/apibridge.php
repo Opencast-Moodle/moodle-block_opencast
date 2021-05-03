@@ -42,8 +42,6 @@ class apibridge
 
     private $config;
 
-    private $workflows = array();
-
     private static $testing = false;
 
     private function __construct() {
@@ -1366,58 +1364,89 @@ class apibridge
      * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public function get_existing_workflows($tag = '') {
-        if (!array_key_exists($tag, $this->workflows)) {
+    public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
+        $workflows = array();
+        $api = new api();
 
+        if (!$api->supports_api_level('v1.1.0')) {
+            // TODO deprecate or test
+            $resourceopencast5 = '/workflow/definitions.json';
             $api = new api();
-            if (!$api->supports_api_level('v1.1.0')) {
-                $resourceopencast5 = '/workflow/definitions.json';
-                $api = new api();
-                $result = $api->oc_get($resourceopencast5);
+            $result = $api->oc_get($resourceopencast5);
 
-                if ($api->get_http_code() === 200) {
-                    $returnedworkflows = json_decode($result);
-                    $this->workflows[$tag] = array();
-                    foreach ($returnedworkflows->definitions->definition as $workflow) {
-                        // Filter for specific tag.
-                        if ($tag) {
-                            if (!($workflow->tags &&
-                                ($tag === $workflow->tags->tag ||
-                                    is_array($workflow->tags->tag) &&
-                                    in_array($tag, $workflow->tags->tag)))) {
-                                continue;
-                            }
-                        }
-                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                            $this->workflows[$tag][$workflow->id] = $workflow->title;
-                        } else {
-                            $this->workflows[$tag][$workflow->id] = $workflow->id;
+            if ($api->get_http_code() === 200) {
+                $returnedworkflows = json_decode($result);
+                foreach ($returnedworkflows->definitions->definition as $workflow) {
+                    // Filter for specific tag.
+                    if ($tag) {
+                        if (!($workflow->tags &&
+                            ($tag === $workflow->tags->tag ||
+                                is_array($workflow->tags->tag) &&
+                                in_array($tag, $workflow->tags->tag)))) {
+                            continue;
                         }
                     }
-                } else {
-                    return array();
+
+                    if (!$onlynames) {
+                        $workflows[] = $workflow;
+                    } else {
+                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                            $workflows[$workflow->identifier] = $workflow->title;
+                        } else {
+                            $workflows[$workflow->identifier] = $workflow->identifier;
+                        }
+                    }
                 }
-            } else {
-                $resource = '/api/workflow-definitions';
-                $api = new api();
-                $resource .= '?filter=tag:' . $tag;
-                $result = $api->oc_get($resource);
-                if ($api->get_http_code() === 200) {
-                    $returnedworkflows = json_decode($result);
-                    $this->workflows[$tag] = array();
-                    foreach ($returnedworkflows as $workflow) {
-                        if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                            $this->workflows[$tag][$workflow->identifier] = $workflow->title;
-                        } else {
-                            $this->workflows[$tag][$workflow->identifier] = $workflow->identifier;
-                        }
+            }
+        } else {
+            $resource = '/api/workflow-definitions';
+            $api = new api();
+            $resource .= '?filter=tag:' . $tag;
+
+            if ($withconfigurations) {
+                $resource .= '&withconfigurationpanel=true';
+            }
+
+            $result = $api->oc_get($resource);
+            if ($api->get_http_code() === 200) {
+                $returnedworkflows = json_decode($result);
+
+                if (!$onlynames) {
+                    return $returnedworkflows;
+                }
+
+                foreach ($returnedworkflows as $workflow) {
+
+                    if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                        $workflows[$workflow->id] = $workflow->title;
+                    } else {
+                        $workflows[$workflow->id] = $workflow->id;
                     }
-                } else {
-                    return array();
                 }
             }
         }
-        return $this->workflows[$tag];
+
+        return $workflows;
+    }
+
+    public function get_workflow_definition($id) {
+        $workflows = array();
+        $api = new api();
+
+        if (!$api->supports_api_level('v1.1.0')) {
+            // TODO handle this
+        } else {
+            $resource = '/api/workflow-definitions/' . $id;
+            $api = new api();
+            $resource .= '?withconfigurationpanel=true';
+
+            $result = $api->oc_get($resource);
+            if ($api->get_http_code() === 200) {
+                return json_decode($result);
+            }
+        }
+
+        return false;
     }
 
     /**

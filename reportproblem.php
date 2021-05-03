@@ -60,7 +60,7 @@ if (!$result->error) {
     $seriesid = $apibridge->get_course_series($courseid);
     if ($seriesid->identifier != $result->video->is_part_of) {
         redirect($redirecturl,
-            get_string('reportproblem_notallowed', 'block_opencast'),
+            get_string('video_notallowed', 'block_opencast'),
             null,
             \core\output\notification::NOTIFY_ERROR);
     }

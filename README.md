@@ -13,9 +13,8 @@ System requirements
 ------------------
 
 * Min. Moodle Version: 3.3
-* Opencast API level: 
-   * Minimum: v1.0.0
-   * Recommended: v1.1.0
+* Opencast API level:
+   * Minimum: v1.1.0
 
    * Some features might do not works as expected, when using an older API level.
 

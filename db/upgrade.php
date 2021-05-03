@@ -458,5 +458,32 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2020111901, 'opencast');
     }
 
+    if ($oldversion < 2021042900) {
+
+        // Define table block_opencast_workflowdefs to be created.
+        $table = new xmldb_table('block_opencast_workflowdefs');
+
+        // Adding fields to table block_opencast_workflowdefs.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('workflowdefinitionid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('configuration', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table block_opencast_workflowdefs.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table block_opencast_workflowdefs.
+        $table->add_index('workflowdefinitionid', XMLDB_INDEX_UNIQUE, ['workflowdefinitionid']);
+
+        // Conditionally launch create table for block_opencast_workflowdefs.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021042900, 'opencast');
+    }
+
+
     return true;
 }
