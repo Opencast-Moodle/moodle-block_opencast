@@ -35,7 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2021 Justus Dieckmann WWU, 2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class activitymodulemanager {
+class activitymodulemanager
+{
 
     /**
      * Helperfunction to get the status of the Opencast series feature.
@@ -73,11 +74,11 @@ class activitymodulemanager {
      * @return boolean
      */
     public static function create_module_for_series($courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML, $availability = null) {
+                                                    $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
-        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         // If the title or the series is empty, something is wrong.
         if (empty($title) || empty($seriesid)) {
@@ -102,9 +103,10 @@ class activitymodulemanager {
 
         // Create an LTI modinfo object.
         $moduleinfo = self::build_activity_modinfo($pluginid, $title, $sectionid, $seriesid, opencasttype::SERIES,
-                $introtext, $introformat, $availability);
+            $introtext, $introformat, $availability);
 
-        // Add the Opencast Activity series module to the given course (this does not check any capabilities to add modules to courses by purpose).
+        // Add the Opencast Activity series module to the given course.
+        // This does not check any capabilities to add modules to courses by purpose.
         \add_moduleinfo($moduleinfo, $course);
 
         return true;
@@ -124,11 +126,11 @@ class activitymodulemanager {
      * @return boolean
      */
     public static function create_module_for_episode($courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML, $availability = null) {
+                                                     $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
-        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         // If the title or the episode is empty, something is wrong.
         if (empty($title) || empty($episodeuuid)) {
@@ -155,7 +157,8 @@ class activitymodulemanager {
         $moduleinfo = self::build_activity_modinfo($pluginid, $title, $sectionid, $episodeuuid, opencasttype::EPISODE,
             $introtext, $introformat, $availability);
 
-        // Add the Opencast Activity episode module to the given course (this does not check any capabilities to add modules to courses by purpose).
+        // Add the Opencast Activity episode module to the given course.
+        // This does not check any capabilities to add modules to courses by purpose.
         \add_moduleinfo($moduleinfo, $course);
 
         return true;
@@ -361,7 +364,7 @@ class activitymodulemanager {
 
         // Extract section titles and build section menu.
         $sectionmenu = array();
-        foreach($sections as $id => $section) {
+        foreach ($sections as $id => $section) {
             $sectionmenu[$id] = get_section_name($courseid, $id);
         }
 

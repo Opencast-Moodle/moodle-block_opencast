@@ -244,7 +244,8 @@ class importvideosmanager {
     }
 
     /**
-     * Helperfunction to get the list of course videos which are stored in the given source course to be selected during manual import.
+     * Helperfunction to get the list of course videos that are stored in the
+     * given source course to be selected during manual import.
      *
      * @param int $sourcecourseid The source course id.
      *
@@ -256,7 +257,7 @@ class importvideosmanager {
         // Get renderer.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
-        // Initialize course videos as empty array;
+        // Initialize course videos as empty array.
         $coursevideos = array();
 
         // If the user is not allowed to import from the given course at all, return.
@@ -300,7 +301,7 @@ class importvideosmanager {
         // Get renderer.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
-        // Initialize course videos summary as empty array;
+        // Initialize course videos summary as empty array.
         $coursevideossummary = array();
 
         // If the user is not allowed to import from the given course at all, return.

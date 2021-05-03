@@ -87,7 +87,8 @@ if (!$result->error) {
 
     if ($success) {
         // Send copy to user.
-        \block_opencast\local\notifications::notify_problem_reported(get_string('reportproblem_notification', 'block_opencast') . $message);
+        \block_opencast\local\notifications::notify_problem_reported(
+            get_string('reportproblem_notification', 'block_opencast') . $message);
 
         // Redirect with success message.
         redirect($redirecturl,

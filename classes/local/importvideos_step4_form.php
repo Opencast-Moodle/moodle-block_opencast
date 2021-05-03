@@ -35,7 +35,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step4_form extends \moodleform {
+class importvideos_step4_form extends \moodleform
+{
 
     /**
      * Form definition.
@@ -56,8 +57,8 @@ class importvideos_step4_form extends \moodleform {
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
         $mform->setType('sourcecourseid', PARAM_INT);
-        foreach($this->_customdata['coursevideos'] as $identifier => $checked) {
-            $mform->addElement('hidden', 'coursevideos['.$identifier.']', $checked);
+        foreach ($this->_customdata['coursevideos'] as $identifier => $checked) {
+            $mform->addElement('hidden', 'coursevideos[' . $identifier . ']', $checked);
             $mform->setType('coursevideos', PARAM_BOOL);
         }
         if (isset($this->_customdata['fixseriesmodules'])) {
@@ -74,7 +75,7 @@ class importvideos_step4_form extends \moodleform {
         if (!is_number($this->_customdata['sourcecourseid'])) {
             // We are in a dead end situation, no chance to add anything.
             $notification = $renderer->wizard_error_notification(
-                    get_string('importvideos_wizardstep4sourcecoursenone', 'block_opencast'));
+                get_string('importvideos_wizardstep4sourcecoursenone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
             return;
@@ -85,7 +86,7 @@ class importvideos_step4_form extends \moodleform {
         if (count($this->_customdata['coursevideos']) < 1) {
             // We are in a dead end situation, no chance to add anything.
             $notification = $renderer->wizard_error_notification(
-                    get_string('importvideos_wizardstep4coursevideosnone', 'block_opencast'));
+                get_string('importvideos_wizardstep4coursevideosnone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
             return;
@@ -93,33 +94,33 @@ class importvideos_step4_form extends \moodleform {
 
         // Add intro.
         $notification = $renderer->wizard_intro_notification(
-                get_string('importvideos_wizardstep4intro', 'block_opencast'));
+            get_string('importvideos_wizardstep4intro', 'block_opencast'));
         $mform->addElement('html', $notification);
 
         // Summary item: Source course.
         $sourcecourse = get_course($this->_customdata['sourcecourseid']);
         $courseentry = $renderer->course_menu_entry($sourcecourse);
         $mform->addElement('static', 'summarysourcecourse',
-                get_string('importvideos_wizardstep1sourcecourse', 'block_opencast'),
-                $courseentry);
+            get_string('importvideos_wizardstep1sourcecourse', 'block_opencast'),
+            $courseentry);
 
         // Horizontal line.
         $mform->addElement('html', '<hr>');
 
         // Summary item: Course videos.
         $coursevideossummary = importvideosmanager::get_import_source_course_videos_summary(
-                $this->_customdata['sourcecourseid'], $this->_customdata['coursevideos']);
+            $this->_customdata['sourcecourseid'], $this->_customdata['coursevideos']);
         $importvideocounter = 1;
         foreach ($coursevideossummary as $identifier => $label) {
-            $mform->addElement('static', 'summaryimportvideo'.$importvideocounter,
-                    ($importvideocounter == 1) ? get_string('importvideos_wizardstep2coursevideos', 'block_opencast') : '',
-                    $label);
+            $mform->addElement('static', 'summaryimportvideo' . $importvideocounter,
+                ($importvideocounter == 1) ? get_string('importvideos_wizardstep2coursevideos', 'block_opencast') : '',
+                $label);
             $importvideocounter++;
         }
 
         // Summary item: Handle modules.
         if ((isset($this->_customdata['fixseriesmodules']) && $this->_customdata['fixseriesmodules'] == true) ||
-                (isset($this->_customdata['fixepisodemodules']) && $this->_customdata['fixepisodemodules'] == true)) {
+            (isset($this->_customdata['fixepisodemodules']) && $this->_customdata['fixepisodemodules'] == true)) {
             // Horizontal line.
             $mform->addElement('html', '<hr>');
 
@@ -127,8 +128,8 @@ class importvideos_step4_form extends \moodleform {
             if (isset($this->_customdata['fixseriesmodules']) && $this->_customdata['fixseriesmodules'] == true) {
                 // Show summary item.
                 $mform->addElement('static', 'summaryfixseriesmodules',
-                        get_string('importvideos_wizardstep3heading', 'block_opencast'),
-                        get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
+                    get_string('importvideos_wizardstep3heading', 'block_opencast'),
+                    get_string('importvideos_wizardstep3seriesmodulesubheading', 'block_opencast'));
 
                 // Remember this fact for the next summary item.
                 $summaryfixseriesmodulesshown = true;
@@ -140,8 +141,8 @@ class importvideos_step4_form extends \moodleform {
             // Handle episode modules.
             if (isset($this->_customdata['fixepisodemodules']) && $this->_customdata['fixepisodemodules'] == true) {
                 $mform->addElement('static', 'summaryfixepisodemodules',
-                        ($summaryfixseriesmodulesshown == false) ? get_string('importvideos_wizardstep3heading', 'block_opencast') : '',
-                        get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));
+                    ($summaryfixseriesmodulesshown == false) ? get_string('importvideos_wizardstep3heading', 'block_opencast') : '',
+                    get_string('importvideos_wizardstep3episodemodulesubheading', 'block_opencast'));
             }
         }
 

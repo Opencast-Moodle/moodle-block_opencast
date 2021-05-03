@@ -55,13 +55,13 @@ if (!$result->error) {
     if ($video->is_downloadable) {
         foreach ($video->publications as $publication) {
             if ($publication->channel == get_config('block_opencast', 'download_channel')) {
-                $download_url = $publication->media[0]->url;
+                $downloadurl = $publication->media[0]->url;
                 $mimetype = $publication->media[0]->mediatype;
                 $size = $publication->media[0]->size;
             }
 
         }
-        $filename = $video->title . '.' . pathinfo($download_url, PATHINFO_EXTENSION);
+        $filename = $video->title . '.' . pathinfo($downloadurl, PATHINFO_EXTENSION);
 
         header('Content-Description: Download Video');
         header('Content-Type: ' . $mimetype);
@@ -73,13 +73,13 @@ if (!$result->error) {
             header('Cache-Control: private, max-age=10, no-transform');
             header('Expires: ' . gmdate('D, d M Y H:i:s', 0) . ' GMT');
             header('Pragma: ');
-        } else { //normal http - prevent caching at all cost
+        } else { // Normal http - prevent caching at all cost.
             header('Cache-Control: private, must-revalidate, pre-check=0, post-check=0, max-age=0, no-transform');
             header('Expires: ' . gmdate('D, d M Y H:i:s', 0) . ' GMT');
             header('Pragma: no-cache');
         }
 
-        readfile($download_url);
+        readfile($downloadurl);
     } else {
         redirect($redirecturl,
             get_string('video_not_downloadable', 'block_opencast'),

@@ -45,7 +45,7 @@ $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
-// Invalidate Block cache;
+// Invalidate Block cache.
 cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
 
 $table = new block_opencast\local\flexible_table('opencast-videos-table');
@@ -171,7 +171,7 @@ echo $renderer->render_series_settings_actions($courseid,
     !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
     has_capability('block/opencast:defineseriesforcourse', $coursecontext));
 
-// Section "Upload or record videos"
+// Section "Upload or record videos".
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
     // Show heading and explanation depending if Opencast Studio is enabled.
     if (get_config('block_opencast', 'enable_opencast_studio_link')) {
@@ -278,7 +278,8 @@ if ($videodata->error == 0) {
 
             // Actions column.
             if ($toggleaclroles) {
-                if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" && $video->processing_state !== "STOPPED") {
+                if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" &&
+                    $video->processing_state !== "STOPPED") {
                     $row[] = "-";
                 } else {
                     $visible = $apibridge->is_event_visible($video->identifier, $courseid);
@@ -291,7 +292,7 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
             }
 
-            // in order to add metadata config
+            // In order to add metadata config.
             if ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
                 $video->processing_state == "STOPPED") {
                 if ($opencast->can_update_event_metadata($video, $courseid)) {
@@ -307,7 +308,7 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_event_icon($courseid, $video->identifier);
             }
 
-            if(!empty(get_config('block_opencast', 'support_email'))) {
+            if (!empty(get_config('block_opencast', 'support_email'))) {
                 $actions .= $renderer->render_report_problem_icon($video->identifier);
             }
 
@@ -426,7 +427,8 @@ if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_seri
 
         // Show button to view the Opencast Activity series module.
         $viewactivityurl = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
-        $viewactivitybutton = $OUTPUT->single_button($viewactivityurl, get_string('addactivity_viewbuttontitle', 'block_opencast'), 'get');
+        $viewactivitybutton = $OUTPUT->single_button($viewactivityurl,
+            get_string('addactivity_viewbuttontitle', 'block_opencast'), 'get');
         echo html_writer::tag('p', $viewactivitybutton);
 
         // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
@@ -445,7 +447,8 @@ if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_seri
 
         // Show button to add the Opencast Activity series module.
         $addactivityurl = new moodle_url('/blocks/opencast/addactivity.php', array('courseid' => $courseid));
-        $addactivitybutton = $OUTPUT->single_button($addactivityurl, get_string('addactivity_addbuttontitle', 'block_opencast'), 'get');
+        $addactivitybutton = $OUTPUT->single_button($addactivityurl,
+            get_string('addactivity_addbuttontitle', 'block_opencast'), 'get');
         echo html_writer::tag('p', $addactivitybutton);
 
         // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
@@ -469,7 +472,8 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 
         // Show "Import videos" button.
         $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));
-        $importvideosbutton = $OUTPUT->single_button($importvideosurl, get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
+        $importvideosbutton = $OUTPUT->single_button($importvideosurl,
+            get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
         echo html_writer::div($importvideosbutton);
     }
 }

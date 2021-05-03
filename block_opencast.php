@@ -23,7 +23,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-class block_opencast extends block_base {
+class block_opencast extends block_base
+{
 
     public function init() {
         $this->title = get_string('pluginname', 'block_opencast');
@@ -42,7 +43,7 @@ class block_opencast extends block_base {
     }
 
     public function get_content() {
-        global $PAGE, $COURSE;
+        global $COURSE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -58,7 +59,7 @@ class block_opencast extends block_base {
             return $this->content;
         }
 
-        $renderer = $PAGE->get_renderer('block_opencast');
+        $renderer = $this->page->get_renderer('block_opencast');
 
         $cache = cache::make('block_opencast', 'videodata');
         if ($result = $cache->get($COURSE->id)) {

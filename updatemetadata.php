@@ -31,7 +31,8 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',  array('video_identifier' => $identifier, 'courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
+    array('video_identifier' => $identifier, 'courseid' => $courseid));
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));

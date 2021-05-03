@@ -60,13 +60,13 @@ class importvideos_step2_form extends \moodleform
 
         // Get list of course videos.
         $coursevideos = importvideosmanager::get_import_source_course_videos_menu(
-                $this->_customdata['sourcecourseid']);
+            $this->_customdata['sourcecourseid']);
 
         // If there isn't any course video in the course.
         if (count($coursevideos) < 1) {
             // We are in a dead end situation, no chance to add anything.
             $notification = $renderer->wizard_error_notification(
-                    get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
+                get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
             $mform->addElement('html', $notification);
             $mform->addElement('cancel');
 
@@ -75,7 +75,7 @@ class importvideos_step2_form extends \moodleform
 
         // Add intro.
         $notification = $renderer->wizard_intro_notification(
-                get_string('importvideos_wizardstep2intro', 'block_opencast'));
+            get_string('importvideos_wizardstep2intro', 'block_opencast'));
         $mform->addElement('html', $notification);
 
         // Add one single empty static element.
@@ -84,7 +84,8 @@ class importvideos_step2_form extends \moodleform
 
         // Add multi-checkbox group to pick the course videos.
         foreach ($coursevideos as $identifier => $label) {
-            $mform->addElement('advcheckbox', 'coursevideos[' . $identifier . ']', $label, null, array('group' => 'coursevideocheckboxes'));
+            $mform->addElement('advcheckbox', 'coursevideos[' . $identifier . ']', $label, null,
+                array('group' => 'coursevideocheckboxes'));
         }
         $this->add_checkbox_controller('coursevideocheckboxes', null, null, 1);
 
@@ -95,8 +96,7 @@ class importvideos_step2_form extends \moodleform
     /**
      * Form validation.
      */
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         // Ask parent class for errors first.
         $errors = parent::validation($data, $files);
 

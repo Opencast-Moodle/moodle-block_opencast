@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ltimodulemanager {
+class ltimodulemanager
+{
 
     /**
      * Helperfunction to get the list of available preconfigured LTI tools.
@@ -46,7 +47,7 @@ class ltimodulemanager {
         global $CFG;
 
         // Require LTI library.
-        require_once($CFG->dirroot.'/mod/lti/locallib.php');
+        require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
         // Get configured tools and filter them for tools which are configured by the admin.
         $types = \lti_filter_get_types(get_site()->id);
@@ -231,11 +232,11 @@ class ltimodulemanager {
      * @return boolean
      */
     public static function create_module_for_series($courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML, $availability = null) {
+                                                    $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
-        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         // If the title or the series is empty, something is wrong.
         if (empty($title) || empty($seriesid)) {
@@ -267,10 +268,10 @@ class ltimodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'series='.$seriesid, $introtext,
-                $introformat, $availability);
+        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'series=' . $seriesid, $introtext,
+            $introformat, $availability);
 
-        // Add the LTI series module to the given course (this does not check any capabilities to add modules to courses by purpose).
+        // Add the LTI series module to the given course (this doesn't check any capabilities to add modules to courses by purpose).
         $modulecreated = \add_moduleinfo($moduleinfo, $course);
 
         // Remember the module id.
@@ -296,11 +297,11 @@ class ltimodulemanager {
      * @return boolean
      */
     public static function create_module_for_episode($courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
-            $introformat = FORMAT_HTML, $availability = null) {
+                                                     $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
-        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
 
         // If the title or the episode is empty, something is wrong.
         if (empty($title) || empty($episodeuuid)) {
@@ -332,10 +333,10 @@ class ltimodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'id='.$episodeuuid, $introtext, $introformat,
-                $availability);
+        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'id=' . $episodeuuid, $introtext,
+            $introformat, $availability);
 
-        // Add the LTI episode module to the given course (this does not check any capabilities to add modules to courses by purpose).
+        // Add the LTI episode module to the given course. This doesn't check any capabilities to add modules to courses by purpose.
         $modulecreated = \add_moduleinfo($moduleinfo, $course);
 
         // Remember the module id.
@@ -363,7 +364,7 @@ class ltimodulemanager {
      * @return object
      */
     public static function build_lti_modinfo($pluginid, $title, $sectionid, $toolid, $instructorcustomparameters, $introtext = '',
-            $introformat = FORMAT_HTML, $availability = null) {
+                                             $introformat = FORMAT_HTML, $availability = null) {
         // Create standard class object.
         $moduleinfo = new \stdClass();
 
@@ -443,7 +444,7 @@ class ltimodulemanager {
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedcourseid The course where the module is pointing to.
      *
-     * @return array The array of course module IDs. The course module ID is used as array key, the references series ID as array value.
+     * @return array of course module IDs. The course module ID is used as array key, the references series ID as array value.
      */
     public static function get_modules_for_series_linking_to_other_course($modulecourseid, $referencedcourseid) {
         global $DB;
@@ -469,16 +470,16 @@ class ltimodulemanager {
         // If there is more than one module, the list will be ordered by the time when the module was added to the course.
         // The oldest module is probably the module which should be kept when the modules are cleaned up later,
         // the newer ones will probably be from additional course content imports.
-        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l
-                JOIN {course_modules} AS cm
-                ON l.id = cm.instance
-                WHERE l.typeid = :toolid
-                       AND cm.course = :course
-                       AND '.$DB->sql_like('l.instructorcustomparameters', ':referencedseriesid').'
-                ORDER BY cm.added ASC';
+        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
+            'JOIN {course_modules} AS cm ' .
+            'ON l.id = cm.instance ' .
+            'WHERE l.typeid = :toolid ' .
+            'AND cm.course = :course ' .
+            'AND ' . $DB->sql_like('l.instructorcustomparameters', ':referencedseriesid') .
+            ' ORDER BY cm.added ASC';
         $params = array('toolid' => $toolid,
-                        'course' => $modulecourseid,
-                        'referencedseriesid' => '%'.$referencedseriesid.'%');
+            'course' => $modulecourseid,
+            'referencedseriesid' => '%' . $referencedseriesid . '%');
         $seriesmodules = $DB->get_fieldset_sql($sql, $params);
 
         // If there are any existing series modules in this course.
@@ -507,7 +508,7 @@ class ltimodulemanager {
         global $CFG, $DB;
 
         // Require grade library. For an unknown reason, this is needed when updating the module.
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
         // If the user is not allowed to add series modules to the target course at all, return.
         $coursecontext = \context_course::instance($modulecourseid);
@@ -530,7 +531,7 @@ class ltimodulemanager {
         $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
 
         // Get Opencast LTI series module in this course which point to the course's series.
-        $courseseriesmodule = ltimodulemanager::get_module_for_series($modulecourseid);
+        $courseseriesmodule = self::get_module_for_series($modulecourseid);
 
         // If there isn't a series module for this course' series in this course yet.
         if ($courseseriesmodule == false) {
@@ -538,15 +539,16 @@ class ltimodulemanager {
             // for the referenced course.
             reset($referencedseriesmodules);
             $seriesmoduleid = key($referencedseriesmodules); // From PHP 7.3 on, there would also be array_key_first(),
-                                                             // but we want to keep this code as backwards-compatible as possible.
+            // but we want to keep this code as backwards-compatible as possible.
 
             // Gather more information about this module so that we can update the module info in the end.
             $seriesmoduleobject = get_coursemodule_from_id('lti', $seriesmoduleid, $modulecourseid);
             $courseobject = get_course($modulecourseid);
-            list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) = get_moduleinfo_data($seriesmoduleobject, $courseobject);
+            list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) =
+                get_moduleinfo_data($seriesmoduleobject, $courseobject);
 
             // Replace the series identifier in the module info.
-            $seriesmoduledata->instructorcustomparameters = 'series='.$courseseries;
+            $seriesmoduledata->instructorcustomparameters = 'series=' . $courseseries;
 
             // Update the series identifier within the series module.
             update_module($seriesmoduledata);
@@ -558,7 +560,7 @@ class ltimodulemanager {
             $DB->insert_record('block_opencast_ltimodule', $record);
 
             // Remove this module from the array of existing modules and preserve the keys.
-            if (count ($referencedseriesmodules) > 1) {
+            if (count($referencedseriesmodules) > 1) {
                 $referencedseriesmodules = array_slice($referencedseriesmodules, 1, null, true);
             } else {
                 $referencedseriesmodules = array();
@@ -678,7 +680,7 @@ class ltimodulemanager {
      * @return array
      */
     public static function get_modules_for_episodes_linking_to_other_course($modulecourseid, $referencedcourseid,
-            $onlytheseepisodes = null) {
+                                                                            $onlytheseepisodes = null) {
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
@@ -736,15 +738,15 @@ class ltimodulemanager {
         $modules = array();
 
         // Get the LTI episode module(s) which point to the episode.
-        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l
-                JOIN {course_modules} AS cm
-                ON l.id = cm.instance
-                WHERE l.typeid = :toolid
-                       AND cm.course = :course
-                       AND '.$DB->sql_like('l.instructorcustomparameters', ':referencedepisodeid');
+        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
+            'JOIN {course_modules} AS cm ' .
+            'ON l.id = cm.instance ' .
+            'WHERE l.typeid = :toolid ' .
+            'AND cm.course = :course ' .
+            'AND ' . $DB->sql_like('l.instructorcustomparameters', ':referencedepisodeid');
         $params = array('toolid' => $toolid,
-                        'course' => $modulecourseid,
-                        'referencedepisodeid' => '%'.$referencedepisodeid.'%');
+            'course' => $modulecourseid,
+            'referencedepisodeid' => '%' . $referencedepisodeid . '%');
         $episodemodules = $DB->get_fieldset_sql($sql, $params);
 
         // If there are any existing episode modules in this course.
@@ -779,7 +781,7 @@ class ltimodulemanager {
         require_once($CFG->dirroot . '/course/modlib.php');
 
         // Require grade library. For an unknown reason, this is needed when updating the module.
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
 
         // If there aren't any modules to be cleaned up given, return.
         if (count($episodemodules) < 1) {
@@ -787,7 +789,7 @@ class ltimodulemanager {
         }
 
         // Get Opencast LTI episode module in this course which points to the given episode.
-        $courseepisodemodule = ltimodulemanager::get_module_for_episode($modulecourseid, $episodeid);
+        $courseepisodemodule = self::get_module_for_episode($modulecourseid, $episodeid);
 
         // If there isn't an episode module for the given episode in this course yet.
         if ($courseepisodemodule == false) {
@@ -799,10 +801,10 @@ class ltimodulemanager {
             $episodemoduleobject = get_coursemodule_from_id('lti', $episodemoduleid, $modulecourseid);
             $courseobject = get_course($modulecourseid);
             list($unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw) =
-                    get_moduleinfo_data($episodemoduleobject, $courseobject);
+                get_moduleinfo_data($episodemoduleobject, $courseobject);
 
             // Replace the episode identifier in the module info.
-            $episodemoduledata->instructorcustomparameters = 'id='.$episodeid;
+            $episodemoduledata->instructorcustomparameters = 'id=' . $episodeid;
 
             // Update the episode identifier within the episode module.
             update_module($episodemoduledata);
@@ -815,7 +817,7 @@ class ltimodulemanager {
             $DB->insert_record('block_opencast_ltiepisode', $record);
 
             // Remove this module from the array of existing modules and preserve the keys.
-            if (count ($episodemodules) > 1) {
+            if (count($episodemodules) > 1) {
                 $episodemodules = array_slice($episodemodules, 1, null, true);
             } else {
                 $episodemodules = array();
@@ -918,7 +920,7 @@ class ltimodulemanager {
 
         // Extract section titles and build section menu.
         $sectionmenu = array();
-        foreach($sections as $id => $section) {
+        foreach ($sections as $id => $section) {
             $sectionmenu[$id] = get_section_name($courseid, $id);
         }
 

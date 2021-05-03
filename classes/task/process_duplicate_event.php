@@ -35,7 +35,8 @@ use tool_opencast\seriesmapping;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicate_event extends \core\task\adhoc_task {
+class process_duplicate_event extends \core\task\adhoc_task
+{
 
     /** @var int max number of retries for one task */
     const MAX_COUNT_RETRIES = 10;
@@ -65,12 +66,11 @@ class process_duplicate_event extends \core\task\adhoc_task {
             return;
         }
 
-        $a = clone ($data);
+        $a = clone($data);
         $a->coursefullname = $course->fullname;
         $a->taskid = $this->get_id();
 
         // Test, whether opencast server is available.
-        
 
         try {
 
@@ -83,7 +83,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
             $a->duplicateworkflow = $duplicateworkflow;
 
             // Series checks.
-            if (empty($data->seriesid)) { //Should not happen as seriesid is checked during restore.
+            if (empty($data->seriesid)) { // Should not happen as seriesid is checked during restore.
                 throw new \moodle_exception('error_seriesid_taskdata_missing', 'block_opencast', '', $a);
             }
 
@@ -117,7 +117,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
 
             // Set workflow configuration (in this case: the seriesID for the duplicated video).
             $params = [
-                'configuration' => json_encode((object) ['seriesID' => $data->seriesid])
+                'configuration' => json_encode((object)['seriesID' => $data->seriesid])
             ];
 
             // Start workflow in Opencast and remember the workflow ID.
@@ -132,7 +132,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
             // by writing the necessary episode information to the database. This will be read and processed by the
             // \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
             if ($data->schedulemodulecleanup == true && is_number($ocworkflowid) &&
-                    $data->episodemodules != null && count((array)$data->episodemodules) > 0) {
+                $data->episodemodules != null && count((array)$data->episodemodules) > 0) {
                 // Iterate over the existing modules for this episode.
                 // Most probably, there will just be 0 or 1 instance, but we have to handle them all if there are more.
                 $now = time(); // This is fetched before the loop to ensure that all records for this workflow get the same time.

@@ -48,7 +48,6 @@ class addvideo_form extends \moodleform
                 'local_chunkupload\chunkupload_form_element');
         }
 
-
         $mform = $this->_form;
 
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
@@ -75,14 +74,15 @@ class addvideo_form extends \moodleform
                     'multiple' => true,
                     'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
-                    'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
+                    'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
             }
 
-            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
+                $param, $attributes);
 
             if ($field->datatype == 'text') {
                 $mform->setType($field->name, PARAM_TEXT);
@@ -102,7 +102,6 @@ class addvideo_form extends \moodleform
         $mform->setAdvanced('startDate');
 
         $mform->closeHeaderBefore('upload_filepicker');
-
 
         $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
 
@@ -160,10 +159,11 @@ class addvideo_form extends \moodleform
         }
 
         if (!empty(get_config('block_opencast', 'termsofuse'))) {
-            $toggle_span = '<span class="btn-link" id="termsofuse_toggle">' . get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
+            $togglespan = '<span class="btn-link" id="termsofuse_toggle">' .
+                get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
 
             $mform->addElement('checkbox', 'termsofuse', get_string('termsofuse', 'block_opencast'),
-                get_string('termsofuse_accept', 'block_opencast', $toggle_span));
+                get_string('termsofuse_accept', 'block_opencast', $togglespan));
             $mform->addRule('termsofuse', get_string('required'), 'required');
             $options['filter'] = false;
             $mform->addElement('html', '<div class="row justify-content-end" id="termsofuse"><div class="col-md-9">' .
@@ -185,7 +185,7 @@ class addvideo_form extends \moodleform
      * @param array $files
      * @return array the errors that were found
      */
-    function validation($data, $files) {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
         if (!$chunkuploadinstalled ||

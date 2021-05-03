@@ -38,7 +38,8 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_backup_testcase extends advanced_testcase {
+class block_opencast_backup_testcase extends advanced_testcase
+{
 
     /** var string apiurl for the testcase, must NOT be a real server! */
     private $apiurl = 'server.opencast.testcase';
@@ -73,7 +74,8 @@ class block_opencast_backup_testcase extends advanced_testcase {
      */
     protected function backup_course($courseid, $includevideos = false, $userid = 2) {
 
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
+        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
         foreach ($bc->get_plan()->get_settings() as $setting) {
             if ($setting instanceof \backup_block_opencast_setting) {
                 $setting->set_value($includevideos);
@@ -111,7 +113,7 @@ class block_opencast_backup_testcase extends advanced_testcase {
         }
 
         $rc = new restore_controller($backupid, $courseid, backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
-        $target == backup::TARGET_NEW_COURSE ? : $rc->get_plan()->get_setting('overwrite_conf')->set_value(true);
+        $target == backup::TARGET_NEW_COURSE ?: $rc->get_plan()->get_setting('overwrite_conf')->set_value(true);
         $this->assertTrue($rc->execute_precheck());
 
         foreach ($rc->get_plan()->get_settings() as $setting) {
@@ -281,7 +283,7 @@ class block_opencast_backup_testcase extends advanced_testcase {
         $newcourse2 = $this->restore_course($backupid, 0, true, $USER->id);
         $this->assertNotEmpty($newcourse2);
 
-         // Check generated tasks.
+        // Check generated tasks.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($taskrecords));
 

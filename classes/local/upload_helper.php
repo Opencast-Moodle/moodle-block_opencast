@@ -81,26 +81,25 @@ class upload_helper
         } else {
             $allnamefields = get_all_user_name_fields(true, 'u');
         }
-        $select = "SELECT uj.*, $allnamefields, md.metadata,
-                f1.filename as presenter_filename, f1.filesize as presenter_filesize,
-                f2.filename as presentation_filename, f2.filesize as presentation_filesize";
-        $from = " FROM {block_opencast_uploadjob} uj
-                JOIN {user} u ON uj.userid = u.id
-                JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid
-                LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid
-                LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid";
+        $select = "SELECT uj.*, $allnamefields, md.metadata, " .
+            "f1.filename as presenter_filename, f1.filesize as presenter_filesize, " .
+            "f2.filename as presentation_filename, f2.filesize as presentation_filesize";
+        $from = " FROM {block_opencast_uploadjob} uj " .
+            "JOIN {user} u ON uj.userid = u.id " .
+            "JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid " .
+            "LEFT JOIN {files} f1 ON f1.id = uj.presenter_fileid " .
+            "LEFT JOIN {files} f2 ON f2.id = uj.presentation_fileid";
 
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
-            $select .= ", cu1.filename as presenter_chunkupload_filename, 
-                          cu2.filename as presentation_chunkupload_filename,
-                          cu1.length as presenter_chunkupload_filesize,
-                          cu2.length as presentation_chunkupload_filesize";
-            $from .= " LEFT JOIN {local_chunkupload_files} cu1 ON uj.chunkupload_presenter = cu1.id
-                       LEFT JOIN {local_chunkupload_files} cu2 ON uj.chunkupload_presentation = cu2.id";
+            $select .= ", cu1.filename as presenter_chunkupload_filename, " .
+                "cu2.filename as presentation_chunkupload_filename, " .
+                "cu1.length as presenter_chunkupload_filesize, " .
+                "cu2.length as presentation_chunkupload_filesize";
+            $from .= " LEFT JOIN {local_chunkupload_files} cu1 ON uj.chunkupload_presenter = cu1.id " .
+                "LEFT JOIN {local_chunkupload_files} cu2 ON uj.chunkupload_presentation = cu2.id";
         }
 
-        $where = " WHERE uj.status < :status AND uj.courseid = :courseid
-                  ORDER BY uj.timecreated DESC";
+        $where = " WHERE uj.status < :status AND uj.courseid = :courseid ORDER BY uj.timecreated DESC";
 
         $sql = $select . $from . $where;
 
@@ -121,7 +120,7 @@ class upload_helper
     public static function save_upload_jobs($courseid, $coursecontext, $options) {
         global $DB, $USER;
 
-        //find the current files for the jobs
+        // Find the current files for the jobs.
         $params = [];
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
@@ -141,11 +140,11 @@ class upload_helper
 
         list($insql, $inparams) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
         $params += $inparams;
-        $sql = "SELECT f.id, f.contenthash, f.itemid, f.filename, f.filesize FROM {files} f 
-                    WHERE f.component = :component 
-                        AND f.filearea = :filearea 
-                        AND f.filename <> '.'
-                        AND f.itemid {$insql}";
+        $sql = "SELECT f.id, f.contenthash, f.itemid, f.filename, f.filesize FROM {files} f " .
+            "WHERE f.component = :component " .
+            "AND f.filearea = :filearea " .
+            "AND f.filename <> '.' " .
+            "AND f.itemid {$insql}";
 
         $currentjobfiles = $DB->get_records_sql($sql, $params);
         $job = new \stdClass();
@@ -193,20 +192,20 @@ class upload_helper
         $DB->insert_record('block_opencast_metadata', $options);
 
         // Delete all jobs with status ready to transfer, where file is missing.
-        $sql = "SELECT uj.id
-                FROM {block_opencast_uploadjob} uj
-                LEFT JOIN {files} f
-                ON (uj.presentation_fileid = f.id OR uj.presenter_fileid = f.id) AND
-                  f.component = :component AND
-                  f.filearea = :filearea AND
-                  f.filename <> '.'";
+        $sql = "SELECT uj.id " .
+            "FROM {block_opencast_uploadjob} uj " .
+            "LEFT JOIN {files} f " .
+            "ON (uj.presentation_fileid = f.id OR uj.presenter_fileid = f.id) AND " .
+            "f.component = :component AND " .
+            "f.filearea = :filearea AND " .
+            "f.filename <> '.'";
 
         $where = " WHERE f.id IS NULL AND uj.status = :status";
 
         // If chunkupload exists add additional requirements to the statement.
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
-            $sql .= " LEFT JOIN {local_chunkupload_files} cu 
-                   ON cu.id = uj.chunkupload_presenter OR cu.id = uj.chunkupload_presentation";
+            $sql .= " LEFT JOIN {local_chunkupload_files} cu " .
+                "ON cu.id = uj.chunkupload_presenter OR cu.id = uj.chunkupload_presentation";
             $where .= " AND cu.id IS NULL";
         }
 
@@ -235,7 +234,7 @@ class upload_helper
      */
     public static function delete_video_draft($jobtodelete) {
         global $DB;
-        // check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD
+        // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD.
         if ($DB->record_exists('block_opencast_uploadjob',
             ['id' => $jobtodelete->id, 'status' => self::STATUS_READY_TO_UPLOAD])) {
 
@@ -276,7 +275,7 @@ class upload_helper
 
         $DB->update_record('block_opencast_uploadjob', $job);
 
-        // Delete from chunkupload
+        // Delete from chunkupload.
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
             if ($job->chunkupload_presenter) {
                 chunkupload_form_element::delete_file($job->chunkupload_presenter);
@@ -290,8 +289,8 @@ class upload_helper
         $fs = get_file_storage();
 
         $files = array();
-        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
-        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
+        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : null;
+        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : null;
         $filenames = array();
         foreach ($files as $file) {
             $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
@@ -320,8 +319,6 @@ class upload_helper
                 file_deletionmanager::fulldelete_file($file);
             }
         }
-
-
     }
 
     protected function upload_failed($job, $errormessage) {
@@ -337,8 +334,8 @@ class upload_helper
         // Get file information.
         $fs = get_file_storage();
         $files = array();
-        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : NULL;
-        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : NULL;
+        $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : null;
+        $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : null;
 
         $filenames = array();
         foreach ($files as $file) {
@@ -456,11 +453,11 @@ class upload_helper
                     );
 
                     // Search for files already uploaded to opencast.
-                    $sql = "SELECT opencasteventid
-                        FROM {block_opencast_uploadjob}
-                        WHERE contenthash_presenter = :contenthash_presenter
-                            OR contenthash_presentation = :contenthash_presentation
-                        GROUP BY opencasteventid ";
+                    $sql = "SELECT opencasteventid " .
+                        "FROM {block_opencast_uploadjob} " .
+                        "WHERE contenthash_presenter = :contenthash_presenter " .
+                        "OR contenthash_presentation = :contenthash_presentation " .
+                        "GROUP BY opencasteventid ";
 
                     $eventids = $DB->get_records_sql($sql, $params);
                     if ($eventids) {
@@ -547,8 +544,7 @@ class upload_helper
         global $DB;
 
         // Get all waiting jobs.
-        $sql = "SELECT * FROM {block_opencast_uploadjob}
-                WHERE status < ? ORDER BY timemodified ASC ";
+        $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? ORDER BY timemodified ASC ";
 
         $limituploadjobs = get_config('block_opencast', 'limituploadjobs');
 
@@ -565,7 +561,8 @@ class upload_helper
         foreach ($jobs as $job) {
             mtrace('proceed: ' . $job->id);
             try {
-                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id), $fields = 'metadata', $strictness = IGNORE_MISSING);
+                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id),
+                    $fields = 'metadata', $strictness = IGNORE_MISSING);
                 if ($joboptions) {
                     $job = (object)array_merge((array)$job, (array)$joboptions);
                 }
@@ -594,9 +591,9 @@ class upload_helper
     public static function get_opencast_upload_context($courseid) {
         global $DB;
 
-        $sql = "SELECT bi.* FROM {block_instances} bi
-                JOIN {context} ctx on ctx.id = bi.parentcontextid AND ctx.contextlevel = :contextlevel
-                WHERE bi.blockname = :blockname AND ctx.instanceid = :instanceid";
+        $sql = "SELECT bi.* FROM {block_instances} bi " .
+            "JOIN {context} ctx on ctx.id = bi.parentcontextid AND ctx.contextlevel = :contextlevel " .
+            "WHERE bi.blockname = :blockname AND ctx.instanceid = :instanceid";
 
         $params = [
             'contextlevel' => CONTEXT_COURSE,
@@ -611,7 +608,7 @@ class upload_helper
         return \context_block::instance($blockinstance->id);
     }
 
-    //metadata
+    // Metadata.
 
     /**
      * Gets the cataqlog of metadata fields from database
@@ -622,17 +619,15 @@ class upload_helper
         global $DB;
 
         if ($condition) {
-            $metadata_catalog = $DB->get_record('block_opencast_catalog', $condition, $fields);
+            $metadatacatalog = $DB->get_record('block_opencast_catalog', $condition, $fields);
         } else {
-            $metadata_catalog = $DB->get_records('block_opencast_catalog', null, 'id');
+            $metadatacatalog = $DB->get_records('block_opencast_catalog', null, 'id');
         }
 
-        if (!$metadata_catalog) {
+        if (!$metadatacatalog) {
             return false;
         }
 
-        return $metadata_catalog;
+        return $metadatacatalog;
     }
-
-
 }

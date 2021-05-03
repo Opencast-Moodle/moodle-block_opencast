@@ -28,7 +28,8 @@ use local_chunkupload\local\chunkupload_file;
 
 defined('MOODLE_INTERNAL') || die();
 
-class event {
+class event
+{
 
     private $acl = array();            // Access control.
     private $metadatafields = array(); // Meta data.
@@ -124,7 +125,7 @@ class event {
     public function get_presenter() {
         return $this->presenter;
     }
-    //End adding presenter option
+    // End adding presenter option.
 
     /**
      * Set the acl data for this event.
@@ -151,7 +152,7 @@ class event {
     public function add_acl($allow, $action, $role) {
 
         $this->remove_acl($action, $role);
-        $this->acl[] = (object) array('allow' => $allow, 'role' => $role, 'action' => $action);
+        $this->acl[] = (object)array('allow' => $allow, 'role' => $role, 'action' => $action);
     }
 
     /**
@@ -161,7 +162,7 @@ class event {
      * @param $role
      */
     public function has_acl($allow, $action, $role) {
-        $role = (object) array('allow' => $allow, 'role' => $role, 'action' => $action);
+        $role = (object)array('allow' => $allow, 'role' => $role, 'action' => $action);
         return in_array($role, $this->acl);
     }
 
@@ -193,7 +194,7 @@ class event {
             return false;
         }
 
-        $filter = "/".\tool_opencast\local\api::get_course_acl_role_prefix()."([0-9]*)/";
+        $filter = "/" . \tool_opencast\local\api::get_course_acl_role_prefix() . "([0-9]*)/";
 
         foreach ($this->acl as $acl) {
             $matches = array();
@@ -251,10 +252,10 @@ class event {
         $params = array();
         $params['acl'] = $this->get_json_acl();
         $params['metadata'] = $this->get_meta_data();
-        //Handling presentation & presenter
+        // Handling presentation & presenter.
         if ($this->get_presenter()) {
             $params['presenter'] = $this->get_presenter();
-        } 
+        }
         if ($this->get_presentation()) {
             $params['presentation'] = $this->get_presentation();
         }
@@ -277,12 +278,12 @@ class event {
 
         $task = new \block_opencast\task\process_duplicate_event();
 
-        $data = (object) [
-                'courseid' => $courseid,
-                'seriesid' => $seriesid,
-                'eventid' => $eventid,
-                'schedulemodulecleanup' => $modulecleanup,
-                'episodemodules' => $episodemodules
+        $data = (object)[
+            'courseid' => $courseid,
+            'seriesid' => $seriesid,
+            'eventid' => $eventid,
+            'schedulemodulecleanup' => $modulecleanup,
+            'episodemodules' => $episodemodules
         ];
         $task->set_custom_data($data);
         return \core\task\manager::queue_adhoc_task($task, true);

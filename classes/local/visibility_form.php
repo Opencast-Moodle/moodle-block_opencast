@@ -33,7 +33,8 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class visibility_form extends \moodleform {
+class visibility_form extends \moodleform
+{
 
     public function definition() {
         $mform = $this->_form;
@@ -68,7 +69,7 @@ class visibility_form extends \moodleform {
             $groupvisibilityallowed = false;
         }
 
-        $radioarray=array();
+        $radioarray = array();
         $radioarray[] = $mform->addElement('radio', 'visibility',
             get_string('visibility', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
         $radioarray[] = $mform->addElement('radio', 'visibility', '', get_string('visibility_show', 'block_opencast'), 1);

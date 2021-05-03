@@ -278,7 +278,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $catalog[3]->datatype = 'select';
         $catalog[3]->required = 0;
         $catalog[3]->readonly = 0;
-        $catalog[3]->param_json = '{"":"No option selected","slv":"Slovenian","por":"Portugese","roh":"Romansh","ara":"Arabic","pol":"Polish","ita":"Italian","zho":"Chinese","fin":"Finnish","dan":"Danish","ukr":"Ukrainian","fra":"French","spa":"Spanish","gsw":"Swiss German","nor":"Norwegian","rus":"Russian","jpx":"Japanese","nld":"Dutch","tur":"Turkish","hin":"Hindi","swa":"Swedish","eng":"English","deu":"German"}';
+        $catalog[3]->param_json = '{"":"No option selected","slv":"Slovenian","por":"Portugese","roh":"Romansh","ara":"Arabic",' .
+            '"pol":"Polish","ita":"Italian","zho":"Chinese","fin":"Finnish","dan":"Danish","ukr":"Ukrainian","fra":"French",' .
+            '"spa":"Spanish","gsw":"Swiss German","nor":"Norwegian","rus":"Russian","jpx":"Japanese","nld":"Dutch",' .
+            '"tur":"Turkish","hin":"Hindi","swa":"Swedish","eng":"English","deu":"German"}';
 
         $catalog[4] = new \stdClass();
         $catalog[4]->name = 'rightsHolder';
@@ -292,7 +295,8 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $catalog[5]->datatype = 'select';
         $catalog[5]->required = 0;
         $catalog[5]->readonly = 0;
-        $catalog[5]->param_json = '{"":"No option selected","ALLRIGHTS":"All Rights Reserved","CC0":"CC0","CC-BY-ND":"CC BY-ND","CC-BY-NC-ND":"CC BY-NC-ND","CC-BY-NC-SA":"CC BY-NC-SA","CC-BY-SA":"CC BY-SA","CC-BY-NC":"CC BY-NC","CC-BY":"CC BY"}';
+        $catalog[5]->param_json = '{"":"No option selected","ALLRIGHTS":"All Rights Reserved","CC0":"CC0","CC-BY-ND":"CC BY-ND",' .
+            '"CC-BY-NC-ND":"CC BY-NC-ND","CC-BY-NC-SA":"CC BY-NC-SA","CC-BY-SA":"CC BY-SA","CC-BY-NC":"CC BY-NC","CC-BY":"CC BY"}';
 
         $catalog[6] = new \stdClass();
         $catalog[6]->name = 'creator';

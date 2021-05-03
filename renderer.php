@@ -245,7 +245,7 @@ class block_opencast_renderer extends plugin_renderer_base
             $row[] = fullname($uploadjob);
             if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);
-                // the one who is allowed to add the video is also allowed to delete the video before it is uploaded
+                // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
                 $row[] = ($uploadjob->status == \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD &&
                     has_capability('block/opencast:addvideo', $coursecontext)) ?
                     $this->render_delete_draft_icon($uploadjob->courseid, $uploadjob->id) : '';
@@ -281,7 +281,8 @@ class block_opencast_renderer extends plugin_renderer_base
     public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
         global $USER;
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
-            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'visibility' => $visible, 'sesskey' => $USER->sesskey));
+            array('identifier' => $videoidentifier, 'courseid' => $courseid,
+                'visibility' => $visible, 'sesskey' => $USER->sesskey));
 
         switch ($visible) {
             case self::VISIBLE:
@@ -359,7 +360,8 @@ class block_opencast_renderer extends plugin_renderer_base
      */
     public function render_delete_event_icon($courseid, $videoidentifier) {
 
-        $url = new \moodle_url('/blocks/opencast/deleteevent.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/deleteevent.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid));
         $text = get_string('deleteevent', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);
@@ -410,7 +412,8 @@ class block_opencast_renderer extends plugin_renderer_base
      * @return string
      */
     public function render_add_activity_episode_icon($courseid, $episodeuuid) {
-        $url = new \moodle_url('/blocks/opencast/addactivityepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/addactivityepisode.php',
+            array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
         $text = get_string('addactivityepisode_addicontitle', 'block_opencast');
 
         $icon = $this->output->pix_icon('share', $text, 'block_opencast');
@@ -446,7 +449,8 @@ class block_opencast_renderer extends plugin_renderer_base
      */
     private function render_delete_draft_icon($courseid, $videoidentifier) {
 
-        $url = new \moodle_url('/blocks/opencast/deletedraft.php', array('identifier' => $videoidentifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/deletedraft.php',
+            array('identifier' => $videoidentifier, 'courseid' => $courseid));
         $text = get_string('dodeleteevent', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);
@@ -462,8 +466,8 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param string $videoidentifier
      */
     public function render_update_metadata_event_icon($courseid, $videoidentifier) {
-
-        $url = new \moodle_url('/blocks/opencast/updatemetadata.php', array('video_identifier' => $videoidentifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/updatemetadata.php',
+            array('video_identifier' => $videoidentifier, 'courseid' => $courseid));
         $text = get_string('updatemetadata', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/edit', $text);
@@ -581,7 +585,8 @@ class block_opencast_renderer extends plugin_renderer_base
     }
 
     public function render_download_event_icon($courseid, $identifier) {
-        $url = new \moodle_url('/blocks/opencast/downloadvideo.php', array('video_identifier' => $identifier, 'courseid' => $courseid));
+        $url = new \moodle_url('/blocks/opencast/downloadvideo.php',
+            array('video_identifier' => $identifier, 'courseid' => $courseid));
         $text = get_string('downloadvideo', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/down', $text);

@@ -55,8 +55,8 @@ class upload_failed extends \core\event\base
      * @return string
      */
     public function get_description() {
-        return "The upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) to opencast
-            failed {$this->data['other']['countfailed']} times, Reason: {$this->data['other']['errormessage']}";
+        return "The upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) " .
+            "to opencast failed {$this->data['other']['countfailed']} times, Reason: {$this->data['other']['errormessage']}";
     }
 
     /**

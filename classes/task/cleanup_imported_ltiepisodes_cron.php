@@ -54,8 +54,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
         }
 
         // Get all workflows which are scheduled to be handled.
-        $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified
-                        FROM {block_opencast_ltiepisode_cu}';
+        $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified FROM {block_opencast_ltiepisode_cu}';
         $workflows = $DB->get_records_sql($workflowsql);
 
         // If there aren't any jobs, we are done already.
@@ -80,7 +79,10 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
 
                 // If we haven't waited long enough.
                 if ($waituntil > time()) {
-                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid . ' were skipped as OC hasn\'t had a result for us yet and we don\'t want to bother it that much. Next try will be at ' . date_format_string($waituntil, get_string('strftimedatetime', 'langconfig')));
+                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
+                        ' were skipped as OC hasn\'t had a result for us yet and we don\'t want to bother it that much. ' .
+                        'Next try will be at ' .
+                        date_format_string($waituntil, get_string('strftimedatetime', 'langconfig')));
                     continue;
                 }
 
@@ -89,7 +91,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                 if ($workflow->timecreated + (5 * DAYSECS) < time()) {
                     // Remove the cleanup job.
                     $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' were removed as we have waited for 5 days without success to get the duplicated episode ID from OC.');
+                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
+                        ' were removed as we have waited for 5 days without success to get the duplicated episode ID from OC.');
                     // TODO: Send a notification to the admin in this case.
                     continue;
                 }
@@ -104,7 +107,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                 if ($episodeid === false) {
                     // Remove the cleanup job.
                     $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
+                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' ' .
+                        'were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
                     continue;
                 }
 
@@ -112,11 +116,12 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                 if ($episodeid === '') {
                     // Postpone the cleanup job.
                     $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid);
-                    $DB->execute('UPDATE {block_opencast_ltiepisode_cu}
-                                  SET queuecount = queuecount + :increment, timemodified = :time
-                                  WHERE ocworkflowid = :ocworkflowid',
+                    $DB->execute('UPDATE {block_opencast_ltiepisode_cu} ' .
+                        'SET queuecount = queuecount + :increment, timemodified = :time ' .
+                        'WHERE ocworkflowid = :ocworkflowid',
                         $params);
-                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid . ' were postponed as the stored OC workflow does not hold a duplicated episode ID (yet)');
+                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
+                        ' were postponed as the stored OC workflow does not hold a duplicated episode ID (yet)');
                     continue;
                 }
 
@@ -137,7 +142,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                 if ($cleanupresult != true) {
                     // Remove the cleanup job.
                     $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' failed during the update of the episode activities and were removed. There won\'t be a retry.');
+                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
+                        ' failed during the update of the episode activities and were removed. There won\'t be a retry.');
                     // TODO: Send a notification to the admin in this case.
                     continue;
 

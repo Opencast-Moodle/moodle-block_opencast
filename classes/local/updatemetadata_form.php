@@ -50,7 +50,7 @@ class updatemetadata_form extends \moodleform
                     'multiple' => true,
                     'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
-                    'showsuggestions' => true, // if true, admin is able to add suggestion via admin page. Otherwise no suggestions!
+                    'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
@@ -60,7 +60,8 @@ class updatemetadata_form extends \moodleform
                 }
             }
 
-            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'), $param, $attributes);
+            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
+                $param, $attributes);
 
             if ($field->datatype == 'text') {
                 $mform->setType($field->name, PARAM_TEXT);

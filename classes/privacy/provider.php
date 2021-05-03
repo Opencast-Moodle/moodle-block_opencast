@@ -40,7 +40,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
+class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider
+{
 
     /** Return the fields which contain personal data.
      *
@@ -48,7 +49,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @return collection the updated collection of metadata items.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('block_opencast_uploadjob', [
             'presentation_fileid' => 'privacy:metadata:block_opencast_uploadjob:presentation_fileid',
             'presenter_fileid' => 'privacy:metadata:block_opencast_uploadjob:presenter_fileid',
@@ -74,20 +75,20 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @return contextlist $contextlist The list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
         // Since we can have only one block instance per course, we can use the course context.
         // Therefore we take each course, in which the user uploaded a video.
-        $sql = "SELECT c.id
-                  FROM {block_opencast_uploadjob} bo
-                  JOIN {context} c ON c.instanceid = bo.courseid AND c.contextlevel = :contextcourse
-                 WHERE bo.userid = :userid
-              GROUP BY c.id";
+        $sql = "SELECT c.id " .
+            "FROM {block_opencast_uploadjob} bo " .
+            "JOIN {context} c ON c.instanceid = bo.courseid AND c.contextlevel = :contextcourse " .
+            "WHERE bo.userid = :userid " .
+            "GROUP BY c.id";
 
         $params = [
-            'contextcourse'   => CONTEXT_COURSE,
-            'userid'        => $userid
+            'contextcourse' => CONTEXT_COURSE,
+            'userid' => $userid
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -117,17 +118,17 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
             $courseid = $context->instanceid;
 
-            $sql = "SELECT bo.id as id,
-                       bo.courseid as courseid,
-                       f.filename as filename,
-                       bo.status as status,
-                       bo.timecreated as creation_time,
-                       bo.timemodified as last_modified
-                  FROM {block_opencast_uploadjob} bo JOIN
-                       {files} f ON bo.presentation_fileid = f.id
-                 WHERE bo.userid = :userid AND
-                       bo.courseid = :courseid
-              ORDER BY bo.status";
+            $sql = "SELECT bo.id as id, " .
+                "bo.courseid as courseid, " .
+                "f.filename as filename, " .
+                "bo.status as status, " .
+                "bo.timecreated as creation_time, " .
+                "bo.timemodified as last_modified " .
+                "FROM {block_opencast_uploadjob} bo JOIN " .
+                "{files} f ON bo.presentation_fileid = f.id " .
+                "WHERE bo.userid = :userid AND " .
+                "bo.courseid = :courseid " .
+                "ORDER BY bo.status";
 
             $params = [
                 'userid' => $user->id,
@@ -162,7 +163,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Delete all data for all users in the specified context.
      *
-     * @param   context $context The specific context to delete data for.
+     * @param context $context The specific context to delete data for.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
@@ -183,7 +184,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param   approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
@@ -217,7 +218,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Get the list of users who have data within a context.
      *
-     * @param   userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
@@ -227,14 +228,14 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         $params = [
-            'courseid'   => $context->instanceid
+            'courseid' => $context->instanceid
         ];
 
         // From uploadjobs.
-        $sql = "SELECT bo.userid as userid
-                  FROM {block_opencast_uploadjob} bo
-                  WHERE bo.courseid = :courseid
-              GROUP BY bo.userid";
+        $sql = "SELECT bo.userid as userid " .
+            "FROM {block_opencast_uploadjob} bo " .
+            "WHERE bo.courseid = :courseid " .
+            "GROUP BY bo.userid";
 
         $userlist->add_from_sql('userid', $sql, $params);
 
@@ -243,7 +244,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     /**
      * Delete multiple users within a single context.
      *
-     * @param   approved_userlist $userlist The approved context and user information to delete information for.
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;

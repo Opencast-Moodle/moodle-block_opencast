@@ -28,7 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class addactivityepisode_form extends \moodleform {
+class addactivityepisode_form extends \moodleform
+{
 
     public function definition() {
         global $CFG;
@@ -37,20 +38,21 @@ class addactivityepisode_form extends \moodleform {
 
         $courseid = $this->_customdata['courseid'];
 
-        $mform->addElement('text', 'title', get_string('addactivityepisode_formactivitytitle', 'block_opencast'), array('size' => '40'));
+        $mform->addElement('text', 'title', get_string('addactivityepisode_formactivitytitle', 'block_opencast'),
+            array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title',
-                \block_opencast\local\activitymodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
+            \block_opencast\local\activitymodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
         $mform->addRule('title',
-                get_string('addactivityepisode_noemptytitle', 'block_opencast',
-                        get_string('addactivityepisode_defaulttitle', 'block_opencast')),
-                'required');
+            get_string('addactivityepisode_noemptytitle', 'block_opencast',
+                get_string('addactivityepisode_defaulttitle', 'block_opencast')),
+            'required');
 
         if (get_config('block_opencast', 'addactivityepisodeintro') == true) {
             $mform->addElement('editor', 'intro', get_string('addactivityepisode_formactivityintro', 'block_opencast'),
-                    array('rows' => 5),
-                    array('maxfiles' => 0, 'noclean' => true));
-            $mform->setType('intro', PARAM_RAW); // no XSS prevention here, users must be trusted
+                array('rows' => 5),
+                array('maxfiles' => 0, 'noclean' => true));
+            $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
         if (get_config('block_opencast', 'addactivityepisodesection') == true) {
@@ -60,7 +62,7 @@ class addactivityepisode_form extends \moodleform {
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addactivityepisode_formactivitysection', 'block_opencast'),
-                        \block_opencast\local\activitymodulemanager::get_course_sections($courseid));
+                    \block_opencast\local\activitymodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
@@ -68,7 +70,7 @@ class addactivityepisode_form extends \moodleform {
 
         if (get_config('block_opencast', 'addactivityepisodeavailability') == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
-                    get_string('addactivityepisode_formactivityavailability', 'block_opencast'));
+                get_string('addactivityepisode_formactivityavailability', 'block_opencast'));
             \core_availability\frontend::include_all_javascript(get_course($courseid));
         }
 
@@ -89,7 +91,7 @@ class addactivityepisode_form extends \moodleform {
      *
      * @return void
      */
-    function add_action_buttons($cancel = true, $submitlabel = null) {
+    public function add_action_buttons($cancel = true, $submitlabel = null) {
         $mform = $this->_form;
 
         // Elements in a row need a group.

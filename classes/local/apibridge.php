@@ -237,7 +237,6 @@ class apibridge
      */
     private function extend_video_status(&$video) {
         $api = new api();
-        $plannedvideo = null;
         if (!$api->supports_api_level('v1.1.0')) {
             $resourceopencast5 = '/recordings/' . $video->identifier . '/technical.json';
             $api = new api();
@@ -271,11 +270,11 @@ class apibridge
         }
     }
 
-    public function get_opencast_video($identifier, bool $with_publications = false) {
+    public function get_opencast_video($identifier, bool $withpublications = false) {
 
         $resource = '/api/events/' . $identifier;
 
-        if ($with_publications) {
+        if ($withpublications) {
             $resource .= '?withpublications=true';
         }
 
@@ -782,34 +781,34 @@ class apibridge
                 $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
             }
         }
-        // applying the media types to the event
-        $valid_storedfile = true;
+        // Applying the media types to the event.
+        $validstoredfile = true;
         if ($job->presenter_fileid) {
             $event->set_presenter($job->presenter_fileid);
             if (!$event->get_presenter()) {
-                $valid_storedfile = false;
+                $validstoredfile = false;
             }
         }
         if ($job->presentation_fileid) {
             $event->set_presentation($job->presentation_fileid);
             if (!$event->get_presentation()) {
-                $valid_storedfile = false;
+                $validstoredfile = false;
             }
         }
         if ($job->chunkupload_presenter) {
             $event->set_chunkupload_presenter($job->chunkupload_presenter);
             if (!$event->get_presenter()) {
-                $valid_storedfile = false;
+                $validstoredfile = false;
             }
         }
         if ($job->chunkupload_presentation) {
             $event->set_chunkupload_presentation($job->chunkupload_presentation);
             if (!$event->get_presentation()) {
-                $valid_storedfile = false;
+                $validstoredfile = false;
             }
         }
 
-        if (!$valid_storedfile) {
+        if (!$validstoredfile) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
             throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
@@ -1180,12 +1179,13 @@ class apibridge
             case block_opencast_renderer::GROUP:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule)
+                        foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
                             $result [] = (object)array(
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rule,
                             );
+                        }
                     }
                 }
                 break;
@@ -1569,7 +1569,7 @@ class apibridge
         self::get_instance(true);
     }
 
-    //Metadata
+    // Metadata.
 
     /**
      * The the allowance of the update metadata process
@@ -1613,8 +1613,6 @@ class apibridge
      * @throws \moodle_exception
      */
     public function update_event_metadata($eventidentifier, $metadata) {
-
-
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode($metadata);

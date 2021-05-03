@@ -48,7 +48,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('deletedraft', 'block_opencast'), $baseurl);
 
 // Capability check.
-// the one who is allowed to add the video is also allowed to delete the video before it is uploaded
+// the one who is allowed to add the video is also allowed to delete the video before it is uploaded.
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 

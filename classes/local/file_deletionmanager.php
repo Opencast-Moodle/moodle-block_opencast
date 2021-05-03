@@ -58,11 +58,11 @@ class file_deletionmanager extends \file_system_filedir {
         ];
 
         // Get draft entries belonging to stored file.
-        $sql = "SELECT f.*
-                FROM {files} f
-                JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid
-                WHERE f.contenthash = :contenthash AND f.component = :component
-                AND f.filearea = :filearea AND f.filename <> :filename";
+        $sql = "SELECT f.* " .
+                "FROM {files} f ".
+                "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid ".
+                "WHERE f.contenthash = :contenthash AND f.component = :component ".
+                "AND f.filearea = :filearea AND f.filename <> :filename";
 
         if (!empty($itemid)) {
             $params['itemid'] = $itemid;

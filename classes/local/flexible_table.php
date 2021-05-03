@@ -26,7 +26,7 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/lib/tablelib.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
 
 /**
  * Subclass of the flexible_table class to override methods.
@@ -35,12 +35,13 @@ require_once($CFG->dirroot.'/lib/tablelib.php');
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flexible_table extends \flexible_table {
+class flexible_table extends \flexible_table
+{
 
     /**
      * Overridden method to change content and format of display notification.
      */
-    function print_nothing_to_display() {
+    public function print_nothing_to_display() {
 
         // Render button to allow user to reset table preferences.
         echo $this->render_reset_button();
@@ -50,6 +51,4 @@ class flexible_table extends \flexible_table {
         // SYNERGY LEARNING: change format and content of display.
         echo \html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
     }
-
-
 }
