@@ -35,9 +35,8 @@ $services = array(
 
 $functions = array(
     'block_opencast_delete_workflow' => array(
-        'classname' => 'block_opencast_external',
-        'methodname' => 'delete_workflow',
-        'classpath' => 'blocks/opencast/externallib.php',
+        'classname' => '\block_opencast\external\delete_workflow',
+        'methodname' => 'execute',
         'description' => 'Deletes a workflow.',
         'type' => 'write',
         'ajax' => true,

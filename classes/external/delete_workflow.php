@@ -20,12 +20,32 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("$CFG->libdir/externallib.php");
 
-class block_opencast_external extends external_api
+namespace block_opencast\external;
+
+use context_system;
+use external_api;
+use external_function_parameters;
+use external_single_structure;
+use external_value;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+
+/**
+ * External function 'delete_workflow' implementation.
+ *
+ * @package     block_opencast
+ * @category    external
+ * @copyright   2021 Tamara Gunkel, University of Münster
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class delete_workflow extends external_api
 {
 
-    public static function delete_workflow_parameters()
+
+    public static function execute_parameters(): external_function_parameters
     {
         return new external_function_parameters(
             array(
@@ -34,21 +54,13 @@ class block_opencast_external extends external_api
         );
     }
 
-    public static function delete_workflow_returns()
-    {
-        return new external_single_structure(
-            array(
-                'success' => new external_value(PARAM_BOOL, 'True if successful')
-            )
-        );
-    }
 
-    public static function delete_workflow($id)
+    public static function execute($id)
     {
         global $DB;
         require_capability('moodle/site:config', context_system::instance());
 
-        $params = self::validate_parameters(self::delete_workflow_parameters(), array('id' => $id));
+        $params = self::validate_parameters(self::execute_parameters(), array('id' => $id));
 
         try {
             $DB->delete_records('block_opencast_workflowdefs', ['id' => $params['id']]);
@@ -56,5 +68,15 @@ class block_opencast_external extends external_api
             return ['success' => false];
         }
         return ['success' => true];
+    }
+
+
+    public static function execute_returns()
+    {
+        return new external_single_structure(
+            array(
+                'success' => new external_value(PARAM_BOOL, 'True if successful')
+            )
+        );
     }
 }
