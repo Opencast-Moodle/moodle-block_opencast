@@ -16,7 +16,7 @@
 
 /**
  *
- * * @package    block_opencast
+ * @package    block_opencast
  * @copyright  2020 Farbod Zamani Boroujeni - ELAN e.V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

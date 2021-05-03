@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Helper functions.
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
