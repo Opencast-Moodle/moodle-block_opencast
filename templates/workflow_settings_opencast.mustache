@@ -22,8 +22,8 @@
     Example context (json):
     {
         "config_panel": "<div>...</div>",
-        "form_url": "http://mymoodle.de/blocks/opencast/serveworkflowconfigpanel.php?workflowid=xyz",
         "parent_url": "http://mymoodle.de/blocks/opencast/workflowsettings.php",
+        "parent_origin": "http://mymoodle.de"
     }
 }}
 <!DOCTYPE html>
@@ -36,30 +36,33 @@
 <body>
 <!-- Security risk: Do not directly open this page in a browser!
 If you do, the external JavaScript code from the Opencast server can access moodle sites and cookies. -->
-<form method="post" action="{{form_url}}" id="configForm">
+<div id="configForm">
 {{{config_panel}}}
-<p></p>
-<button type="submit">{{#str}}submit{{/str}}</button>
-</form>
+</div>
 <script type="text/javascript">
     window.onload = function(){
         var body = document.body, html = document.documentElement;
         var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
         parent.postMessage(parseInt(height), "{{parent_url}}");
     };
-    $(document).ready(function() {
-        $('#configForm').submit(function() {
-            // Transmit unchecked checkboxes.
-            $('#configForm input[type=checkbox]').each(function () {
-                if(!this.checked) {
-                    $(this).val("false");
-                    this.checked = true;
+
+    window.addEventListener('message', function (event) {
+        if (event.origin !== "{{parent_origin}}") {
+            return;
+        }
+        if (event.data === "getdata") {
+            var values = {};
+            $('#configForm input').each(function () {
+                if(this.type == 'checkbox' || this.type === 'radio') {
+                    values[this.id] = this.checked ? 'true' : 'false';
+                }
+                else {
+                    values[this.id] = $(this).val();
                 }
             });
-            return true;
-        });
+            parent.postMessage(JSON.stringify(values), "{{parent_url}}");
+        }
     });
-    {{{js}}}
 </script>
 </body>
 </html>

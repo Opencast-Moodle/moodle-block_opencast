@@ -159,19 +159,5 @@
         <INDEX NAME="ocworkflowid" UNIQUE="false" FIELDS="ocworkflowid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="block_opencast_workflowdefs" COMMENT="Stores the workflow definitions and their configurations that can be manually started">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="workflowdefinitionid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="configuration" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="workflowdefinitionid" UNIQUE="true" FIELDS="workflowdefinitionid"/>
-      </INDEXES>
-    </TABLE>
   </TABLES>
 </XMLDB>

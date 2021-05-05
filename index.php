@@ -39,16 +39,12 @@ require_login($courseid, false);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
-$workflows = $DB->get_records("block_opencast_workflowdefs", array('enabled' => 1));
+$apibridge = apibridge::get_instance();
+$workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
 $workflowsavailable = count($workflows) > 0;
 
-$apibridge = apibridge::get_instance();
-$workflowsjs = array();
 foreach ($workflows as $workflow) {
-    $def = $apibridge->get_workflow_definition($workflow->workflowdefinitionid);
-    if($def) {
-        $workflowsjs[$workflow->workflowdefinitionid] = array('title' => $def->title, 'description' => $def->description);
-    }
+    $workflowsjs[$workflow->identifier] = array('title' => $workflow->title, 'description' => $workflow->description);
 }
 
 $PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $workflowsjs]);

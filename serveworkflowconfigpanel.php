@@ -24,64 +24,25 @@
 
 require_once(__DIR__ . '/../../config.php');
 global $PAGE, $OUTPUT, $CFG, $DB;
-require_once($CFG->libdir . '/adminlib.php');;
-require_login();
+require_once($CFG->libdir . '/adminlib.php');
 
-if (has_capability('moodle/site:config', context_system::instance())) {
-    $apibridge = \block_opencast\local\apibridge::get_instance();
-    $workflowid = required_param('workflowid', PARAM_ALPHANUMEXT);
-    $workflow = $apibridge->get_workflow_definition($workflowid);
-    if ($workflow) {
-        $record = $DB->get_record('block_opencast_workflowdefs', ['workflowdefinitionid' => $workflow->identifier]);
+$courseid = required_param('courseid', PARAM_INT);
+$workflowid = required_param('workflowid', PARAM_ALPHANUMEXT);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Data was submitted.
-            $configuration = json_encode($_POST);
+require_login($courseid, false);
 
-            if (!$record) {
-                $entry = new \stdClass();
-                $entry->workflowdefinitionid = $workflow->identifier;
-                $entry->enabled = false;
-                $entry->configuration = $configuration;
-                $DB->insert_record('block_opencast_workflowdefs', $entry, false);
-            } else {
-                $record->configuration = $configuration;
-                $DB->update_record('block_opencast_workflowdefs', $record);
-            }
-            $record->configuration = $configuration;
-            echo "<p>" . get_string("config_saved", "block_opencast") . "</p>";
-        }
+$coursecontext = context_course::instance($courseid);
+require_capability('block/opencast:startworkflow', $coursecontext);
 
-        if ($record) {
-            // Create JS to set values.
-            // Definitely works for checkboxes/radios/numbers. Probably works for other input types as well.
-            foreach (json_decode($record->configuration) as $key => $value) {
-                if ($value === "true" || $value === "false") {
-                    // Might be a checkbox or radio button. Un-/check it.
-                    $js .= "$('input[name=\"" . $key . "\"]').prop('checked', " . $value . ");\n";
-                } else {
-                    $input = "$('input[name=\"" . $key . "\"]')";
-                    $js .= 'if($(' . $input . '[0]).prop("type") === "radio"){' . "\n";
-                    $js .= "$(\"input[name=" . $key . "]\").prop('checked', false);\n";
-                    $js .= "$(\"input[name=" . $key . "][value='" . $value . "']\").prop('checked', true);\n";
-                    $js .= "} else {\n";
-                    if (is_numeric($value)) {
-                        $js .= "$('input[name=\"" . $key . "\"]').val(" . $value . ");\n";
-                    } else {
-                        $js .= "$('input[name=\"" . $key . "\"]').val('" . $value . "');\n";
-                    }
-                    $js .= "}";
-                }
-            }
-        }
+$apibridge = \block_opencast\local\apibridge::get_instance();
+$workflow = $apibridge->get_workflow_definition($workflowid);
+if ($workflow) {
+    // Display form.
+    $context = new \stdClass();
+    $context->config_panel = $workflow->configuration_panel;
+    $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
+    $context->parent_origin = $CFG->wwwroot;
 
-        // Display form.
-        $context = new \stdClass();
-        $context->config_panel = $workflow->configuration_panel;
-        $context->form_url = (new moodle_url('/blocks/opencast/serveworkflowconfigpanel.php', array('workflowid' => $workflowid)))->out();
-        $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
-        $context->js = $js;
-
-        echo $OUTPUT->render_from_template('block_opencast/workflow_settings_opencast', $context);
-    }
+    echo $OUTPUT->render_from_template('block_opencast/workflow_settings_opencast', $context);
 }
+
