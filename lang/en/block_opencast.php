@@ -291,6 +291,7 @@ $string['importvideos_wizardstep3skipintro'] = 'There aren\'t any existing Openc
 $string['importvideos_wizardstep3episodemodulesubheading'] = 'Clean up existing Opencast episode module(s)';
 $string['importvideos_wizardstep3episodemoduleexplanation'] = 'There is at least one Opencast episode module in this course which points to a video in the course from where you are going to import the videos now. After the import, this will be cleaned up so that it points to imported video within this course.';
 $string['importvideos_wizardstep3episodemodulelabel'] = 'Yes, clean up the Opencast episode module(s) related to this import';
+$string['importvideos_wizardstep3seriesmodulesubheading'] = 'Clean up existing Opencast series module(s)';
 $string['importvideos_wizardstep3seriesmoduleexplanation'] = 'There is at least one Opencast series module in this course which points to the course from where you are going to import the videos now. After the import, this will be cleaned up so that only the Opencast series module which shows all (pre-existing and to be imported) videos of this course remains.';
 $string['importvideos_wizardstep3seriesmodulelabel'] = 'Yes, clean up the Opencast series modules related to this import';
 $string['importvideos_wizardstep4heading'] = 'Summary';
