@@ -22,57 +22,86 @@
  */
 
 define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url'],
-    function($, ModalFactory, ModalEvents, str, url) {
+    function ($, ModalFactory, ModalEvents, str, url) {
 
-    /*
-     * Initialise all of the modules for the opencast block.
-     */
-    var init = function(courseid) {
-        // Load strings
-        var strings = [
-            {
-                key: 'reportproblem_modal_title',
-                component: 'block_opencast'
-            },
-            {
-                key: 'reportproblem_modal_body',
-                component: 'block_opencast'
-            },
-            {
-                key: 'reportproblem_modal_placeholder',
-                component: 'block_opencast'
-            },
-            {
-                key: 'reportproblem_modal_required',
-                component: 'block_opencast'
-            },
-            {
-                key: 'reportproblem_modal_submit',
-                component: 'block_opencast'
-            }
-        ];
-        str.get_strings(strings).then(function(results) {
-            $('.report-problem').on('click', function(e) {
+        var initWorkflowModal = function (courseid, langstrings, workflows) {
+            $('.start-workflow').on('click', function (e) {
+                e.preventDefault();
+                var clickedVideo = $(e.currentTarget);
+                var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
+
+                for (let workflow in workflows) {
+                    select += '<option value="' + workflow + '">' + workflows[workflow].title + '</option>';
+                }
+
+                select += '</select>';
+
+                ModalFactory.create({
+                    type: ModalFactory.types.SAVE_CANCEL,
+                    title: langstrings[5],
+                    body: '<form id="startWorkflowForm" method="post" action="' +
+                        url.relativeUrl('blocks/opencast/startworkflow.php', {
+                            'courseid': courseid,
+                            'videoid': clickedVideo.data('id')
+                        }) + '"><div class="form-group">' +
+                        '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
+                        '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
+                        '</iframe><input type="hidden" name="configparams" id="configparams"></form>'
+                })
+                    .then(function (modal) {
+                        modal.setSaveButtonText(langstrings[5]);
+                        var root = modal.getRoot();
+                        root.on(ModalEvents.save, function (e) {
+                            document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
+                            // Handle form submission after receiving data.
+                            e.preventDefault();
+                        });
+
+
+                        // Show description for initial value.
+                        modal.show().then(function () {
+                            $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
+                            $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                                'courseid': courseid,
+                                'workflowid': $('#workflowselect').val()
+                            }));
+
+                            // Show workflow description when selected.
+                            $('#workflowselect').change(function () {
+                                let workflowid = $(this).val();
+                                $('#workflowdesc').html(workflows[workflowid].description);
+                                $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                                    'courseid': courseid,
+                                    'workflowid': workflowid
+                                }));
+                            });
+                        });
+                    });
+            });
+        };
+
+        var initReportModal = function (courseid, langstrings) {
+            $('.report-problem').on('click', function (e) {
                 e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
                 ModalFactory.create({
                     type: ModalFactory.types.SAVE_CANCEL,
-                    title: results[0],
+                    title: langstrings[0],
                     body: '<form id="reportProblemForm" method="post" action="' +
                         url.relativeUrl('blocks/opencast/reportproblem.php', {
                             'courseid': courseid,
                             'videoid': clickedVideo.data('id')
                         }) + '"><div class="form-group">' +
-                        '<label for="inputMessage">' + results[1] + '</label>' +
+                        '<label for="inputMessage">' + langstrings[1] + '</label>' +
                         '<textarea class="form-control" id="inputMessage" name="inputMessage" rows="4" placeholder="' +
-                        results[2] + '">' + '</textarea>' +
-                        '  <div class="invalid-feedback d-none" id="messageValidation">' + results[3] + '</div>' +
+                        langstrings[2] + '">' + '</textarea>' +
+                        '  <div class="invalid-feedback d-none" id="messageValidation">' + langstrings[3] + '</div>' +
                         '</div></form>'
                 })
-                    .then(function(modal) {
-                        modal.setSaveButtonText(results[4]);
+                    .then(function (modal) {
+                        modal.setSaveButtonText(langstrings[4]);
                         var root = modal.getRoot();
-                        root.on(ModalEvents.save, function(e) {
+                        root.on(ModalEvents.save, function (e) {
                             if ($('#inputMessage').val()) {
                                 $('#reportProblemForm').submit();
                             } else {
@@ -85,11 +114,63 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
 
                     });
             });
-        });
-    };
+        };
 
-    return {
-        init: init
-    };
-});
+        /*
+         * Initialise all of the modules for the opencast block.
+         */
+        var init = function (courseid, workflows) {
+            // Load strings
+            var strings = [
+                {
+                    key: 'reportproblem_modal_title',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'reportproblem_modal_body',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'reportproblem_modal_placeholder',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'reportproblem_modal_required',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'reportproblem_modal_submit',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'startworkflow',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'startworkflow_modal_body',
+                    component: 'block_opencast'
+                }
+            ];
+            str.get_strings(strings).then(function (results) {
+                initWorkflowModal(courseid, results, workflows);
+                initReportModal(courseid, results);
+            });
+            window.addEventListener('message', function (event) {
+                if (event.origin !== "null") {
+                    return;
+                }
+
+                if (event.data === parseInt(event.data)) {
+                    $('#config-frame').height(event.data);
+                } else {
+                    $('#configparams').val(event.data);
+                    $('#startWorkflowForm').submit();
+                }
+            });
+        };
+
+        return {
+            init: init
+        };
+    });
 

@@ -59,18 +59,11 @@ class restore_opencast_block_task extends restore_block_task
      * Add a setting to restore process, when:
      *
      *   1. course videos are available in backupfile AND
-     *   2. target course has not yet an assigned series AND
-     *   3. api level v1.1.0 is supported.
+     *   2. target course has not yet an assigned series.
      */
     protected function define_my_settings() {
 
         if (!file_exists($this->get_taskbasepath() . '/opencast.xml')) {
-            return;
-        }
-
-        // Does API support workflows to start duplication of videos.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-        if (!$apibridge->supports_api_level('v1.1.0')) {
             return;
         }
 

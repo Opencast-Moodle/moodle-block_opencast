@@ -271,7 +271,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         }
 
         // Additional Settings.
-        // Terms of use. Downlaod channel. Support email.
+        // Terms of use. Downlaod channel. Custom workflows channel. Support email.
         $additionalsettings->add(
             new admin_setting_heading('block_opencast/download_settingheader',
                 get_string('additional_settings', 'block_opencast'),
@@ -281,6 +281,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             new admin_setting_configtext('block_opencast/download_channel',
                 get_string('download_setting', 'block_opencast'),
                 get_string('download_settingdesc', 'block_opencast'), "lms-download"));
+
+
+        $additionalsettings->add(
+            new admin_setting_configtext('block_opencast/workflow_tag',
+                get_string('workflowtag_setting', 'block_opencast'),
+                get_string('workflowtag_settingdesc', 'block_opencast'), null));
 
         $additionalsettings->add(
             new admin_setting_configtext('block_opencast/support_email',

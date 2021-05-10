@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideosmanager {
+class importvideosmanager
+{
 
     /**
      * Helperfunction to get the status of the manual import videos feature.
@@ -41,7 +42,8 @@ class importvideosmanager {
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_manualimport() {
+    public static function is_enabled_and_working_for_manualimport()
+    {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled');
 
@@ -100,7 +102,8 @@ class importvideosmanager {
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_coreimport() {
+    public static function is_enabled_and_working_for_coreimport()
+    {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled');
 
@@ -158,7 +161,8 @@ class importvideosmanager {
      *
      * @return boolean
      */
-    public static function handle_series_modules_is_enabled_and_working() {
+    public static function handle_series_modules_is_enabled_and_working()
+    {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleseriesenabled');
 
@@ -198,7 +202,8 @@ class importvideosmanager {
      *
      * @return boolean
      */
-    public static function handle_episode_modules_is_enabled_and_working() {
+    public static function handle_episode_modules_is_enabled_and_working()
+    {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleepisodeenabled');
 
@@ -229,16 +234,6 @@ class importvideosmanager {
             return false;
         }
 
-        // Check the support of Opencast API Level >=v1.1.0.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-        $apilevelsupported = $apibridge->supports_api_level('v1.1.0');
-
-        // If the API level is too old, then the feature is not working.
-        if ($apilevelsupported == false) {
-            // Inform the caller.
-            return false;
-        }
-
         // The feature is working.
         return true;
     }
@@ -251,7 +246,8 @@ class importvideosmanager {
      *
      * @return array
      */
-    public static function get_import_source_course_videos_menu($sourcecourseid) {
+    public static function get_import_source_course_videos_menu($sourcecourseid)
+    {
         global $PAGE;
 
         // Get renderer.
@@ -295,7 +291,8 @@ class importvideosmanager {
      *
      * @return array
      */
-    public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos) {
+    public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos)
+    {
         global $PAGE;
 
         // Get renderer.
@@ -354,7 +351,8 @@ class importvideosmanager {
      *
      * @return bool
      */
-    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
+    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false)
+    {
         // If the user is not allowed to import from the source course at all, return.
         $sourcecoursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
@@ -401,18 +399,18 @@ class importvideosmanager {
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
                 $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
-                        $targetcourseid, $identifier);
+                    $targetcourseid, $identifier);
             }
 
             // If there are existing modules to be cleaned up.
             if ($modulecleanup == true && count($episodemodules) > 0) {
                 // Create duplication task for this event.
                 $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
-                        true, $episodemodules);
+                    true, $episodemodules);
             } else {
                 // Create duplication task for this event.
                 $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
-                        false, null);
+                    false, null);
             }
 
             // If there was any problem with creating this task.
