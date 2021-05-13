@@ -21,7 +21,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-class block_opencast_generator extends testing_block_generator {
+class block_opencast_generator extends testing_block_generator
+{
 
     public function create_file($record = null) {
         global $USER;
@@ -65,26 +66,4 @@ class block_opencast_generator extends testing_block_generator {
         $fs = get_file_storage();
         return $fs->create_file_from_string($record, $record['filecontent']);
     }
-
-    /**
-     * Adds two dummy roles with actions to the database.
-     * @throws dml_exception
-     */
-    public function create_aclroles() {
-        global $DB;
-
-        $record = new \stdClass();
-        $record->rolename = 'testrole1';
-        $record->actions = 'action1';
-
-        // Insert new record.
-        $DB->insert_record('block_opencast_roles', $record, false);
-
-        $record->rolename = 'testrole2';
-        $record->actions = ' action1, action2 ';
-
-        // Insert new record.
-        $DB->insert_record('block_opencast_roles', $record, false);
-    }
-
 }

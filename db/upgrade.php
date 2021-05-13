@@ -27,7 +27,8 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $oldversion
  * @return bool
  */
-function xmldb_block_opencast_upgrade($oldversion) {
+function xmldb_block_opencast_upgrade($oldversion)
+{
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
@@ -460,6 +461,47 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         // Opencast savepoint reached.
         upgrade_block_savepoint(true, 2020111901, 'opencast');
+    }
+
+    if ($oldversion < 2021051200) {
+
+        // Define table block_opencast_roles to be dropped.
+        $table = new xmldb_table('block_opencast_roles');
+
+        if ($dbman->table_exists($table)) {
+            // Write existing data to config.
+            $records = array_map(function ($r) {
+                unset($r->id);
+                $r->permanent = $r->permanent ? 1 : 0;
+                return $r;
+            }, array_values($DB->get_records('block_opencast_roles')));
+
+            $config = json_encode($records);
+            set_config('roles', $config, 'block_opencast');
+
+            // Drop table.
+            $dbman->drop_table($table);
+        }
+
+        // Define table block_opencast_catalog to be dropped.
+        $table = new xmldb_table('block_opencast_catalog');
+
+        if ($dbman->table_exists($table)) {
+            // Write existing data to config.
+            $config = json_encode(array_map(function ($r) {
+                unset($r->id);
+                $r->required = $r->required ? 1 : 0;
+                $r->readonly = $r->readonly ? 1 : 0;
+                return $r;
+            }, array_values($DB->get_records('block_opencast_catalog'))));
+            set_config('metadata', $config, 'block_opencast');
+
+            // Drop table.
+            $dbman->drop_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021051200, 'opencast');
     }
 
     return true;

@@ -56,7 +56,7 @@ class visibility_form extends \moodleform
 
         // If group restriction is generally enabled, check if there are roles which allow group visibility.
         if ($controlgroupsenabled) {
-            $roles = $apibridge->getroles(array("permanent" => 0));
+            $roles = $apibridge->getroles(0);
             $groupvisibilityallowed = false;
             foreach ($roles as $role) {
                 if (strpos($role->rolename, '[COURSEGROUPID]') >= 0) {

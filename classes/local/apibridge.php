@@ -264,7 +264,8 @@ class apibridge
         }
     }
 
-    public function get_opencast_video($identifier, bool $withpublications = false) {
+    public function get_opencast_video($identifier, bool $withpublications = false)
+    {
 
         $resource = '/api/events/' . $identifier;
 
@@ -854,15 +855,14 @@ class apibridge
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
-    public function getroles($conditions = null)
+    public function getroles($permanent = null)
     {
-        global $DB;
-        $roles = $DB->get_records('block_opencast_roles', $conditions);
-        foreach ($roles as $id => $role) {
-            $actions = explode(',', $role->actions);
-            $roles[$id]->actions = array();
-            foreach ($actions as $action) {
-                $roles[$id]->actions [] = trim($action);
+        $roles = json_decode(get_config('block_opencast', 'roles'));
+        $roles_processed = [];
+        foreach ($roles as $role) {
+            if ($permanent === null || $permanent === $role->permanent) {
+                $roles_processed[] = $role;
+                $role->actions = array_map('trim', explode(',', $role->actions));
             }
         }
 
@@ -1180,7 +1180,7 @@ class apibridge
      */
     private function get_acl_rules_for_status($courseid, $visibility, $permanent, $groups = null)
     {
-        $roles = $this->getroles(array('permanent' => $permanent ? 1 : 0));
+        $roles = $this->getroles($permanent ? 1 : 0);
 
         $result = array();
 
@@ -1261,7 +1261,7 @@ class apibridge
             }
         }
 
-        $roles = $this->getroles(array('permanent' => 0));
+        $roles = $this->getroles(0);
         $hasnogroupacls = true;
         foreach ($roles as $role) {
             $pattern = $this->get_pattern_for_group_placeholder($role->rolename, $courseid);
@@ -1393,9 +1393,9 @@ class apibridge
             foreach ($returnedworkflows as $workflow) {
 
                 if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                    $workflows[$workflow->id] = $workflow->title;
+                    $workflows[$workflow->identifier] = $workflow->title;
                 } else {
-                    $workflows[$workflow->id] = $workflow->id;
+                    $workflows[$workflow->identifier] = $workflow->identifier;
                 }
             }
         }

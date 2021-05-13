@@ -96,7 +96,7 @@ $columns[] = 'workflow_state';
 $headers[] = 'workflow_state';
 
 // If configured, add the visibility column.
-$toggleaclroles = (count($apibridge->getroles(array('permanent' => 0))) !== 0) &&
+$toggleaclroles = (count($apibridge->getroles(0)) !== 0) &&
     (get_config('block_opencast', 'workflow_roles') != "") &&
     (get_config('block_opencast', 'aclcontrolafter') == true);
 if ($toggleaclroles) {

@@ -35,7 +35,7 @@ $string['acl_settingheader'] = 'Control episode visibility';
 $string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
-$string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced.';
+$string['aclrolesnamedesc'] = 'You can use the placeholder [COURSEID] in the role name which is automatically replaced. The list of actions must be comma-separated.';
 $string['actions'] = 'Comma-separated list of actions';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
 $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
@@ -181,7 +181,7 @@ $string['createseriesforcourse'] = 'Create new series';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm_role'] = 'Are you sure you want to delete this role?';
-$string['delete_confirm_catalog'] = 'Are you sure you want to delete this catalog entry?';
+$string['delete_confirm_metadata'] = 'Are you sure you want to delete this metadata field?';
 $string['deleteevent'] = 'Delete an event in Opencast';
 $string['deleteeventdesc'] = 'You are about to delete this video permanently and irreversibly from Opencast.<br />All embedded links to it will become invalid. Please do not continue unless you are absolutely sure.';
 $string['deletedraft'] = 'Delete a video before transfer to Opencast';
@@ -189,6 +189,8 @@ $string['deletedraftdesc'] = 'You are about to delete this video before the tran
 $string['deletegroupacldesc'] = 'You are about to delete the access to this video from this course.<br />If the access is deleted, the video is not displayed in filepicker and in the list of available videos. This does not affect videos, which are already embedded.<br />The video will not be deleted in Opencast.';
 $string['deleteworkflow'] = 'Workflow to start before event is be deleted';
 $string['deleteworkflowdesc'] = 'Before deleting a video, a workflow can be defined, which is called to retract the event from all publication channels.';
+$string['delete_role'] = 'Delete role';
+$string['delete_metadata'] = 'Delete metadata field';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
 $string['downloadvideo'] = 'Download video';
 $string['download_settingheader'] = 'Download videos';
@@ -444,6 +446,7 @@ $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading
     Only video files are allowed!';
 //Added to support metadata and so on
 $string['metadata'] = 'Metadata';
+$string['metadatadesc'] = 'Here you can define which metadata fields can or have to be set when uploading videos to Opencast. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
 $string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';
 $string['mediatype'] = 'Media Source';
 $string['title'] = 'Title';
@@ -489,7 +492,7 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
                                 <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
                                 <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['addcatalog'] = 'Add new metadata';
-$string['descriptionmdfn'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
+$string['descriptionmdfn_help'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
 $string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
 $string['empty_catalogname'] = 'This field must not be empty';
 $string['space_catalogname'] = 'This field must not contain space';

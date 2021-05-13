@@ -611,23 +611,12 @@ class upload_helper
     // Metadata.
 
     /**
-     * Gets the cataqlog of metadata fields from database
+     * Gets the catalog of metadata fields from database
      *
      * @return stdClass $metadata the metadata object
      */
-    public static function get_opencast_metadata_catalog($condition = array(), $fields = '*') {
-        global $DB;
-
-        if ($condition) {
-            $metadatacatalog = $DB->get_record('block_opencast_catalog', $condition, $fields);
-        } else {
-            $metadatacatalog = $DB->get_records('block_opencast_catalog', null, 'id');
-        }
-
-        if (!$metadatacatalog) {
-            return false;
-        }
-
+    public static function get_opencast_metadata_catalog() {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata'));
         return $metadatacatalog;
     }
 }

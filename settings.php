@@ -21,10 +21,13 @@
  * @copyright  2017 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\admin_setting_configeditabletable;
+
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) { // Needs this condition or there is error on login page.
-    global $CFG;
+    global $CFG, $PAGE, $ADMIN, $OUTPUT;
 
     // Empty $settings to prevent a single settings page from being created by lib/classes/plugininfo/block.php
     // because we will create several settings pages now.
@@ -37,9 +40,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
         // Setting page: General.
-        $ADMIN->add('block_opencast', new admin_externalpage('block_opencast_generalsettings',
-            get_string('general_settings', 'block_opencast'),
-            new moodle_url('/blocks/opencast/adminsettings.php')));
+        $settingspage = new admin_settingpage('block_opencast_generalsettings',
+            get_string('general_settings', 'block_opencast'));
+        $ADMIN->add('block_opencast', $settingspage);
 
         // Settings page: Appearance settings.
         $settingspage = new admin_settingpage('block_opencast_appearancesettings',
@@ -63,10 +66,170 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
+        // Setup JS.
+        $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
+        $metdatadefault = '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+
+        $metadata = get_config('block_opencast', 'metadata');
+        $defaultroles = get_config('block_opencast', 'roles');
+        $helpbtnname = $OUTPUT->help_icon('descriptionmdfn', 'block_opencast');
+        $helpbtnparams = $OUTPUT->help_icon('catalogparam', 'block_opencast');
+
+        $jsstrings = [
+            'role' => get_string('heading_role', 'block_opencast'),
+            'actions' => get_string('heading_actions', 'block_opencast'),
+            'permanent' => get_string('heading_permanent', 'block_opencast'),
+            'delete_role' => get_string('delete_role', 'block_opencast'),
+            'delete_confirm_role' => get_string('delete_confirm_role', 'block_opencast'),
+            'delete_metadata' => get_string('delete_metadata', 'block_opencast'),
+            'delete_confirm_metadata' => get_string('delete_confirm_metadata', 'block_opencast'),
+            'name' => get_string('heading_name', 'block_opencast') . '   ' . $helpbtnname,
+            'datatype' => get_string('heading_datatype', 'block_opencast'),
+            'required' => get_string('heading_required', 'block_opencast'),
+            'readonly' => get_string('heading_readonly', 'block_opencast'),
+            'param_json' => get_string('heading_params', 'block_opencast') . '   ' . $helpbtnparams,
+            'delete' => get_string('delete', 'moodle')];
+
+        $rolessetting = new admin_setting_configtext('block_opencast/roles',
+            get_string('aclrolesname', 'block_opencast'),
+            get_string('aclrolesnamedesc',
+                'block_opencast'), $rolesdefault);
+
+        $metadatasetting = new admin_setting_configtext('block_opencast/metadata',
+            get_string('metadata', 'block_opencast'),
+            get_string('metadatadesc',
+                'block_opencast'), $metdatadefault);
+
+        // Crashes if plugins.php is opened because css cannot be included anymore.
+        if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
+            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [$jsstrings, $defaultroles,
+                $rolessetting->get_id(), $metadata, $metadatasetting->get_id()]);
+            $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
+            $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
+        }
+
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
         // Setting page: General.
-        $ADMIN->add('block_opencast', new admin_externalpage('block_opencast_generalsettings',
-            get_string('general_settings', 'block_opencast'),
-            new moodle_url('/blocks/opencast/adminsettings.php')));
+        $generalsettings = new admin_settingpage('block_opencast_generalsettings',
+            get_string('general_settings', 'block_opencast'));
+        $ADMIN->add('block_opencast', $generalsettings);
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/general_settings',
+                get_string('cronsettings', 'block_opencast'),
+                ''));
+
+        $url = new moodle_url('/admin/tool/task/scheduledtasks.php');
+        $link = html_writer::link($url, get_string('pluginname', 'tool_task'), array('target' => '_blank'));
+        $generalsettings->add(
+            new admin_setting_configtext('block_opencast/limituploadjobs',
+                get_string('limituploadjobs', 'block_opencast'),
+                get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
+
+        $generalsettings->add(new admin_setting_configselect('block_opencast/uploadworkflow',
+            get_string('uploadworkflow', 'block_opencast'),
+            get_string('uploadworkflowdesc', 'block_opencast'),
+            'ng-schedule-and-upload', $apibridge->get_existing_workflows('upload')
+        ));
+
+        $generalsettings->add(new admin_setting_configcheckbox('block_opencast/publishtoengage',
+            get_string('publishtoengage', 'block_opencast'),
+            get_string('publishtoengagedesc', 'block_opencast'),
+            0
+        ));
+
+        $generalsettings->add(new admin_setting_configcheckbox('block_opencast/reuseexistingupload',
+            get_string('reuseexistingupload', 'block_opencast'),
+            get_string('reuseexistinguploaddesc', 'block_opencast'),
+            0
+        ));
+
+        $generalsettings->add(new admin_setting_configcheckbox('block_opencast/allowunassign',
+            get_string('allowunassign', 'block_opencast'),
+            get_string('allowunassigndesc', 'block_opencast'),
+            0
+        ));
+
+        $noworkflow = [null => get_string("adminchoice_noworkflow", "block_opencast")];
+        $generalsettings->add(new admin_setting_configselect('block_opencast/deleteworkflow',
+            get_string('deleteworkflow', 'block_opencast'),
+            get_string('deleteworkflowdesc', 'block_opencast'),
+            null, array_merge($noworkflow,
+                $apibridge->get_existing_workflows('delete'))
+        ));
+
+        $generalsettings->add(new admin_setting_configcheckbox('block_opencast/adhocfiledeletion',
+            get_string('adhocfiledeletion', 'block_opencast'),
+            get_string('adhocfiledeletiondesc', 'block_opencast'),
+            0
+        ));
+
+        $generalsettings->add(new admin_setting_filetypes('block_opencast/uploadfileextensions',
+            new lang_string('uploadfileextensions', 'block_opencast'),
+            get_string('uploadfileextensionsdesc', 'block_opencast', $CFG->wwwroot . '/admin/tool/filetypes/index.php')
+        ));
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/block_header',
+                get_string('blocksettings', 'block_opencast'),
+                ''));
+
+        $generalsettings->add(
+            new admin_setting_configtext('block_opencast/limitvideos',
+                get_string('limitvideos', 'block_opencast'),
+                get_string('limitvideosdesc', 'block_opencast'), 5, PARAM_INT));
+
+        $generalsettings->add(
+            new admin_setting_configtext('block_opencast/cachevalidtime',
+                get_string('cachevalidtime', 'block_opencast'),
+                get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
+
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/groupseries_header',
+                get_string('groupseries_header', 'block_opencast'),
+                ''));
+
+        $generalsettings->add(
+            new admin_setting_configcheckbox_with_advanced('block_opencast/group_creation',
+                get_string('groupcreation', 'block_opencast'),
+                get_string('groupcreationdesc', 'block_opencast'), 0
+            ));
+
+        $generalsettings->add(
+            new admin_setting_configtext('block_opencast/group_name',
+                get_string('groupname', 'block_opencast'),
+                get_string('groupnamedesc', 'block_opencast'), 'Moodle_course_[COURSEID]', PARAM_TEXT));
+
+        $generalsettings->add(
+            new admin_setting_configtext('block_opencast/series_name',
+                get_string('seriesname', 'block_opencast'),
+                get_string('seriesnamedesc', 'block_opencast', $link), 'Course_Series_[COURSEID]', PARAM_TEXT));
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/roles_header',
+                get_string('aclrolesname', 'block_opencast'),
+                ''));
+
+        $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles',
+            get_string('workflowrolesname', 'block_opencast'),
+            get_string('workflowrolesdesc', 'block_opencast'),
+            null, array_merge($noworkflow, $apibridge->get_existing_workflows('archive'))
+        ));
+
+        $generalsettings->add($rolessetting);
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable',
+            'rolestable'));
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/metadata_header',
+                get_string('metadata', 'block_opencast'),
+                ''));
+
+        $generalsettings->add($metadatasetting);
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable',
+            'metadatatable'));
 
         // Settings page: Appearance settings.
         $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',
