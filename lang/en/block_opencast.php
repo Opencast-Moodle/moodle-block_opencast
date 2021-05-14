@@ -444,7 +444,6 @@ $string['support_setting_notset'] = 'Support email is not set. Please contact th
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';
-//Added to support metadata and so on
 $string['metadata'] = 'Metadata';
 $string['metadatadesc'] = 'Here you can define which metadata fields can or have to be set when uploading videos to Opencast. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
 $string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';

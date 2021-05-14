@@ -46,8 +46,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
      * @param string $description The long localised information.
      * @param string $workflowtag The workflow tag which should be used to load the choices.
      */
-    public function __construct($name, $visiblename, $description, $workflowtag = '')
-    {
+    public function __construct($name, $visiblename, $description, $workflowtag = '') {
         // Remember the given workflow tag.
         $this->workflowtag = $workflowtag;
 
@@ -60,8 +59,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
      *
      * @return bool true=>success, false=>error.
      */
-    public function load_choices()
-    {
+    public function load_choices() {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
         if (during_initial_install()) {
@@ -90,8 +88,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
      * @param string $data
      * @return string empty of error string
      */
-    public function write_setting($data)
-    {
+    public function write_setting($data) {
         // Validate data before storage.
         // The parent class admin_setting_configselect does not do that itself, unfortunately.
         // Thus, we have to override write_setting() as well here.
@@ -109,8 +106,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
      * @param string data
      * @return mixed Returns true if ok, a string if an error was found
      */
-    public function validate($data)
-    {
+    public function validate($data) {
         // Do only if a workflow was set.
         if ($data != null) {
             // Get an APIbridge instance.

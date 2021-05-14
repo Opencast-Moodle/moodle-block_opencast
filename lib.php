@@ -29,8 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return array
  */
-function block_opencast_get_fontawesome_icon_map()
-{
+function block_opencast_get_fontawesome_icon_map() {
     return [
         'block_opencast:share' => 'fa-share-square',
         'block_opencast:play' => 'fa-play-circle'

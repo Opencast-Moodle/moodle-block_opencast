@@ -79,7 +79,8 @@ class admin_setting_configeditabletable extends \admin_setting
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        return '<div class="mt-3" id="' . $this->divid . '"></div><button class="btn btn-primary mt-3 float-right" type="button" id="addrow-' . $this->divid . '">' .
+        return '<div class="mt-3" id="' . $this->divid .
+            '"></div><button class="btn btn-primary mt-3 float-right" type="button" id="addrow-' . $this->divid . '">' .
             get_string('addrole', 'block_opencast') . '</button>';
     }
 }

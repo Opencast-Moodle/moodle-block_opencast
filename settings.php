@@ -67,8 +67,26 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
         // Setup JS.
-        $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
-        $metdatadefault = '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+        $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
+            '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
+
+        $metdatadefault = '[' .
+            '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
+            '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
+            '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
+            '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
+            '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},' .
+            '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
+            '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
+            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
 
         $metadata = get_config('block_opencast', 'metadata');
         $defaultroles = get_config('block_opencast', 'roles');

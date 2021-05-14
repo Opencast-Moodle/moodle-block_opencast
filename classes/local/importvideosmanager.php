@@ -42,8 +42,7 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_manualimport()
-    {
+    public static function is_enabled_and_working_for_manualimport() {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled');
 
@@ -102,8 +101,7 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_coreimport()
-    {
+    public static function is_enabled_and_working_for_coreimport() {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled');
 
@@ -161,8 +159,7 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function handle_series_modules_is_enabled_and_working()
-    {
+    public static function handle_series_modules_is_enabled_and_working() {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleseriesenabled');
 
@@ -202,8 +199,7 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function handle_episode_modules_is_enabled_and_working()
-    {
+    public static function handle_episode_modules_is_enabled_and_working() {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleepisodeenabled');
 
@@ -246,8 +242,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_menu($sourcecourseid)
-    {
+    public static function get_import_source_course_videos_menu($sourcecourseid) {
         global $PAGE;
 
         // Get renderer.
@@ -291,8 +286,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos)
-    {
+    public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos) {
         global $PAGE;
 
         // Get renderer.
@@ -351,8 +345,7 @@ class importvideosmanager
      *
      * @return bool
      */
-    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false)
-    {
+    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
         // If the user is not allowed to import from the source course at all, return.
         $sourcecoursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
