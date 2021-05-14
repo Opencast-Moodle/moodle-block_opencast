@@ -405,7 +405,7 @@ class upload_helper
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if (get_config('block_opencast', 'group_creation')) {
+                if (boolval(get_config('block_opencast', 'group_creation'))) {
                     try {
                         // Check if group exists.
                         $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
@@ -506,7 +506,7 @@ class upload_helper
                     return $event;
                 }
 
-                if (get_config('block_opencast', 'group_creation')) {
+                if (boolval(get_config('block_opencast', 'group_creation'))) {
                     // Ensure the assignment of a suitable role.
                     if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
                         mtrace('... group not yet assigned.');

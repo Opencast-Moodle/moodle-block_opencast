@@ -192,7 +192,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 ''));
 
         $generalsettings->add(
-            new admin_setting_configcheckbox_with_advanced('block_opencast/group_creation',
+            new admin_setting_configcheckbox('block_opencast/group_creation',
                 get_string('groupcreation', 'block_opencast'),
                 get_string('groupcreationdesc', 'block_opencast'), 0
             ));
