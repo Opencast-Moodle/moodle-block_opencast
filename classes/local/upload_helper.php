@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upload helper.
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @author     Andreas Wagner
@@ -29,23 +30,52 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 use block_opencast\opencast_state_exception;
 use local_chunkupload\chunkupload_form_element;
 
+/**
+ * Upload helper.
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class upload_helper
 {
 
+    /** @var string File area id where videos are uploaded */
     const OC_FILEAREA = 'videotoupload';
+
+    /** @var int Video is ready to be uploaded */
     const STATUS_READY_TO_UPLOAD = 10;
+
+    /** @var int Group is created */
     const STATUS_CREATING_GROUP = 21;
+
+    /** @var int Series is created */
     const STATUS_CREATING_SERIES = 22;
+
+    /** @var int Event is created */
     const STATUS_CREATING_EVENT = 25;
+
+    /** @var int Video is successfully uploaded */
     const STATUS_UPLOADED = 27;
+
+    /** @var int Video is successfully transferred to Opencast. */
     const STATUS_TRANSFERRED = 40;
 
+    /** @var apibridge Apibridge */
     private $apibridge;
 
+    /**
+     * upload_helper constructor.
+     */
     public function __construct() {
         $this->apibridge = apibridge::get_instance();
     }
 
+    /**
+     * Get explaination string for status code
+     * @param int $statuscode Status code
+     * @return \lang_string|string Name of status code
+     */
     public static function get_status_string($statuscode) {
 
         switch ($statuscode) {
@@ -69,8 +99,7 @@ class upload_helper
     /**
      * Get all upload jobs, for which a file is present in the filearea of plugin.
      *
-     * @param int $courseid
-     *
+     * @param int $courseid Course id
      * @return array
      */
     public static function get_upload_jobs($courseid) {
@@ -116,6 +145,9 @@ class upload_helper
      * 1. Add a new job for an completely uploaded to moodlle-video, when no entry in block_opencast_uploadjob exists
      * 2. Remove upload job, when status is readytoupload.
      *
+     * @param int $courseid Course id
+     * @param object $coursecontext Course context
+     * @param object $options Options
      */
     public static function save_upload_jobs($courseid, $coursecontext, $options) {
         global $DB, $USER;
@@ -321,6 +353,11 @@ class upload_helper
         }
     }
 
+    /**
+     * Handle failed upload.
+     * @param object $job Job that failed
+     * @param string $errormessage Error message
+     */
     protected function upload_failed($job, $errormessage) {
         global $DB;
 

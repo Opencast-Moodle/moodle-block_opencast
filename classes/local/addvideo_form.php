@@ -34,9 +34,19 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
+/**
+ * Upload video form.
+ *
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class addvideo_form extends \moodleform
 {
-
+    /**
+     * Form definition.
+     */
     public function definition() {
         global $CFG;
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')

@@ -31,9 +31,20 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
+/**
+ * Upload video form.
+ *
+ * @package    block_opencast
+ * @copyright  2019 Farbod Zamani, ELAN e.V.
+ * @author     Farbod Zamani
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class updatemetadata_form extends \moodleform
 {
 
+    /**
+     * Form definition.
+     */
     public function definition() {
 
         $mform = $this->_form;

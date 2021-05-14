@@ -28,13 +28,24 @@ use local_chunkupload\local\chunkupload_file;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Events.
+ *
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class event
 {
 
-    private $acl = array();            // Access control.
-    private $metadatafields = array(); // Meta data.
-    private $presentation = null;      // Video file.
-    private $presenter = null;      // Video file.
+    /** @var array Access control list. */
+    private $acl = array();
+    /** @var array Meta data */
+    private $metadatafields = array();
+    /** @var object Video file */
+    private $presentation = null;
+    /** @var object Video file */
+    private $presenter = null;
 
     /**
      * Add a id-value pair as metadata for flavour dublincore/episode
@@ -42,7 +53,6 @@ class event
      * @param int $id
      * @param string $value
      */
-
     public function add_meta_data($id, $value) {
         $this->metadatafields[] = array('id' => $id, 'value' => $value);
     }
@@ -157,9 +167,9 @@ class event
 
     /**
      * Returns true if a given acl role exists.
-     * @param $allow
-     * @param $action
-     * @param $role
+     * @param bool $allow If allowed
+     * @param string $action Action
+     * @param string $role Role name
      */
     public function has_acl($allow, $action, $role) {
         $role = (object)array('allow' => $allow, 'role' => $role, 'action' => $action);
@@ -167,11 +177,9 @@ class event
     }
 
     /**
-     * Add a acl rule.
-     *
-     * @param boolean $allow
-     * @param string $action
-     * @param string $role
+     * Remove a acl rule.
+     * @param string $action Action
+     * @param string $role Role name
      */
     public function remove_acl($action, $role) {
 

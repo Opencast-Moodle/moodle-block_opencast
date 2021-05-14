@@ -37,7 +37,6 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
 class backup_opencast_block_structure_step extends backup_block_structure_step {
 
     protected function define_structure() {
-
         // Root.
         $opencast = new backup_nested_element('opencast');
 

@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Subclass of the file_system_filedir class to delete one single file
- * from trashdir.
+ * Subclass of the file_system_filedir class to delete one single file from trashdir.
  *
  * @package   block_opencast
  * @copyright 2018 Andreas Wagner, Synergy Learning
@@ -27,17 +26,17 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/lib/filestorage/file_system_filedir.php');
+require_once($CFG->dirroot . '/lib/filestorage/file_system_filedir.php');
 
 /**
- * Subclass of the file_system_filedir class to delete one single file
- * from trashdir.
+ * Subclass of the file_system_filedir class to delete one single file from trashdir.
  *
  * @package   block_opencast
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_system_filedir extends \file_system_filedir {
+class file_system_filedir extends \file_system_filedir
+{
 
     /**
      * Unlink one file in the trashdir by contenthash

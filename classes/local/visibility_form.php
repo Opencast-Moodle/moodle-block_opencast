@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Create series form.
+ * Visibility form.
  *
  * @package    block_opencast
  * @copyright  2018 Tamara Gunkel
@@ -33,9 +33,20 @@ global $CFG;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
+/**
+ * Visibility form.
+ *
+ * @package    block_opencast
+ * @copyright  2018 Tamara Gunkel
+ * @author     Tamara Gunkel
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class visibility_form extends \moodleform
 {
 
+    /**
+     * Form definition.
+     */
     public function definition() {
         $mform = $this->_form;
 

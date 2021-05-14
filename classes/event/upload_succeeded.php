@@ -15,17 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Event of block opencast.
+ * Event of block opencast for succeeding uploads.
  *
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-class upload_succeeded extends \core\event\base {
+/**
+ * Event of block opencast for succeeding uploads.
+ *
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class upload_succeeded extends \core\event\base
+{
 
     /**
      * Init method.

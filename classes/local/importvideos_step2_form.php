@@ -95,6 +95,9 @@ class importvideos_step2_form extends \moodleform
 
     /**
      * Form validation.
+     * @param array $data Form data
+     * @param array $files Form files
+     * @return array Validation results
      */
     public function validation($data, $files) {
         // Ask parent class for errors first.

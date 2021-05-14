@@ -39,12 +39,11 @@ class notifications
     /**
      * Helperfunction to send all following messages .
      *
-     * @param string $messagetype
-     * @param object $touser
-     * @param string $subject
-     * @param string $body
-     * @param \stored_file $attachment
-     * @param object $fromuser
+     * @param string $messagetype Message type
+     * @param object $touser User to which notification is sent
+     * @param string $subject Subject
+     * @param string $body Body
+     * @param string $format Format
      */
     private static function send_message($messagetype, $touser, $subject, $body, $format = FORMAT_PLAIN) {
 
@@ -97,7 +96,8 @@ class notifications
      * Send notifications to admins, at least one event was not found on opencast
      * system during restore.
      *
-     * @param int $courseid
+     * @param int $courseid Course id
+     * @param array $missingevents Missing events
      */
     public static function notify_missing_events($courseid, $missingevents) {
         global $DB, $PAGE;
@@ -146,6 +146,10 @@ class notifications
     }
 
 
+    /**
+     * Notify user that email to support was successfully sent.
+     * @param string $message Message that was sent to the support
+     */
     public static function notify_problem_reported($message) {
         global $USER;
 

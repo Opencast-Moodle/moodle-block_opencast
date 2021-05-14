@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Event of block opencast.
+ * Event of block opencast for failing uploads.
  *
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
@@ -26,6 +26,13 @@ namespace block_opencast\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Event of block opencast for failing uploads.
+ *
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class upload_failed extends \core\event\base
 {
 

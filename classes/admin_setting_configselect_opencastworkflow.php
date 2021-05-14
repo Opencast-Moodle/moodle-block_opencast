@@ -103,7 +103,7 @@ class admin_setting_configselect_opencastworkflow extends \admin_setting_configs
     /**
      * Validate data before storage.
      *
-     * @param string data
+     * @param string $data data
      * @return mixed Returns true if ok, a string if an error was found
      */
     public function validate($data) {

@@ -37,25 +37,32 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
 require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
 
+/**
+ * API-bridge for opencast. Contain all the function, which uses the external API.
+ *
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class apibridge
 {
-
+    /** @var mixed Block settings */
     private $config;
 
+    /** @var bool True for tests */
     private static $testing = false;
 
+    /**
+     * apibridge constructor.
+     */
     private function __construct() {
-
         $this->config = get_config('block_opencast');
     }
 
     /**
      * Get an instance of an object of this class. Create as a singleton.
-     *
-     * @staticvar \apibridge $apibridge
-     *
      * @param boolean $forcenewinstance true, when a new instance should be created.
-     *
      * @return apibridge
      */
     public static function get_instance($forcenewinstance = false) {
@@ -103,7 +110,6 @@ class apibridge
      * to display a "more videos" link.
      *
      * @param int $courseid
-     *
      * @return \stdClass
      */
     public function get_block_videos($courseid) {
@@ -172,7 +178,6 @@ class apibridge
      *
      * @param int $courseid
      * @param string $sortcolumns
-     *
      * @return array
      */
     public function get_course_videos($courseid, $sortcolumns = null) {
@@ -231,7 +236,7 @@ class apibridge
      * - Planned
      * - Capturing
      * - In cutting
-     * @param $video [] The video object, which should be checked.
+     * @param \stdClass $video The video object, which should be checked.
      */
     private function extend_video_status(&$video) {
         if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
@@ -249,6 +254,10 @@ class apibridge
         }
     }
 
+    /**
+     * Checks if a video can be downloaded and saves this state.
+     * @param \stdClass $video Video to be updated
+     */
     private function set_download_state(&$video) {
         if (in_array(get_config('block_opencast', 'download_channel'), $video->publication_status)) {
             $video->is_downloadable = true;
@@ -257,8 +266,13 @@ class apibridge
         }
     }
 
+    /**
+     * Retrieves a video from Opencast.
+     * @param string $identifier Event id
+     * @param bool $withpublications If true, publications are included
+     * @return \stdClass Video
+     */
     public function get_opencast_video($identifier, bool $withpublications = false) {
-
         $resource = '/api/events/' . $identifier;
 
         if ($withpublications) {
@@ -298,7 +312,6 @@ class apibridge
      * API call to check, whether the course related group exists in opencast system.
      *
      * @param int $courseid
-     *
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid) {
@@ -316,7 +329,6 @@ class apibridge
      * Returns the group identifier from a group name.
      *
      * @param String $groupname
-     *
      * @return mixed
      */
     private function get_course_acl_group_identifier($groupname) {
@@ -329,7 +341,6 @@ class apibridge
      * API call to create a group for given course.
      *
      * @param int $courseid
-     *
      * @return object group object of NULL, if group does not exist.
      */
     protected function create_acl_group($courseid) {
@@ -355,7 +366,6 @@ class apibridge
      * a group in opencast system.
      *
      * @param int $courseid
-     *
      * @return object group object.
      * @throws opencast_state_exception
      */
@@ -410,7 +420,6 @@ class apibridge
      *
      * @param int $courseid id of the course.
      * @param bool $createifempty Create a series on-the-fly if there isn't a series stored yet.
-     *
      * @return string id of the series
      */
     public function get_stored_seriesid($courseid, $createifempty = false) {
@@ -447,7 +456,6 @@ class apibridge
      * API call to check, whether series exists in opencast system.
      *
      * @param int $seriesid
-     *
      * @return null|string id of the series id if it exists in the opencast system.
      */
     public function get_series_by_identifier($seriesid) {
@@ -465,7 +473,6 @@ class apibridge
      * API call to check, whether the course related series exists in opencast system.
      *
      * @param int $courseid
-     *
      * @return null|string id of the series id if it exists in the opencast system.
      */
     public function get_course_series($courseid) {
@@ -522,9 +529,9 @@ class apibridge
     /**
      * The function returns a needle for a search among a set of acl. The goal is to check,
      * if there are any group related acl rules.
-     * @param $name
-     * @param $courseid
-     * @throws \dml_exception
+     * @param string $name Role name
+     * @param int $courseid Course id
+     * @return string Role name with substituted placeholders.
      */
     private function get_pattern_for_group_placeholder($name, $courseid) {
         $coursename = get_course($courseid)->fullname;
@@ -535,9 +542,8 @@ class apibridge
 
     /**
      * Returns the default series name for a course.
-     * @param $courseid int id of the course.
+     * @param int $courseid id of the course.
      * @return string default series title.
-     * @throws \dml_exception
      */
     public function get_default_seriestitle($courseid) {
         $title = get_config('block_opencast', 'series_name');
@@ -546,9 +552,9 @@ class apibridge
 
     /**
      * API call to create a series for given course.
-     *
-     * @param int $courseid
-     * @return bool tells if the creation of the series was successful.
+     * @param int $courseid Course id
+     * @param null|string $seriestitle Series title
+     * @return bool  tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $seriestitle = null) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
@@ -633,8 +639,8 @@ class apibridge
     /**
      * Defines a new series ID for a course.
      *
-     * @param $courseid Course ID
-     * @param $seriesid Series ID
+     * @param int $courseid Course ID
+     * @param string $seriesid Series ID
      */
     public function update_course_series($courseid, $seriesid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
@@ -694,7 +700,7 @@ class apibridge
      * Remove course series ID, because it was set blank.
      * No changes in Opencast are done, due to this action.
      *
-     * @param $courseid Course ID
+     * @param int $courseid Course ID
      */
     public function unset_course_series($courseid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
@@ -706,7 +712,7 @@ class apibridge
 
     /**
      * Checks if the series ID exists in the Opencast system.
-     * @param $seriesid
+     * @param string $seriesid Series id
      * @return bool true, if the series exists. Otherwise false.
      * @throws \dml_exception
      * @throws \moodle_exception if there is no connection to the server.
@@ -754,7 +760,8 @@ class apibridge
 
     /**
      * API call to create an event.
-     *
+     * @param object $job Event to be created
+     * @param string $seriesidentifier Series id
      * @return object series object of NULL, if group does not exist.
      */
     public function create_event($job, $seriesidentifier) {
@@ -846,10 +853,10 @@ class apibridge
      * Check, whether the related series exists to given course id. If not exists than try to create
      * a group in opencast system.
      *
-     * @param int $courseid
-     *
-     * @return object series object.
-     * @throws opencast_state_exception
+     * @param \stdClass $job Job to be checked
+     * @param array $opencastids Opencas id
+     * @param string $seriesidentifier Series id
+     * @return object (Created) event
      */
     public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
 
@@ -923,8 +930,9 @@ class apibridge
 
     /**
      * Can delete the acl group assignment.
-     *
      * @param object $video opencast video.
+     * @param int $courseid Course id
+     * @return bool If acl group can be deleted
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
 
@@ -991,10 +999,11 @@ class apibridge
     }
 
     /**
-     * @param $eventidentifier
-     * @param $courseid
-     * @param $visibility
-     * @param array|null $groups
+     * Changes the visibility of videos by updating the ACL list.
+     * @param string $eventidentifier Event id
+     * @param int $courseid Course id
+     * @param int $visibility Visibility to be applied
+     * @param array|null $groups Groups
      * @return string identifier of the notification string to be presented to the user.
      */
     public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
@@ -1090,7 +1099,6 @@ class apibridge
      *
      * @param string $eventidentifier
      * @param string $seriesidentifier
-     *
      * @return boolean
      */
     public function ensure_series_assigned($eventidentifier, $seriesidentifier) {
@@ -1184,8 +1192,8 @@ class apibridge
     /**
      * Checks if momentarily not permanent roles have the necessary actions for a event to be visible.
      *
-     * @param $eventidentifier
-     * @param $courseid
+     * @param string $eventidentifier Event id
+     * @param int $courseid Course id
      * @return int state of the visibility (0 hidden, 1 mixed visibility, 2 visible)
      */
     public function is_event_visible($eventidentifier, $courseid) {
@@ -1311,9 +1319,8 @@ class apibridge
     /**
      * Checks whether a workflow exists or not.
      *
-     * @param $name id of workflow
-     *
-     * @return boolean
+     * @param string $name id of workflow
+     * @return boolean True if workflow exists
      */
     public function check_if_workflow_exists($name) {
         $workflows = $this->get_existing_workflows();
@@ -1323,12 +1330,12 @@ class apibridge
 
     /**
      * Retrieves all workflows from the OC system and parses them to be easily processable.
-     *
      * @param string $tag if not empty the workflows are filter according to this tag.
-     *
+     * @param bool $onlynames If only the names of the workflows should be returned
+     * @param false $withconfigurations If true, the configurations are included
      * @return array of OC workflows. The keys represent the ID of the workflow,
-     * while the value contains its displayname. This is either the description, if set, or the ID.
-     * @throws \dml_exception
+     * while the value contains its displayname. This is either the description, if set, or the ID. If not $onlynames,
+     * the workflows details are also included.
      * @throws \moodle_exception
      */
     public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
@@ -1362,6 +1369,11 @@ class apibridge
         return $workflows;
     }
 
+    /**
+     * Retrieves a workflow definition from Opencast.
+     * @param string $id Workflow definition id
+     * @return false|mixed Workflow definition or false if not successful
+     */
     public function get_workflow_definition($id) {
         $resource = '/api/workflow-definitions/' . $id;
         $api = new api();
@@ -1407,8 +1419,9 @@ class apibridge
 
     /**
      * Can delete the event in opencast.
-     *
      * @param object $video opencast video.
+     * @param int $courseid Course id
+     * @return bool True, if event assignment can be deleted
      */
     public function can_delete_event_assignment($video, $courseid) {
 
@@ -1527,8 +1540,10 @@ class apibridge
     // Metadata.
 
     /**
-     * The the allowance of the update metadata process
-     * @param bool the capability of updating!
+     * The allowance of the update metadata process
+     * @param object $video Opencast video
+     * @param int $courseid Course id
+     * @return bool the capability of updating!
      */
     public function can_update_event_metadata($video, $courseid) {
 
@@ -1543,8 +1558,9 @@ class apibridge
 
     /**
      * Get the event's metadata of the specified type
-     * @param string $eventidentifier identifier of the event
-     * @return stdClass $metadata
+     * @param string $eventidentifier Event id
+     * @param string $query Api query additions
+     * @return bool|int|mixed Event metadata
      */
     public function get_event_metadata($eventidentifier, $query = '') {
         $api = new api();
@@ -1583,7 +1599,7 @@ class apibridge
     /**
      * Get the episode id of the episode which was created in a duplication workflow.
      *
-     * @param $workflowid int The workflow ID of the dupliation workflow.
+     * @param int $workflowid The workflow ID of the dupliation workflow.
      *
      * @return string|bool The episode ID, if an episode ID was found.
      *                     An empty string, if the workflow does not contain an episode ID yet.

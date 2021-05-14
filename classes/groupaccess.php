@@ -14,18 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace block_opencast;
-defined('MOODLE_INTERNAL') || die;
-
 /**
- * Persistable of seriesmapping
+ * Persistent table of groupaccess
  *
- * @package    tool_opencast
+ * @package    block_opencast
  * @copyright  2018 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class groupaccess extends \core\persistent {
+namespace block_opencast;
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * Persistent table of groupaccess
+ *
+ * @package    block_opencast
+ * @copyright  2018 Tobias Reischmann WWU
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class groupaccess extends \core\persistent
+{
 
     /** Table name for the persistent. */
     const TABLE = 'block_opencast_groupaccess';

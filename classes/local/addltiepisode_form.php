@@ -28,8 +28,18 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
-class addltiepisode_form extends \moodleform {
-
+/**
+ * Add LTI episode module form.
+ *
+ * @package    block_opencast
+ * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class addltiepisode_form extends \moodleform
+{
+    /**
+     * Form definition.
+     */
     public function definition() {
         global $CFG;
 
@@ -40,16 +50,16 @@ class addltiepisode_form extends \moodleform {
         $mform->addElement('text', 'title', get_string('addltiepisode_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title',
-                \block_opencast\local\ltimodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
+            \block_opencast\local\ltimodulemanager::get_default_title_for_episode($this->_customdata['episodeuuid']));
         $mform->addRule('title',
-                get_string('addltiepisode_noemptytitle', 'block_opencast',
-                        get_string('addltiepisode_defaulttitle', 'block_opencast')),
-                'required');
+            get_string('addltiepisode_noemptytitle', 'block_opencast',
+                get_string('addltiepisode_defaulttitle', 'block_opencast')),
+            'required');
 
         if (get_config('block_opencast', 'addltiepisodeintro') == true) {
             $mform->addElement('editor', 'intro', get_string('addltiepisode_formltiintro', 'block_opencast'),
-                    array('rows' => 5),
-                    array('maxfiles' => 0, 'noclean' => true));
+                array('rows' => 5),
+                array('maxfiles' => 0, 'noclean' => true));
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
@@ -60,7 +70,7 @@ class addltiepisode_form extends \moodleform {
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addltiepisode_formltisection', 'block_opencast'),
-                        \block_opencast\local\ltimodulemanager::get_course_sections($courseid));
+                    \block_opencast\local\ltimodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
@@ -68,7 +78,7 @@ class addltiepisode_form extends \moodleform {
 
         if (get_config('block_opencast', 'addltiepisodeavailability') == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
-                    get_string('addltiepisode_formltiavailability', 'block_opencast'));
+                get_string('addltiepisode_formltiavailability', 'block_opencast'));
             \core_availability\frontend::include_all_javascript(get_course($courseid));
         }
 

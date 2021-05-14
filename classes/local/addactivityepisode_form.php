@@ -28,9 +28,18 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
 
+/**
+ * Add Opencast activity episode module form.
+ *
+ * @package    block_opencast
+ * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class addactivityepisode_form extends \moodleform
 {
-
+    /**
+     * Form definition.
+     */
     public function definition() {
         global $CFG;
 
