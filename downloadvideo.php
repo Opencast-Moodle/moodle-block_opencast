@@ -30,6 +30,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('video_identifier', PARAM_ALPHANUMEXT);
+$mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/downloadvideo.php', array('courseid' => $courseid, 'video_identifier' => $videoid));
 $PAGE->set_url($baseurl);
@@ -55,11 +56,15 @@ if (!$result->error) {
     if ($video->is_downloadable) {
         foreach ($video->publications as $publication) {
             if ($publication->channel == get_config('block_opencast', 'download_channel')) {
-                $downloadurl = $publication->media[0]->url;
-                $mimetype = $publication->media[0]->mediatype;
-                $size = $publication->media[0]->size;
+                foreach ($publication->media as $media) {
+                    if ($media->id === $mediaid) {
+                        $downloadurl = $publication->media[0]->url;
+                        $mimetype = $publication->media[0]->mediatype;
+                        $size = $publication->media[0]->size;
+                        break 2;
+                    }
+                }
             }
-
         }
         $filename = $video->title . '.' . pathinfo($downloadurl, PATHINFO_EXTENSION);
 

@@ -193,7 +193,7 @@ class apibridge
         }
         $seriesfilter = "series:" . $series->identifier;
 
-        $query = 'sign=1&withacl=1&withmetadata=1withpublications=1&filter=' . urlencode($seriesfilter);
+        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
         if ($sortcolumns) {
             $sort = api::get_sort_param($sortcolumns);
             $query .= $sort;

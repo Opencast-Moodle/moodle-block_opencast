@@ -595,15 +595,29 @@ class block_opencast_renderer extends plugin_renderer_base
         return $content;
     }
 
-    public function render_download_event_icon($courseid, $identifier) {
-        $url = new \moodle_url('/blocks/opencast/downloadvideo.php',
-            array('video_identifier' => $identifier, 'courseid' => $courseid));
-        $text = get_string('downloadvideo', 'block_opencast');
+    public function render_download_event_icon($courseid, $video) {
+        // Get the action menu options.
+        $actionmenu = new action_menu();
+        $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        $actionmenu->prioritise = true;
+        // TODO somehow change icon
 
-        $icon = $this->output->pix_icon('t/down', $text);
+        foreach ($video->publications as $publication) {
+            if ($publication->channel == get_config('block_opencast', 'download_channel')) {
+                foreach ($publication->media as $media) {
+                    // TODO try to remove icons
+                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
+                    $actionmenu->add(new action_menu_link_secondary(
+                        $url = new \moodle_url('/blocks/opencast/downloadvideo.php',
+                            array('video_identifier' => $video->identifier, 'courseid' => $courseid, 'mediaid' => $media->id)),
+                        new pix_icon('t/down', get_string('downloadvideo', 'block_opencast')),
+                        $name
+                    ));
+                }
+            }
+        }
 
-        return \html_writer::link($url, $icon);
-
+        return $this->render($actionmenu);
     }
 
     public function render_report_problem_icon($identifier) {

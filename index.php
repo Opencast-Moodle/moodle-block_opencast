@@ -306,7 +306,7 @@ if ($videodata->error == 0) {
             $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable);
 
             if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
-                $actions .= $renderer->render_download_event_icon($courseid, $video->identifier);
+                $actions .= $renderer->render_download_event_icon($courseid, $video);
             }
 
             if ($opencast->can_delete_event_assignment($video, $courseid)) {
