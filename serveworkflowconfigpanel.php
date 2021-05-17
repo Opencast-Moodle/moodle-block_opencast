@@ -39,6 +39,7 @@ $workflow = $apibridge->get_workflow_definition($workflowid);
 if ($workflow) {
     // Display form.
     $context = new \stdClass();
+    $context->language = $CFG->lang;
     $context->config_panel = $workflow->configuration_panel;
     $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
     $context->parent_origin = $CFG->wwwroot;
