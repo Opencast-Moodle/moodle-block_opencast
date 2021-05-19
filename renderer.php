@@ -463,6 +463,7 @@ class block_opencast_renderer extends plugin_renderer_base
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
         $actionmenu->prioritise = true;
+        $actionmenu->attributes['class'] .= ' inline-action-menu';
 
         if ($updatemetadata) {
             // Update metadata event.
@@ -600,17 +601,18 @@ class block_opencast_renderer extends plugin_renderer_base
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
         $actionmenu->prioritise = true;
-        // TODO somehow change icon
+        $actionmenu->actionicon = new pix_icon('t/down', get_string('downloadvideo', 'block_opencast'));
+        $actionmenu->set_menu_trigger(' ');
+        $actionmenu->attributes['class'] .= ' download-action-menu';
 
         foreach ($video->publications as $publication) {
             if ($publication->channel == get_config('block_opencast', 'download_channel')) {
                 foreach ($publication->media as $media) {
-                    // TODO try to remove icons
                     $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
                     $actionmenu->add(new action_menu_link_secondary(
-                        $url = new \moodle_url('/blocks/opencast/downloadvideo.php',
+                        new \moodle_url('/blocks/opencast/downloadvideo.php',
                             array('video_identifier' => $video->identifier, 'courseid' => $courseid, 'mediaid' => $media->id)),
-                        new pix_icon('t/down', get_string('downloadvideo', 'block_opencast')),
+                        null,
                         $name
                     ));
                 }
