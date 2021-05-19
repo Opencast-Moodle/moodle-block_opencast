@@ -510,7 +510,8 @@ class apibridge
         $title = str_replace('[COURSENAME]', $coursename, $name);
         $title = str_replace('[COURSEID]', $courseid, $title);
 
-        if (strpos($title, '[USERNAME]') !== false || strpos($title, '[USERNAME_LOW]') !== false || strpos($title, '[USERNAME_UP]') !== false) {
+        if (strpos($title, '[USERNAME]') !== false || strpos($title, '[USERNAME_LOW]') !== false ||
+            strpos($title, '[USERNAME_UP]') !== false) {
             if (!$userid) {
                 return array();
             }
@@ -682,7 +683,7 @@ class apibridge
             if (strpos($role->rolename, '[USERNAME]') !== false ||
                 strpos($role->rolename, '[USERNAME_LOW]') !== false ||
                 strpos($role->rolename, '[USERNAME_UP]') !== false) {
-                // Add new user as well
+                // Add new user as well.
                 foreach ($role->actions as $action) {
                     $acl[] = (object)array('allow' => true,
                         'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
