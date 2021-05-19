@@ -23,6 +23,7 @@
  */
 
 use block_opencast\admin_setting_configeditabletable;
+use block_opencast\workflow_setting_helper;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -125,8 +126,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
         }
-
-        // TODO rewrite opencast config select for setting export
 
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
@@ -664,11 +663,18 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
         // Import videos: Duplicate workflow.
-        $importvideossettings->add(
-            new \block_opencast\admin_setting_configselect_opencastworkflow('block_opencast/duplicateworkflow',
-                get_string('duplicateworkflow', 'block_opencast'),
-                get_string('duplicateworkflowdesc', 'block_opencast'),
-                'api'));
+        $select = new admin_setting_configselect('block_opencast/duplicateworkflow',
+            get_string('duplicateworkflow', 'block_opencast'),
+            get_string('duplicateworkflowdesc', 'block_opencast'),
+            null,
+            workflow_setting_helper::load_workflow_choices('api'));
+
+        if ($CFG->branch >= 310) { // The validation functionality for admin settings is not available before Moodle 3.10.
+            $select->set_validate_function([workflow_setting_helper::class, 'validate_workflow_setting']);
+        }
+
+        $importvideossettings->add($select);
+
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/duplicateworkflow',
                 'block_opencast/importvideosenabled', 'notchecked');
