@@ -23,7 +23,7 @@
  */
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $USER;
 
 // Handle submitted parameters of the form.
 $courseid = required_param('courseid', PARAM_INT);
@@ -114,7 +114,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // Get series ID, create a new one if necessary.
-    $seriesid = $apibridge->get_stored_seriesid($courseid, true);
+    $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
 
     // Create the module.
     $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid,

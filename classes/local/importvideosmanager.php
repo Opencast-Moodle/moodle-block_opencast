@@ -346,6 +346,8 @@ class importvideosmanager
      * @return bool
      */
     public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
+        global $USER;
+
         // If the user is not allowed to import from the source course at all, return.
         $sourcecoursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
@@ -365,7 +367,7 @@ class importvideosmanager
         $sourceseriesid = $apibridge->get_stored_seriesid($sourcecourseid);
 
         // Get target course series ID, create a new one if necessary.
-        $targetseriesid = $apibridge->get_stored_seriesid($targetcourseid, true);
+        $targetseriesid = $apibridge->get_stored_seriesid($targetcourseid, true, $USER->id);
 
         // Process the array of course videos.
         foreach ($coursevideos as $identifier => $checked) {

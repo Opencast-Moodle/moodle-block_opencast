@@ -22,7 +22,7 @@
  */
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $USER;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -59,7 +59,7 @@ if ($createseriesform->is_cancelled()) {
 
 if ($data = $createseriesform->get_data()) {
     // Create new series.
-    if ($apibridge->create_course_series($courseid, $data->seriestitle)) {
+    if ($apibridge->create_course_series($courseid, $data->seriestitle, $USER->id)) {
         redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
     }
     redirect($redirecturl, get_string('seriesnotcreated', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);

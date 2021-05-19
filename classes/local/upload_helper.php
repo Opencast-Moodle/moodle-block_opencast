@@ -445,7 +445,7 @@ class upload_helper
                 if (boolval(get_config('block_opencast', 'group_creation'))) {
                     try {
                         // Check if group exists.
-                        $group = $this->apibridge->ensure_acl_group_exists($job->courseid);
+                        $group = $this->apibridge->ensure_acl_group_exists($job->courseid, $job->userid);
                         if ($group) {
                             $stepsuccessful = true;
                             mtrace('... group exists');
@@ -464,7 +464,7 @@ class upload_helper
             case self::STATUS_CREATING_SERIES:
                 try {
                     // Check if series exists.
-                    $series = $this->apibridge->ensure_course_series_exists($job->courseid);
+                    $series = $this->apibridge->ensure_course_series_exists($job->courseid, $job->userid);
                     if ($series) {
                         $stepsuccessful = true;
                         mtrace('... series exists');
@@ -545,7 +545,7 @@ class upload_helper
 
                 if (boolval(get_config('block_opencast', 'group_creation'))) {
                     // Ensure the assignment of a suitable role.
-                    if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid)) {
+                    if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
                         mtrace('... group not yet assigned.');
                         break;
                     }

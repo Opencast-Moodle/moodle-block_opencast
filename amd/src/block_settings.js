@@ -42,7 +42,18 @@ export const init = (jsstrings, roles, rolesinputid, metadata, metadatainputid) 
             $('#' + rolesinputid).val(JSON.stringify(data));
         },
         columns: [
-            {title: jsstrings.role, field: "rolename", editor: "input", widthGrow: 4},
+            {
+                title: jsstrings.role, field: "rolename", editor: "input", widthGrow: 4, cellEdited: function (cell) {
+                    if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
+                        cell.getData().rolename.includes('[USERNAME_UP]')) {
+                        // Tick permanent checkbox.
+                        cell.getRow().update({'permanent': 1});
+                        cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = true;
+                    } else {
+                        cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = false;
+                    }
+                }
+            },
             {title: jsstrings.actions, field: "actions", editor: "input", widthGrow: 1},
             {
                 title: jsstrings.permanent,
@@ -56,6 +67,11 @@ export const init = (jsstrings, roles, rolesinputid, metadata, metadatainputid) 
                     input.addEventListener('click', function () {
                         cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
                     });
+
+                    if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
+                        cell.getData().rolename.includes('[USERNAME_UP]')) {
+                        input.disabled = true;
+                    }
 
                     return input;
                 }
@@ -98,7 +114,6 @@ export const init = (jsstrings, roles, rolesinputid, metadata, metadatainputid) 
             // Order by row position
             var data = metadatatable.getRows().map(row => row.getData());
             data = data.filter(value => value.name);
-            window.console.log(data);
             $('#' + metadatainputid).val(JSON.stringify(data));
         },
         dataChanged: function () {
@@ -173,8 +188,6 @@ export const init = (jsstrings, roles, rolesinputid, metadata, metadatainputid) 
             }
         ],
     });
-
-    window.console.log(metadatatable);
 
     $('#addrow-metadatatable').click(function () {
         metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});

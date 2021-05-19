@@ -126,6 +126,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
         }
 
+        // TODO rewrite opencast config select for setting export
+
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
         // Setting page: General.

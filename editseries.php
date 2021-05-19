@@ -22,7 +22,7 @@
  */
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $USER;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -56,7 +56,7 @@ if ($editseriesform->is_cancelled()) {
 if ($data = $editseriesform->get_data()) {
     if ($data->seriesid) {
         if ($apibridge->ensure_series_is_valid($data->seriesid)) {
-            $apibridge->update_course_series($courseid, $data->seriesid);
+            $apibridge->update_course_series($courseid, $data->seriesid, $USER->id);
             // Update course series.
             redirect($redirecturl, get_string('seriesidsaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
         } else {

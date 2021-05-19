@@ -314,9 +314,8 @@ class apibridge
      * @param int $courseid
      * @return object group object of NULL, if group does not exist.
      */
-    protected function get_acl_group($courseid) {
-
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
+    protected function get_acl_group($courseid, $userid) {
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $api = new api();
@@ -343,9 +342,9 @@ class apibridge
      * @param int $courseid
      * @return object group object of NULL, if group does not exist.
      */
-    protected function create_acl_group($courseid) {
+    protected function create_acl_group($courseid, $userid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid)[0];
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid, null, $userid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -369,14 +368,14 @@ class apibridge
      * @return object group object.
      * @throws opencast_state_exception
      */
-    public function ensure_acl_group_exists($courseid) {
+    public function ensure_acl_group_exists($courseid, $userid) {
 
-        $group = $this->get_acl_group($courseid);
+        $group = $this->get_acl_group($courseid, $userid);
 
         if (!isset($group->identifier)) {
-            $this->create_acl_group($courseid);
+            $this->create_acl_group($courseid, $userid);
             // Check success.
-            $group = $this->get_acl_group($courseid);
+            $group = $this->get_acl_group($courseid, $userid);
         }
 
         if (!isset($group->identifier)) {
@@ -422,7 +421,7 @@ class apibridge
      * @param bool $createifempty Create a series on-the-fly if there isn't a series stored yet.
      * @return string id of the series
      */
-    public function get_stored_seriesid($courseid, $createifempty = false) {
+    public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
         // Get series mapping.
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
@@ -434,7 +433,7 @@ class apibridge
         // If no series exists and if requested, ensure that a series exists.
         if ($seriesid == null && $createifempty == true) {
             // Create a series on-the-fly.
-            $seriescreated = $this->create_course_series($courseid);
+            $seriescreated = $this->create_course_series($courseid, null, $userid);
 
             // The series was created.
             if ($seriescreated == true) {
@@ -504,14 +503,26 @@ class apibridge
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    private function replace_placeholders($name, $courseid, $groups = null) {
+    private function replace_placeholders($name, $courseid, $groups = null, $userid = null) {
+        global $DB;
+
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
         $title = str_replace('[COURSEID]', $courseid, $title);
 
+        if (strpos($title, '[USERNAME]') !== false || strpos($title, '[USERNAME_LOW]') !== false || strpos($title, '[USERNAME_UP]') !== false) {
+            if (!$userid) {
+                return array();
+            }
+            $username = $DB->get_record("user", array("id" => $userid))->username;
+            $title = str_replace('[USERNAME]', $username, $title);
+            $title = str_replace('[USERNAME_LOW]', strtolower($username), $title);
+            $title = str_replace('[USERNAME_UP]', strtoupper($username), $title);
+        }
+
         $result = array();
 
-        if (strpos($name, '[COURSEGROUPID]') >= 0) {
+        if (strpos($name, '[COURSEGROUPID]') !== false) {
             if ($groups) {
                 foreach ($groups as $groupid) {
                     $result [] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
@@ -545,9 +556,9 @@ class apibridge
      * @param int $courseid id of the course.
      * @return string default series title.
      */
-    public function get_default_seriestitle($courseid) {
+    public function get_default_seriestitle($courseid, $userid) {
         $title = get_config('block_opencast', 'series_name');
-        return $this->replace_placeholders($title, $courseid)[0];
+        return $this->replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
     /**
@@ -556,7 +567,7 @@ class apibridge
      * @param null|string $seriestitle Series title
      * @return bool  tells if the creation of the series was successful.
      */
-    public function create_course_series($courseid, $seriestitle = null) {
+    public function create_course_series($courseid, $seriestitle = null, $userid = null) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
         if ($mapping && $seriesid = $mapping->get('series')) {
             throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
@@ -570,7 +581,7 @@ class apibridge
         $metadata['fields'] = [];
 
         if (is_null($seriestitle)) {
-            $title = $this->get_default_seriestitle($courseid);
+            $title = $this->get_default_seriestitle($courseid, $userid);
         } else {
             $title = $seriestitle;
         }
@@ -584,7 +595,7 @@ class apibridge
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
                 $acl[] = (object)array('allow' => true, 'action' => $action,
-                    'role' => $this->replace_placeholders($role->rolename, $courseid)[0]);
+                    'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0]);
             }
         }
 
@@ -619,12 +630,12 @@ class apibridge
      * @return object series object.
      * @throws opencast_state_exception
      */
-    public function ensure_course_series_exists($courseid) {
+    public function ensure_course_series_exists($courseid, $userid) {
 
         $series = $this->get_course_series($courseid);
 
         if (!isset($series)) {
-            $this->create_course_series($courseid);
+            $this->create_course_series($courseid, null, $userid);
             // Check success.
             $series = $this->get_course_series($courseid);
         }
@@ -642,7 +653,7 @@ class apibridge
      * @param int $courseid Course ID
      * @param string $seriesid Series ID
      */
-    public function update_course_series($courseid, $seriesid) {
+    public function update_course_series($courseid, $seriesid, $userid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
 
         if (!$mapping) {
@@ -668,17 +679,28 @@ class apibridge
 
         $roles = $this->getroles();
         foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-
-                foreach ($acl as $key => $aclval) {
-                    if (($aclval->action == $action) && ($aclval->role == $role)) {
-                        unset($acl[$key]);
-                    }
+            if (strpos($role->rolename, '[USERNAME]') !== false ||
+                strpos($role->rolename, '[USERNAME_LOW]') !== false ||
+                strpos($role->rolename, '[USERNAME_UP]') !== false) {
+                // Add new user as well
+                foreach ($role->actions as $action) {
+                    $acl[] = (object)array('allow' => true,
+                        'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
+                        'action' => $action);
                 }
 
-                $acl[] = (object)array('allow' => true,
-                    'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
-                    'action' => $action);
+            } else {
+                foreach ($role->actions as $action) {
+                    foreach ($acl as $key => $aclval) {
+                        if (($aclval->action == $action) && ($aclval->role == $role)) {
+                            unset($acl[$key]);
+                        }
+                    }
+
+                    $acl[] = (object)array('allow' => true,
+                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
+                        'action' => $action);
+                }
             }
         }
 
@@ -772,7 +794,7 @@ class apibridge
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid)[0]);
+                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0]);
             }
         }
         // Applying the media types to the event.
@@ -846,7 +868,7 @@ class apibridge
             }
         }
 
-        return $roles;
+        return $rolesprocessed;
     }
 
     /**
@@ -891,7 +913,7 @@ class apibridge
      *
      * @return boolean true if succeeded
      */
-    public function ensure_acl_group_assigned($eventidentifier, $courseid) {
+    public function ensure_acl_group_assigned($eventidentifier, $courseid, $userid) {
         $api = new api();
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
@@ -902,7 +924,7 @@ class apibridge
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
+                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier, $userid) as $acl) {
                     $event->add_acl(true, $action, $acl);
                 }
             }
@@ -960,40 +982,31 @@ class apibridge
      * @return boolean true if succeeded
      */
     public function delete_acl_group_assigned($eventidentifier, $courseid) {
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $api = new api();
-        $jsonacl = $api->oc_get($resource);
-
         $event = new \block_opencast\local\event();
-        $event->set_json_acl($jsonacl);
 
         $grouprole = api::get_course_acl_role($courseid);
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier) as $acl) {
-                    $event->add_acl(true, $action, $acl);
-                }
-            }
-        }
-        $event->remove_acl('read', $grouprole);
-
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $params['acl'] = $event->get_json_acl();
+        $resource = '/api/events/' . $eventidentifier . '/acl/read/' . $grouprole;
 
         $api = new api();
-        $api->oc_put($resource, $params);
+        $api->oc_delete($resource);
 
         if ($api->get_http_code() != 204) {
             return false;
         }
+
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $acls = $api->oc_get($resource);
+        if ($api->get_http_code() != 200) {
+            return false;
+        }
+        $event->set_json_acl($acls);
 
         // Adapt course series.
         if (!$courseid = $event->get_next_series_courseid()) {
             $this->ensure_series_assigned($eventidentifier, '');
         }
 
-        $series = $this->ensure_course_series_exists($courseid);
+        $series = $this->ensure_course_series_exists($courseid, null);
 
         return $this->ensure_series_assigned($eventidentifier, $series->identifier);
     }
@@ -1160,11 +1173,15 @@ class apibridge
             case block_opencast_renderer::VISIBLE:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        $result [] = (object)array(
-                            'allow' => true,
-                            'action' => $action,
-                            'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
-                        );
+                        $rolenameformatted = $this->replace_placeholders($role->rolename, $courseid)[0];
+                        // Might return null if USERNAME cannot be replaced.
+                        if ($rolenameformatted) {
+                            $result [] = (object)array(
+                                'allow' => true,
+                                'action' => $action,
+                                'role' => $rolenameformatted,
+                            );
+                        }
                     }
                 }
                 break;
@@ -1174,11 +1191,13 @@ class apibridge
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
                         foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
-                            $result [] = (object)array(
-                                'allow' => true,
-                                'action' => $action,
-                                'role' => $rule,
-                            );
+                            if ($rule) {
+                                $result [] = (object)array(
+                                    'allow' => true,
+                                    'action' => $action,
+                                    'role' => $rule,
+                                );
+                            }
                         }
                     }
                 }

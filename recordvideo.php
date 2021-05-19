@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/lib/oauthlib.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $USER;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -58,7 +58,7 @@ $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 $api = \block_opencast\local\apibridge::get_instance();
 
 // Get series ID, create a new one if necessary.
-$seriesid = $api->get_stored_seriesid($courseid, true);
+$seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
 
 // Create parameters.
 $params = block_opencast_create_lti_parameters($ltiendpoint, $seriesid);

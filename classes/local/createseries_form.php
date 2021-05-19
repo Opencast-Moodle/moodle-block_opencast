@@ -39,12 +39,14 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class createseries_form extends \moodleform {
+class createseries_form extends \moodleform
+{
 
     /**
      * Form definition.
      */
     public function definition() {
+        global $USER;
         $mform = $this->_form;
 
         $apibridge = \block_opencast\local\apibridge::get_instance();
@@ -55,7 +57,7 @@ class createseries_form extends \moodleform {
         $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
         $mform->setType('seriestitle', PARAM_TEXT);
         $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');
-        $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid']));
+        $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
