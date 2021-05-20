@@ -23,6 +23,7 @@
  */
 
 use block_opencast\admin_setting_configeditabletable;
+use block_opencast\admin_setting_hiddenhelpbtn;
 use block_opencast\workflow_setting_helper;
 
 defined('MOODLE_INTERNAL') || die;
@@ -67,6 +68,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
+        // Setting page: General.
+        $generalsettings = new admin_settingpage('block_opencast_generalsettings',
+            get_string('general_settings', 'block_opencast'));
+        $ADMIN->add('block_opencast', $generalsettings);
+
         // Setup JS.
         $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
             '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
@@ -89,25 +95,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
 
-        $metadata = get_config('block_opencast', 'metadata');
-        $defaultroles = get_config('block_opencast', 'roles');
-        $helpbtnname = $OUTPUT->help_icon('descriptionmdfn', 'block_opencast');
-        $helpbtnparams = $OUTPUT->help_icon('catalogparam', 'block_opencast');
-
-        $jsstrings = [
-            'role' => get_string('heading_role', 'block_opencast'),
-            'actions' => get_string('heading_actions', 'block_opencast'),
-            'permanent' => get_string('heading_permanent', 'block_opencast'),
-            'delete_role' => get_string('delete_role', 'block_opencast'),
-            'delete_confirm_role' => get_string('delete_confirm_role', 'block_opencast'),
-            'delete_metadata' => get_string('delete_metadata', 'block_opencast'),
-            'delete_confirm_metadata' => get_string('delete_confirm_metadata', 'block_opencast'),
-            'name' => get_string('heading_name', 'block_opencast') . '   ' . $helpbtnname,
-            'datatype' => get_string('heading_datatype', 'block_opencast'),
-            'required' => get_string('heading_required', 'block_opencast'),
-            'readonly' => get_string('heading_readonly', 'block_opencast'),
-            'param_json' => get_string('heading_params', 'block_opencast') . '   ' . $helpbtnparams,
-            'delete' => get_string('delete', 'moodle')];
+        $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname',
+            'helpbtnname', 'descriptionmdfn', 'block_opencast'));
+        $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams',
+            'helpbtnparams', 'catalogparam', 'block_opencast'));
 
         $rolessetting = new admin_setting_configtext('block_opencast/roles',
             get_string('aclrolesname', 'block_opencast'),
@@ -121,18 +112,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Crashes if plugins.php is opened because css cannot be included anymore.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
-            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [$jsstrings, $defaultroles,
-                $rolessetting->get_id(), $metadata, $metadatasetting->get_id()]);
+            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [$rolessetting->get_id(), $metadatasetting->get_id()]);
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
         }
 
         $apibridge = \block_opencast\local\apibridge::get_instance();
-
-        // Setting page: General.
-        $generalsettings = new admin_settingpage('block_opencast_generalsettings',
-            get_string('general_settings', 'block_opencast'));
-        $ADMIN->add('block_opencast', $generalsettings);
 
         $generalsettings->add(
             new admin_setting_heading('block_opencast/general_settings',
@@ -237,8 +222,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         );
 
         $generalsettings->add($rolessetting);
-        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable',
-            'rolestable'));
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable', 'rolestable'));
 
         $generalsettings->add(
             new admin_setting_heading('block_opencast/metadata_header',
@@ -246,8 +230,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 ''));
 
         $generalsettings->add($metadatasetting);
-        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable',
-            'metadatatable'));
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable', 'metadatatable'));
 
         // Settings page: Appearance settings.
         $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',

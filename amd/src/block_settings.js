@@ -25,172 +25,205 @@ import Tabulator from 'block_opencast/tabulator';
 import $ from 'jquery';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import * as str from 'core/str';
 
-export const init = (jsstrings, roles, rolesinputid, metadata, metadatainputid) => {
+export const init = (rolesinputid, metadatainputid) => {
 
-    // Style hidden input.
-    $('#' + rolesinputid).parent().hide();
-    $('#' + rolesinputid).parent().next().hide();// Default value.
-    $('#' + metadatainputid).parent().hide();
-    $('#' + metadatainputid).parent().next().hide(); // Default value.
+    // Load strings
+    var strings = [
+        {key: 'heading_role', component: 'block_opencast'},
+        {key: 'heading_actions', component: 'block_opencast'},
+        {key: 'heading_permanent', component: 'block_opencast'},
+        {key: 'delete_role', component: 'block_opencast'},
+        {key: 'delete_confirm_role', component: 'block_opencast'},
+        {key: 'delete_metadata', component: 'block_opencast'},
+        {key: 'delete_confirm_metadata', component: 'block_opencast'},
+        {key: 'heading_name', component: 'block_opencast'},
+        {key: 'heading_datatype', component: 'block_opencast'},
+        {key: 'heading_required', component: 'block_opencast'},
+        {key: 'heading_readonly', component: 'block_opencast'},
+        {key: 'heading_params', component: 'block_opencast'},
+        {key: 'delete', component: 'moodle'}
+    ];
+    str.get_strings(strings).then(function (jsstrings) {
+        // Style hidden input.
+        var rolesinput = $('#' + rolesinputid);
+        rolesinput.parent().hide();
+        rolesinput.parent().next().hide(); // Default value.
+        var metadatainput = $('#' + metadatainputid);
+        metadatainput.parent().hide();
+        metadatainput.parent().next().hide(); // Default value.
 
-    var rolestable = new Tabulator("#rolestable", {
-        data: JSON.parse(roles),
-        layout: "fitColumns",
-        dataChanged: function (data) {
-            data = data.filter(value => value.rolename);
-            $('#' + rolesinputid).val(JSON.stringify(data));
-        },
-        columns: [
-            {
-                title: jsstrings.role, field: "rolename", editor: "input", widthGrow: 4, cellEdited: function (cell) {
-                    if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
-                        cell.getData().rolename.includes('[USERNAME_UP]')) {
-                        // Tick permanent checkbox.
-                        cell.getRow().update({'permanent': 1});
-                        cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = true;
-                    } else {
-                        cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = false;
-                    }
-                }
+        var rolestable = new Tabulator("#rolestable", {
+            data: JSON.parse(rolesinput.val()),
+            layout: "fitColumns",
+            dataChanged: function (data) {
+                data = data.filter(value => value.rolename);
+                rolesinput.val(JSON.stringify(data));
             },
-            {title: jsstrings.actions, field: "actions", editor: "input", widthGrow: 1},
-            {
-                title: jsstrings.permanent,
-                field: "permanent",
-                hozAlign: "center",
-                widthGrow: 0,
-                formatter: function (cell) {
-                    var input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.checked = cell.getValue();
-                    input.addEventListener('click', function () {
-                        cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
-                    });
-
-                    if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
-                        cell.getData().rolename.includes('[USERNAME_UP]')) {
-                        input.disabled = true;
-                    }
-
-                    return input;
-                }
-            },
-            {
-                title: "",
-                width: 40,
-                headerSort: false,
-                hozAlign: "center",
-                formatter: function () {
-                    return '<i class="icon fa fa-trash fa-fw"></i>';
-                },
-                cellClick: function (e, cell) {
-                    ModalFactory.create({
-                        type: ModalFactory.types.SAVE_CANCEL,
-                        title: jsstrings.delete_role,
-                        body: jsstrings.delete_confirm_role
-                    })
-                        .then(function (modal) {
-                            modal.setSaveButtonText(jsstrings.delete);
-                            modal.getRoot().on(ModalEvents.save, function () {
-                                cell.getRow().delete();
-                            });
-                            modal.show();
-                        });
-                }
-            }
-        ],
-    });
-
-    $('#addrow-rolestable').click(function () {
-        rolestable.addRow({'permanent': 0});
-    });
-
-    var metadatatable = new Tabulator("#metadatatable", {
-        data: JSON.parse(metadata),
-        layout: "fitColumns",
-        movableRows: true,
-        rowMoved: function () {
-            // Order by row position
-            var data = metadatatable.getRows().map(row => row.getData());
-            data = data.filter(value => value.name);
-            $('#' + metadatainputid).val(JSON.stringify(data));
-        },
-        dataChanged: function () {
-            // Order by row position
-            var data = metadatatable.getRows().map(row => row.getData());
-            data = data.filter(value => value.name);
-            $('#' + metadatainputid).val(JSON.stringify(data));
-        },
-        columns: [
-            {title: jsstrings.name, field: "name", editor: "input", widthGrow: 1, headerSort: false},
-            {
-                title: jsstrings.datatype, field: "datatype", widthGrow: 1, headerSort: false, editor: "select", editorParams:
-                    {
-                        values: {
-                            'text': 'String (text)',
-                            'select': 'Drop Down (select)',
-                            'autocomplete': 'Arrays (autocomplete)',
-                            'textarea': 'Long Text (textarea)',
-                            'date_time_selector': 'Date Time Selector (datetime)'
+            columns: [
+                {
+                    title: jsstrings[0], field: "rolename", editor: "input", widthGrow: 4, cellEdited: function (cell) {
+                        if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
+                            cell.getData().rolename.includes('[USERNAME_UP]')) {
+                            // Tick permanent checkbox.
+                            cell.getRow().update({'permanent': 1});
+                            cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = true;
+                        } else {
+                            cell.getRow().getCell("permanent").getElement().getElementsByTagName("input")[0].disabled = false;
                         }
                     }
-            },
-            {
-                title: jsstrings.required,
-                field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-
-                    function (cell) {
+                },
+                {title: jsstrings[1], field: "actions", editor: "input", widthGrow: 1},
+                {
+                    title: jsstrings[2],
+                    field: "permanent",
+                    hozAlign: "center",
+                    widthGrow: 0,
+                    formatter: function (cell) {
                         var input = document.createElement('input');
                         input.type = 'checkbox';
                         input.checked = cell.getValue();
                         input.addEventListener('click', function () {
-                            cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                            cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
                         });
+
+                        if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
+                            cell.getData().rolename.includes('[USERNAME_UP]')) {
+                            input.disabled = true;
+                        }
 
                         return input;
                     }
-            },
-            {
-                title: jsstrings.readonly,
-                field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                    function (cell) {
-                        var input = document.createElement('input');
-                        input.type = 'checkbox';
-                        input.checked = cell.getValue();
-                        input.addEventListener('click', function () {
-                            cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
-                        });
-
-                        return input;
-                    }
-            },
-            {title: jsstrings.param_json, field: "param_json", editor: "textarea", widthGrow: 2, headerSort: false},
-            {
-                title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                    function () {
+                },
+                {
+                    title: "",
+                    width: 40,
+                    headerSort: false,
+                    hozAlign: "center",
+                    formatter: function () {
                         return '<i class="icon fa fa-trash fa-fw"></i>';
                     },
-                cellClick: function (e, cell) {
-                    ModalFactory.create({
-                        type: ModalFactory.types.SAVE_CANCEL,
-                        title: jsstrings.delete_metadata,
-                        body: jsstrings.delete_confirm_metadata
-                    })
-                        .then(function (modal) {
-                            modal.setSaveButtonText(jsstrings.delete);
-                            modal.getRoot().on(ModalEvents.save, function () {
-                                cell.getRow().delete();
+                    cellClick: function (e, cell) {
+                        ModalFactory.create({
+                            type: ModalFactory.types.SAVE_CANCEL,
+                            title: jsstrings[3],
+                            body: jsstrings[4]
+                        })
+                            .then(function (modal) {
+                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.getRoot().on(ModalEvents.save, function () {
+                                    cell.getRow().delete();
+                                });
+                                modal.show();
                             });
-                            modal.show();
-                        });
+                    }
                 }
-            }
-        ],
-    });
+            ],
+        });
 
-    $('#addrow-metadatatable').click(function () {
-        metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
+        $('#addrow-rolestable').click(function () {
+            rolestable.addRow({'permanent': 0});
+        });
+
+        var metadatatable = new Tabulator("#metadatatable", {
+            data: JSON.parse(metadatainput.val()),
+            layout: "fitColumns",
+            movableRows: true,
+            rowMoved: function () {
+                // Order by row position
+                var data = metadatatable.getRows().map(row => row.getData());
+                data = data.filter(value => value.name);
+                metadatainput.val(JSON.stringify(data));
+            },
+            dataChanged: function () {
+                // Order by row position
+                var data = metadatatable.getRows().map(row => row.getData());
+                data = data.filter(value => value.name);
+                $('#' + metadatainputid).val(JSON.stringify(data));
+            },
+            columns: [
+                {
+                    title: jsstrings[7] + '   ' + $('#helpbtnname').html(),
+                    field: "name",
+                    editor: "input",
+                    widthGrow: 1,
+                    headerSort: false
+                },
+                {
+                    title: jsstrings[8], field: "datatype", widthGrow: 1, headerSort: false, editor: "select", editorParams:
+                        {
+                            values: {
+                                'text': 'String (text)',
+                                'select': 'Drop Down (select)',
+                                'autocomplete': 'Arrays (autocomplete)',
+                                'textarea': 'Long Text (textarea)',
+                                'date_time_selector': 'Date Time Selector (datetime)'
+                            }
+                        }
+                },
+                {
+                    title: jsstrings[9],
+                    field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+
+                        function (cell) {
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
+                    title: jsstrings[10],
+                    field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+                        function (cell) {
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
+                    title: jsstrings[11] + '   ' + $('#helpbtnparams').html(),
+                    field: "param_json",
+                    editor: "textarea",
+                    widthGrow: 2,
+                    headerSort: false
+                },
+                {
+                    title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
+                        function () {
+                            return '<i class="icon fa fa-trash fa-fw"></i>';
+                        },
+                    cellClick: function (e, cell) {
+                        ModalFactory.create({
+                            type: ModalFactory.types.SAVE_CANCEL,
+                            title: jsstrings[5],
+                            body: jsstrings[6]
+                        })
+                            .then(function (modal) {
+                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.getRoot().on(ModalEvents.save, function () {
+                                    cell.getRow().delete();
+                                });
+                                modal.show();
+                            });
+                    }
+                }
+            ],
+        });
+
+        $('#addrow-metadatatable').click(function () {
+            metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
+        });
     });
 };
 
