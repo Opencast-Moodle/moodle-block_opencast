@@ -62,6 +62,12 @@ class workflow_setting_helper
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
         // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
-        return $apibridge->get_available_workflows_for_menu($workflowtag, true);
+        try {
+            return $apibridge->get_available_workflows_for_menu($workflowtag, true);
+
+            // Something went wrong and the list of workflows could not be retrieved.
+        } catch (opencast_connection_exception $e) {
+            return null;
+        }
     }
 }

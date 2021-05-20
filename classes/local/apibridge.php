@@ -28,6 +28,7 @@ namespace block_opencast\local;
 defined('MOODLE_INTERNAL') || die();
 
 use block_opencast\groupaccess;
+use block_opencast\opencast_connection_exception;
 use block_opencast_renderer;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
@@ -1384,9 +1385,10 @@ class apibridge
                     $workflows[$workflow->identifier] = $workflow->identifier;
                 }
             }
+            return $workflows;
+        } else {
+            throw new opencast_connection_exception('Unexpected response from Opencast: ' . $api->get_http_code());
         }
-
-        return $workflows;
     }
 
     /**
@@ -1417,15 +1419,8 @@ class apibridge
      *               If the list of workflows can't be retrieved from Opencast, an array with a nice error message is returned.
      */
     public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
-        // Be prepared that the OC API is not functional yet.
-        try {
-            // Get the workflow list.
-            $workflows = $this->get_existing_workflows($tag);
-
-            // Something went wrong and the list of workflows could not be retrieved.
-        } catch (\moodle_exception $e) {
-            return [null => get_string('adminchoice_noconnection', 'block_opencast')];
-        }
+        // Get the workflow list.
+        $workflows = $this->get_existing_workflows($tag);
 
         // If requested, add the 'no workflow' item to the list of workflows.
         if ($withnoworkflow == true) {

@@ -72,6 +72,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $generalsettings = new admin_settingpage('block_opencast_generalsettings',
             get_string('general_settings', 'block_opencast'));
         $ADMIN->add('block_opencast', $generalsettings);
+        $noocconnection = false;
 
         // Setup JS.
         $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
@@ -117,8 +118,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
         }
 
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-
         $generalsettings->add(
             new admin_setting_heading('block_opencast/general_settings',
                 get_string('cronsettings', 'block_opencast'),
@@ -131,10 +130,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('limituploadjobs', 'block_opencast'),
                 get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
+        $workflowchoices = workflow_setting_helper::load_workflow_choices('upload');
+        if ($workflowchoices === null) {
+            $noocconnection = true;
+            $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
+
         $generalsettings->add(new admin_setting_configselect('block_opencast/uploadworkflow',
             get_string('uploadworkflow', 'block_opencast'),
             get_string('uploadworkflowdesc', 'block_opencast'),
-            'ng-schedule-and-upload', workflow_setting_helper::load_workflow_choices('upload')
+            'ng-schedule-and-upload', $workflowchoices
         ));
 
         $generalsettings->add(new admin_setting_configcheckbox('block_opencast/publishtoengage',
@@ -155,11 +160,17 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             0
         ));
 
-        $noworkflow = [null => get_string("adminchoice_noworkflow", "block_opencast")];
+
+        $workflowchoices = workflow_setting_helper::load_workflow_choices('delete');
+        if ($workflowchoices === null) {
+            $noocconnection = true;
+            $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
+
         $generalsettings->add(new admin_setting_configselect('block_opencast/deleteworkflow',
                 get_string('deleteworkflow', 'block_opencast'),
                 get_string('deleteworkflowdesc', 'block_opencast'),
-                null, workflow_setting_helper::load_workflow_choices('delete'))
+                null, $workflowchoices)
         );
 
         $generalsettings->add(new admin_setting_configcheckbox('block_opencast/adhocfiledeletion',
@@ -215,10 +226,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('aclrolesname', 'block_opencast'),
                 ''));
 
+
+        $workflowchoices = workflow_setting_helper::load_workflow_choices('archive');
+        if ($workflowchoices === null) {
+            $noocconnection = true;
+            $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
         $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles',
                 get_string('workflowrolesname', 'block_opencast'),
                 get_string('workflowrolesdesc', 'block_opencast'),
-                null, workflow_setting_helper::load_workflow_choices('archive'))
+                null, $workflowchoices)
         );
 
         $generalsettings->add($rolessetting);
@@ -645,11 +662,15 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
         // Import videos: Duplicate workflow.
+        $workflowchoices = workflow_setting_helper::load_workflow_choices('api');
+        if ($workflowchoices === null) {
+            $noocconnection = true;
+            $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
         $select = new admin_setting_configselect('block_opencast/duplicateworkflow',
             get_string('duplicateworkflow', 'block_opencast'),
             get_string('duplicateworkflowdesc', 'block_opencast'),
-            null,
-            workflow_setting_helper::load_workflow_choices('api'));
+            null, $workflowchoices);
 
         if ($CFG->branch >= 310) { // The validation functionality for admin settings is not available before Moodle 3.10.
             $select->set_validate_function([workflow_setting_helper::class, 'validate_workflow_setting']);
@@ -712,6 +733,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/duplicateworkflow', 'eq', '');
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosmanualenabled', 'notchecked');
+        }
+
+        if ($noocconnection) {
+            \core\notification::error(get_string('connection_error', 'block_opencast'));
         }
     }
 }

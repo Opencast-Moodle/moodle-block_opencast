@@ -15,17 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_opencast;
+
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2021052001;
-$plugin->requires = 2017111300;
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v3.11-r1';
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2020090700);
+
+/**
+ * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
+ *
+ * @package    block_opencast
+ * @copyright  2021 Tamara Gunkel, University of Münster
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class opencast_connection_exception extends \moodle_exception
+{
+
+}
