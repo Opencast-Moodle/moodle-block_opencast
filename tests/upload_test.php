@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Unit tests for the block_opencast implementation of the video upload.
+ *
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,6 +25,14 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+/**
+ * Unit tests for the block_opencast implementation of the video upload.
+ *
+ * @group block_opencast
+ * @package    block_opencast
+ * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class block_opencast_upload_testcase extends advanced_testcase {
 
     private $apiurl = 'http://localhost:8080';

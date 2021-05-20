@@ -30,6 +30,7 @@ use block_opencast\local\file_deletionmanager;
 /**
  * Test class for the block opencast.
  *
+ * @group block_opencast
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

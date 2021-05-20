@@ -137,7 +137,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @return boolean
      * @throws \moodle_exception
      */
-    public function create_course_series($courseid, $seriestitle = null) {
+    public function create_course_series($courseid, $seriestitle = null, $userid = null) {
 
         $mapping = seriesmapping::get_record(array('courseid' => $courseid));
         if ($mapping && $seriesid = $mapping->get('series')) {

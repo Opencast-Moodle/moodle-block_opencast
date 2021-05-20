@@ -35,7 +35,7 @@ $string['acl_settingheader'] = 'Control episode visibility';
 $string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
-$string['aclrolesnamedesc'] = 'You can use the placeholders [COURSEID], [COURSENAME], [COURSEGROUPID], [USERNAME], [USERNAME_LOW], [USERNAME_UP] in the role name which is automatically replaced. The list of actions must be comma-separated.';
+$string['aclrolesnamedesc'] = 'You can use placeholders in the role name which are automatically replaced (<a target="_blank" href="https://moodle.docs.opencast.org/#block/general_settings/#placeholders">list of placeholders</a>). The list of actions must be comma-separated.';
 $string['actions'] = 'Comma-separated list of actions';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
 $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
@@ -371,7 +371,7 @@ $string['seriesidnotvalid'] = 'The series does not exist.';
 $string['series_does_not_exist_admin'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast.';
 $string['series_does_not_exist'] = 'The series assigned to this course is not valid. Please contact your Administrator!';
 $string['seriesname'] = 'Series name';
-$string['seriesnamedesc'] = 'Series to which the video is added. You can use the placeholders [COURSEID], [COURSENAME], [USERNAME], [USERNAME_LOW] and [USERNAME_UP] which are automatically replaced.';
+$string['seriesnamedesc'] = 'Series to which the video is added. You can use placeholders which are automatically replaced (<a target="_blank" href="https://moodle.docs.opencast.org/#block/general_settings/#placeholders">list of placeholders</a>).';
 $string['series_name_empty'] = 'Series name must not be empty.';
 $string['startworkflow'] = 'Start workflow';
 $string['startworkflow_modal_body'] = 'Choose the workflow you want to start.';
@@ -493,6 +493,7 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
                                 <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
                                 <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['addcatalog'] = 'Add new metadata';
+$string['descriptionmdfn'] = 'Field name';
 $string['descriptionmdfn_help'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
 $string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
 $string['empty_catalogname'] = 'This field must not be empty';

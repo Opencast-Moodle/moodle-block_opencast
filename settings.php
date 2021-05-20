@@ -149,7 +149,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $generalsettings->add(new admin_setting_configselect('block_opencast/uploadworkflow',
             get_string('uploadworkflow', 'block_opencast'),
             get_string('uploadworkflowdesc', 'block_opencast'),
-            'ng-schedule-and-upload', $apibridge->get_existing_workflows('upload')
+            'ng-schedule-and-upload', workflow_setting_helper::load_workflow_choices('upload')
         ));
 
         $generalsettings->add(new admin_setting_configcheckbox('block_opencast/publishtoengage',
@@ -172,11 +172,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         $noworkflow = [null => get_string("adminchoice_noworkflow", "block_opencast")];
         $generalsettings->add(new admin_setting_configselect('block_opencast/deleteworkflow',
-            get_string('deleteworkflow', 'block_opencast'),
-            get_string('deleteworkflowdesc', 'block_opencast'),
-            null, array_merge($noworkflow,
-                $apibridge->get_existing_workflows('delete'))
-        ));
+                get_string('deleteworkflow', 'block_opencast'),
+                get_string('deleteworkflowdesc', 'block_opencast'),
+                null, workflow_setting_helper::load_workflow_choices('delete'))
+        );
 
         $generalsettings->add(new admin_setting_configcheckbox('block_opencast/adhocfiledeletion',
             get_string('adhocfiledeletion', 'block_opencast'),
@@ -232,10 +231,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 ''));
 
         $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles',
-            get_string('workflowrolesname', 'block_opencast'),
-            get_string('workflowrolesdesc', 'block_opencast'),
-            null, array_merge($noworkflow, $apibridge->get_existing_workflows('archive'))
-        ));
+                get_string('workflowrolesname', 'block_opencast'),
+                get_string('workflowrolesdesc', 'block_opencast'),
+                null, workflow_setting_helper::load_workflow_choices('archive'))
+        );
 
         $generalsettings->add($rolessetting);
         $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable',

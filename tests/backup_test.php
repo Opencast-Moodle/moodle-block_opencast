@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
 /**
  * Testcase for backup and restore of block_opencast.
  *
+ * @group block_opencast
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
