@@ -67,7 +67,7 @@ class workflow_setting_helper
 
             // Something went wrong and the list of workflows could not be retrieved.
         } catch (opencast_connection_exception $e) {
-            return null;
+            return $e;
         }
     }
 }

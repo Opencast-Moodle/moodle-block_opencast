@@ -21,6 +21,9 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\opencast_connection_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 class block_opencast extends block_base
@@ -76,7 +79,7 @@ class block_opencast extends block_base
                 $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
                 $cacheobj->videos = $videos;
                 $cache->set($COURSE->id, $cacheobj);
-            } catch (\moodle_exception $e) {
+            } catch (opencast_connection_exception $e) {
                 $videos = new \stdClass();
                 $videos->error = $e->getmessage();
             }

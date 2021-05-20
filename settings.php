@@ -131,8 +131,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('upload');
-        if ($workflowchoices === null) {
-            $noocconnection = true;
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
+            $noocconnection = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
 
@@ -162,8 +162,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('delete');
-        if ($workflowchoices === null) {
-            $noocconnection = true;
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
+            $noocconnection = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
 
@@ -228,8 +228,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('archive');
-        if ($workflowchoices === null) {
-            $noocconnection = true;
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
+            $noocconnection = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
         $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles',
@@ -663,8 +663,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Import videos: Duplicate workflow.
         $workflowchoices = workflow_setting_helper::load_workflow_choices('api');
-        if ($workflowchoices === null) {
-            $noocconnection = true;
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
+            $noocconnection = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
         $select = new admin_setting_configselect('block_opencast/duplicateworkflow',
@@ -736,7 +736,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         }
 
         if ($noocconnection) {
-            \core\notification::error(get_string('connection_error', 'block_opencast'));
+            \core\notification::error($noocconnection);
         }
     }
 }

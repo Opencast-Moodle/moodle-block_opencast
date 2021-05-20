@@ -533,4 +533,5 @@ $string['video_already_uploaded'] = 'Video already uploaded';
 $string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
 $string['video_not_downloadable'] = 'This video was not published in the download channel.';
 
-$string['connection_error'] = 'Unexpected API response. Please check the connection to the Opencast server.';
+$string['connection_failure'] = 'Could not reach Opencast server.';
+$string['unexpected_api_response'] = 'Unexpected API response.';

@@ -144,10 +144,10 @@ class apibridge
 
         $videos = $api->oc_get($url, $withroles);
 
-        if ($api->get_http_code() != 200) {
-            $result->error = $api->get_http_code();
-
-            return $result;
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
 
         if (!$videos = json_decode($videos)) {
@@ -1386,8 +1386,10 @@ class apibridge
                 }
             }
             return $workflows;
+        } else if ($api->get_http_code() == 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
-            throw new opencast_connection_exception('Unexpected response from Opencast: ' . $api->get_http_code());
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
     }
 
