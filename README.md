@@ -25,9 +25,10 @@ Features
 * Upload videos to Opencast
 * Record videos using Opencast studio
 * Overview of recorded and planned videos in the course
+* Download processed videos from Opencast
 * Edit metadata and delete videos
 * Restrict the visibility of videos to moodle groups or prevent access by students at all
-* Allow teachers to start Opencast workflows (customized by the admin) for videos
+* Allow teachers to start Opencast workflows for videos
 * Linking an existing Opencast series to the course
 * Import videos from other moodle courses by duplicating them
 * Report problems to a support team with automatically including technical information
