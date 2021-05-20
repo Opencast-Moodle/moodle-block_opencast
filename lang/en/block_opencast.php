@@ -417,6 +417,7 @@ $string['visibility'] = 'Visibility of the video';
 $string['visibility_hide'] = 'Prevent any student from accessing the video';
 $string['visibility_show'] = 'Allow all students of the course to access the video';
 $string['visibility_group'] = 'Allow all students belonging to selected groups to access the video';
+$string['workflow_settings_opencast'] = 'Workflow Settings';
 $string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
 $string['workflowrolesname'] = 'Workflow for changing the ACL rules';

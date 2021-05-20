@@ -44,10 +44,14 @@ $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'wo
 $workflowsavailable = count($workflows) > 0;
 
 foreach ($workflows as $workflow) {
-    $workflowsjs[$workflow->identifier] = array('title' => $workflow->title, 'description' => $workflow->description);
+    if (empty($workflow->title)) {
+        $workflowsjs[$workflow->identifier] = array('title' => $workflow->identifier, 'description' => $workflow->description);
+    } else {
+        $workflowsjs[$workflow->identifier] = array('title' => $workflow->title, 'description' => $workflow->description);
+    }
 }
 
-$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $workflowsjs]);
+$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
@@ -234,6 +238,10 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes(
 }
 
 if ($videodata->error == 0) {
+
+    if ($workflowsavailable) {
+        echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
+    }
 
     $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
 
