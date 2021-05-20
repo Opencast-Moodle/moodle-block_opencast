@@ -50,7 +50,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
-    And I should see "Add Opencast series module to course"
+    And I should see "Add Opencast LTI series module to course"
 
   Scenario: When the feature is enabled and working, users who have been granted the right to view the recordings list but not to add the LTI module are not able to add the LTI module to the course
     Given the following "users" exist:
@@ -66,7 +66,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast series module to course"
+    And I should not see "Add Opencast LTI series module to course"
 
   Scenario: When the feature is disabled by the admin, editing teachers are not able to add the LTI module to the course
     Given the following config values are set as admin:
@@ -75,14 +75,14 @@ Feature: Add Opencast LTI series module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast series module to course"
+    And I should not see "Add Opencast LTI series module to course"
 
   @javascript
   Scenario: After adding the LTI module to the course, the teacher sees to link to the LTI module in the Opencast overview.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module title"
     And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
@@ -104,7 +104,7 @@ Feature: Add Opencast LTI series module as Teacher
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module title"
     And I click on "Add module and return to course" "button"
     And I should see "Course 1" in the "#page-header" "css_element"
@@ -112,13 +112,13 @@ Feature: Add Opencast LTI series module as Teacher
     And I delete "Opencast videos" activity
     And I click on "Go to overview..." "link"
     Then I should see "Provide videos"
-    And I should see "Add Opencast series module to course"
+    And I should see "Add Opencast LTI series module to course"
 
   Scenario: When adding the LTI module to the course, the teacher returns to the Opencast overview instead of to the course.
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module title"
     And I click on "Add module and return to overview" "button"
     Then I should not see "Course 1" in the "#page-header" "css_element"
@@ -130,7 +130,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     Then the field "Opencast series module title" matches value "Sensational videos"
     And I click on "Add module and return to course" "button"
     Then I should see "Course 1" in the "#page-header" "css_element"
@@ -141,7 +141,7 @@ Feature: Add Opencast LTI series module as Teacher
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And the field "Opencast series module title" matches value "Opencast videos"
     And I set the following fields to these values:
       | Opencast series module title | Sensational videos |
@@ -154,7 +154,7 @@ Feature: Add Opencast LTI series module as Teacher
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I set the following fields to these values:
       | Opencast series module title | |
     And I click on "Add module and return to course" "button"
@@ -171,7 +171,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then I should not see "Provide videos"
-    And I should not see "Add Opencast series module to course"
+    And I should not see "Add Opencast LTI series module to course"
 
   Scenario: When the LTI tool is deleted by the admin, the plugin configuration does not allow to set a tool anymore
     Given I log in as "admin"
@@ -187,7 +187,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     Then I should not see "Opencast series module intro"
 
   Scenario: The admin has allowed to add an intro for the LTI module.
@@ -196,7 +196,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module intro"
     And I set the following fields to these values:
       | Opencast series module intro | <p>This is a nice intro</p><p>Watch my videos!</p> |
@@ -211,7 +211,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     Then I should not see "Opencast series module target section"
 
   Scenario: The admin has allowed to choose the target section for the LTI module
@@ -220,7 +220,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module target section"
     And I set the following fields to these values:
       | Opencast series module target section | Topic 1 |
@@ -234,7 +234,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     Then I should not see "Opencast series module access restriction"
 
   @javascript
@@ -246,6 +246,6 @@ Feature: Add Opencast LTI series module as Teacher
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "button"
     And I should see "Opencast series module access restriction"
     And "Add restriction..." "button" should exist
