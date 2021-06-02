@@ -72,7 +72,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $generalsettings = new admin_settingpage('block_opencast_generalsettings',
             get_string('general_settings', 'block_opencast'));
         $ADMIN->add('block_opencast', $generalsettings);
-        $noocconnection = false;
+        $opencasterror = false;
 
         // Setup JS.
         $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
@@ -131,8 +131,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('upload');
-        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
-            $noocconnection = $workflowchoices->getMessage();
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
+            $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            $opencasterror = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
 
@@ -162,8 +163,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('delete');
-        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
-            $noocconnection = $workflowchoices->getMessage();
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
+            $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            $opencasterror = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
 
@@ -228,8 +230,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
         $workflowchoices = workflow_setting_helper::load_workflow_choices('archive');
-        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
-            $noocconnection = $workflowchoices->getMessage();
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
+            $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            $opencasterror = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
         $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles',
@@ -663,8 +666,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Import videos: Duplicate workflow.
         $workflowchoices = workflow_setting_helper::load_workflow_choices('api');
-        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception) {
-            $noocconnection = $workflowchoices->getMessage();
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
+            $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            $opencasterror = $workflowchoices->getMessage();
             $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
         $select = new admin_setting_configselect('block_opencast/duplicateworkflow',
@@ -735,8 +739,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/importvideosmanualenabled', 'notchecked');
         }
 
-        if ($noocconnection) {
-            \core\notification::error($noocconnection);
+        // Don't spam other setting pages with error messages just because the tree was built.
+        if ($opencasterror && $PAGE->pagetype == 'admin-setting-block_opencast') {
+            \core\notification::error($opencasterror);
         }
     }
 }

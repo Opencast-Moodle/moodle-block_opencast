@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use tool_opencast\empty_configuration_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -66,7 +68,7 @@ class workflow_setting_helper
             return $apibridge->get_available_workflows_for_menu($workflowtag, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
-        } catch (opencast_connection_exception $e) {
+        } catch (opencast_connection_exception | empty_configuration_exception $e) {
             return $e;
         }
     }
