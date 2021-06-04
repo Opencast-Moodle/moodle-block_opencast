@@ -458,7 +458,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link($url, $icon);
     }
 
-    public function render_edit_functions($courseid, $videoidentifier, $updatemetadata, $startworkflows) {
+    public function render_edit_functions($courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -475,7 +475,7 @@ class block_opencast_renderer extends plugin_renderer_base
             ));
         }
 
-        if ($startworkflows) {
+        if ($startworkflows && has_capability('block/opencast:startworkflow', $coursecontext)) {
             $actionmenu->add(new action_menu_link_secondary(
                 new \moodle_url('#'),
                 new pix_icon('t/collapsed', get_string('startworkflow', 'block_opencast')),
