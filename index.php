@@ -40,7 +40,13 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 $apibridge = apibridge::get_instance();
-$workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+$opencasterror = null;
+
+try {
+    $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+} catch (\block_opencast\opencast_connection_exception $e) {
+    $opencasterror = $e->getMessage();
+}
 $workflowsavailable = count($workflows) > 0;
 
 foreach ($workflows as $workflow) {
@@ -179,9 +185,12 @@ if ($seriesid && !$ocseriesid) {
     }
 }
 
-echo $renderer->render_series_settings_actions($courseid,
-    !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
-    has_capability('block/opencast:defineseriesforcourse', $coursecontext));
+if (!$opencasterror) {
+    echo $renderer->render_series_settings_actions($courseid,
+        !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
+        has_capability('block/opencast:defineseriesforcourse', $coursecontext));
+}
+
 
 // Section "Upload or record videos".
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
@@ -286,13 +295,29 @@ if ($videodata->error == 0) {
             // Workflow state column.
             $row[] = $renderer->render_processing_state_icon("DELETING");
 
+            // Visibility column.
+            if ($toggleaclroles) {
+                $row[] = "";
+            }
+
             // Actions column.
             $row[] = "";
+
+            // Provide LTI column.
+            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes()) {
+                $row[] = "";
+            }
+
+            // Provide activity column.
+            if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes()) {
+                $row[] = "";
+            }
+
         } else {
             // Workflow state column.
             $row[] = $renderer->render_processing_state_icon($video->processing_state);
 
-            // Actions column.
+            // Visibility column.
             if ($toggleaclroles) {
                 if ($video->processing_state !== "SUCCEEDED" && $video->processing_state !== "FAILED" &&
                     $video->processing_state !== "STOPPED") {
@@ -308,7 +333,7 @@ if ($videodata->error == 0) {
                 $actions .= $renderer->render_delete_acl_group_assignment_icon($courseid, $video->identifier);
             }
 
-            // Edit actions.
+            // Actions column.
             $updatemetadata = ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
                     $video->processing_state == "STOPPED") && $opencast->can_update_event_metadata($video, $courseid);
             $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable);
@@ -326,49 +351,51 @@ if ($videodata->error == 0) {
             }
 
             $row[] = $actions;
-        }
 
-        // Provide column.
-        if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
-            // Pick existing LTI episode module for this episode.
-            $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
-                $video->identifier);
-            $ltiicon = '';
-            // If there is already a LTI episode module created for this episode.
-            if ($moduleid) {
-                // Build icon to view the LTI episode module.
-                $ltiicon = $renderer->render_view_lti_episode_icon($moduleid);
 
-                // If there isn't a LTI episode module yet in this course and the user is allowed to add one.
-            } else if (has_capability('block/opencast:addltiepisode', $coursecontext)) {
-                // Build icon to add the LTI episode module.
-                $ltiicon = $renderer->render_add_lti_episode_icon($courseid, $video->identifier);
+            // Provide column.
+            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == true) {
+                // Pick existing LTI episode module for this episode.
+                $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
+                    $video->identifier);
+                $ltiicon = '';
+                // If there is already a LTI episode module created for this episode.
+                if ($moduleid) {
+                    // Build icon to view the LTI episode module.
+                    $ltiicon = $renderer->render_view_lti_episode_icon($moduleid);
+
+                    // If there isn't a LTI episode module yet in this course and the user is allowed to add one.
+                } else if (has_capability('block/opencast:addltiepisode', $coursecontext)) {
+                    // Build icon to add the LTI episode module.
+                    $ltiicon = $renderer->render_add_lti_episode_icon($courseid, $video->identifier);
+                }
+
+                // Add icons to row.
+                $row[] = $ltiicon;
             }
 
-            // Add icons to row.
-            $row[] = $ltiicon;
-        }
 
-        // Provide Opencast Activity episode module column.
-        if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true) {
-            // Pick existing Opencast Activity episode module for this episode.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid,
-                $video->identifier);
+            // Provide Opencast Activity episode module column.
+            if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == true) {
+                // Pick existing Opencast Activity episode module for this episode.
+                $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid,
+                    $video->identifier);
 
-            $activityicon = '';
-            // If there is already a Opencast Activity episode module created for this episode.
-            if ($moduleid) {
-                // Build icon to view the Opencast Activity episode module.
-                $activityicon = $renderer->render_view_activity_episode_icon($moduleid);
+                $activityicon = '';
+                // If there is already a Opencast Activity episode module created for this episode.
+                if ($moduleid) {
+                    // Build icon to view the Opencast Activity episode module.
+                    $activityicon = $renderer->render_view_activity_episode_icon($moduleid);
 
-                // If there isn't a Opencast Activity episode module yet in this course and the user is allowed to add one.
-            } else if (has_capability('block/opencast:addactivityepisode', $coursecontext)) {
-                // Build icon to add the Opencast Activity episode module.
-                $activityicon = $renderer->render_add_activity_episode_icon($courseid, $video->identifier);
+                    // If there isn't a Opencast Activity episode module yet in this course and the user is allowed to add one.
+                } else if (has_capability('block/opencast:addactivityepisode', $coursecontext)) {
+                    // Build icon to add the Opencast Activity episode module.
+                    $activityicon = $renderer->render_add_activity_episode_icon($courseid, $video->identifier);
+                }
+
+                // Add icons to row.
+                $row[] = $activityicon;
             }
-
-            // Add icons to row.
-            $row[] = $activityicon;
         }
         $table->add_data($row);
     }
@@ -489,6 +516,10 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
             get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
         echo html_writer::div($importvideosbutton);
     }
+}
+
+if ($opencasterror) {
+    \core\notification::error($opencasterror);
 }
 
 echo $OUTPUT->footer();
