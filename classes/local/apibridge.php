@@ -121,7 +121,7 @@ class apibridge
         $result->videos = array();
         $result->error = 0;
 
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
 
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
             return $result;
@@ -182,7 +182,7 @@ class apibridge
      * @return array
      */
     public function get_course_videos($courseid, $sortcolumns = null) {
-
+    // todo  check where this method is used and if this is fine to be used with the new series funciton.
         $result = new \stdClass();
         $result->videos = array();
         $result->error = 0;
@@ -193,6 +193,58 @@ class apibridge
             return $result;
         }
         $seriesfilter = "series:" . $series->identifier;
+
+        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
+        if ($sortcolumns) {
+            $sort = api::get_sort_param($sortcolumns);
+            $query .= $sort;
+        }
+
+        $resource = '/api/events?' . $query;
+
+        $withroles = array();
+
+        $api = new api();
+        $videos = $api->oc_get($resource, $withroles);
+
+        if ($api->get_http_code() != 200) {
+            $result->error = $api->get_http_code();
+
+            return $result;
+        }
+
+        if (!$videos = json_decode($videos)) {
+            return $result;
+        }
+
+        $result->videos = $videos;
+
+        if ($result->error == 0) {
+            foreach ($videos as $video) {
+                $this->extend_video_status($video);
+                $this->set_download_state($video);
+            }
+        }
+
+        $result->videos = $videos;
+
+        return $result;
+    }
+
+    /**
+     * Get all the videos (events) for a series.
+     *
+     * @param string $series
+     * @param string $sortcolumns
+     * @return array
+     */
+    public function get_series_videos($series, $sortcolumns = null) {
+
+        $result = new \stdClass();
+        $result->videos = array();
+        $result->error = 0;
+
+        $seriesfilter = "series:" . $series;
 
         $query = 'sign=1&withacl=1&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
         if ($sortcolumns) {
@@ -424,7 +476,7 @@ class apibridge
      */
     public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
         // Get series mapping.
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
 
         // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
@@ -461,6 +513,30 @@ class apibridge
     public function get_series_by_identifier($seriesid) {
 
         $url = '/api/series/' . $seriesid;
+
+        $api = new api();
+
+        $series = $api->oc_get($url);
+
+        return json_decode($series);
+    }
+
+    /**
+     * API call to check, whether series exists in opencast system.
+     *
+     * @param int $seriesid
+     * @return null|string id of the series id if it exists in the opencast system.
+     */
+    public function get_multiple_series_by_identifier($allseries) {
+
+        $url = '/api/series?' ;
+
+        $params = array();
+        foreach($allseries as $series){
+            $params[] = 'identifier='.$series->series;
+        }
+
+        $url .= implode("&", $params);
 
         $api = new api();
 
@@ -570,9 +646,12 @@ class apibridge
      * @return bool  tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $seriestitle = null, $userid = null) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
-        if ($mapping && $seriesid = $mapping->get('series')) {
-            throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
+        // TODO check if new implementation works with other places where this method is used.
+
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
+        $isdefault = true;
+        if ($mapping) {
+            $isdefault = false;
         }
 
         $params = [];
@@ -617,8 +696,11 @@ class apibridge
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
+            $mapping->set('isdefault', $isdefault);
             $mapping->create();
-            return true;
+            $rec = $mapping->to_record();
+            $rec->seriestitle = $seriestitle;
+            return $rec;
         }
         return false;
     }
@@ -656,12 +738,13 @@ class apibridge
      * @param string $seriesid Series ID
      */
     public function update_course_series($courseid, $seriesid, $userid) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
 
         if (!$mapping) {
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $seriesid);
+            $mapping->set('isdefault', '1');
             $mapping->create();
         } else {
             $mapping->set('series', $seriesid);
@@ -727,7 +810,7 @@ class apibridge
      * @param int $courseid Course ID
      */
     public function unset_course_series($courseid) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
 
         if ($mapping) {
             $mapping->delete();
@@ -785,10 +868,9 @@ class apibridge
     /**
      * API call to create an event.
      * @param object $job Event to be created
-     * @param string $seriesidentifier Series id
      * @return object series object of NULL, if group does not exist.
      */
-    public function create_event($job, $seriesidentifier) {
+    public function create_event($job) {
         global $DB;
 
         $event = new \block_opencast\local\event();
@@ -836,7 +918,8 @@ class apibridge
                 $event->add_meta_data($metadata->id, $metadata->value);
             }
         }
-        $event->add_meta_data('isPartOf', $seriesidentifier);
+        // Todo check other method that are calling this one.
+     //   $event->add_meta_data('isPartOf', $seriesidentifier);
         $params = $event->get_form_params();
 
         $api = new api();
@@ -879,10 +962,9 @@ class apibridge
      *
      * @param \stdClass $job Job to be checked
      * @param array $opencastids Opencas id
-     * @param string $seriesidentifier Series id
      * @return object (Created) event
      */
-    public function ensure_event_exists($job, $opencastids, $seriesidentifier) {
+    public function ensure_event_exists($job, $opencastids) {
 
         if ($opencastids) {
             if ($event = $this->get_already_existing_event($opencastids)) {
@@ -893,7 +975,7 @@ class apibridge
             }
         }
 
-        $event = $this->create_event($job, $seriesidentifier);
+        $event = $this->create_event($job);
 
         // Check success.
         if (!$event) {
@@ -1612,6 +1694,30 @@ class apibridge
         };
         return false;
     }
+
+    /**
+     * Update the metadata with the matching type of the specified series.
+     * @param string $eventidentifier identifier of the series
+     * @param stdClass $metadata collection of metadata
+     * @return bool
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function update_series_metadata($seriesid, $metadata) {
+        $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
+
+        $params['metadata'] = json_encode($metadata);
+        $api = new api();
+        $api->oc_put($resource, $params);
+
+        if ($api->get_http_code() == 204) {
+            // TODO do I need to trigger any workflow for this?
+           //  return $this->update_metadata($eventidentifier);
+            return true;
+        };
+        return false;
+    }
+
 
     /**
      * Get the episode id of the episode which was created in a duplication workflow.

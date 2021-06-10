@@ -29,6 +29,7 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 
 use block_opencast\opencast_state_exception;
 use local_chunkupload\chunkupload_form_element;
+use tool_opencast\seriesmapping;
 
 /**
  * Upload helper.
@@ -67,7 +68,8 @@ class upload_helper
     /**
      * upload_helper constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->apibridge = apibridge::get_instance();
     }
 
@@ -76,7 +78,8 @@ class upload_helper
      * @param int $statuscode Status code
      * @return \lang_string|string Name of status code
      */
-    public static function get_status_string($statuscode) {
+    public static function get_status_string($statuscode)
+    {
 
         switch ($statuscode) {
             case self::STATUS_READY_TO_UPLOAD :
@@ -102,7 +105,8 @@ class upload_helper
      * @param int $courseid Course id
      * @return array
      */
-    public static function get_upload_jobs($courseid) {
+    public static function get_upload_jobs($courseid)
+    {
         global $DB, $CFG;
 
         if ($CFG->branch >= 311) {
@@ -149,7 +153,8 @@ class upload_helper
      * @param object $coursecontext Course context
      * @param object $options Options
      */
-    public static function save_upload_jobs($courseid, $coursecontext, $options) {
+    public static function save_upload_jobs($courseid, $coursecontext, $options)
+    {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -264,7 +269,8 @@ class upload_helper
      * @return bool
      * @throws \dml_exception
      */
-    public static function delete_video_draft($jobtodelete) {
+    public static function delete_video_draft($jobtodelete)
+    {
         global $DB;
         // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD.
         if ($DB->record_exists('block_opencast_uploadjob',
@@ -297,7 +303,8 @@ class upload_helper
      * @param object $job
      * @param string $eventidentifier
      */
-    protected function upload_succeeded($job, $eventidentifier) {
+    protected function upload_succeeded($job, $eventidentifier)
+    {
         global $DB;
 
         $job->opencasteventid = $eventidentifier;
@@ -358,7 +365,8 @@ class upload_helper
      * @param object $job Job that failed
      * @param string $errormessage Error message
      */
-    protected function upload_failed($job, $errormessage) {
+    protected function upload_failed($job, $errormessage)
+    {
         global $DB;
 
         // Update the job to enqueue again.
@@ -407,7 +415,8 @@ class upload_helper
      * @param bool $setstarted if true, the value timestarted of the job is set to the current time.
      * @param bool $setsucceeded if true, the value timesucceeded of the job is set to the current time.
      */
-    protected function update_status(&$job, $status, $setmodified = true, $setstarted = false, $setsucceeded = false) {
+    protected function update_status(&$job, $status, $setmodified = true, $setstarted = false, $setsucceeded = false)
+    {
         global $DB;
         $time = time();
         if ($setstarted) {
@@ -434,7 +443,8 @@ class upload_helper
      * @return false | object either false -> rerun later or object -> upload successful.
      * @throws \moodle_exception
      */
-    protected function process_upload_job($job) {
+    protected function process_upload_job($job)
+    {
         global $DB;
         $stepsuccessful = false;
 
@@ -464,7 +474,19 @@ class upload_helper
             case self::STATUS_CREATING_SERIES:
                 try {
                     // Check if series exists.
-                    $series = $this->apibridge->ensure_course_series_exists($job->courseid, $job->userid);
+                    $metadata = json_decode($job->metadata);
+                    $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
+                    $series = null;
+
+                    if ($mtseries !== false) {
+                        // todo check if this really returns null if not existing.
+                        $series = $this->apibridge->get_series_by_identifier($metadata[$mtseries]->value);
+                    }
+
+                    if (!$series) {
+                        $series = $this->apibridge->ensure_course_series_exists($job->courseid, $job->userid);
+                    }
+
                     if ($series) {
                         $stepsuccessful = true;
                         mtrace('... series exists');
@@ -503,8 +525,25 @@ class upload_helper
                     }
                 }
 
-                $series = $this->apibridge->get_course_series($job->courseid);
-                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
+                $metadata = json_decode($job->metadata);
+                $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
+                $series = null;
+                if ($mtseries !== false) {
+                    $series = $this->apibridge->get_series_by_identifier($metadata[$mtseries]->value);
+                }
+
+                if (!$series) {
+                    $series = $this->apibridge->get_course_series($job->courseid);
+
+                    // Set series metadata.
+                    if ($mtseries !== false) {
+                        $metadata[$mtseries]->value = $series->identifier;
+                    } else {
+                        $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
+                        $job->metadata = json_encode($metadata);
+                    }
+                }
+                $event = $this->apibridge->ensure_event_exists($job, $eventids);
 
                 // Check result.
                 if (!isset($event->identifier)) {
@@ -577,7 +616,8 @@ class upload_helper
     /**
      * Process all transfers to opencast server.
      */
-    public function cron() {
+    public function cron()
+    {
         global $DB;
 
         // Get all waiting jobs.
@@ -625,7 +665,8 @@ class upload_helper
      * @param int $courseid
      * @return object
      */
-    public static function get_opencast_upload_context($courseid) {
+    public static function get_opencast_upload_context($courseid)
+    {
         global $DB;
 
         $sql = "SELECT bi.* FROM {block_instances} bi " .
@@ -652,7 +693,8 @@ class upload_helper
      *
      * @return stdClass $metadata the metadata object
      */
-    public static function get_opencast_metadata_catalog() {
+    public static function get_opencast_metadata_catalog()
+    {
         $metadatacatalog = json_decode(get_config('block_opencast', 'metadata'));
         return $metadatacatalog;
     }

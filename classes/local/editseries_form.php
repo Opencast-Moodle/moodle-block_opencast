@@ -25,6 +25,8 @@
 
 namespace block_opencast\local;
 
+use tool_opencast\seriesmapping;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -43,26 +45,22 @@ class editseries_form extends \moodleform
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
+        global $DB;
         $mform = $this->_form;
-
-        $attributes = array(
-            'size' => '40',
-            'placeholder' => get_string('noseriesid', 'block_opencast'));
-
-        $mform->addElement('text', 'seriesid', get_string('form_seriesid', 'block_opencast'),
-            $attributes);
-        $mform->setType('seriesid', PARAM_ALPHANUMEXT);
-
-        $apibridge = apibridge::get_instance();
-        $seriesid = $apibridge->get_stored_seriesid($this->_customdata['courseid']);
-
-        if ($seriesid) {
-            $mform->setDefault('seriesid', $seriesid);
-        }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+
+        $series = $DB->get_records('tool_opencast_series', array('courseid' => $this->_customdata['courseid']));
+        // Transform isdefault to int.
+        array_walk($series, function ($item) {
+            $item->isdefault = intval($item->isdefault);
+        });
+
+        $mform->addElement('hidden', 'seriesinput', json_encode(array_values($series)));
+        $mform->setType('seriesinput', PARAM_TEXT);
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }
@@ -76,7 +74,8 @@ class editseries_form extends \moodleform
      * @return array
      * @throws \coding_exception
      */
-    public function validation($data, $files) {
+    public function validation($data, $files)
+    {
         $error = array();
 
         $apibridge = apibridge::get_instance();

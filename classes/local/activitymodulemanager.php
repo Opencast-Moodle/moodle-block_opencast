@@ -212,23 +212,16 @@ class activitymodulemanager
     }
 
     /**
-     * Helperfunction to get the Opencast LTI series module of a course.
-     * This includes a sanity check if the stored LTI series module still exists.
+     * Helperfunction to get the Opencast series module of a course.
+     * This includes a sanity check if the stored series module still exists.
      *
      * @param int $courseid
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($courseid) {
+    public static function get_module_for_series($courseid, $seriesid) {
+        // TODO handle other case where this method is called.
         global $DB;
-
-        $apibridge = apibridge::get_instance();
-        $seriesid = $apibridge->get_stored_seriesid($courseid);
-
-        // Return false, if there isn't a series for this course yet.
-        if (!$seriesid) {
-            return false;
-        }
 
         // Get the Opencast Activity series module id.
         $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
