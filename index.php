@@ -334,7 +334,6 @@ if ($videodata->error == 0) {
             }
 
             // Actions column.
-            // Todo what about needscutting, capturing und pending? scheduled jetzt erlaubt
             $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
             $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable, $coursecontext);
 
