@@ -80,6 +80,46 @@ class file_deletionmanager extends \file_system_filedir {
     }
 
     /**
+     * Deletes the dot file entries that belongs to a videofile within
+     * the same course.
+     *
+     * Note that we take care about the course context and do not delete files
+     * entries from other courses.
+     *
+     * @param int $coursecontextid
+     * @param int $itemid
+     */
+    public static function delete_dot_files_by_source($coursecontextid, $itemid) {
+        global $DB;
+
+        $params = [
+            'component' => 'block_opencast',
+            'filearea' => 'videotoupload',
+            'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+            'filename' => '.',
+            'contextid' => $coursecontextid,
+            'itemid' => $itemid
+        ];
+
+        // Get dot entries belonging to stored file.
+        $sql = "SELECT f.* " .
+            "FROM {files} f ".
+            "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid ".
+            "WHERE f.contenthash = :contenthash AND f.component = :component ".
+            "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid ";
+
+        if (!$dotfiles = $DB->get_records_sql($sql, $params)) {
+            return;
+        }
+
+        $fs = get_file_storage();
+        foreach ($dotfiles as $dotfile) {
+            $fs->get_file_instance($dotfile)->delete();
+        }
+    }
+
+
+    /**
      * Store the draft item id of filemanager and the course context id to remember
      * in which context the filemanage was used. This is needed to restrict the
      * deletion of draft file after a video was uploaded to opencast.
@@ -140,10 +180,15 @@ class file_deletionmanager extends \file_system_filedir {
      * @param \stored_file $storedfile
      */
     public static function fulldelete_file($storedfile) {
+        $filedir = new file_system_filedir();
 
+        // Delete .dot entry, see https://tracker.moodle.org/browse/MDL-65857
+        self::delete_dot_files_by_source($storedfile->get_contextid(), $storedfile->get_itemid());
+        $filedir->delete_file_from_trashdir('da39a3ee5e6b4b0d3255bfef95601890afd80709');
+
+        // Delete draft file.
         self::delete_draft_files_by_source($storedfile->get_contenthash(), $storedfile->get_contextid());
 
-        $filedir = new file_system_filedir();
         $filedir->delete_file_from_trashdir($storedfile->get_contenthash());
     }
 

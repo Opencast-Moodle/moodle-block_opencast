@@ -27,7 +27,8 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $oldversion
  * @return bool
  */
-function xmldb_block_opencast_upgrade($oldversion) {
+function xmldb_block_opencast_upgrade($oldversion)
+{
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
@@ -501,6 +502,53 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         // Opencast savepoint reached.
         upgrade_block_savepoint(true, 2021051200, 'opencast');
+    }
+
+    if ($oldversion < 2021061600) {
+        // Delete dangling .dot files.
+
+        $params = [
+            'component' => 'block_opencast',
+            'filearea' => 'videotoupload'
+        ];
+
+        $sql = "SELECT CONCAT(contextid, '_', itemid), contextid, itemid, COUNT(*) as cnt " .
+            "FROM {files} " .
+            "WHERE component = :component " .
+            "AND filearea = :filearea GROUP BY contextid, itemid;";
+
+        if ($entries = $DB->get_records_sql($sql, $params)) {
+            foreach ($entries as $entry) {
+                if ($entry->cnt === "1") {
+                    // Only .dot file left. Delete it.
+                    $params = [
+                        'component' => 'block_opencast',
+                        'filearea' => 'videotoupload',
+                        'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+                        'filename' => '.',
+                        'contextid' => $entry->contextid,
+                        'itemid' => $entry->itemid
+                    ];
+
+                    $sql = "SELECT f.* " .
+                        "FROM {files} f ".
+                        "WHERE f.contenthash = :contenthash AND f.component = :component ".
+                        "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid AND f.contextid = :contextid";
+
+                    if (!$dotfiles = $DB->get_records_sql($sql, $params)) {
+                        return;
+                    }
+
+                    $fs = get_file_storage();
+                    foreach ($dotfiles as $dotfile) {
+                        $fs->get_file_instance($dotfile)->delete();
+                    }
+                }
+            }
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021061600, 'opencast');
     }
 
     return true;
