@@ -334,8 +334,8 @@ if ($videodata->error == 0) {
             }
 
             // Actions column.
-            $updatemetadata = ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
-                    $video->processing_state == "STOPPED") && $opencast->can_update_event_metadata($video, $courseid);
+            // Todo what about needscutting, capturing und pending? scheduled jetzt erlaubt
+            $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
             $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable, $coursecontext);
 
             if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
