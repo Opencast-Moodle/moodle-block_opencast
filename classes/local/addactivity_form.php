@@ -47,6 +47,7 @@ class addactivity_form extends \moodleform
         $mform = $this->_form;
 
         $courseid = $this->_customdata['courseid'];
+        $seriesid = $this->_customdata['seriesid'];
 
         $mform->addElement('text', 'title', get_string('addactivity_formactivitytitle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
@@ -83,6 +84,10 @@ class addactivity_form extends \moodleform
 
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
+
+
+        $mform->addElement('hidden', 'seriesid', $seriesid);
+        $mform->setType('seriesid', PARAM_ALPHANUMEXT);
 
         $this->add_action_buttons();
     }

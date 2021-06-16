@@ -48,7 +48,7 @@ class addvideo_form extends \moodleform
      * Form definition.
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $DB;
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload');
 
@@ -64,6 +64,24 @@ class addvideo_form extends \moodleform
 
         $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
+
+        $seriesrecords = $DB->get_records('tool_opencast_series', array('courseid' => $this->_customdata['courseid']));
+        $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
+        $seriesoption = array();
+
+        // Todo If connection to opencast fails, print only series id and display warning
+
+        // TODO what if no series exist?
+        $apibridge = apibridge::get_instance();
+        $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
+
+        foreach($seriesrecords as $series) {
+            $seriesoption[$series->identifier] = $series->title;
+        }
+        // TODO set default
+
+        $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
+        $mform->setDefault('series', $defaultseries);
 
         $settitle = true;
         foreach ($this->_customdata['metadata_catalog'] as $field) {

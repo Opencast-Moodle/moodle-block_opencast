@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\series_form;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -34,4 +36,44 @@ function block_opencast_get_fontawesome_icon_map() {
         'block_opencast:share' => 'fa-share-square',
         'block_opencast:play' => 'fa-play-circle'
     ];
+}
+
+/**
+ * Serve the create series form as a fragment.
+ */
+function block_opencast_output_fragment_series_form($args) {
+    global $CFG;
+
+    $args = (object) $args;
+    $context = $args->context;
+    $o = '';
+
+    $formdata = [];
+    if(!empty($args->jsonformdata)) {
+        $formdata = json_decode($args->jsonformdata, true);
+    }
+
+    list($ignored, $course) = get_context_info_array($context->id);
+
+    require_capability('block/opencast:createseriesforcourse', $context);
+
+    if($formdata['series']) {
+        $mform =  new series_form(null, array('courseid' => $course->id, 'seriesid' => $formdata['series']));
+    }
+    else {
+        $mform =  new series_form(null, array('courseid' => $course->id));
+    }
+
+    $mform->set_data($formdata);
+
+    if(!empty($formdata)){
+        $mform->is_validated();
+    }
+
+    ob_start();
+    $mform->display();
+    $o .= ob_get_contents();
+    ob_end_clean();
+
+    return $o;
 }

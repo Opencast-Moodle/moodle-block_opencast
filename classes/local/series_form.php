@@ -32,32 +32,42 @@ global $CFG;
 require_once($CFG->dirroot . '/lib/formslib.php');
 
 /**
- * Create series form.
+ * Series form.
  *
  * @package    block_opencast
  * @copyright  2018 Tamara Gunkel
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class createseries_form extends \moodleform
+class series_form extends \moodleform
 {
 
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $USER;
         $mform = $this->_form;
 
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = apibridge::get_instance();
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
+        $mform->addElement('hidden', 'seriesid', $this->_customdata['seriesid']);
+        $mform->setType('seriesid', PARAM_ALPHANUMEXT);
+
         $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
         $mform->setType('seriestitle', PARAM_TEXT);
-        $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');
-        $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
+        $mform->addRule('seriestitle', get_string('required'), 'required');
+
+        if (!empty($this->_customdata['seriesid'])) {
+            $ocseries = $apibridge->get_series_by_identifier($this->_customdata['seriesid']);
+            $mform->setDefault('seriestitle', $ocseries->title, $USER->id);
+        } else {
+            $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
+        }
 
         $this->add_action_buttons(true, get_string('savechanges'));
     }

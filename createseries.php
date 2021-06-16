@@ -51,13 +51,13 @@ $PAGE->navbar->add(get_string('createseriesforcourse', 'block_opencast'), $baseu
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:createseriesforcourse', $coursecontext);
 
-$createseriesform = new \block_opencast\local\createseries_form(null, array('courseid' => $courseid));
+$seriesform = new \block_opencast\local\series_form(null, array('courseid' => $courseid));
 
-if ($createseriesform->is_cancelled()) {
+if ($seriesform->is_cancelled()) {
     redirect($redirecturl);
 }
 
-if ($data = $createseriesform->get_data()) {
+if ($data = $seriesform->get_data()) {
     // Create new series.
     if ($apibridge->create_course_series($courseid, $data->seriestitle, $USER->id)) {
         redirect($redirecturl, get_string('seriescreated', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
@@ -69,5 +69,5 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('createseriesforcourse', 'block_opencast'));
-$createseriesform->display();
+$seriesform->display();
 echo $OUTPUT->footer();

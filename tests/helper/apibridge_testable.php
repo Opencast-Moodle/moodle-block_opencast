@@ -139,7 +139,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      */
     public function create_course_series($courseid, $seriestitle = null, $userid = null) {
 
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
         if ($mapping && $seriesid = $mapping->get('series')) {
             throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
         }
@@ -155,6 +155,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $mapping = new seriesmapping();
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
+            $mapping->set('isdefault', '1');
             $mapping->create();
             return true;
         }

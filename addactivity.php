@@ -26,6 +26,7 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $CFG, $USER;
 
 $courseid = required_param('courseid', PARAM_INT);
+$seriesid = required_param('seriesid', PARAM_ALPHANUMEXT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
 $baseurl = new moodle_url('/blocks/opencast/addactivity.php', array('courseid' => $courseid));
@@ -52,14 +53,14 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addactivity', $coursecontext);
 
 // Existing Opencast Activity module check.
-$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($courseid);
+$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($courseid, $seriesid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
         get_string('addactivity_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
-$addactivityform = new \block_opencast\local\addactivity_form(null, array('courseid' => $courseid));
+$addactivityform = new \block_opencast\local\addactivity_form(null, array('courseid' => $courseid, 'seriesid' => $seriesid));
 
 $apibridge = \block_opencast\local\apibridge::get_instance();
 
@@ -104,12 +105,11 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // Get series ID.
-    $seriesid = $apibridge->get_stored_seriesid($courseid);
+    $ocseries = $apibridge->get_series_by_identifier($data->seriesid);
 
     // Ensure that series exists.
-    if ($seriesid == null) {
-        $apibridge->create_course_series($courseid, null, $USER->id);
-        $seriesid = $apibridge->get_stored_seriesid($courseid);
+    if ($ocseries == null) {
+        // TODO dont create but throw error. The series should exist.
     }
 
     // Create the module.
