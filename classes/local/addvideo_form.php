@@ -47,7 +47,8 @@ class addvideo_form extends \moodleform
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $CFG, $DB;
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload');
@@ -66,22 +67,27 @@ class addvideo_form extends \moodleform
         $mform->addElement('html', $explanation);
 
         $seriesrecords = $DB->get_records('tool_opencast_series', array('courseid' => $this->_customdata['courseid']));
-        $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
-        $seriesoption = array();
+        if($seriesrecords) {
+            $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
+            $seriesoption = array();
 
-        // Todo If connection to opencast fails, print only series id and display warning
+            $apibridge = apibridge::get_instance();
+            try {
+                $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
+                foreach ($seriesrecords as $series) {
+                    $seriesoption[$series->identifier] = $series->title;
+                }
+            } catch (\block_opencast\opencast_connection_exception $e) {
+                \core\notification::warning($e->getMessage());
+                foreach ($seriesrecords as $series) {
+                    $seriesoption[$series->series] = $series->series;
+                }
+            }
 
-        // TODO what if no series exist?
-        $apibridge = apibridge::get_instance();
-        $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
-
-        foreach($seriesrecords as $series) {
-            $seriesoption[$series->identifier] = $series->title;
+            $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
+            $mform->addRule('series', get_string('required'), 'required');
+            $mform->setDefault('series', $defaultseries);
         }
-        // TODO set default
-
-        $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
-        $mform->setDefault('series', $defaultseries);
 
         $settitle = true;
         foreach ($this->_customdata['metadata_catalog'] as $field) {
@@ -119,8 +125,7 @@ class addvideo_form extends \moodleform
             if ($field->required) {
                 if ($field->datatype == 'autocomplete') {
                     $mform->addRule($field->name, get_string('required'), 'required', null, 'client');
-                }
-                else {
+                } else {
                     $mform->addRule($field->name, get_string('required'), 'required');
                 }
             }
@@ -218,7 +223,8 @@ class addvideo_form extends \moodleform
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files) {
+    public function validation($data, $files)
+    {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
         if (!$chunkuploadinstalled ||
@@ -257,7 +263,8 @@ class addvideo_form extends \moodleform
      * @return string
      * @throws \coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null) {
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {

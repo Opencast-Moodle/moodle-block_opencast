@@ -96,6 +96,22 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
 
+        $metdataseriesdefault = '[' .
+            '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"subject","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
+            '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
+            '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
+            '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
+            '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},' .
+            '{"name":"rightsHolder","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"license","datatype":"select","required":1,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
+            '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
+            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+
         $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname',
             'helpbtnname', 'descriptionmdfn', 'block_opencast'));
         $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams',
@@ -111,9 +127,18 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             get_string('metadatadesc',
                 'block_opencast'), $metdatadefault);
 
+        $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries',
+            get_string('metadataseries', 'block_opencast'),
+            get_string('metadataseriesdesc',
+                'block_opencast'), $metdataseriesdefault);
+
         // Crashes if plugins.php is opened because css cannot be included anymore.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
-            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [$rolessetting->get_id(), $metadatasetting->get_id()]);
+            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [
+                $rolessetting->get_id(),
+                $metadatasetting->get_id(),
+                $metadataseriessetting->get_id()
+            ]);
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
         }
@@ -242,7 +267,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         );
 
         $generalsettings->add($rolessetting);
-        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable', 'rolestable'));
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable', 'rolestable',
+            get_string('addrole', 'block_opencast')));
 
         $generalsettings->add(
             new admin_setting_heading('block_opencast/metadata_header',
@@ -250,7 +276,17 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 ''));
 
         $generalsettings->add($metadatasetting);
-        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable', 'metadatatable'));
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable', 'metadatatable',
+            get_string('addcatalog', 'block_opencast')));
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/metadataseries_header',
+                get_string('metadataseries', 'block_opencast'),
+                ''));
+
+        $generalsettings->add($metadataseriessetting);
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable', 'metadataseriestable',
+            get_string('addcatalog', 'block_opencast')));
 
         // Settings page: Appearance settings.
         $appearancesettings = new admin_settingpage('block_opencast_appearancesettings',

@@ -27,7 +27,7 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
 
-export const init = (rolesinputid, metadatainputid) => {
+export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
 
     // Load strings
     var strings = [
@@ -50,9 +50,14 @@ export const init = (rolesinputid, metadatainputid) => {
         var rolesinput = $('#' + rolesinputid);
         rolesinput.parent().hide();
         rolesinput.parent().next().hide(); // Default value.
+
         var metadatainput = $('#' + metadatainputid);
         metadatainput.parent().hide();
         metadatainput.parent().next().hide(); // Default value.
+
+        var metadataseriesinput = $('#' + metadataseriesinputid);
+        metadataseriesinput.parent().hide();
+        metadataseriesinput.parent().next().hide(); // Default value.
 
         var rolestable = new Tabulator("#rolestable", {
             data: JSON.parse(rolesinput.val()),
@@ -223,6 +228,105 @@ export const init = (rolesinputid, metadatainputid) => {
 
         $('#addrow-metadatatable').click(function () {
             metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
+        });
+
+        var metadataseriestable = new Tabulator("#metadataseriestable", {
+            data: JSON.parse(metadataseriesinput.val()),
+            layout: "fitColumns",
+            movableRows: true,
+            rowMoved: function () {
+                // Order by row position
+                var data = metadataseriestable.getRows().map(row => row.getData());
+                data = data.filter(value => value.name);
+                metadataseriesinput.val(JSON.stringify(data));
+            },
+            dataChanged: function () {
+                // Order by row position
+                var data = metadataseriestable.getRows().map(row => row.getData());
+                data = data.filter(value => value.name);
+                $('#' + metadataseriesinputid).val(JSON.stringify(data));
+            },
+            columns: [
+                {
+                    title: jsstrings[7] + '   ' + $('#helpbtnname').html(),
+                    field: "name",
+                    editor: "input",
+                    widthGrow: 1,
+                    headerSort: false
+                },
+                {
+                    title: jsstrings[8], field: "datatype", widthGrow: 1, headerSort: false, editor: "select", editorParams:
+                        {
+                            values: {
+                                'text': 'String (text)',
+                                'select': 'Drop Down (select)',
+                                'autocomplete': 'Arrays (autocomplete)',
+                                'textarea': 'Long Text (textarea)',
+                                'date_time_selector': 'Date Time Selector (datetime)'
+                            }
+                        }
+                },
+                {
+                    title: jsstrings[9],
+                    field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+
+                        function (cell) {
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
+                    title: jsstrings[10],
+                    field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+                        function (cell) {
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
+                    title: jsstrings[11] + '   ' + $('#helpbtnparams').html(),
+                    field: "param_json",
+                    editor: "textarea",
+                    widthGrow: 2,
+                    headerSort: false
+                },
+                {
+                    title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
+                        function () {
+                            return '<i class="icon fa fa-trash fa-fw"></i>';
+                        },
+                    cellClick: function (e, cell) {
+                        ModalFactory.create({
+                            type: ModalFactory.types.SAVE_CANCEL,
+                            title: jsstrings[5],
+                            body: jsstrings[6]
+                        })
+                            .then(function (modal) {
+                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.getRoot().on(ModalEvents.save, function () {
+                                    cell.getRow().delete();
+                                });
+                                modal.show();
+                            });
+                    }
+                }
+            ],
+        });
+
+        $('#addrow-metadataseriestable').click(function () {
+            metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
     });
 };

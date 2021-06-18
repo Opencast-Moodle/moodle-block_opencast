@@ -70,8 +70,7 @@ if ($data = $editseriesform->get_data()) {
     // First check that all series are valid.
     foreach($allseries as $seriesid => $isdefault) {
         if(!$apibridge->ensure_series_is_valid($seriesid)) {
-            // Todo specify which series
-            redirect($redirecturl, get_string('seriesidnotvalid', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+            redirect($baseurl, get_string('seriesidnotvalid', 'block_opencast', $seriesid), null, \core\output\notification::NOTIFY_ERROR);
         }
         if($isdefault) {
             $numdefault += 1;
@@ -80,9 +79,7 @@ if ($data = $editseriesform->get_data()) {
 
     // Ensure only one default series is given.
     if($numdefault > 1 || $numdefault === 0 && !empty($allseries)) {
-        // todo maybe redicred somewhere else?
-        // TODO neue error message that only one default series is allowed
-        redirect($redirecturl, get_string('seriesidnotvalid', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+        redirect($baseurl, get_string('seriesonedefault', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
     }
 
     // Now update database.

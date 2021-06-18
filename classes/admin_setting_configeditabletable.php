@@ -37,15 +37,18 @@ class admin_setting_configeditabletable extends \admin_setting
 {
     /** @var string Id of the div tag */
     private $divid;
+    /** @var string Text for add button */
+    private $buttontext;
 
     /**
      * Not a setting, just an editable table.
      * @param string $name Setting name
      * @param string $divid Id of the div tag
      */
-    public function __construct($name, $divid) {
+    public function __construct($name, $divid, $buttontext) {
         $this->nosave = true;
         $this->divid = $divid;
+        $this->buttontext = $buttontext;
         parent::__construct($name, '', '', '');
     }
 
@@ -87,7 +90,7 @@ class admin_setting_configeditabletable extends \admin_setting
      */
     public function output_html($data, $query = '') {
         return '<div class="mt-3" id="' . $this->divid .
-            '"></div><button class="btn btn-primary mt-3 float-right" type="button" id="addrow-' . $this->divid . '">' .
-            get_string('addrole', 'block_opencast') . '</button>';
+            '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto" type="button" id="addrow-' . $this->divid . '">' .
+            $this->buttontext . '</button></div>';
     }
 }

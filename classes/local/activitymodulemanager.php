@@ -220,7 +220,6 @@ class activitymodulemanager
      * @return int|boolean
      */
     public static function get_module_for_series($courseid, $seriesid) {
-        // TODO handle other case where this method is called.
         global $DB;
 
         // Get the Opencast Activity series module id.

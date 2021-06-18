@@ -219,6 +219,7 @@ $string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {
     The event ({$a->eventid}) could not be restored.';
 $string['error_seriesid_missing_opencast'] = 'The series of course {$a->coursefullname} (ID: {$a->courseid}) can not be found in the opencast system.
     The event ({$a->eventid}) could not be restored.';
+$string['series_not_found'] = 'The series {$a} can not be found in the opencast system.';
 $string['error_seriesid_taskdata_missing'] = 'The task data contains no series id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_workflow_setup_missing'] = 'The plugin block_opencast is not properly configurated. The duplication workflow is missing!';
@@ -312,6 +313,7 @@ $string['limituploadjobs'] = 'Limit upload job by cron';
 $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cronjob. The cronjob can be scheduled here: {$a}';
 $string['limitvideos'] = 'Number of videos';
 $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
+$string['loading'] = 'Loading...';
 $string['messageprovider:error'] = 'Processing error notification';
 $string['messageprovider:reportproblem_confirmation'] = 'Copy of reported problems for Opencast videos';
 $string['missingevent'] = 'Creation of event failed';
@@ -376,12 +378,13 @@ $string['seriescreated'] = 'Series was created.';
 $string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
 $string['seriesidunset'] = 'The series ID was removed.';
-$string['seriesidnotvalid'] = 'The series does not exist.';
+$string['seriesidnotvalid'] = 'The series {$a} does not exist.';
 $string['series_does_not_exist_admin'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast.';
 $string['series_does_not_exist'] = 'The series assigned to this course is not valid. Please contact your Administrator!';
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use placeholders which are automatically replaced (<a target="_blank" href="https://moodle.docs.opencast.org/#block/general_settings/#placeholders">list of placeholders</a>).';
 $string['series_name_empty'] = 'Series name must not be empty.';
+$string['seriesonedefault'] = 'There must be exactly one default series.';
 $string['startworkflow'] = 'Start workflow';
 $string['startworkflow_modal_body'] = 'Choose the workflow you want to start.';
 $string['termsofuse'] = 'Terms of use';
@@ -456,9 +459,11 @@ $string['support_setting_notset'] = 'Support email is not set. Please contact th
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';
-$string['metadata'] = 'Metadata';
+$string['metadata'] = 'Event Metadata';
 $string['metadatadesc'] = 'Here you can define which metadata fields can or have to be set when uploading videos to Opencast. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
 $string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';
+$string['metadataseries'] = 'Series Metadata';
+$string['metadataseriesdesc'] = 'Here you can define which metadata fields can or have to be set for creating Opencast series. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
 $string['mediatype'] = 'Media Source';
 $string['title'] = 'Title';
 $string['description'] = 'Description';
