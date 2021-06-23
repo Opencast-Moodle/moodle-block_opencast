@@ -56,6 +56,8 @@ class addvideo_form extends \moodleform
             \MoodleQuickForm::registerElementType('chunkupload',
                 "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
                 'local_chunkupload\chunkupload_form_element');
+
+            $offerchunkuploadalternative = get_config('block_opencast', 'offerchunkuploadalternative');
         }
 
         $mform = $this->_form;
@@ -141,35 +143,39 @@ class addvideo_form extends \moodleform
         $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
         $mform->addElement('html', $presenterdesc);
 
-        if ($usechunkupload) {
-            $mform->addElement('checkbox', 'presenter_already_uploaded',
-                get_string('video_already_uploaded', 'block_opencast'));
+        if (!$usechunkupload || $offerchunkuploadalternative) {
+            $mform->addElement('filepicker', 'video_presenter',
+                    get_string('presenter', 'block_opencast'),
+                    null, ['accepted_types' => $videotypes]);
         }
-        $mform->addElement('filepicker', 'video_presenter',
-            get_string('presenter', 'block_opencast'),
-            null, ['accepted_types' => $videotypes]);
         if ($usechunkupload) {
-            $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
             $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-            $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
+                    array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+            if ($offerchunkuploadalternative) {
+                $mform->addElement('checkbox', 'presenter_already_uploaded',
+                        get_string('usedefaultfilepicker', 'block_opencast'));
+                $mform->hideIf('video_presenter', 'presenter_already_uploaded', 'notchecked');
+                $mform->hideIf('video_presenter_chunk', 'presenter_already_uploaded', 'checked');
+            }
         }
 
         $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
         $mform->addElement('html', $presentationdesc);
 
-        if ($usechunkupload) {
-            $mform->addElement('checkbox', 'presentation_already_uploaded',
-                get_string('video_already_uploaded', 'block_opencast'));
+        if (!$usechunkupload || $offerchunkuploadalternative) {
+            $mform->addElement('filepicker', 'video_presentation',
+                    get_string('presentation', 'block_opencast'),
+                    null, ['accepted_types' => $videotypes]);
         }
-        $mform->addElement('filepicker', 'video_presentation',
-            get_string('presentation', 'block_opencast'),
-            null, ['accepted_types' => $videotypes]);
         if ($usechunkupload) {
-            $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
             $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
-            $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
+                    array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+            if ($offerchunkuploadalternative) {
+                $mform->addElement('checkbox', 'presentation_already_uploaded',
+                        get_string('usedefaultfilepicker', 'block_opencast'));
+                $mform->hideIf('video_presentation', 'presentation_already_uploaded', 'notchecked');
+                $mform->hideIf('video_presentation_chunk', 'presentation_already_uploaded', 'checked');
+            }
         }
 
         if (!empty(get_config('block_opencast', 'termsofuse'))) {
