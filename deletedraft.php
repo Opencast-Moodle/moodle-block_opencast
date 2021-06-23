@@ -18,7 +18,6 @@
  * View for deleting a draft video which has still the status readytoupload
  *
  * @package    block_opencast
- * @category   view
  * @copyright  2020 Educational Technologies, Graz, University of Technology
  * @author     Behnam Taraghi
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

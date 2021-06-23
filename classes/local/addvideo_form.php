@@ -101,8 +101,7 @@ class addvideo_form extends \moodleform
             if ($field->required) {
                 if ($field->datatype == 'autocomplete') {
                     $mform->addRule($field->name, get_string('required'), 'required', null, 'client');
-                }
-                else {
+                } else {
                     $mform->addRule($field->name, get_string('required'), 'required');
                 }
             }
@@ -246,5 +245,4 @@ class addvideo_form extends \moodleform
             return get_string($identifier, $component, $a);
         }
     }
-
 }

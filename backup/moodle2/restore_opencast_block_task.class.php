@@ -97,8 +97,8 @@ class restore_opencast_block_task extends restore_block_task
         $apibridge = \block_opencast\local\apibridge::get_instance();
         $courseid = $this->get_courseid();
 
-        if (!$seriesid = $apibridge->get_stored_seriesid($courseid)) {
-            if (!$courseseries = $apibridge->create_course_series($courseid, null, $USER->id)) {
+        if (!$apibridge->get_stored_seriesid($courseid)) {
+            if (!$apibridge->create_course_series($courseid, null, $USER->id)) {
                 echo get_string('seriesnotcreated', 'block_opencast');
             }
         }

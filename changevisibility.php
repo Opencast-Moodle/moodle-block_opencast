@@ -47,7 +47,7 @@ $PAGE->navbar->add(get_string('changevisibility', 'block_opencast'), $baseurl);
 
 // Check if the ACL control feature is enabled.
 if (get_config('block_opencast', 'aclcontrolafter') != true) {
-    print_error('ACL control feature not enabled', 'block_opencast', $redirecturl);
+    throw new moodle_exception('ACL control feature not enabled', 'block_opencast', $redirecturl);
 }
 
 // Capability check.

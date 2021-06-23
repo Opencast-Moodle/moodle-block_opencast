@@ -22,6 +22,10 @@
 namespace block_opencast\task;
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Task for processing the upload jobs.
+ * @package block_opencast
+ */
 class process_upload_cron extends \core\task\scheduled_task {
 
     public function get_name() {

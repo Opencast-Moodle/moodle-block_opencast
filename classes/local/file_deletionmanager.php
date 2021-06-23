@@ -182,7 +182,7 @@ class file_deletionmanager extends \file_system_filedir {
     public static function fulldelete_file($storedfile) {
         $filedir = new file_system_filedir();
 
-        // Delete .dot entry, see https://tracker.moodle.org/browse/MDL-65857
+        // Delete .dot entry, see https://tracker.moodle.org/browse/MDL-65857.
         self::delete_dot_files_by_source($storedfile->get_contextid(), $storedfile->get_itemid());
         $filedir->delete_file_from_trashdir('da39a3ee5e6b4b0d3255bfef95601890afd80709');
 

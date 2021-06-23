@@ -45,8 +45,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_created($opencastcreated)
-    {
+    public function render_created($opencastcreated) {
         return userdate(strtotime($opencastcreated), get_string('strftimedatetime', 'langconfig'));
     }
 
@@ -57,8 +56,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string HTML code for icon
      */
-    public function render_processing_state_icon($processingstate)
-    {
+    public function render_processing_state_icon($processingstate) {
         switch ($processingstate) {
 
             case 'FAILED' :
@@ -85,8 +83,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @param object $videodata data as a result from api query against opencast.
      */
-    public function render_block_content($courseid, $videodata)
-    {
+    public function render_block_content($courseid, $videodata) {
 
         $html = '';
 
@@ -144,8 +141,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_publication_status($publicationstatus)
-    {
+    public function render_publication_status($publicationstatus) {
 
         if (empty($publicationstatus)) {
             return get_string('notpublished', 'block_opencast');
@@ -162,8 +158,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_status($statuscode, $countfailed = 0)
-    {
+    public function render_status($statuscode, $countfailed = 0) {
         // Get understandable status string.
         $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
 
@@ -184,8 +179,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_upload_jobs($uploadjobs, $showdeletebutton = true)
-    {
+    public function render_upload_jobs($uploadjobs, $showdeletebutton = true) {
 
         $table = new html_table();
         $table->head = array(
@@ -210,9 +204,9 @@ class block_opencast_renderer extends plugin_renderer_base
                 foreach ($metadata as $ms) {
                     if ($ms->id == 'title') {
                         $title = $ms->value;
-                    } elseif ($ms->id == 'startDate') {
+                    } else if ($ms->id == 'startDate') {
                         $startdate = $ms->value;
-                    } elseif ($ms->id == 'startTime') {
+                    } else if ($ms->id == 'startTime') {
                         $starttime = $ms->value;
                     }
                 }
@@ -284,8 +278,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @param string $videoidentifier
      */
-    public function render_delete_acl_group_assignment_icon($courseid, $videoidentifier)
-    {
+    public function render_delete_acl_group_assignment_icon($courseid, $videoidentifier) {
 
         $url = new \moodle_url('/blocks/opencast/deleteaclgroup.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid));
@@ -301,8 +294,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @param string $videoidentifier
      */
-    public function render_change_visibility_icon($courseid, $videoidentifier, $visible)
-    {
+    public function render_change_visibility_icon($courseid, $videoidentifier, $visible) {
         global $USER;
         $url = new \moodle_url('/blocks/opencast/changevisibility.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid,
@@ -338,8 +330,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param object $video
      * @return string
      */
-    public function render_video_info($courseid, $video)
-    {
+    public function render_video_info($courseid, $video) {
 
         if (!$video) {
             return get_string('videonotfound', 'block_opencast');
@@ -383,8 +374,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @param string $videoidentifier
      */
-    public function render_delete_event_icon($courseid, $videoidentifier)
-    {
+    public function render_delete_event_icon($courseid, $videoidentifier) {
 
         $url = new \moodle_url('/blocks/opencast/deleteevent.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid));
@@ -403,8 +393,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_add_lti_episode_icon($courseid, $episodeuuid)
-    {
+    public function render_add_lti_episode_icon($courseid, $episodeuuid) {
         $url = new \moodle_url('/blocks/opencast/addltiepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
         $text = get_string('addltiepisode_addicontitle', 'block_opencast');
 
@@ -420,8 +409,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_view_lti_episode_icon($moduleid)
-    {
+    public function render_view_lti_episode_icon($moduleid) {
 
         $url = new \moodle_url('/mod/lti/view.php', array('id' => $moduleid));
         $text = get_string('addltiepisode_viewicontitle', 'block_opencast');
@@ -439,8 +427,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_add_activity_episode_icon($courseid, $episodeuuid)
-    {
+    public function render_add_activity_episode_icon($courseid, $episodeuuid) {
         $url = new \moodle_url('/blocks/opencast/addactivityepisode.php',
             array('episodeuuid' => $episodeuuid, 'courseid' => $courseid));
         $text = get_string('addactivityepisode_addicontitle', 'block_opencast');
@@ -457,8 +444,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_view_activity_episode_icon($moduleid)
-    {
+    public function render_view_activity_episode_icon($moduleid) {
 
         $url = new \moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
         $text = get_string('addactivityepisode_viewicontitle', 'block_opencast');
@@ -477,8 +463,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private function render_delete_draft_icon($courseid, $videoidentifier)
-    {
+    private function render_delete_draft_icon($courseid, $videoidentifier) {
 
         $url = new \moodle_url('/blocks/opencast/deletedraft.php',
             array('identifier' => $videoidentifier, 'courseid' => $courseid));
@@ -489,8 +474,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link($url, $icon);
     }
 
-    public function render_edit_functions($courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext)
-    {
+    public function render_edit_functions($courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -526,8 +510,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param object $video
      * @return string
      */
-    public function render_video_deletion_info($courseid, $video)
-    {
+    public function render_video_deletion_info($courseid, $video) {
 
         if (!$video) {
             return get_string('videonotfound', 'block_opencast');
@@ -575,8 +558,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param array $items to use as list elements
      * @return string
      */
-    public function render_list($items)
-    {
+    public function render_list($items) {
 
         $o = '';
         if (count($items) == 0) {
@@ -590,8 +572,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return html_writer::tag('ul', $o);
     }
 
-    public function render_series_settings_actions(int $courseid, bool $createseries, bool $editseries): string
-    {
+    public function render_series_settings_actions(int $courseid, bool $createseries, bool $editseries): string {
         $context = new \stdClass();
         $context->hasanyactions = false;
         if ($createseries) {
@@ -613,8 +594,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param object $data The prepared variables.
      * @return string
      */
-    public function render_lti_form($endpoint, $params)
-    {
+    public function render_lti_form($endpoint, $params) {
         $content = "<form action=\"" . $endpoint .
             "\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n";
 
@@ -632,8 +612,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return $content;
     }
 
-    public function render_download_event_icon($courseid, $video)
-    {
+    public function render_download_event_icon($courseid, $video) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -659,8 +638,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return $this->render($actionmenu);
     }
 
-    public function render_report_problem_icon($identifier)
-    {
+    public function render_report_problem_icon($identifier) {
         $icon = $this->output->pix_icon('t/message', get_string('reportproblem_modal_title', 'block_opencast'));
         return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
     }

@@ -27,8 +27,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $oldversion
  * @return bool
  */
-function xmldb_block_opencast_upgrade($oldversion)
-{
+function xmldb_block_opencast_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
@@ -531,8 +530,8 @@ function xmldb_block_opencast_upgrade($oldversion)
                     ];
 
                     $sql = "SELECT f.* " .
-                        "FROM {files} f ".
-                        "WHERE f.contenthash = :contenthash AND f.component = :component ".
+                        "FROM {files} f " .
+                        "WHERE f.contenthash = :contenthash AND f.component = :component " .
                         "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid AND f.contextid = :contextid";
 
                     if (!$dotfiles = $DB->get_records_sql($sql, $params)) {

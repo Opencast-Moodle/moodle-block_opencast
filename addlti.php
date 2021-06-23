@@ -50,7 +50,7 @@ $PAGE->navbar->add(get_string('addlti_addbuttontitle', 'block_opencast'), $baseu
 
 // Check if the LTI module feature is enabled and working.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == false) {
-    print_error('addlti_errornotenabledorworking', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('addlti_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
 // Capability check.

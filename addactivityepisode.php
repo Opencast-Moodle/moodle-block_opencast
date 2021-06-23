@@ -45,7 +45,8 @@ $PAGE->navbar->add(get_string('addactivityepisode_addicontitle', 'block_opencast
 
 // Check if the Opencast Activity module feature is enabled and working.
 if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes() == false) {
-    print_error('add opencast activity episode module not enabled or working', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('add opencast activity episode module not enabled or working',
+        'block_opencast', $redirecturloverview);
 }
 
 // Capability check.
@@ -66,7 +67,8 @@ if ($moduleid) {
 // The test code is borrowed from /lib/tests/setuplib_tests.php.
 $uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
 if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1) {
-    print_error('The given episode UUID is not valid', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('The given episode UUID is not valid', 'block_opencast',
+        $redirecturloverview);
 }
 
 $addactivityform = new \block_opencast\local\addactivityepisode_form(null,

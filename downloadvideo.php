@@ -16,7 +16,7 @@
 
 /**
  *
- * * @package    block_opencast
+ * @package    block_opencast
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
