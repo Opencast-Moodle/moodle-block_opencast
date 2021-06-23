@@ -326,6 +326,8 @@ $string['noseriesid'] = 'Series ID is not defined yet.';
 $string['nothingtodisplay'] = 'No videos available';
 $string['notpublished'] = 'Not published';
 $string['novideosavailable'] = 'No videos available';
+$string['offerchunkuploadalternative'] = 'Offer filepicker as alternative';
+$string['offerchunkuploadalternative_desc'] = 'If this option is enabled, a checkbox labeled as \'{$a}}\' will be shown below the chunk upload widget. As soon as this checkbox is checked, the chunk upload widget is hidden and the Moodle default file picker is shown, giving access to all Moodle repositories.';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';
 $string['opencast:addlti'] = 'Add Opencast LTI series module to course';
 $string['opencast:addltiepisode'] = 'Add Opencast LTI episode module to course';
@@ -411,6 +413,7 @@ $string['uploadprocessingexplanation'] = 'These video files will be processed in
 $string['uploadworkflow'] = 'Workflow to start after upload';
 $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, that should be started after succesfully uploading a video file to opencast.
     If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
+$string['usedefaultfilepicker'] = 'Use Moodle default file picker to access all repositories';
 $string['videosavailable'] = 'Videos available in this course';
 $string['videonotfound'] = 'Video not found';
 $string['videodraftnotfound'] = 'The video to be deleted before the transfer to Opencast was not found.';
@@ -531,9 +534,11 @@ $string['uploadsettings'] = 'Settings for the chunkuploader';
 $string['uploadfilelimit'] = 'Video size limit';
 $string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
 
-$string['video_already_uploaded'] = 'Video already uploaded';
 $string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
 $string['video_not_downloadable'] = 'This video was not published in the download channel.';
 
 $string['connection_failure'] = 'Could not reach Opencast server.';
 $string['unexpected_api_response'] = 'Unexpected API response.';
+
+// Deprecated since version 2021062300.
+$string['video_already_uploaded'] = 'Video already uploaded';

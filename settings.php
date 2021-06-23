@@ -307,6 +307,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('uploadfilelimit', 'block_opencast'),
                 get_string('uploadfilelimitdesc', 'block_opencast'),
                 2147483648, $filesizes));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/uploadfilelimit',
+                        'block_opencast/enablechunkupload', 'notchecked');
+            }
+
+            $additionalsettings->add(
+                    new admin_setting_configcheckbox('block_opencast/offerchunkuploadalternative',
+                            get_string('offerchunkuploadalternative', 'block_opencast'),
+                            get_string('offerchunkuploadalternative_desc', 'block_opencast',
+                                    get_string('usedefaultfilepicker', 'block_opencast')), true));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/offerchunkuploadalternative',
+                        'block_opencast/enablechunkupload', 'notchecked');
+            }
         }
 
         $additionalsettings->add(
