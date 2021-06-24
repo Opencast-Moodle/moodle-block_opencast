@@ -32,7 +32,7 @@ Feature: Add Opencast block as Teacher
     When I click on "Go to overview..." "link"
     Then I should not see "Videos scheduled to be transferred to Opencast"
     And I should see "Videos available in this course"
-    And I should see "No videos available"
+    And I should see "Currently, no videos have been uploaded to this course yet."
 
   Scenario: Opencast Add video page implemented
     Given I click on "Go to overview..." "link"
@@ -81,5 +81,5 @@ Feature: Add Opencast block as Teacher
     And I click on "Save changes" "button"
     Then I should see "The series ID was removed."
     And I should see "Create new series"
-    And I should see "No videos available"
+    And I should see "Currently, no videos have been uploaded to this course yet."
     And I should not see "Test"
