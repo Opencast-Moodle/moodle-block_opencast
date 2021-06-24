@@ -60,7 +60,6 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                                 e.preventDefault();
                             });
 
-
                             // Show description for initial value.
                             modal.show().then(function () {
                                 $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);

@@ -40,44 +40,36 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:startworkflow', $coursecontext);
 
 $apibridge = apibridge::get_instance();
-$workflowdb = $DB->get_record('block_opencast_workflowdefs', ['workflowdefinitionid' => $workflow]);
 
-if ($workflowdb and $workflowdb->enabled) {
-    // Check that video is in opencast series.
-    $video = $apibridge->get_opencast_video($videoid);
-    $seriesid = $apibridge->get_course_series($courseid);
-    if ($seriesid->identifier != $video->video->is_part_of) {
-        redirect($redirecturl,
-            get_string('video_notallowed', 'block_opencast'),
-            null,
-            \core\output\notification::NOTIFY_ERROR);
-    }
+// Check that video is in opencast series.
+$video = $apibridge->get_opencast_video($videoid);
+$seriesid = $apibridge->get_course_series($courseid);
+if ($seriesid->identifier != $video->video->is_part_of) {
+    redirect($redirecturl,
+        get_string('video_notallowed', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
+}
 
-    $apiworkflow = $apibridge->get_workflow_definition($workflowdb->workflowdefinitionid);
-    if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag'), $apiworkflow->tags)) {
-        redirect($redirecturl,
-            get_string('workflow_opencast_invalid', 'block_opencast'),
-            null,
-            \core\output\notification::NOTIFY_ERROR);
-    }
+$apiworkflow = $apibridge->get_workflow_definition($workflow);
+if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag'), $apiworkflow->tags)) {
+    redirect($redirecturl,
+        get_string('workflow_opencast_invalid', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
+}
 
-    $result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $workflowdb->configuration));
+$result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $workflow));
 
-    if ($result) {
-        // Redirect with success message.
-        redirect($redirecturl,
-            get_string('workflow_started_success', 'block_opencast'),
-            null,
-            \core\output\notification::NOTIFY_SUCCESS);
-    } else {
-        redirect($redirecturl,
-            get_string('workflow_started_failure', 'block_opencast'),
-            null,
-            \core\output\notification::NOTIFY_ERROR);
-    }
+if ($result) {
+    // Redirect with success message.
+    redirect($redirecturl,
+        get_string('workflow_started_success', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS);
 } else {
     redirect($redirecturl,
-        get_string('workflow_invalid', 'block_opencast'),
+        get_string('workflow_started_failure', 'block_opencast'),
         null,
         \core\output\notification::NOTIFY_ERROR);
 }
