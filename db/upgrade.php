@@ -550,5 +550,19 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021061600, 'opencast');
     }
 
+    if ($oldversion < 2021062401) {
+
+        // Define table block_opencast_series to be dropped.
+        $table = new xmldb_table('block_opencast_series');
+
+        if ($dbman->table_exists($table)) {
+            // Drop table.
+            $dbman->drop_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021062401, 'opencast');
+    }
+
     return true;
 }
