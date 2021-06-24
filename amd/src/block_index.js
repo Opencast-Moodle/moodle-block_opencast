@@ -25,61 +25,63 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
     function ($, ModalFactory, ModalEvents, str, url) {
 
         var initWorkflowModal = function (courseid, langstrings) {
-            var workflows = JSON.parse($('#workflowsjson').text());
+            if(document.getElementById('workflowsjson')) {
+                var workflows = JSON.parse($('#workflowsjson').text());
 
-            $('.start-workflow').on('click', function (e) {
-                e.preventDefault();
-                var clickedVideo = $(e.currentTarget);
-                var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
+                $('.start-workflow').on('click', function (e) {
+                    e.preventDefault();
+                    var clickedVideo = $(e.currentTarget);
+                    var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
 
-                for (let workflow in workflows) {
-                    select += '<option value="' + workflow + '">' + workflows[workflow].title + '</option>';
-                }
+                    for (let workflow in workflows) {
+                        select += '<option value="' + workflow + '">' + workflows[workflow].title + '</option>';
+                    }
 
-                select += '</select>';
+                    select += '</select>';
 
-                ModalFactory.create({
-                    type: ModalFactory.types.SAVE_CANCEL,
-                    title: langstrings[5],
-                    body: '<form id="startWorkflowForm" method="post" action="' +
-                        url.relativeUrl('blocks/opencast/startworkflow.php', {
-                            'courseid': courseid,
-                            'videoid': clickedVideo.data('id')
-                        }) + '"><div class="form-group">' +
-                        '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
-                        '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
-                        '</iframe><input type="hidden" name="configparams" id="configparams"></form>'
-                })
-                    .then(function (modal) {
-                        modal.setSaveButtonText(langstrings[5]);
-                        var root = modal.getRoot();
-                        root.on(ModalEvents.save, function (e) {
-                            document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
-                            // Handle form submission after receiving data.
-                            e.preventDefault();
-                        });
-
-
-                        // Show description for initial value.
-                        modal.show().then(function () {
-                            $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
-                            $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                    ModalFactory.create({
+                        type: ModalFactory.types.SAVE_CANCEL,
+                        title: langstrings[5],
+                        body: '<form id="startWorkflowForm" method="post" action="' +
+                            url.relativeUrl('blocks/opencast/startworkflow.php', {
                                 'courseid': courseid,
-                                'workflowid': $('#workflowselect').val()
-                            }));
+                                'videoid': clickedVideo.data('id')
+                            }) + '"><div class="form-group">' +
+                            '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
+                            '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
+                            '</iframe><input type="hidden" name="configparams" id="configparams"></form>'
+                    })
+                        .then(function (modal) {
+                            modal.setSaveButtonText(langstrings[5]);
+                            var root = modal.getRoot();
+                            root.on(ModalEvents.save, function (e) {
+                                document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
+                                // Handle form submission after receiving data.
+                                e.preventDefault();
+                            });
 
-                            // Show workflow description when selected.
-                            $('#workflowselect').change(function () {
-                                let workflowid = $(this).val();
-                                $('#workflowdesc').html(workflows[workflowid].description);
+
+                            // Show description for initial value.
+                            modal.show().then(function () {
+                                $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
                                 $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
                                     'courseid': courseid,
-                                    'workflowid': workflowid
+                                    'workflowid': $('#workflowselect').val()
                                 }));
+
+                                // Show workflow description when selected.
+                                $('#workflowselect').change(function () {
+                                    let workflowid = $(this).val();
+                                    $('#workflowdesc').html(workflows[workflowid].description);
+                                    $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                                        'courseid': courseid,
+                                        'workflowid': workflowid
+                                    }));
+                                });
                             });
                         });
-                    });
-            });
+                });
+            }
         };
 
         var initReportModal = function (courseid, langstrings) {
