@@ -80,7 +80,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
             '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
 
-        $metdatadefault = '[' .
+        if(!get_config('block_opencast', 'roles')) {
+            set_config('roles', $rolesdefault, 'block_opencast');
+        }
+
+        $metadatadefault = '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
             '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
@@ -96,6 +100,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
 
+        if(!get_config('block_opencast', 'metadata')) {
+            set_config('metadata', $metadatadefault, 'block_opencast');
+        }
+
         $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname',
             'helpbtnname', 'descriptionmdfn', 'block_opencast'));
         $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams',
@@ -109,7 +117,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $metadatasetting = new admin_setting_configtext('block_opencast/metadata',
             get_string('metadata', 'block_opencast'),
             get_string('metadatadesc',
-                'block_opencast'), $metdatadefault);
+                'block_opencast'), $metadatadefault);
 
         // Crashes if plugins.php is opened because css cannot be included anymore.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
