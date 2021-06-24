@@ -180,6 +180,8 @@ class activitymodulemanager
      */
     public static function build_activity_modinfo($pluginid, $title, $sectionid, $opencastid, $type,
                                                   $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
+        global $CFG;
+
         // Create standard class object.
         $moduleinfo = new \stdClass();
 
@@ -201,7 +203,7 @@ class activitymodulemanager
         $moduleinfo->groupmode = NOGROUPS;
         $moduleinfo->groupingid = 0;
         $moduleinfo->availability = $availability;
-        $moduleinfo->completion = 0;
+        $moduleinfo->completion = $CFG->completiondefault;
 
         // Populate the modinfo object with opencast activity specific parameters.
         $moduleinfo->type = $type;
