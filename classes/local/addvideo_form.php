@@ -195,7 +195,7 @@ class addvideo_form extends \moodleform
 
         $mform->closeHeaderBefore('buttonar');
 
-        $this->add_action_buttons(true, get_string('savechanges'));
+        $this->add_action_buttons(true, get_string('addvideo', 'block_opencast'));
     }
 
     /**
