@@ -30,6 +30,7 @@ global $PAGE, $OUTPUT, $CFG, $USER, $COURSE, $DB;
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $workflow = required_param('workflow', PARAM_ALPHANUMEXT);
+$configparams = required_param('configparams', PARAM_RAW);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
 
@@ -59,7 +60,7 @@ if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag'), $ap
         \core\output\notification::NOTIFY_ERROR);
 }
 
-$result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $workflow));
+$result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $configparams));
 
 if ($result) {
     // Redirect with success message.
