@@ -156,4 +156,175 @@ class notifications
         self::send_message('reportproblem_confirmation', $USER,
             get_string('reportproblem_subject', 'block_opencast'), nl2br($message), FORMAT_MOODLE);
     }
+
+
+    /**
+     * Send notifications to admins, when the import mode could not be identified.
+     *
+     * @param int $courseid
+     */
+    public static function notify_failed_importmode($courseid) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('errorrestoremissingimportmode_subj', 'block_opencast');
+        $body = get_string('errorrestoremissingimportmode_body', 'block_opencast', $a);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, when the conditions or required data to perform ACL Change were missing (sourcecourseid).
+     *
+     * @param int $courseid
+     */
+    public static function notify_missing_sourcecourseid($courseid) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('errorrestoremissingsourcecourseid_subj', 'block_opencast');
+        $body = get_string('errorrestoremissingsourcecourseid_body', 'block_opencast', $a);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, when the conditions or required data to perform ACL Change were missing (seriesid).
+     *
+     * @param int $courseid
+     */
+    public static function notify_missing_seriesid($courseid) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('errorrestoremissingseriesid_subj', 'block_opencast');
+        $body = get_string('errorrestoremissingseriesid_body', 'block_opencast', $a);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, when series ACL change was not successful.
+     *
+     * @param int $courseid
+     * @param int $sourcecourseid
+     */
+    public static function notify_failed_series_acl_change($courseid, $sourcecourseid) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'sourcecourseid' => $sourcecourseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        if ($sourcecourse = $DB->get_record('course', ['id' => $sourcecourseid])) {
+            $a->sourcecoursefullname = $sourcecourse->fullname;
+        }
+
+        $subject = get_string('errorrestorefailedseriesaclchange_subj', 'block_opencast');
+        $body = get_string('errorrestorefailedseriesaclchange_body', 'block_opencast', $a);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, when series ACL change was not successful.
+     *
+     * @param int $courseid
+     * @param int $sourcecourseid
+     * @param array $failed falied events.
+     */
+    public static function notify_failed_events_acl_change($courseid, $sourcecourseid, $failed) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'sourcecourseid' => $sourcecourseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        if ($sourcecourse = $DB->get_record('course', ['id' => $sourcecourseid])) {
+            $a->sourcecoursefullname = $sourcecourse->fullname;
+        }
+
+        $subject = get_string('errorrestorefailedeventsaclchange_subj', 'block_opencast');
+        $body = get_string('errorrestorefailedeventsaclchange_body', 'block_opencast', $a);
+
+        // Add all backup eventids.
+        $renderer = $PAGE->get_renderer('block_opencast');
+        $body .= $renderer->render_list($failed);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, when series mapping was not successful.
+     *
+     * @param int $courseid
+     * @param string $seriesid
+     */
+    public static function notify_failed_series_mapping($courseid, $seriesid) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'sourcecourseid' => $sourcecourseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        if ($sourcecourse = $DB->get_record('course', ['id' => $sourcecourseid])) {
+            $a->sourcecoursefullname = $sourcecourse->fullname;
+        }
+
+        $subject = get_string('errorrestorefailedseriesmapping_subj', 'block_opencast');
+        $body = get_string('errorrestorefailedseriesmapping_body', 'block_opencast', $a);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
 }

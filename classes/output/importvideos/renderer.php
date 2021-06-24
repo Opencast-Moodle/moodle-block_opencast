@@ -201,4 +201,65 @@ class renderer extends \core_backup_renderer
         return $notification;
     }
 
+    /**
+     * Renderer to render the HTML code of a series menu entry.
+     *
+     * @param Object $series
+     *
+     * @return string
+     */
+    public function series_menu_entry($series) {
+        // Add the series title.
+        $entrystring = $series->title;
+
+        $entrystring .= \html_writer::empty_tag('br');
+        $entrystring .= \html_writer::start_tag('small');
+        $entrystring .= $series->identifier;
+        $entrystring .= \html_writer::end_tag('small');
+
+        // Finally, return the menu entry code.
+        return $entrystring;
+    }
+
+    /**
+     * Render an unordered list of course videos menu entry.
+     *
+     * @param array $arrayvideoentrystrings to use as list elements
+     * @return string
+     */
+    public function course_videos_list_entry($arrayvideoentrystrings)
+    {
+        // Add the video list.
+        $entrystring = '';
+
+        // Return if empty.
+        if (count($arrayvideoentrystrings) == 0) {
+            return $entrystring;
+        }
+        // Loop through the videos to generate a list.
+        foreach ($arrayvideoentrystrings as $videoentrystring) {
+            $entrystring .= \html_writer::tag('li', $videoentrystring, array('class' => 'mb-2'));
+        }
+
+        // Finally, return the video entry list code.
+        return \html_writer::tag('ul', $entrystring);
+    }
+
+    /**
+     * Renderer to render a warning notification for the wizard.
+     *
+     * @param string $warningmessage
+     *
+     * @return string
+     */
+    public function wizard_warning_notification($warningmessage) {
+        // Compose notification.
+        $notification = \html_writer::start_div('alert alert-warning');
+        $notification .= $warningmessage;
+        $notification .= \html_writer::end_div();
+
+        // Finally, return the error notification code.
+        return $notification;
+    }
+
 }
