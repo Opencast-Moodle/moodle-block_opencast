@@ -550,5 +550,27 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021061600, 'opencast');
     }
 
+    if ($oldversion < 2021062401) {
+
+        // Define table block_opencast_series to be dropped.
+        $table = new xmldb_table('block_opencast_series');
+
+        if ($dbman->table_exists($table)) {
+            // Drop table.
+            $dbman->drop_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021062401, 'opencast');
+    }
+
+    if ($oldversion < 2021062501) {
+        // Update configs to use default tenant (id=1).
+        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name != 'version';");
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021062501, 'opencast');
+    }
+
     return true;
 }
