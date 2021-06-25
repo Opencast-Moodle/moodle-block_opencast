@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Opencast block external API
  *
@@ -35,14 +36,16 @@ require_once($CFG->libdir . '/externallib.php');
  * @copyright  2021 Tamara Gunkel <tamara.gunkel@wi.uni-muenster.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_external extends external_api {
+class block_opencast_external extends external_api
+{
 
     /**
      * Returns description of method parameters
      *
      * @return external_function_parameters
      */
-    public static function submit_series_form_parameters() {
+    public static function submit_series_form_parameters()
+    {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create group form, encoded as json array')
@@ -54,7 +57,8 @@ class block_opencast_external extends external_api {
      *
      * @return external_function_parameters
      */
-    public static function get_series_titles_parameters() {
+    public static function get_series_titles_parameters()
+    {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'series' => new external_value(PARAM_RAW, 'Requested series, encoded as json array')
@@ -69,7 +73,8 @@ class block_opencast_external extends external_api {
      *
      * @return string new series id
      */
-    public static function submit_series_form($contextid, string $jsonformdata) {
+    public static function submit_series_form($contextid, string $jsonformdata)
+    {
         global $USER;
 
         $params = self::validate_parameters(self::submit_series_form_parameters(), [
@@ -82,29 +87,38 @@ class block_opencast_external extends external_api {
         require_capability('block/opencast:createseriesforcourse', $context);
 
         list($ignored, $course) = get_context_info_array($context->id);
-        $serialiseddata = json_decode($params['jsonformdata']);
 
         $data = array();
-        parse_str($serialiseddata, $data);
+        parse_str($params['jsonformdata'], $data);
         $data['courseid'] = $course->id;
 
-        $createseriesform = new series_form(null, array('courseid' => $course->id), 'post', '',null, true, $data);
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries'));
+        $createseriesform = new series_form(null, array('courseid' => $course->id,
+            'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $data);
         $validateddata = $createseriesform->get_data();
 
-        if($validateddata) {
-            $apibridge = apibridge::get_instance();
-            if(empty($validateddata->seriesid)) {
-                return json_encode($apibridge->create_course_series($course->id, $validateddata->seriestitle, $USER->id));
-            }
-            else {
-                $metadataTitle =  array(
-                    'id' => 'title',
-                    'value' => $validateddata->seriestitle
+        if ($validateddata) {
+            $metadata = [];
+            foreach ($validateddata as $field => $value) {
+                if ($field === 'courseid' || $field === 'seriesid') {
+                    continue;
+                }
+
+                $metadata[] = array(
+                    'id' => $field,
+                    'value' => $value
                 );
-                return $apibridge->update_series_metadata($validateddata->seriesid, array($metadataTitle));
             }
-        }
-        else {
+
+            $apibridge = apibridge::get_instance();
+            if (empty($validateddata->seriesid)) {
+                // TODO also set other metadata if given
+                return json_encode($apibridge->create_course_series($course->id, $validateddata->seriestitle, $USER->id));
+            } else {
+
+                return $apibridge->update_series_metadata($validateddata->seriesid, $metadata);
+            }
+        } else {
             throw new moodle_exception('missingrequiredfield');
         }
     }
@@ -117,7 +131,8 @@ class block_opencast_external extends external_api {
      *
      * @return string Series titles
      */
-    public static function get_series_titles(int $contextid, string $series) {
+    public static function get_series_titles(int $contextid, string $series)
+    {
         $params = self::validate_parameters(self::get_series_titles_parameters(), [
             'contextid' => $contextid,
             'series' => $series
@@ -130,12 +145,10 @@ class block_opencast_external extends external_api {
         $serialiseddata = json_decode($params['series']);
         $seriestitles = array();
 
-        // Todo If connection to opencast fails, print only series id and display warning
-
         $apibridge = apibridge::get_instance();
         $seriesrecords = $apibridge->get_multiple_series_by_identifier($serialiseddata);
 
-        foreach($seriesrecords as $s) {
+        foreach ($seriesrecords as $s) {
             $seriestitles[$s->identifier] = $s->title;
         }
 
@@ -148,7 +161,8 @@ class block_opencast_external extends external_api {
      *
      * @return external_description
      */
-    public static function submit_series_form_returns() {
+    public static function submit_series_form_returns()
+    {
         return new external_value(PARAM_RAW, 'Json series data');
     }
 
@@ -157,7 +171,8 @@ class block_opencast_external extends external_api {
      *
      * @return external_description
      */
-    public static function get_series_titles_returns() {
+    public static function get_series_titles_returns()
+    {
         return new external_value(PARAM_RAW, 'json array for the series');
     }
 }

@@ -34,7 +34,7 @@ function getBody(contextid, formdata) {
         formdata = {};
     }
 
-    var params = {jsonformdata: JSON.stringify(formdata)};
+    var params = {jsonformdata: formdata};
     return Fragment.loadFragment('block_opencast', 'series_form', contextid, params);
 }
 
@@ -69,9 +69,9 @@ function submitFormAjax(e) {
     // Submit form.
     Ajax.call([{
         methodname: 'block_opencast_submit_series_form',
-        args: {contextid: contextid, jsonformdata: JSON.stringify(formData)},
+        args: {contextid: contextid, jsonformdata: formData},
         done: function (newseries) {
-            modal.hide();
+            modal.destroy();
             if(seriestable !== undefined) {
                 var s = JSON.parse(newseries);
                 seriestable.addRow({'seriesname': s.seriestitle, 'series':s.series, 'isdefault': s.isdefault});
@@ -99,8 +99,14 @@ function loadSeriesTitles(contextid, series, seriestable, row) {
 
         },
         fail: function (error) {
-            // TOdo handle this.
-            window.console.log(error);
+            // Show error.
+            if (seriestable !== null) {
+                seriestable.getRows().forEach(function (row) {
+                    row.update({"seriesname": error.message});
+                });
+            } else {
+                row.update({"seriesname": error.message});
+            }
         }
     }]);
 }
@@ -117,17 +123,12 @@ export const init = (contextid, seriesinputname) => {
         {key: 'delete_series', component: 'block_opencast'},
         {key: 'delete_confirm_series', component: 'block_opencast'},
         {key: 'editseries', component: 'block_opencast'},
-        {key: 'heading_datatype', component: 'block_opencast'},// todo delete unused strings
-        {key: 'heading_required', component: 'block_opencast'},
-        {key: 'heading_readonly', component: 'block_opencast'},
-        {key: 'heading_params', component: 'block_opencast'},
-        {key: 'delete', component: 'moodle'}
+        {key: 'delete', component: 'moodle'},
+        {key: 'loading', component: 'block_opencast'}
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
         var seriesinput = $('input[name="' + seriesinputname + '"]');
-
-        // TODO also update series name if id was changed
 
         var seriestable = new Tabulator("#seriestable", {
             data: JSON.parse(seriesinput.val()),
@@ -154,7 +155,7 @@ export const init = (contextid, seriesinputname) => {
                         // Check if it matches Opencast series id regex.
                         var r = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/;
                         if (r.test(cell.getValue())) {
-                            cell.getRow().update({"seriesname": "Loading..."}); // todo durch string erseztnen?
+                            cell.getRow().update({"seriesname": jsstrings[9]});
                             loadSeriesTitles(contextid, [cell.getValue()], null, cell.getRow());
                         }
                         else {
@@ -182,7 +183,7 @@ export const init = (contextid, seriesinputname) => {
                             return '<i class="icon fa fa-edit fa-fw"></i>';
                         },
                     cellClick: function (_, cell) {
-                        var formdata = {'series': cell.getRow().getCell("series").getValue()};
+                        var formdata = "series=" + cell.getRow().getCell("series").getValue();
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[7],
@@ -194,7 +195,7 @@ export const init = (contextid, seriesinputname) => {
 
                                 // Reset modal on every open event.
                                 modal.getRoot().on(ModalEvents.hidden, function () {
-                                    modal.setBody(getBody(contextid, formdata));
+                                    modal.destroy();
                                 }).bind(this);
 
                                 // We want to hide the submit buttons every time it is opened.
@@ -220,12 +221,11 @@ export const init = (contextid, seriesinputname) => {
                     cellClick: function (e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
-                            title: jsstrings[5], // todo update strings, write that deleting
-                            // the series will not delete opencast series
+                            title: jsstrings[5],
                             body: jsstrings[6]
                         })
                             .then(function (modal) {
-                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.setSaveButtonText(jsstrings[8]);
                                 modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });

@@ -89,10 +89,12 @@ if ($data = $addvideoform->get_data()) {
 
     $metadata = [];
 
-    $metadata[] = array(
-        'id'=> 'isPartOf',
-        'value' => $data->series
-    );
+    if (property_exists($data, 'series')) {
+        $metadata[] = array(
+            'id' => 'isPartOf',
+            'value' => $data->series
+        );
+    }
 
     $gettitle = true; // Make sure title (required) is added into metadata.
 

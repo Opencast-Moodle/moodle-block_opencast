@@ -58,17 +58,87 @@ class series_form extends \moodleform
         $mform->addElement('hidden', 'seriesid', $this->_customdata['seriesid']);
         $mform->setType('seriesid', PARAM_ALPHANUMEXT);
 
-        $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
-        $mform->setType('seriestitle', PARAM_TEXT);
-        $mform->addRule('seriestitle', get_string('required'), 'required');
 
-        if (!empty($this->_customdata['seriesid'])) {
-            $ocseries = $apibridge->get_series_by_identifier($this->_customdata['seriesid']);
-            $mform->setDefault('seriestitle', $ocseries->title, $USER->id);
-        } else {
-            $mform->setDefault('seriestitle', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
+        $settitle = true;
+        foreach ($this->_customdata['metadata_catalog'] as $field) {
+            $param = array();
+            $attributes = array();
+            if ($field->name == 'title') {
+                if ($field->required) {
+                    $settitle = false;
+                } else {
+                    continue;
+                }
+            }
+
+            if ($field->param_json) {
+                $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
+            }
+            if ($field->datatype == 'autocomplete') {
+                $attributes = [
+                    'multiple' => true,
+                    'placeholder' => get_string('metadata_autocomplete_placeholder', 'block_opencast',
+                        $this->try_get_string($field->name, 'block_opencast')),
+                    'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
+                    'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
+                        $this->try_get_string($field->name, 'block_opencast')),
+                    'tags' => true
+                ];
+            }
+
+            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
+                $param, $attributes);
+
+            if ($field->name == 'title') {
+                if (!empty($this->_customdata['seriesid'])) {
+                    $ocseries = $apibridge->get_series_by_identifier($this->_customdata['seriesid']);
+                    $mform->setDefault('title', $ocseries->title, $USER->id);
+                } else {
+                    $mform->setDefault('title', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
+                }
+            }
+
+            if ($field->datatype == 'text') {
+                $mform->setType($field->name, PARAM_TEXT);
+            }
+
+            if ($field->required) {
+                if ($field->datatype == 'autocomplete') {
+                    $mform->addRule($field->name, get_string('required'), 'required', null, 'client');
+                } else {
+                    $mform->addRule($field->name, get_string('required'), 'required');
+                }
+            }
+        }
+
+        if ($settitle) {
+            $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
+            $mform->addRule('title', get_string('required'), 'required');
+            $mform->setType('title', PARAM_TEXT);
         }
 
         $this->add_action_buttons(true, get_string('savechanges'));
+    }
+
+    /**
+     * Tries to get the string for identifier and component.
+     * As a fallback it outputs the identifier itself with the first letter being uppercase.
+     * @param string $identifier The key identifier for the localized string
+     * @param string $component The module where the key identifier is stored,
+     *      usually expressed as the filename in the language pack without the
+     *      .php on the end but can also be written as mod/forum or grade/export/xls.
+     *      If none is specified then moodle.php is used.
+     * @param string|object|array $a An object, string or number that can be used
+     *      within translation strings
+     * @return string
+     * @throws \coding_exception
+     */
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
+        if (!get_string_manager()->string_exists($identifier, $component)) {
+            return ucfirst($identifier);
+        } else {
+            return get_string($identifier, $component, $a);
+        }
     }
 }

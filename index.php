@@ -225,7 +225,7 @@ foreach ($courseseries as $series) {
 }
 
 $errors = array_count_values(array_column($seriesvideodata, 'error'));
-if ($errors[0] == 0) {
+if (!empty($errors) && $errors[0] == 0) {
     // Show single error.
     echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $seriesvideodata->error), 'opencast-bc-wrap');
 } else {
@@ -233,7 +233,7 @@ if ($errors[0] == 0) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
     }
 
-    if ($errors[0] !== count($seriesvideodata)) {
+    if (!empty($errors) && $errors[0] !== count($seriesvideodata)) {
         // Show all series as only some have errors.
         $showseriesinfo = true;
     } else {

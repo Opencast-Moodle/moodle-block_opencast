@@ -556,6 +556,12 @@ class apibridge
 
         $series = $api->oc_get($url);
 
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
         return json_decode($series);
     }
 
@@ -717,7 +723,7 @@ class apibridge
             $mapping->set('isdefault', $isdefault);
             $mapping->create();
             $rec = $mapping->to_record();
-            $rec->seriestitle = $seriestitle;
+            $rec->seriestitle = $title;
             return $rec;
         }
         return false;
@@ -1755,7 +1761,7 @@ class apibridge
     /**
      * Update the metadata with the matching type of the specified series.
      * @param string $eventidentifier identifier of the series
-     * @param stdClass $metadata collection of metadata
+     * @param array $metadata collection of metadata
      * @return bool
      * @throws \dml_exception
      * @throws \moodle_exception

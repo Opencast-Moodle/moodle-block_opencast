@@ -106,10 +106,15 @@ if ($data = $addactivityform->get_data()) {
 
     // Get series ID.
     $ocseries = $apibridge->get_series_by_identifier($data->seriesid);
+    // Todo handle connection error
 
     // Ensure that series exists.
     if ($ocseries == null) {
-        // TODO dont create but throw error. The series should exist.
+        // TODO test that
+        redirect($redirecturloverview,
+            get_string('series_not_found', 'block_opencast', $data->title),
+            null,
+            \core\output\notification::NOTIFY_ERROR);
     }
 
     // Create the module.
