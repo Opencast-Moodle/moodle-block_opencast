@@ -71,12 +71,24 @@ require_capability('block/opencast:manualimporttarget', $coursecontext);
 // Check if either the handle series feature or the handle episodes feature is enabled _and_ the user is allowed to use the feature,
 // we have to include step 3.
 if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working() == true &&
-        has_capability('block/opencast:addlti', $coursecontext)) ||
-        (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working() == true &&
-                has_capability('block/opencast:addltiepisode', $coursecontext))) {
+    has_capability('block/opencast:addlti', $coursecontext)) ||
+    (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working() == true &&
+        has_capability('block/opencast:addltiepisode', $coursecontext))) {
     $hasstep3 = true;
 } else {
     $hasstep3 = false;
+}
+
+// Defining totalsteps, in order to use it for different import modes.
+$totalsteps = 4;
+// Get import mode from the admin setting.
+$importmode = get_config('block_opencast', 'importmode');
+// In case of ACL change import mode.
+if ($importmode == 'acl') {
+    // Total steps in ACL Change mode is 2, where only a course should be selected and a summary should be displayed.
+    $totalsteps = 2;
+    // We need a normal 2 Steps brogress bar.
+    $hasstep3 = true;
 }
 
 // Get renderer.
@@ -92,12 +104,12 @@ switch ($step) {
 
         // If there isn't any other course which can be used as import source.
         $possiblesourcecourses = get_user_capability_course(
-                'block/opencast:manualimportsource');
+            'block/opencast:manualimportsource');
         $possiblesourcecoursescount = count($possiblesourcecourses);
         if ($possiblesourcecoursescount < 1 || ($possiblesourcecoursescount == 1 && $possiblesourcecourses[0]->id == $courseid)) {
             // Use step 1 form.
             $importvideosform = new \block_opencast\local\importvideos_step1_form(null,
-                    array('courseid' => $courseid));
+                array('courseid' => $courseid));
 
             // Redirect if the form was cancelled.
             if ($importvideosform->is_cancelled()) {
@@ -108,7 +120,7 @@ switch ($step) {
             echo $OUTPUT->header();
 
             // Output the progress bar.
-            echo $renderer->progress_bar($step, 4, $hasstep3);
+            echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
             // Output heading.
             echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -130,7 +142,7 @@ switch ($step) {
                 echo $OUTPUT->header();
 
                 // Output the progress bar.
-                echo $renderer->progress_bar($step, 4, $hasstep3);
+                echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
                 // Output heading.
                 echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -143,20 +155,34 @@ switch ($step) {
             if ($importid != null) {
                 // Raise step variable (which is used for the progress bar and heading later on).
                 $step += 1;
+                // Initializing an empty string to replace the string name of the heading in this step.
+                $aclheadingstringname = '';
 
-                // Set form for next step.
-                $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
+                // When the Duplicating Events is selected.
+                if ($importmode == 'duplication') {
+                    // Set form for next step.
+                    $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
                         array('courseid' => $courseid,
-                              'sourcecourseid' => $importid));
+                            'sourcecourseid' => $importid));
+                } else if ($importmode == 'acl') {
+                    // When ACL Change is selected.
 
+                    // Giving value to replace for string name of the heading.
+                    $aclheadingstringname = 'acl';
+
+                    // Set form for next step.
+                    $importvideosform = new \block_opencast\local\importvideos_step2_form_acl(null,
+                        array('courseid' => $courseid,
+                            'sourcecourseid' => $importid));
+                }
                 // Output the page header.
                 echo $OUTPUT->header();
 
                 // Output the progress bar.
-                echo $renderer->progress_bar($step, 4, $hasstep3);
+                echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
                 // Output heading.
-                echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+                echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.$aclheadingstringname.'heading', 'block_opencast'));
 
                 // Output the form.
                 $importvideosform->display();
@@ -166,9 +192,32 @@ switch ($step) {
         break;
     case 2:
         // Use step 2 form.
-        $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
+
+        // Initializing an empty string to replace the string name of the heading in this step.
+        $aclheadingstringname = '';
+
+        // Initializing an false boolean to use it later in the code which helps reduce checking the modes.
+        $isaclsummary = false;
+
+        // When the Duplicating Events is selected.
+        if ($importmode == 'duplication') {
+            // Set form for next step.
+            $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
                 array('courseid' => $courseid,
-                      'sourcecourseid' => $sourcecourseid));
+                    'sourcecourseid' => $sourcecourseid));
+        } else if ($importmode == 'acl') {
+            // When ACL Change is selected.
+
+            // Giving value to replace for string name of the heading.
+            $aclheadingstringname = 'acl';
+            // Set form for next step.
+            $importvideosform = new \block_opencast\local\importvideos_step2_form_acl(null,
+                array('courseid' => $courseid,
+                    'sourcecourseid' => $sourcecourseid));
+            
+            // Defining the boolean to true, to know which mode we are in.
+            $isaclsummary = true;
+        }
 
         // Redirect if the form was cancelled.
         if ($importvideosform->is_cancelled()) {
@@ -177,36 +226,45 @@ switch ($step) {
 
         // Process data.
         if ($data = $importvideosform->get_data()) {
-            // Process the array of course videos.
-            foreach ($coursevideos as $identifier => $checked) {
-                // Check if the video was not selected (which may happen as we are using an advcheckbox element).
-                if ($checked != 1) {
-                    // Remove the video from the array of coursevideos.
-                    unset($coursevideos[$identifier]);
-                }
-            }
-
-            // If we have to include step 3 now.
-            if ($hasstep3 == true) {
-                // Raise step variable (which is used for the progress bar and heading later on).
-                $step += 1;
-
-                // Replace form with next step.
-                $importvideosform = new \block_opencast\local\importvideos_step3_form(null,
-                        array('courseid' => $courseid,
-                              'sourcecourseid' => $sourcecourseid,
-                              'coursevideos' => $coursevideos));
-
-                // Otherwise, we skip step 3 and go directly to step 4.
+            // If we are in ACL Change summary step.
+            if ($isaclsummary) {
+                // Perform ACL change.
+                $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($sourcecourseid, $courseid);
+                // Redirec the user with corresponding messages.
+                redirect($redirecturloverview, $resultaclchange->message, null, $resultaclchange->type);
             } else {
-                // Raise step variable (which is used for the progress bar and heading later on).
-                $step += 2;
+                // If we are in Duplicating Events mode.
+                // Process the array of course videos.
+                foreach ($coursevideos as $identifier => $checked) {
+                    // Check if the video was not selected (which may happen as we are using an advcheckbox element).
+                    if ($checked != 1) {
+                        // Remove the video from the array of coursevideos.
+                        unset($coursevideos[$identifier]);
+                    }
+                }
 
-                // Replace form with next step.
-                $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
+                // If we have to include step 3 now.
+                if ($hasstep3 == true) {
+                    // Raise step variable (which is used for the progress bar and heading later on).
+                    $step += 1;
+
+                    // Replace form with next step.
+                    $importvideosform = new \block_opencast\local\importvideos_step3_form(null,
                         array('courseid' => $courseid,
-                              'sourcecourseid' => $sourcecourseid,
-                              'coursevideos' => $coursevideos));
+                            'sourcecourseid' => $sourcecourseid,
+                            'coursevideos' => $coursevideos));
+
+                    // Otherwise, we skip step 3 and go directly to step 4.
+                } else {
+                    // Raise step variable (which is used for the progress bar and heading later on).
+                    $step += 2;
+
+                    // Replace form with next step.
+                    $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
+                        array('courseid' => $courseid,
+                            'sourcecourseid' => $sourcecourseid,
+                            'coursevideos' => $coursevideos));
+                }
             }
         }
 
@@ -214,10 +272,10 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo $renderer->progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
         // Output heading.
-        echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
+        echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.$aclheadingstringname.'heading', 'block_opencast'));
 
         // Output the form.
         $importvideosform->display();
@@ -254,7 +312,7 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo $renderer->progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
         // Output heading.
         echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
@@ -325,7 +383,7 @@ switch ($step) {
         echo $OUTPUT->header();
 
         // Output the progress bar.
-        echo $renderer->progress_bar($step, 4, $hasstep3);
+        echo $renderer->progress_bar($step, $totalsteps, $hasstep3);
 
         // Output heading.
         echo $OUTPUT->heading(get_string('importvideos_wizardstep'.$step.'heading', 'block_opencast'));
