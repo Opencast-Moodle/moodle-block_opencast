@@ -365,6 +365,8 @@ class ltimodulemanager
      */
     public static function build_lti_modinfo($pluginid, $title, $sectionid, $toolid, $instructorcustomparameters, $introtext = '',
                                              $introformat = FORMAT_HTML, $availability = null) {
+        global $CFG;
+
         // Create standard class object.
         $moduleinfo = new \stdClass();
 
@@ -386,7 +388,7 @@ class ltimodulemanager
         $moduleinfo->groupmode = NOGROUPS;
         $moduleinfo->groupingid = 0;
         $moduleinfo->availability = $availability;
-        $moduleinfo->completion = 0;
+        $moduleinfo->completion = $CFG->completiondefault;
 
         // Populate the modinfo object with LTI specific parameters.
         $moduleinfo->typeid = $toolid;
