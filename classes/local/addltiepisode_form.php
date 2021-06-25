@@ -61,6 +61,10 @@ class addltiepisode_form extends \moodleform
                 array('rows' => 5),
                 array('maxfiles' => 0, 'noclean' => true));
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
+            $mform->setDefault('intro',
+                array('text' =>
+                    \block_opencast\local\ltimodulemanager::get_default_intro_for_episode($this->_customdata['episodeuuid']),
+                    'format' => FORMAT_HTML));
         }
 
         if (get_config('block_opencast', 'addltiepisodesection') == true) {

@@ -344,6 +344,44 @@ class activitymodulemanager
     }
 
     /**
+     * Helperfunction to get the default intro for a particular Opencast Activity episode module.
+     *
+     * @param string $episodeuuid
+     *
+     * @return string
+     */
+    public static function get_default_intro_for_episode($episodeuuid) {
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the episode information.
+        $info = $apibridge->get_opencast_video($episodeuuid);
+
+        // If we did get an error from the APIbridge, there is probably something wrong.
+        // However, it's not our job to solve this here. We just have to provide a default intro.
+        // Thus, let's return an empty string.
+        if ($info->error != 0) {
+            return '';
+        }
+
+        // Pick the video description from the information object.
+        $episodeintro = $info->video->description;
+
+        // Check if the episode intro is empty. This isn't a problem.
+        // Thus, let's return an empty string.
+        if (empty($episodeintro) || $episodeintro == '') {
+            return '';
+        }
+
+        // As the Opencast video description is a plain-text field which might contain line breaks anyway,
+        // thus insert HTML line breaks.
+        $episodeintro = nl2br($episodeintro);
+
+        // Finally, return the episode intro.
+        return $episodeintro;
+    }
+
+    /**
      * Helperfunction to get the section list of a given course as associative array.
      * This includes a fallback for the case that the course format does not use sections at all.
      *
