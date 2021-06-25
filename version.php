@@ -28,4 +28,4 @@ $plugin->requires = 2017111300;
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->release   = 'v3.11-r2';
 $plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2021062400);
+$plugin->dependencies = array('tool_opencast' => 2021062500);
