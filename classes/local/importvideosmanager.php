@@ -52,24 +52,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the status of the subfeature.
-        $config = get_config('block_opencast', 'importvideosmanualenabled');
-
-        // If the setting is false, then the subfeature is not enabled.
-        if ($config == false) {
-            // Inform the caller.
-            return false;
-        }
-
-        // Get the configured duplicate workflow.
-        $workflow = get_config('block_opencast', 'duplicateworkflow');
-
-        // If the workflow is empty, then the feature is not working.
-        if (empty($workflow)) {
-            // Inform the caller.
-            return false;
-        }
-
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
@@ -82,13 +64,53 @@ class importvideosmanager
             return false;
         }
 
-        // Verify that the workflow exists in Opencast.
-        $workflowexists = $apibridge->check_if_workflow_exists($workflow);
 
-        // If the workflow does not exist, then the feature is not working.
-        if (!$workflowexists) {
+        // Get the import mode.
+        $importmode = get_config('block_opencast', 'importmode');
+
+        if (empty($importmode)) {
             // Inform the caller.
             return false;
+        }
+
+        // If Duplicating Events is selected as the import mode.
+        if ($importmode == 'duplication') {
+            // Get the status of the subfeature.
+            $config = get_config('block_opencast', 'importvideosmanualenabled');
+
+            // If the setting is false, then the subfeature is not enabled.
+            if ($config == false) {
+                // Inform the caller.
+                return false;
+            }
+
+            // Get the configured duplicate workflow.
+            $workflow = get_config('block_opencast', 'duplicateworkflow');
+
+            // If the workflow is empty, then the feature is not working.
+            if (empty($workflow)) {
+                // Inform the caller.
+                return false;
+            }
+
+            // Verify that the workflow exists in Opencast.
+            $workflowexists = $apibridge->check_if_workflow_exists($workflow);
+
+            // If the workflow does not exist, then the feature is not working.
+            if (!$workflowexists) {
+                // Inform the caller.
+                return false;
+            }
+        } else if ($importmode == 'acl') {
+            // If ACL Change is selected as the import mode.
+            // Get the status of the subfeature.
+            $config = get_config('block_opencast', 'importvideosmanualenabledwithacl');
+
+            // If the setting is false, then the subfeature is not enabled.
+            if ($config == false) {
+                // Inform the caller.
+                return false;
+            }
         }
 
         // The feature should be working.
@@ -120,15 +142,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the configured duplicate workflow.
-        $workflow = get_config('block_opencast', 'duplicateworkflow');
-
-        // If the workflow is empty, then the feature is not working.
-        if (empty($workflow)) {
-            // Inform the caller.
-            return false;
-        }
-
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
@@ -141,13 +154,37 @@ class importvideosmanager
             return false;
         }
 
-        // Verify that the workflow exists in Opencast.
-        $workflowexists = $apibridge->check_if_workflow_exists($workflow);
+        // Get the import mode.
+        $importmode = get_config('block_opencast', 'importmode');
 
-        // If the workflow does not exist, then the feature is not working.
-        if (!$workflowexists) {
+        if (empty($importmode)) {
             // Inform the caller.
             return false;
+        }
+
+        // If Duplicating Events is selected as the import mode.
+        if ($importmode == 'duplication') {
+            // Get the configured duplicate workflow.
+            $workflow = get_config('block_opencast', 'duplicateworkflow');
+    
+            // If the workflow is empty, then the feature is not working.
+            if (empty($workflow)) {
+                // Inform the caller.
+                return false;
+            }
+    
+            // Verify that the workflow exists in Opencast.
+            $workflowexists = $apibridge->check_if_workflow_exists($workflow);
+    
+            // If the workflow does not exist, then the feature is not working.
+            if (!$workflowexists) {
+                // Inform the caller.
+                return false;
+            }
+        } else if ($importmode == 'acl') {
+            // If ACL Change is selected as the import mode.
+
+            // TODO: Add necessary validations for ACL here...
         }
 
         // The feature should be working.
@@ -418,5 +455,138 @@ class importvideosmanager
 
         // Finally, inform the caller that the tasks have been created.
         return true;
+    }
+
+    /**
+     * Helperfunction to get the series object and process it with rendered later on in the summary.
+     *
+     * @param int $sourcecourseid The source course id.
+     *
+     * @return object
+     */
+    public static function get_import_source_course_series_object($sourcecourseid) {
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the stored seriesid for the course.
+        $seriesid = $apibridge->get_stored_seriesid($sourcecourseid);
+
+        // In case seriesid could not be found.
+        if (!$seriesid) {
+            return false;
+        }
+
+        // Get series data.
+        $seriesdata = $apibridge->get_series_data_by_identifier($seriesid);
+
+        // When the call to the opencast server is not successfull.
+        if (!$seriesdata) {
+            return false;
+        }
+
+        // Finally, we return series data object.
+        return $seriesdata;
+    }
+
+    /**
+     * Helperfunction to get the list of course videos which are stored in the given source course to be shown as summary in ACL change mode.
+     *
+     * @param int $sourcecourseid The source course id.
+     *
+     * @return string
+     */
+    public static function get_import_acl_source_course_videos_summary($sourcecourseid) {
+        global $PAGE;
+
+        // Get renderers.
+        $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
+
+        // Initialize course videos summary as empty string.
+        $coursevideossummary = '';
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get course videos which are qualified to be imported.
+        $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
+
+        // If there aren't any videos, return only a warning message.
+        if (count($coursebackupvideos) < 1) {
+            return $renderer->wizard_warning_notification(
+                get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
+        }
+
+        // Initialize course videos entry strings as empty array.
+        $coursevideosenteries = [];
+
+        foreach ($coursebackupvideos as $identifier => $video) {
+            // Get video entry string one by one.
+            $coursevideosenteries[] = $renderer->course_video_menu_entry($video);
+        }
+
+        // Render the list of enteries as an unordered list.
+        $coursevideossummary = $renderer->course_videos_list_entry($coursevideosenteries);
+
+        // Finally, return the string of course videos summary.
+        return $coursevideossummary;
+    }
+
+    /**
+     * Helperfunction to perform ACL Change approache during manual import.
+     *
+     * @param int $sourcecourseid The source course id.
+     * @param int $targetcourseid The target course id.
+     *
+     * @return object
+     */
+    public static function change_acl($sourcecourseid, $targetcourseid) {
+        global $USER, $PAGE;
+
+        // Initialize the result as empty object to handle it later on.
+        $aclchangeresult = new \stdClass();
+
+        // Assuming that everything goes fine, we define the return result variable.
+        $aclchangeresult->message = get_string('importvideos_importjobaclchangedone', 'block_opencast');
+        $aclchangeresult->type = \core\output\notification::NOTIFY_SUCCESS;
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
+
+        // Get the stored seriesid for this course.
+        $seriesid = $apibridge->get_stored_seriesid($sourcecourseid);
+        
+        // Import series and course videos into the targeted course.
+        $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $seriesid, $sourcecourseid, $USER->id);
+
+        // We decide what to show as a return message based on errors.
+        if ($result->error == 1) {
+            // There are 3 different outcomes, we prioritize the importance of errors here.
+            if (!$result->seriesaclchange) {
+                // 1. When there is error with changing Series ACL.
+                $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesfailed', 'block_opencast');
+                $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
+            } else if (!$result->seriesmapped) {
+                // 2. When there is error with mapping series to the course correctly. It is very unlikely to happen but it is important if it does. 
+                $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesmappingfailed', 'block_opencast');
+                $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
+            } else if (count($result->eventsaclchange->failed) > 1) {
+                // 3. Error might happen during events ACL changes, but it should not be as important as other errors, only a notification would be enough.
+                // If all videos have failed, we notify user as a warning.
+                if (count($result->eventsaclchange->failed) == $result->eventsaclchange->total) {
+                    $aclchangeresult->message = get_string('importvideos_importjobaclchangealleventsfailed', 'block_opencast');
+                    $aclchangeresult->type = \core\output\notification::NOTIFY_WARNING;
+                } else {
+                    // But if some of them have failed, we notify user as warning with the id of the events.
+                    // Get renderer.
+                    $renderer = $PAGE->get_renderer('block_opencast');
+                    $aclchangeresult->message = get_string('importvideos_importjobaclchangeeventsfailed', 'block_opencast');
+                    $aclchangeresult->message .= $renderer->render_list($result->eventsaclchange->failed);
+                    $aclchangeresult->type = \core\output\notification::NOTIFY_WARNING;
+                }
+            }
+        }
+
+        // Finall, we return the object containing the information about all 3 steps in this method.
+        return $aclchangeresult;
     }
 }
