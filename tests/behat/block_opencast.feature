@@ -14,7 +14,7 @@ Feature: Add Opencast block as Teacher
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
       | config          | value                    | plugin         |
-      | apiurl          | 172.17.0.1:8080          | tool_opencast  |
+      | apiurl          | http://172.17.0.1:8080          | tool_opencast  |
       | apipassword     | opencast                 | tool_opencast  |
       | apiusername     | admin                    | tool_opencast  |
       | limituploadjobs | 0                        | block_opencast |
@@ -32,7 +32,7 @@ Feature: Add Opencast block as Teacher
     When I click on "Go to overview..." "link"
     Then I should not see "Videos scheduled to be transferred to Opencast"
     And I should see "Videos available in this course"
-    And I should see "No videos available"
+    And I should see "Currently, no videos have been uploaded to this course yet."
 
   Scenario: Opencast Add video page implemented
     Given I click on "Go to overview..." "link"
@@ -45,7 +45,7 @@ Feature: Add Opencast block as Teacher
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
     And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
-    And I click on "Save changes" "button"
+    And I click on "Add video" "button"
     Then I should see "Test"
     And I should see "test.mp4"
     And I should see "Ready for transfer"
@@ -56,7 +56,7 @@ Feature: Add Opencast block as Teacher
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
     And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
-    And I click on "Save changes" "button"
+    And I click on "Add video" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
@@ -71,7 +71,7 @@ Feature: Add Opencast block as Teacher
     And I click on "Add video" "button"
     And I set the field "Title" to "Test"
     And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
-    And I click on "Save changes" "button"
+    And I click on "Add video" "button"
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
     And I wait "10" seconds
     And I run the scheduled task "\block_opencast\task\process_upload_cron"
@@ -81,5 +81,5 @@ Feature: Add Opencast block as Teacher
     And I click on "Save changes" "button"
     Then I should see "The series ID was removed."
     And I should see "Create new series"
-    And I should see "No videos available"
+    And I should see "Currently, no videos have been uploaded to this course yet."
     And I should not see "Test"

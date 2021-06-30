@@ -51,7 +51,7 @@ $PAGE->navbar->add(get_string('addltiepisode_addicontitle', 'block_opencast'), $
 
 // Check if the LTI module feature is enabled and working.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes() == false) {
-    print_error('addltiepisode_errornotenabledorworking', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('addltiepisode_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
 // Capability check.
@@ -68,7 +68,7 @@ if ($moduleid) {
 
 // Episode UUID Check.
 if (\block_opencast\local\ltimodulemanager::is_valid_episode_id($episodeuuid) == false) {
-    print_error('addltiepisode_errorepisodeuuidnotvalid', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('addltiepisode_errorepisodeuuidnotvalid', 'block_opencast', $redirecturloverview);
 }
 
 // Use Add LTI form.

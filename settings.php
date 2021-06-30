@@ -80,7 +80,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
             '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
 
-        $metdatadefault = '[' .
+        if(!get_config('block_opencast', 'roles')) {
+            set_config('roles', $rolesdefault, 'block_opencast');
+        }
+
+        $metadatadefault = '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
             '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
@@ -95,6 +99,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
             '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
             '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+
+        if(!get_config('block_opencast', 'metadata')) {
+            set_config('metadata', $metadatadefault, 'block_opencast');
+        }
 
         $metdataseriesdefault = '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
@@ -125,7 +133,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         $metadatasetting = new admin_setting_configtext('block_opencast/metadata',
             get_string('metadata', 'block_opencast'),
             get_string('metadatadesc',
-                'block_opencast'), $metdatadefault);
+                'block_opencast'), $metadatadefault);
 
         $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries',
             get_string('metadataseries', 'block_opencast'),
@@ -343,6 +351,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('uploadfilelimit', 'block_opencast'),
                 get_string('uploadfilelimitdesc', 'block_opencast'),
                 2147483648, $filesizes));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/uploadfilelimit',
+                        'block_opencast/enablechunkupload', 'notchecked');
+            }
+
+            $additionalsettings->add(
+                    new admin_setting_configcheckbox('block_opencast/offerchunkuploadalternative',
+                            get_string('offerchunkuploadalternative', 'block_opencast'),
+                            get_string('offerchunkuploadalternative_desc', 'block_opencast',
+                                    get_string('usedefaultfilepicker', 'block_opencast')), true));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/offerchunkuploadalternative',
+                        'block_opencast/enablechunkupload', 'notchecked');
+            }
         }
 
         $additionalsettings->add(

@@ -85,7 +85,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
         // Only duplicate, when the event exists in opencast.
-        if (!$event = $apibridge->get_already_existing_event([$data->eventid])) {
+        if (!$apibridge->get_already_existing_event([$data->eventid])) {
             $this->missingeventids[] = $data->eventid;
         } else {
             $courseid = $this->get_courseid();

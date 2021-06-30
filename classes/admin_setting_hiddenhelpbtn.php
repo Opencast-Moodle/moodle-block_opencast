@@ -48,6 +48,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting
      * Not a setting, just an editable table.
      * @param string $name Setting name
      * @param string $divid Id of the div tag
+     * @param string $iconname Icon that is displayed as help button
+     * @param string $component Component
      */
     public function __construct($name, $divid, $iconname, $component) {
         $this->nosave = true;

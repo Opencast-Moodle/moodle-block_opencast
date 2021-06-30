@@ -503,5 +503,66 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021051200, 'opencast');
     }
 
+    if ($oldversion < 2021061600) {
+        // Delete dangling .dot files.
+
+        $params = [
+            'component' => 'block_opencast',
+            'filearea' => 'videotoupload'
+        ];
+
+        $sql = "SELECT CONCAT(contextid, '_', itemid), contextid, itemid, COUNT(*) as cnt " .
+            "FROM {files} " .
+            "WHERE component = :component " .
+            "AND filearea = :filearea GROUP BY contextid, itemid;";
+
+        if ($entries = $DB->get_records_sql($sql, $params)) {
+            foreach ($entries as $entry) {
+                if ($entry->cnt === "1") {
+                    // Only .dot file left. Delete it.
+                    $params = [
+                        'component' => 'block_opencast',
+                        'filearea' => 'videotoupload',
+                        'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+                        'filename' => '.',
+                        'contextid' => $entry->contextid,
+                        'itemid' => $entry->itemid
+                    ];
+
+                    $sql = "SELECT f.* " .
+                        "FROM {files} f " .
+                        "WHERE f.contenthash = :contenthash AND f.component = :component " .
+                        "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid AND f.contextid = :contextid";
+
+                    if (!$dotfiles = $DB->get_records_sql($sql, $params)) {
+                        return;
+                    }
+
+                    $fs = get_file_storage();
+                    foreach ($dotfiles as $dotfile) {
+                        $fs->get_file_instance($dotfile)->delete();
+                    }
+                }
+            }
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021061600, 'opencast');
+    }
+
+    if ($oldversion < 2021062401) {
+
+        // Define table block_opencast_series to be dropped.
+        $table = new xmldb_table('block_opencast_series');
+
+        if ($dbman->table_exists($table)) {
+            // Drop table.
+            $dbman->drop_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021062401, 'opencast');
+    }
+
     return true;
 }

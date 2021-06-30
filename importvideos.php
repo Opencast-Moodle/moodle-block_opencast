@@ -61,7 +61,7 @@ $PAGE->navbar->add(get_string('importvideos_importbuttontitle', 'block_opencast'
 
 // Check if the manual import videos feature is enabled and working.
 if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport() == false) {
-    print_error('importvideos_errornotenabledorworking', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('importvideos_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
 // Capability check.

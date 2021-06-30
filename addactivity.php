@@ -45,7 +45,8 @@ $PAGE->navbar->add(get_string('addactivity_addbuttontitle', 'block_opencast'), $
 
 // Check if the Opencast Activity module feature is enabled and working.
 if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series() == false) {
-    print_error('add opencast activity series module not enabled or working', 'block_opencast', $redirecturloverview);
+    throw new moodle_exception('add opencast activity series module not enabled or working',
+        'block_opencast', $redirecturloverview);
 }
 
 // Capability check.

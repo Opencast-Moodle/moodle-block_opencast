@@ -365,6 +365,7 @@ class apibridge
      * API call to check, whether the course related group exists in opencast system.
      *
      * @param int $courseid
+     * @param int $userid
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
@@ -393,6 +394,7 @@ class apibridge
      * API call to create a group for given course.
      *
      * @param int $courseid
+     * @param int $userid
      * @return object group object of NULL, if group does not exist.
      */
     protected function create_acl_group($courseid, $userid) {
@@ -418,6 +420,7 @@ class apibridge
      * a group in opencast system.
      *
      * @param int $courseid
+     * @param int $userid
      * @return object group object.
      * @throws opencast_state_exception
      */
@@ -472,6 +475,7 @@ class apibridge
      *
      * @param int $courseid id of the course.
      * @param bool $createifempty Create a series on-the-fly if there isn't a series stored yet.
+     * @param int $userid
      * @return string id of the series
      */
     public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
@@ -581,6 +585,7 @@ class apibridge
      * @param string $name name of the rule, in which the placeholders should be replaced.
      * @param int $courseid id of the course, for which acl rules should be genereated.
      * @param array|null $groups the groups for replacement by [COURSEGROUPID].
+     * @param int $userid
      *
      * @return string[]
      * @throws \coding_exception
@@ -638,6 +643,7 @@ class apibridge
     /**
      * Returns the default series name for a course.
      * @param int $courseid id of the course.
+     * @param int $userid
      * @return string default series title.
      */
     public function get_default_seriestitle($courseid, $userid) {
@@ -649,6 +655,7 @@ class apibridge
      * API call to create a series for given course.
      * @param int $courseid Course id
      * @param null|string $seriestitle Series title
+     * @param int $userid
      * @return bool  tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $seriestitle = null, $userid = null) {
@@ -716,6 +723,7 @@ class apibridge
      * a group in opencast system.
      *
      * @param int $courseid
+     * @param int $userid
      *
      * @return object series object.
      * @throws opencast_state_exception
@@ -742,6 +750,7 @@ class apibridge
      *
      * @param int $courseid Course ID
      * @param string $seriesid Series ID
+     * @param int $userid
      */
     public function update_course_series($courseid, $seriesid, $userid) {
         $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
@@ -1000,6 +1009,7 @@ class apibridge
      *
      * @param string $eventidentifier
      * @param int $courseid
+     * @param int $userid
      *
      * @return boolean true if succeeded
      */
@@ -1653,7 +1663,8 @@ class apibridge
     public function can_update_event_metadata($video, $courseid) {
 
         if (isset($video->processing_state) &&
-            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+            ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
+                $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
             $context = \context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
         }
@@ -1696,7 +1707,17 @@ class apibridge
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
-            return $this->update_metadata($eventidentifier);
+            $video = $this->get_opencast_video($eventidentifier);
+
+            if ($video->error === 0) {
+                // Don't start workflow for scheduled videos.
+                if ($video->video->processing_state !== "PLANNED") {
+                    return $this->update_metadata($eventidentifier);
+                }
+                return true;
+            }
+            return false;
+
         };
         return false;
     }

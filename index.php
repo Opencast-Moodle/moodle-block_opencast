@@ -43,7 +43,10 @@ $apibridge = apibridge::get_instance();
 $opencasterror = null;
 
 try {
-    $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+    $workflows = array();
+    if(!empty(get_config('block_opencast', 'workflow_tag'))) {
+        $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+    }
 } catch (\block_opencast\opencast_connection_exception $e) {
     $opencasterror = $e->getMessage();
 }
@@ -431,9 +434,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                 }
 
                 // Actions column.
-                $updatemetadata = ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
-                        $video->processing_state == "STOPPED") && $opencast->can_update_event_metadata($video, $courseid);
-                $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata, $workflowsavailable, $coursecontext);
+                $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
+                $actions .= $renderer->render_edit_functions($courseid, $video->identifier, $updatemetadata,
+                    $workflowsavailable, $coursecontext);
 
                 if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                     $actions .= $renderer->render_download_event_icon($courseid, $video);

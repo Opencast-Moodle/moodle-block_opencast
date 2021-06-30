@@ -28,7 +28,7 @@ class block_opencast_generator extends testing_block_generator
         global $USER;
 
         if (!isset($record['courseid'])) {
-            print_error('course id missing');
+            throw new moodle_exception('course id missing');
         }
 
         $record['contextid'] = context_course::instance($record['courseid'])->id;
@@ -60,7 +60,7 @@ class block_opencast_generator extends testing_block_generator
         }
 
         if (!isset($record['filecontent'])) {
-            print_error('file is missing');
+            throw new moodle_exception('file is missing');
         }
 
         $fs = get_file_storage();
