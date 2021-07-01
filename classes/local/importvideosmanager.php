@@ -64,6 +64,15 @@ class importvideosmanager
             return false;
         }
 
+        // Get the status of the manual import setting.
+        // Since this setting is shared between both import modes, we put it before import mode checkers.
+        $config = get_config('block_opencast', 'importvideosmanualenabled');
+
+        // If the setting is false, then the subfeature is not enabled.
+        if ($config == false) {
+            // Inform the caller.
+            return false;
+        }
 
         // Get the import mode.
         $importmode = get_config('block_opencast', 'importmode');
@@ -75,15 +84,6 @@ class importvideosmanager
 
         // If Duplicating Events is selected as the import mode.
         if ($importmode == 'duplication') {
-            // Get the status of the subfeature.
-            $config = get_config('block_opencast', 'importvideosmanualenabled');
-
-            // If the setting is false, then the subfeature is not enabled.
-            if ($config == false) {
-                // Inform the caller.
-                return false;
-            }
-
             // Get the configured duplicate workflow.
             $workflow = get_config('block_opencast', 'duplicateworkflow');
 
@@ -103,14 +103,7 @@ class importvideosmanager
             }
         } else if ($importmode == 'acl') {
             // If ACL Change is selected as the import mode.
-            // Get the status of the subfeature.
-            $config = get_config('block_opencast', 'importvideosmanualenabledwithacl');
-
-            // If the setting is false, then the subfeature is not enabled.
-            if ($config == false) {
-                // Inform the caller.
-                return false;
-            }
+            // If there is any other settings related to acl change, we check them here.
         }
 
         // The feature should be working.
@@ -468,24 +461,16 @@ class importvideosmanager
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
-        // Get the stored seriesid for the course.
-        $seriesid = $apibridge->get_stored_seriesid($sourcecourseid);
+        // Get series.
+        $series = $apibridge->get_course_series($sourcecourseid);
 
         // In case seriesid could not be found.
-        if (!$seriesid) {
-            return false;
-        }
-
-        // Get series data.
-        $seriesdata = $apibridge->get_series_data_by_identifier($seriesid);
-
-        // When the call to the opencast server is not successfull.
-        if (!$seriesdata) {
+        if (!$series) {
             return false;
         }
 
         // Finally, we return series data object.
-        return $seriesdata;
+        return $series;
     }
 
     /**
