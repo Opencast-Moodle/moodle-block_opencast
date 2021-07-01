@@ -46,9 +46,11 @@ class backup_opencast_block_task extends backup_block_task {
     protected function define_my_settings() {
 
         // Check whether this feature is enabled and working at all.
-        if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport() == true) {
+        // TODO
+        if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($instanceid) == true) {
 
             // Check, whether there are course videos available.
+            // TODO
             $apibridge = \block_opencast\local\apibridge::get_instance();
             $courseid = $this->get_courseid();
             $videostobackup = $apibridge->get_course_videos_for_backup($courseid);

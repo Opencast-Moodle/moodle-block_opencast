@@ -31,8 +31,9 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -47,6 +48,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
+// TODO handle default instance
 $endpoint = get_config('tool_opencast', 'apiurl');
 
 if (strpos($endpoint, 'http') !== 0) {
@@ -55,7 +57,7 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
-$api = \block_opencast\local\apibridge::get_instance();
+$api = \block_opencast\local\apibridge::get_instance($instanceid);
 
 // Get series ID, create a new one if necessary.
 $seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
@@ -85,8 +87,8 @@ function block_opencast_create_lti_parameters($endpoint, $seriesid) {
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.
-    $consumerkey = get_config('block_opencast', 'lticonsumerkey');
-    $consumersecret = get_config('block_opencast', 'lticonsumersecret');
+    $consumerkey = get_config('block_opencast', 'lticonsumerkey_'. $instanceid);
+    $consumersecret = get_config('block_opencast', 'lticonsumersecret_' . $instanceid);
 
     $helper = new oauth_helper(array('oauth_consumer_key'    => $consumerkey,
                                     'oauth_consumer_secret' => $consumersecret));

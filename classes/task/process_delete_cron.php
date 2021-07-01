@@ -45,7 +45,7 @@ class process_delete_cron extends \core\task\scheduled_task {
         foreach ($jobs as $job) {
             mtrace('proceed: ' . $job->id);
             try {
-                $apibridge = apibridge::get_instance();
+                $apibridge = apibridge::get_instance(); // TODO
                 $event = $apibridge->get_opencast_video($job->opencasteventid);
                 // If job failed previously and event does no longer exist, remove the delete job.
                 if ($event->error == 404 & $job->failed) {

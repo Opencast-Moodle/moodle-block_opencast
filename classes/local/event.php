@@ -228,14 +228,14 @@ class event
      *
      * @return string
      */
-    public function get_processing() {
+    public function get_processing($instanceid) {
 
-        $uploadworkflow = get_config('block_opencast', 'uploadworkflow');
+        $uploadworkflow = get_config('block_opencast', 'uploadworkflow_' . $instanceid);
         if (empty($uploadworkflow)) {
             $uploadworkflow = 'ng-schedule-and-upload';
         }
 
-        $publistoengage = get_config('block_opencast', 'publishtoengage');
+        $publistoengage = get_config('block_opencast', 'publishtoengage_' . $instanceid);
         $publistoengage = (empty($publistoengage)) ? "false" : "true";
 
         $processing = array();
@@ -255,7 +255,7 @@ class event
      *
      * @return array form params.
      */
-    public function get_form_params() {
+    public function get_form_params($instanceid) {
 
         $params = array();
         $params['acl'] = $this->get_json_acl();
@@ -267,7 +267,7 @@ class event
         if ($this->get_presentation()) {
             $params['presentation'] = $this->get_presentation();
         }
-        $params['processing'] = $this->get_processing();
+        $params['processing'] = $this->get_processing($instanceid);
 
         return $params;
     }

@@ -40,7 +40,7 @@ class restore_opencast_block_task extends restore_block_task
      * @return boolean
      */
     private function can_restore_events() {
-
+        // TODO
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
         $courseid = $this->get_courseid();
@@ -94,7 +94,7 @@ class restore_opencast_block_task extends restore_block_task
         }
 
         // Try to create a course series, if neccessary.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
         $courseid = $this->get_courseid();
 
         if (!$apibridge->get_stored_seriesid($courseid)) {

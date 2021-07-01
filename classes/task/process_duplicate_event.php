@@ -75,7 +75,7 @@ class process_duplicate_event extends \core\task\adhoc_task
         try {
 
             // Get duplication workflow.
-            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
+            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $instanceid);
             if (empty($duplicateworkflow)) {
                 throw new \moodle_exception('error_workflow_setup_missing', 'block_opencast');
             }
@@ -88,7 +88,7 @@ class process_duplicate_event extends \core\task\adhoc_task
             }
 
             // Check, whether seriesid of course exists...
-            $apibridge = \block_opencast\local\apibridge::get_instance();
+            $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
             if (!$seriesid = $apibridge->get_stored_seriesid($course->id)) {
                 throw new \moodle_exception('error_seriesid_missing_course', 'block_opencast', '', $a);
             }

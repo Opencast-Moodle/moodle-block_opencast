@@ -41,7 +41,7 @@ class workflow_setting_helper
         // Do only if a workflow was set.
         if ($data != null) {
             // Get an APIbridge instance.
-            $apibridge = \block_opencast\local\apibridge::get_instance();
+            $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
             // Verify if the given value is a valid Opencast workflow.
             if (!$apibridge->check_if_workflow_exists($data)) {
@@ -53,7 +53,7 @@ class workflow_setting_helper
         return false;
     }
 
-    public static function load_workflow_choices($workflowtag) {
+    public static function load_workflow_choices($instanceid, $workflowtag) {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
         if (during_initial_install()) {
@@ -61,7 +61,7 @@ class workflow_setting_helper
         }
 
         // Get the available workflows.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
         try {

@@ -27,14 +27,15 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 
 // Handle submitted parameters of the form.
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
 // Set base URL.
-$baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
 // Remember URLs for redirecting.
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
 $redirecturlcancel = $redirecturloverview;
 
@@ -49,7 +50,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('addlti_addbuttontitle', 'block_opencast'), $baseurl);
 
 // Check if the LTI module feature is enabled and working.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == false) {
+if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($instanceid) == false) {
     throw new moodle_exception('addlti_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
@@ -66,10 +67,10 @@ if ($moduleid) {
 }
 
 // Use Add LTI form.
-$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid));
+$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid, 'instanceid' => $instanceid));
 
 // Get API bridge instance.
-$apibridge = \block_opencast\local\apibridge::get_instance();
+$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
 // Redirect if the form was cancelled.
 if ($addltiform->is_cancelled()) {
@@ -84,7 +85,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
-    if (get_config('block_opencast', 'addltiintro') != true || !isset($data->intro) || !$data->intro) {
+    if (get_config('block_opencast', 'addltiintro_' . $instanceid) != true || !isset($data->intro) || !$data->intro) {
         $introtext = '';
         $introformat = FORMAT_HTML;
 
@@ -95,7 +96,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addltisection') != true || !isset($data->section) || !$data->section) {
+    if (get_config('block_opencast', 'addltisection_' . $instanceid) != true || !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.
@@ -104,7 +105,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addltiavailability') != true || empty($CFG->enableavailability) ||
+    if (get_config('block_opencast', 'addltiavailability_' . $instanceid) != true || empty($CFG->enableavailability) ||
             !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 
@@ -117,7 +118,7 @@ if ($data = $addltiform->get_data()) {
     $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
 
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($courseid, $data->title, $seriesid,
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($instanceid, $courseid, $data->title, $seriesid,
             $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.

@@ -57,6 +57,7 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $opencast->add_child($events);
 
         // Check, whether there are course videos available.
+        // TODO
         $apibridge = \block_opencast\local\apibridge::get_instance();
 
         $courseid = $this->get_courseid();

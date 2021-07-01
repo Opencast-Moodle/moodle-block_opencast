@@ -49,7 +49,7 @@ class createseries_form extends \moodleform
         global $USER;
         $mform = $this->_form;
 
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);

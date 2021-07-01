@@ -32,8 +32,9 @@ global $PAGE, $OUTPUT, $CFG;
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
+$instanceid = required_param('instanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/deletedraft.php', array('identifier' => $identifier, 'courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/deletedraft.php', array('identifier' => $identifier, 'courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -42,7 +43,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('deletedraft', 'block_opencast'), $baseurl);
 
@@ -90,7 +91,7 @@ $params = array(
     'courseid' => $courseid,
     'action' => 'delete'
 );
-$urldelete = new \moodle_url('/blocks/opencast/deletedraft.php', $params);
+$urldelete = new \moodle_url('/blocks/opencast/deletedraft.php', $params, 'instanceid' => $instanceid);
 $html .= $OUTPUT->confirm($label, $urldelete, $redirecturl);
 
 echo $OUTPUT->header();

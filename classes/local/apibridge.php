@@ -48,8 +48,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  */
 class apibridge
 {
-    /** @var mixed Block settings */
-    private $config;
+    private $instanceid; // TODO what about concurrent requests? is there really only one instance or multiple ones?
 
     /** @var bool True for tests */
     private static $testing = false;
@@ -57,8 +56,8 @@ class apibridge
     /**
      * apibridge constructor.
      */
-    private function __construct() {
-        $this->config = get_config('block_opencast');
+    private function __construct($instanceid) {
+        $this->instanceid = $instanceid;
     }
 
     /**
@@ -66,20 +65,22 @@ class apibridge
      * @param boolean $forcenewinstance true, when a new instance should be created.
      * @return apibridge
      */
-    public static function get_instance($forcenewinstance = false) {
+    public static function get_instance($instanceid, $forcenewinstance = false) {
         static $apibridge;
 
         if (isset($apibridge) && !$forcenewinstance) {
+            $apibridge->instanceid = $instanceid;
             return $apibridge;
         }
 
         // Use replacement of api bridge for test cases.
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
             $apibridge = new \block_opencast_apibridge_testable();
+            $apibridge->instanceid = 1;
             return $apibridge;
         }
 
-        $apibridge = new apibridge();
+        $apibridge = new apibridge($instanceid);
 
         return $apibridge;
     }
@@ -131,9 +132,9 @@ class apibridge
 
         $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode($seriesfilter);
 
-        if ($this->config->limitvideos > 0) {
+        if (get_config('block_opencast', 'limitvideos_'.$this->instanceid) > 0) {
             // Try to fetch one more to decide whether display "more link" is necessary.
-            $query .= '&limit=' . ($this->config->limitvideos + 1);
+            $query .= '&limit=' . (get_config('block_opencast', 'limitvideos_'.$this->instanceid) + 1);
         }
 
         $url = '/api/events?' . $query;
@@ -155,7 +156,7 @@ class apibridge
         }
 
         $result->count = count($videos);
-        $result->more = ($result->count > $this->config->limitvideos);
+        $result->more = ($result->count > get_config('block_opencast', 'limitvideos_' . $this->instanceid));
 
         // If we have received more than limit count of videos remove one.
         if ($result->more) {
@@ -260,7 +261,7 @@ class apibridge
      * @param \stdClass $video Video to be updated
      */
     private function set_download_state(&$video) {
-        if (in_array(get_config('block_opencast', 'download_channel'), $video->publication_status)) {
+        if (in_array(get_config('block_opencast', 'download_channel_' . $this->instanceid), $video->publication_status)) {
             $video->is_downloadable = true;
         } else {
             $video->is_downloadable = false;
@@ -317,7 +318,7 @@ class apibridge
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid, null, $userid)[0];
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->instanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $api = new api();
@@ -347,7 +348,7 @@ class apibridge
      */
     protected function create_acl_group($courseid, $userid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name'), $courseid, null, $userid)[0];
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->instanceid), $courseid, null, $userid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -565,7 +566,7 @@ class apibridge
      * @return string default series title.
      */
     public function get_default_seriestitle($courseid, $userid) {
-        $title = get_config('block_opencast', 'series_name');
+        $title = get_config('block_opencast', 'series_name_' . $this->instanceid);
         return $this->replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
@@ -600,6 +601,7 @@ class apibridge
         $params['metadata'] = json_encode(array($metadata));
 
         $acl = array();
+        // TODO
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
@@ -846,7 +848,7 @@ class apibridge
             }
         }
         $event->add_meta_data('isPartOf', $seriesidentifier);
-        $params = $event->get_form_params();
+        $params = $event->get_form_params($this->instanceid);
 
         $api = new api();
 
@@ -864,13 +866,11 @@ class apibridge
      * Returns an array of acl roles. The actions field of each entry contains an array of trimmed action names
      * for the specific role.
      *
-     * @param null $conditions
-     *
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
     public function getroles($permanent = null) {
-        $roles = json_decode(get_config('block_opencast', 'roles'));
+        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->instanceid));
         $rolesprocessed = [];
         foreach ($roles as $role) {
             if ($permanent === null || $permanent === $role->permanent) {
@@ -970,7 +970,7 @@ class apibridge
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
 
-        $config = get_config('block_opencast', 'allowunassign');
+        $config = get_config('block_opencast', 'allowunassign_'. $this->instanceid);
 
         if (!$config) {
             return false;
@@ -1263,7 +1263,7 @@ class apibridge
             }
         }
 
-        $roles = $this->getroles(0);
+        $roles = $this->getroles( 0);
         $hasnogroupacls = true;
         foreach ($roles as $role) {
             $pattern = $this->get_pattern_for_group_placeholder($role->rolename, $courseid);
@@ -1301,7 +1301,7 @@ class apibridge
      * @throws \moodle_exception
      */
     private function update_metadata($eventid) {
-        $workflow = get_config('block_opencast', 'workflow_roles');
+        $workflow = get_config('block_opencast', 'workflow_roles_' . $this->instanceid);
         if (!$workflow) {
             return true;
         }
@@ -1673,7 +1673,7 @@ class apibridge
         }
 
         // If we are not looking at a duplication workflow at all, return.
-        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow');
+        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $this->instanceid);
         if (isset($workflowconfiguration->workflow_definition_identifier) &&
             $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
             return false;

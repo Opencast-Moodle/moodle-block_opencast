@@ -68,7 +68,7 @@ class upload_helper
      * upload_helper constructor.
      */
     public function __construct() {
-        $this->apibridge = apibridge::get_instance();
+        $this->apibridge = apibridge::get_instance(); // TODO
     }
 
     /**
@@ -343,7 +343,7 @@ class upload_helper
         $event->trigger();
 
         // Delete file from files table.
-        $config = get_config('block_opencast');
+        $config = get_config('block_opencast'); // TODO
 
         foreach ($files as $file) {
             $file->delete();
@@ -442,7 +442,7 @@ class upload_helper
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if (boolval(get_config('block_opencast', 'group_creation'))) {
+                if (boolval(get_config('block_opencast', 'group_creation_' . $instanceid))) {
                     try {
                         // Check if group exists.
                         $group = $this->apibridge->ensure_acl_group_exists($job->courseid, $job->userid);
@@ -482,7 +482,7 @@ class upload_helper
 
                 if ($job->opencasteventid) {
                     array_push($eventids, $job->opencasteventid);
-                } else if (get_config('block_opencast', 'reuseexistingupload')) {
+                } else if (get_config('block_opencast', 'reuseexistingupload_' . $instanceid)) {
                     // Check, whether this file was uploaded any time before.
                     $params = array(
                         'contenthash_presenter' => $job->contenthash_presenter,
@@ -543,7 +543,7 @@ class upload_helper
                     return $event;
                 }
 
-                if (boolval(get_config('block_opencast', 'group_creation'))) {
+                if (boolval(get_config('block_opencast', 'group_creation_' . $instanceid))) {
                     // Ensure the assignment of a suitable role.
                     if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
                         mtrace('... group not yet assigned.');
@@ -583,7 +583,7 @@ class upload_helper
         // Get all waiting jobs.
         $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? ORDER BY timemodified ASC ";
 
-        $limituploadjobs = get_config('block_opencast', 'limituploadjobs');
+        $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $instanceid);
 
         if (!$limituploadjobs) {
             $limituploadjobs = 0;
@@ -652,8 +652,8 @@ class upload_helper
      *
      * @return stdClass $metadata the metadata object
      */
-    public static function get_opencast_metadata_catalog() {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata'));
+    public static function get_opencast_metadata_catalog($instanceid) {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $instanceid));
         return $metadatacatalog;
     }
 }

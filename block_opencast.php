@@ -72,11 +72,17 @@ class block_opencast extends block_base
             }
         }
         if (!isset($videos)) {
-            $apibridge = \block_opencast\local\apibridge::get_instance();
+            $videos = array();
+
+            $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+
             try {
-                $videos = $apibridge->get_block_videos($COURSE->id);
+                foreach ($ocinstances as $instance) {
+                    $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
+                    $videos[] = $apibridge->get_block_videos($COURSE->id);
+                }
                 $cacheobj = new stdClass();
-                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
+                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime'); // TODO per instance
                 $cacheobj->videos = $videos;
                 $cache->set($COURSE->id, $cacheobj);
             } catch (opencast_connection_exception $e) {
@@ -84,7 +90,12 @@ class block_opencast extends block_base
                 $videos->error = $e->getmessage();
             }
         }
-        $this->content->text = $renderer->render_block_content($COURSE->id, $videos);
+
+        $rendername = count($ocinstances) > 1;
+        for ($i = 0; $i < count($ocinstances); $i++) {
+            $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$i], $instance, $rendername);
+        }
+
         return $this->content;
     }
 }

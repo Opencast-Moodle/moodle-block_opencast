@@ -184,13 +184,13 @@ class block_opencast_backup_testcase extends advanced_testcase
 
         // Configure all necessary plugin configuration to allow video backups.
         // If this is not done, video backups are not offered by the backup wizard at all.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(1);
         set_config('apiurl', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
-        set_config('importvideosenabled', true, 'block_opencast');
-        set_config('duplicateworkflow', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+        set_config('importvideosenabled_1', true, 'block_opencast');
+        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
-        set_config('importvideoscoreenabled', true, 'block_opencast');
+        set_config('importvideoscoreenabled_1', true, 'block_opencast');
 
         // Create a course with block opencast.
         $generator = $this->getDataGenerator();
@@ -220,13 +220,13 @@ class block_opencast_backup_testcase extends advanced_testcase
 
         // Revert the duplicateworkflow setting to make sure that the generated task would fail in the case that the task was
         // created despite of all safety nets but then the workflow is not set (anymore).
-        set_config('duplicateworkflow', '', 'block_opencast');
+        set_config('duplicateworkflow_1', '', 'block_opencast');
 
         // The workflow is now not properly set, so the task should fail.
         $this->check_task_fail_with_error('error_workflow_setup_missing', 1);
 
         // Configure the workflow again.
-        set_config('duplicateworkflow', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
 
         // But delete the course series in Moodle.
         $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id));
@@ -326,7 +326,7 @@ class block_opencast_backup_testcase extends advanced_testcase
         $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
 
         // Setup simulation data for api.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(1);
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
 
         // Backup with videos.
@@ -406,7 +406,7 @@ class block_opencast_backup_testcase extends advanced_testcase
         $opencastblock = $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
 
         // Check, whether the testable apibridge work as expected.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(1);
         $coursevideos = $apibridge->get_course_videos_for_backup($course->id);
         $this->assertEmpty($coursevideos);
 

@@ -42,9 +42,9 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_manualimport() {
+    public static function is_enabled_and_working_for_manualimport($instanceid) {
         // Get the status of the whole import featureset.
-        $config = get_config('block_opencast', 'importvideosenabled');
+        $config = get_config('block_opencast', 'importvideosenabled_' . $instanceid);
 
         // If the setting is false, then the featureset is not enabled.
         if ($config == false) {
@@ -53,7 +53,7 @@ class importvideosmanager
         }
 
         // Get the status of the subfeature.
-        $config = get_config('block_opencast', 'importvideosmanualenabled');
+        $config = get_config('block_opencast', 'importvideosmanualenabled_' . $instanceid);
 
         // If the setting is false, then the subfeature is not enabled.
         if ($config == false) {
@@ -62,7 +62,7 @@ class importvideosmanager
         }
 
         // Get the configured duplicate workflow.
-        $workflow = get_config('block_opencast', 'duplicateworkflow');
+        $workflow = get_config('block_opencast', 'duplicateworkflow_' . $instanceid);
 
         // If the workflow is empty, then the feature is not working.
         if (empty($workflow)) {
@@ -71,7 +71,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -101,9 +101,9 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_coreimport() {
+    public static function is_enabled_and_working_for_coreimport($instanceid) {
         // Get the status of the whole import featureset.
-        $config = get_config('block_opencast', 'importvideosenabled');
+        $config = get_config('block_opencast', 'importvideosenabled_' . $instanceid);
 
         // If the setting is false, then the featureset is not enabled.
         if ($config == false) {
@@ -112,7 +112,7 @@ class importvideosmanager
         }
 
         // Get the status of the subfeature.
-        $config = get_config('block_opencast', 'importvideoscoreenabled');
+        $config = get_config('block_opencast', 'importvideoscoreenabled_' . $instanceid);
 
         // If the setting is false, then the subfeature is not enabled.
         if ($config == false) {
@@ -121,7 +121,7 @@ class importvideosmanager
         }
 
         // Get the configured duplicate workflow.
-        $workflow = get_config('block_opencast', 'duplicateworkflow');
+        $workflow = get_config('block_opencast', 'duplicateworkflow_' . $instanceid);
 
         // If the workflow is empty, then the feature is not working.
         if (empty($workflow)) {
@@ -130,7 +130,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -159,9 +159,9 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function handle_series_modules_is_enabled_and_working() {
+    public static function handle_series_modules_is_enabled_and_working($instanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleseriesenabled');
+        $config = get_config('block_opencast', 'importvideoshandleseriesenabled_'.$instanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -170,7 +170,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -182,7 +182,7 @@ class importvideosmanager
         }
 
         // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series();
+        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($instanceid);
 
         // If the LTI module is not working, then this feature is not working as well.
         if ($basisfeature == false) {
@@ -199,9 +199,9 @@ class importvideosmanager
      *
      * @return boolean
      */
-    public static function handle_episode_modules_is_enabled_and_working() {
+    public static function handle_episode_modules_is_enabled_and_working($instanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled');
+        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled_'.$instanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -210,7 +210,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -222,7 +222,7 @@ class importvideosmanager
         }
 
         // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes();
+        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($instanceid);
 
         // If the LTI module is not working, then this feature is not working as well.
         if ($basisfeature == false) {
@@ -258,7 +258,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Get course videos which are qualified to be imported.
         $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
@@ -302,7 +302,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Get course videos which are qualified to be imported.
         $allcoursevideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
@@ -361,7 +361,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Get source course series ID.
         $sourceseriesid = $apibridge->get_stored_seriesid($sourcecourseid);
@@ -393,8 +393,9 @@ class importvideosmanager
             // If cleanup of the episode modules was requested, look for existing modules.
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
+                // TODO
                 $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
-                    $targetcourseid, $identifier);
+                    $instanceid, $targetcourseid, $identifier);
             }
 
             // If there are existing modules to be cleaned up.

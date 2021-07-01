@@ -49,15 +49,17 @@ class addvideo_form extends \moodleform
      */
     public function definition() {
         global $CFG;
+        $instanceid = $this->_customdata['instanceid'];
+
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
-            && get_config('block_opencast', 'enablechunkupload');
+            && get_config('block_opencast', 'enablechunkupload_' . $instanceid);
 
         if ($usechunkupload) {
             \MoodleQuickForm::registerElementType('chunkupload',
                 "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
                 'local_chunkupload\chunkupload_form_element');
 
-            $offerchunkuploadalternative = get_config('block_opencast', 'offerchunkuploadalternative');
+            $offerchunkuploadalternative = get_config('block_opencast', 'offerchunkuploadalternative_' . $instanceid);
         }
 
         $mform = $this->_form;
@@ -124,7 +126,7 @@ class addvideo_form extends \moodleform
         $explanation = \html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
-        $videotypescfg = get_config('block_opencast', 'uploadfileextensions');
+        $videotypescfg = get_config('block_opencast', 'uploadfileextensions_' . $instanceid);
         if (empty($videotypescfg)) {
             // Fallback. Use Moodle defined video file types.
             $videotypes = ['video'];
@@ -138,7 +140,7 @@ class addvideo_form extends \moodleform
             }
         }
 
-        $maxuploadsize = get_config('block_opencast', 'uploadfilelimit');
+        $maxuploadsize = get_config('block_opencast', 'uploadfilelimit_' . $instanceid);
 
         $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
         $mform->addElement('html', $presenterdesc);
@@ -178,7 +180,7 @@ class addvideo_form extends \moodleform
             }
         }
 
-        if (!empty(get_config('block_opencast', 'termsofuse'))) {
+        if (!empty(get_config('block_opencast', 'termsofuse_' . $instanceid))) {
             $togglespan = '<span class="btn-link" id="termsofuse_toggle">' .
                 get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
 
@@ -187,7 +189,7 @@ class addvideo_form extends \moodleform
             $mform->addRule('termsofuse', get_string('required'), 'required');
             $options['filter'] = false;
             $mform->addElement('html', '<div class="row justify-content-end" id="termsofuse"><div class="col-md-9">' .
-                format_text(get_config('block_opencast', 'termsofuse'), FORMAT_HTML, $options) . '</div></div>');
+                format_text(get_config('block_opencast', 'termsofuse_' . $instanceid), FORMAT_HTML, $options) . '</div></div>');
         }
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);

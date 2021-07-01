@@ -48,7 +48,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
         global $DB;
 
         // If the import feature is disabled but the scheduled task is not, we are already done.
-        if (get_config('block_opencast', 'importvideosenabled') != true) {
+        if (get_config('block_opencast', 'importvideosenabled_' . $instanceid) != true) {
             mtrace('...importing videos is disabled, so nothing to do.');
             return;
         }
@@ -99,7 +99,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
             }
 
             try {
-                $apibridge = apibridge::get_instance();
+                $apibridge = apibridge::get_instance(); // TODO
                 $episodeid = $apibridge->get_duplicated_episodeid($workflow->ocworkflowid);
 
                 // If we have no chance to get an episode ID - not now and not if we postpone the job.

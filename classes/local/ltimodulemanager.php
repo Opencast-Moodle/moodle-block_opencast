@@ -71,9 +71,9 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_preconfigured_tool_for_series() {
+    public static function get_preconfigured_tool_for_series($instanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltipreconfiguredtool');
+        $toolid = get_config('block_opencast', 'addltipreconfiguredtool_'.$instanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -81,7 +81,7 @@ class ltimodulemanager
         // If the preconfigured LTI tool to be used is not in the list of available tools, something is wrong.
         if (!array_key_exists($toolid, $tools)) {
             // Reset the plugin config.
-            set_config('block_opencast', null, 'addltipreconfiguredtool');
+            set_config('block_opencast', null, 'addltipreconfiguredtool_' . $instanceid);
 
             // Inform the caller.
             return false;
@@ -97,9 +97,9 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_preconfigured_tool_for_episode() {
+    public static function get_preconfigured_tool_for_episode($instanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool');
+        $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool_'.$instanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -107,7 +107,7 @@ class ltimodulemanager
         // If the preconfigured LTI tool to be used is not in the list of available tools, something is wrong.
         if (!array_key_exists($toolid, $tools)) {
             // Reset the plugin config.
-            set_config('block_opencast', null, 'addltiepisodepreconfiguredtool');
+            set_config('block_opencast', null, 'addltiepisodepreconfiguredtool_' . $instanceid);
 
             // Inform the caller.
             return false;
@@ -123,9 +123,9 @@ class ltimodulemanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_series() {
+    public static function is_enabled_and_working_for_series($instanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'addltienabled');
+        $config = get_config('block_opencast', 'addltienabled_'.$instanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -134,7 +134,7 @@ class ltimodulemanager
         }
 
         // Get the preconfigured tool.
-        $tool = self::get_preconfigured_tool_for_series();
+        $tool = self::get_preconfigured_tool_for_series($instanceid);
 
         // If the tool is empty, then the feature is not working.
         if ($tool == false) {
@@ -143,7 +143,7 @@ class ltimodulemanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -164,7 +164,7 @@ class ltimodulemanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_episodes() {
+    public static function is_enabled_and_working_for_episodes($instanceid) {
         // Remember the status for subsequent calls.
         static $enabledandworking = null;
 
@@ -176,7 +176,7 @@ class ltimodulemanager
         // If we don't know the status yet, check the status of the feature.
         if ($enabledandworking === null) {
             // Get the status of the feature.
-            $config = get_config('block_opencast', 'addltiepisodeenabled');
+            $config = get_config('block_opencast', 'addltiepisodeenabled_' . $instanceid);
 
             // If the setting is false, then the feature is not working.
             if ($config == false) {
@@ -188,7 +188,7 @@ class ltimodulemanager
         // If we don't know the status yet, check the preconfigured tool.
         if ($enabledandworking === null) {
             // Get the preconfigured tool.
-            $tool = self::get_preconfigured_tool_for_episode();
+            $tool = self::get_preconfigured_tool_for_episode($instanceid);
 
             // If the tool is empty, then the feature is not working.
             if ($tool == false) {
@@ -198,7 +198,7 @@ class ltimodulemanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -231,7 +231,7 @@ class ltimodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_series($courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
+    public static function create_module_for_series($instanceid, $courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
                                                     $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
@@ -260,7 +260,7 @@ class ltimodulemanager
         }
 
         // Get the preconfigured LTI tool to be used.
-        $toolid = self::get_preconfigured_tool_for_series();
+        $toolid = self::get_preconfigured_tool_for_series($instanceid);
 
         // If the preconfigured LTI tool to be used is not configured correctly, something is wrong.
         if ($toolid == false) {
@@ -296,7 +296,7 @@ class ltimodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_episode($courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
+    public static function create_module_for_episode($instanceid, $courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
                                                      $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
@@ -325,7 +325,7 @@ class ltimodulemanager
         }
 
         // Get the preconfigured LTI tool to be used.
-        $toolid = self::get_preconfigured_tool_for_episode();
+        $toolid = self::get_preconfigured_tool_for_episode($instanceid);
 
         // If the preconfigured LTI tool to be used is not configured correctly, something is wrong.
         if ($toolid == false) {
@@ -448,11 +448,11 @@ class ltimodulemanager
      *
      * @return array of course module IDs. The course module ID is used as array key, the references series ID as array value.
      */
-    public static function get_modules_for_series_linking_to_other_course($modulecourseid, $referencedcourseid) {
+    public static function get_modules_for_series_linking_to_other_course($instanceid, $modulecourseid, $referencedcourseid) {
         global $DB;
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the course series of the referenced course.
         $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
@@ -463,7 +463,7 @@ class ltimodulemanager
         }
 
         // Get the id of the preconfigured tool.
-        $toolid = self::get_preconfigured_tool_for_series();
+        $toolid = self::get_preconfigured_tool_for_series($instanceid);
 
         // Initialize modules to be returned as empty array.
         $modules = array();
@@ -506,7 +506,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function cleanup_series_modules($modulecourseid, $referencedcourseid) {
+    public static function cleanup_series_modules($instanceid, $modulecourseid, $referencedcourseid) {
         global $CFG, $DB;
 
         // Require grade library. For an unknown reason, this is needed when updating the module.
@@ -519,7 +519,7 @@ class ltimodulemanager
         }
 
         // Get the existing series modules in the course.
-        $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($modulecourseid, $referencedcourseid);
+        $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($instanceid, $modulecourseid, $referencedcourseid);
 
         // If there aren't any modules in the course to be cleaned up, return.
         if (count($referencedseriesmodules) < 1) {
@@ -527,7 +527,7 @@ class ltimodulemanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the course series of the referenced course.
         $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
@@ -681,10 +681,10 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episodes_linking_to_other_course($modulecourseid, $referencedcourseid,
+    public static function get_modules_for_episodes_linking_to_other_course($instanceid, $modulecourseid, $referencedcourseid,
                                                                             $onlytheseepisodes = null) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the course series of the referenced course.
         $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
@@ -708,7 +708,7 @@ class ltimodulemanager
             }
 
             // Check each episode individually.
-            $episodemodules = self::get_modules_for_episode_linking_to_other_course($modulecourseid, $video->identifier);
+            $episodemodules = self::get_modules_for_episode_linking_to_other_course($instanceid, $modulecourseid, $video->identifier);
 
             // And add the result to the array of modules.
             $modules += $episodemodules;
@@ -730,11 +730,11 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episode_linking_to_other_course($modulecourseid, $referencedepisodeid) {
+    public static function get_modules_for_episode_linking_to_other_course($instanceid, $modulecourseid, $referencedepisodeid) {
         global $DB;
 
         // Get the id of the preconfigured tool.
-        $toolid = self::get_preconfigured_tool_for_episode();
+        $toolid = self::get_preconfigured_tool_for_episode($instanceid);
 
         // Initialize modules to be returned as empty array.
         $modules = array();
@@ -851,9 +851,9 @@ class ltimodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_series() {
+    public static function get_default_title_for_series($instanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addltidefaulttitle');
+        $defaulttitle = get_config('block_opencast', 'addltidefaulttitle_'. $instanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {
@@ -872,9 +872,9 @@ class ltimodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_episode($episodeuuid) {
+    public static function get_default_title_for_episode($instanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);
@@ -906,9 +906,9 @@ class ltimodulemanager
      *
      * @return string
      */
-    public static function get_default_intro_for_episode($episodeuuid) {
+    public static function get_default_intro_for_episode($instanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);

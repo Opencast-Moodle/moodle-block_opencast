@@ -30,11 +30,12 @@ global $PAGE, $OUTPUT, $CFG;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 
 require_login($courseid, false);
 
@@ -52,10 +53,10 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadatacatalog = upload_helper::get_opencast_metadata_catalog();
+$metadatacatalog = upload_helper::get_opencast_metadata_catalog($instanceid);
 
 $addvideoform = new \block_opencast\local\addvideo_form(null,
-    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog));
+    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog, 'instanceid' => $instanceid));
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);

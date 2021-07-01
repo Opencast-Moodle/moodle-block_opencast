@@ -28,20 +28,21 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $workflowid = required_param('workflowid', PARAM_ALPHANUMEXT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
 require_login($courseid, false);
 
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:startworkflow', $coursecontext);
 
-$apibridge = \block_opencast\local\apibridge::get_instance();
+$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 $workflow = $apibridge->get_workflow_definition($workflowid);
 if ($workflow) {
     // Display form.
     $context = new \stdClass();
     $context->language = $CFG->lang;
     $context->config_panel = $workflow->configuration_panel;
-    $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
+    $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out(); // todo?
     $context->parent_origin = $CFG->wwwroot;
 
     echo $OUTPUT->render_from_template('block_opencast/workflow_settings_opencast', $context);

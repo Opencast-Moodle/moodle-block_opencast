@@ -30,12 +30,13 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid));
+    array('video_identifier' => $identifier, 'courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 
 require_login($courseid, false);
 
@@ -49,9 +50,9 @@ $PAGE->navbar->add(get_string('updatemetadata', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance();
+$opencast = \block_opencast\local\apibridge::get_instance($instanceid);
 $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
-$metadatacatalog = upload_helper::get_opencast_metadata_catalog();
+$metadatacatalog = upload_helper::get_opencast_metadata_catalog($instanceid);
 
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null,
     array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier));

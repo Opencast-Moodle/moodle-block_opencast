@@ -39,7 +39,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @throws dml_exception
      */
     public function getroles_testable() {
-        return parent::getroles();
+        return parent::getroles(1);
     }
 
     /**

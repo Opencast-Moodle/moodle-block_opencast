@@ -27,11 +27,12 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 
 require_login($courseid, false);
 
@@ -45,9 +46,9 @@ $PAGE->navbar->add(get_string('editseriesforcourse', 'block_opencast'), $baseurl
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
-$editseriesform = new \block_opencast\local\editseries_form(null, array('courseid' => $courseid));
+$editseriesform = new \block_opencast\local\editseries_form(null, array('courseid' => $courseid, 'instanceid' => $instanceid));
 
-$apibridge = \block_opencast\local\apibridge::get_instance();
+$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
 
 if ($editseriesform->is_cancelled()) {
     redirect($redirecturl);

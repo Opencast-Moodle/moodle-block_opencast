@@ -51,7 +51,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // Check, target series.
         $courseid = $this->get_courseid();
 
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
         // If seriesid does not exist, we do not skip restore task here,
         // because we want to collect all the events (see process event),
         // that should have been restored.
@@ -82,7 +82,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
 
         // Check, whether event exists on opencast server.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
 
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {

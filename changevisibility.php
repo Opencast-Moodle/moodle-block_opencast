@@ -31,8 +31,9 @@ global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
+$instanceid = required_param('instanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/changevisibility.php', array('identifier' => $identifier, 'courseid' => $courseid));
+$baseurl = new moodle_url('/blocks/opencast/changevisibility.php', array('identifier' => $identifier, 'courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -41,12 +42,12 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('changevisibility', 'block_opencast'), $baseurl);
 
 // Check if the ACL control feature is enabled.
-if (get_config('block_opencast', 'aclcontrolafter') != true) {
+if (get_config('block_opencast', 'aclcontrolafter_'. $instanceid) != true) {
     throw new moodle_exception('ACL control feature not enabled', 'block_opencast', $redirecturl);
 }
 
@@ -54,7 +55,7 @@ if (get_config('block_opencast', 'aclcontrolafter') != true) {
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$apibridge = apibridge::get_instance();
+$apibridge = apibridge::get_instance($instanceid);
 $visibility = $apibridge->is_event_visible($identifier, $courseid);
 if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
     $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier));
@@ -66,7 +67,7 @@ if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
 }
 
 $changevisibilityform = new \block_opencast\local\visibility_form(null, array('courseid' => $courseid,
-    'identifier' => $identifier, 'visibility' => $visibility));
+    'identifier' => $identifier, 'visibility' => $visibility, 'instanceid' => $instanceid));
 
 // Check if video exists.
 $videos = $apibridge->get_course_videos($courseid);
@@ -83,7 +84,7 @@ if (!$video) {
 }
 
 // Workflow is not set.
-if (get_config('block_opencast', 'workflow_roles') == "") {
+if (get_config('block_opencast', 'workflow_roles_' . $instanceid) == "") {
     $message = get_string('workflownotdefined', 'block_opencast', $video->video);
     redirect($redirecturl, $message, null, \core\notification::ERROR);
 }

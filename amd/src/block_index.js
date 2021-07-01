@@ -45,7 +45,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                         body: '<form id="startWorkflowForm" method="post" action="' +
                             url.relativeUrl('blocks/opencast/startworkflow.php', {
                                 'courseid': courseid,
-                                'videoid': clickedVideo.data('id')
+                                'videoid': clickedVideo.data('id') // TODO
                             }) + '"><div class="form-group">' +
                             '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
                             '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
@@ -65,7 +65,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                                 $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
                                 $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
                                     'courseid': courseid,
-                                    'workflowid': $('#workflowselect').val()
+                                    'workflowid': $('#workflowselect').val() // TODO
                                 }));
 
                                 // Show workflow description when selected.
@@ -74,7 +74,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                                     $('#workflowdesc').html(workflows[workflowid].description);
                                     $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
                                         'courseid': courseid,
-                                        'workflowid': workflowid
+                                        'workflowid': workflowid // TODO
                                     }));
                                 });
                             });
@@ -91,7 +91,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                     type: ModalFactory.types.SAVE_CANCEL,
                     title: langstrings[0],
                     body: '<form id="reportProblemForm" method="post" action="' +
-                        url.relativeUrl('blocks/opencast/reportproblem.php', {
+                        url.relativeUrl('blocks/opencast/reportproblem.php', { // TODO
                             'courseid': courseid,
                             'videoid': clickedVideo.data('id')
                         }) + '"><div class="form-group">' +

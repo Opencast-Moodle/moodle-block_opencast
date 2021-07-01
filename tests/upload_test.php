@@ -72,8 +72,8 @@ class block_opencast_upload_testcase extends advanced_testcase {
         set_config('apiurl', $this->apiurl, 'tool_opencast');
         set_config('apiusername', $this->apiusername, 'tool_opencast');
         set_config('apipassword', $this->apipassword, 'tool_opencast');
-        set_config('limituploadjobs', 2, 'block_opencast');
-        set_config('series_name', '[COURSENAME]', 'block_opencast');
+        set_config('limituploadjobs_1', 2, 'block_opencast');
+        set_config('series_name_1', '[COURSENAME]', 'block_opencast');
 
         // Upload file.
         $plugingenerator = $this->getDataGenerator()->get_plugin_generator('block_opencast');
@@ -111,7 +111,7 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $uploadhelper->cron();
         ob_end_clean();
 
-        $api = \block_opencast\local\apibridge::get_instance();
+        $api = \block_opencast\local\apibridge::get_instance(1);
 
         // Check if video was uploaded.
         $videos = $api->get_course_videos($course->id);
