@@ -43,7 +43,7 @@ class block_opencast_backup_testcase extends advanced_testcase
 {
 
     /** var string apiurl for the testcase, must NOT be a real server! */
-    private $apiurl = 'server.opencast.testcase';
+    private $apiurl = 'http://server.opencast.testcase';
 
     public function setUp(): void {
         parent::setUp();

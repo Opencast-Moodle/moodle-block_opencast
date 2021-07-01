@@ -171,7 +171,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch MOODLE_311_STABLE unirz-tu-ilmenau/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
@@ -193,7 +193,7 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.3', '7.4']
-        moodle-branch: ['MOODLE_38_STABLE', 'MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
+        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['9.3']
         include:
@@ -259,7 +259,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin unirz-tu-ilmenau/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch MOODLE_311_STABLE unirz-tu-ilmenau/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}

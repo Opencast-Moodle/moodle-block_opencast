@@ -43,7 +43,10 @@ $apibridge = apibridge::get_instance();
 $opencasterror = null;
 
 try {
-    $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+    $workflows = array();
+    if(!empty(get_config('block_opencast', 'workflow_tag'))) {
+        $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag'), false);
+    }
 } catch (\block_opencast\opencast_connection_exception $e) {
     $opencasterror = $e->getMessage();
 }
