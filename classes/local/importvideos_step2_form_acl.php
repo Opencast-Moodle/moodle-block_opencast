@@ -58,8 +58,11 @@ class importvideos_step2_form_acl extends \moodleform
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
         $mform->setType('sourcecourseid', PARAM_INT);
         
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance();
         // Get series object first to know if we can proceed.
-        $seriesobject = importvideosmanager::get_import_source_course_series_object($this->_customdata['sourcecourseid']);
+        $seriesobject = $apibridge->get_course_series($this->_customdata['sourcecourseid']);
+
         // If there isn't any series in the course.
         if (!$seriesobject) {
             // We are in a dead end situation, no chance to add anything.
