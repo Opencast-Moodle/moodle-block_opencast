@@ -522,6 +522,11 @@ class apibridge
 
         $series = $api->oc_get($url);
 
+        // If something went wrong, we return false.
+        if ($api->get_http_code() != 200) {
+            return null;
+        }
+
         return json_decode($series);
     }
 
@@ -1905,46 +1910,22 @@ class apibridge
             // Initialize the role object to have a better grip.
             $roleobject = new \stdClass();
 
-            if (strpos($role->rolename, '[USERNAME]') !== false ||
-                strpos($role->rolename, '[USERNAME_LOW]') !== false ||
-                strpos($role->rolename, '[USERNAME_UP]') !== false) {
-                // Add new user as well.
-                foreach ($role->actions as $action) {
-                    // Define role object.
-                    $roleobject = (object)array('allow' => true,
-                        'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
-                        'action' => $action);
-                    
-                    // Check if the role object already exists in the acl list.
-                    $existingacl = array_filter($acl, function($v, $k) use ($roleobject) {
-                        if ($v->role == $roleobject->role && $v->action == $roleobject->action) {
-                            return true;
-                        }
-                    },ARRAY_FILTER_USE_BOTH);
-
-                    // In case the role object is new, we add it to the acl list. This helps making a clean list.
-                    if (empty($existingacl)) {
-                        $acl[] = $roleobject;
+            foreach ($role->actions as $action) {
+                // Define role object.
+                $roleobject = (object)array('allow' => true,
+                    'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
+                    'action' => $action);
+                
+                // Check if the role object already exists in the acl list.
+                $existingacl = array_filter($acl, function($v, $k) use ($roleobject) {
+                    if ($v->role == $roleobject->role && $v->action == $roleobject->action) {
+                        return true;
                     }
-                }
-            } else {
-                foreach ($role->actions as $action) {
-                    // Define role object.
-                    $roleobject = (object)array('allow' => true,
-                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
-                        'action' => $action);
-                    
-                    // Check if the role object already exists in the acl list.
-                    $existingacl = array_filter($acl, function($v, $k) use ($roleobject) {
-                        if ($v->role == $roleobject->role && $v->action == $roleobject->action) {
-                            return true;
-                        }
-                    },ARRAY_FILTER_USE_BOTH);
+                },ARRAY_FILTER_USE_BOTH);
 
-                    // In case the role object is new, we add it to the acl list. This helps making a clean list.
-                    if (empty($existingacl)) {
-                        $acl[] = $roleobject;
-                    }
+                // In case the role object is new, we add it to the acl list. This helps making a clean list.
+                if (empty($existingacl)) {
+                    $acl[] = $roleobject;
                 }
             }
         }
@@ -1993,14 +1974,20 @@ class apibridge
     private function map_imported_series_to_course($courseid, $seriesid) {
         try {
             // Get the current record.
-            $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'series' => $seriesid, 'isdefault' => '0'));
+            $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'series' => $seriesid), true);
 
             // If the mapping record does not exists, we create one.
             if (!$mapping) {
                 $mapping = new seriesmapping();
                 $mapping->set('courseid', $courseid);
                 $mapping->set('series', $seriesid);
-                $mapping->set('isdefault', 0); // It is not the default series of this course.
+
+                // Try to check if there is any default series for this course.
+                $defaultcourseseries = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => 1), true);
+                // In case there is no default series for this course, this series will be the default.
+                $isdefault = !($defaultcourseseries) ? 1 : 0;
+                
+                $mapping->set('isdefault', $isdefault);
                 $mapping->create();
             }
         } catch (\moodle_exception $e) {
@@ -2010,28 +1997,5 @@ class apibridge
 
         // Return true, except when there is a system error.
         return true;
-    }
-
-    /**
-     * Retrieves the series data by series identifier.
-     *
-     * @param int $seriesid
-     * @return null|string id of the series id if it exists in the opencast system.
-     */
-    public function get_series_data_by_identifier($seriesid) {
-
-        // Define the url.
-        $url = '/api/series/'.$seriesid;
-        $api = new api();
-        // Get the series data by a GET request.
-        $series = $api->oc_get($url);
-
-        // If something went wrong, we return false.
-        if ($api->get_http_code() != 200) {
-            return false;
-        }
-
-        // Finally, we decode the return result since it is string.
-        return json_decode($series);
     }
 }
