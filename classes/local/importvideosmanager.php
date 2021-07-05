@@ -451,29 +451,6 @@ class importvideosmanager
     }
 
     /**
-     * Helperfunction to get the series object and process it with rendered later on in the summary.
-     *
-     * @param int $sourcecourseid The source course id.
-     *
-     * @return object
-     */
-    public static function get_import_source_course_series_object($sourcecourseid) {
-        // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
-
-        // Get series.
-        $series = $apibridge->get_course_series($sourcecourseid);
-
-        // In case seriesid could not be found.
-        if (!$series) {
-            return false;
-        }
-
-        // Finally, we return series data object.
-        return $series;
-    }
-
-    /**
      * Helperfunction to get the list of course videos which are stored in the given source course to be shown as summary in ACL change mode.
      *
      * @param int $sourcecourseid The source course id.
