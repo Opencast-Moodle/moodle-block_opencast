@@ -513,9 +513,18 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
         // Show heading.
         echo $OUTPUT->heading(get_string('importvideos_importheading', 'block_opencast'));
 
-        // Show explanation.
-        echo html_writer::tag('p', get_string('importvideos_sectionexplanation', 'block_opencast') . '<br />' .
-            get_string('importvideos_processingexplanation', 'block_opencast'));
+        // Predefine the duplicating events process explanation.
+        $processingexplanation = get_string('importvideos_processingexplanation', 'block_opencast');
+        // Get import mode from the admin setting.
+        $importmode = get_config('block_opencast', 'importmode');
+        // Check if the import mode is acl change, then we get another explanation.
+        if ($importmode == 'acl') {
+            // Get explanation for ACL Change approach.
+            $processingexplanation = get_string('importvideos_aclprocessingexplanation', 'block_opencast');
+        }
+        // Show explanation for manual import.
+        echo html_writer::tag('p', get_string('importvideos_sectionexplanation', 'block_opencast') . '<br />' . $processingexplanation);
+        
 
         // Show "Import videos" button.
         $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid));

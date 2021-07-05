@@ -722,6 +722,25 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('importvideos_settingenabled', 'block_opencast'),
                 get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
+        // Import Video: define modes (ACL Change / Duplicating Events).
+        $importmodechoices = array(
+            'duplication' => get_string('importvideos_settingmodeduplication', 'block_opencast'),
+            'acl' => get_string('importvideos_settingmodeacl', 'block_opencast')
+        );
+
+        // Set default to duplication mode.
+        $select = new admin_setting_configselect('block_opencast/importmode',
+            get_string('importmode', 'block_opencast'),
+            get_string('importmodedesc', 'block_opencast'),
+            'duplication', $importmodechoices);
+
+        $importvideossettings->add($select);
+
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importmode',
+                'block_opencast/importvideosenabled', 'notchecked');
+        }
+
         // Import videos: Duplicate workflow.
         $workflowchoices = workflow_setting_helper::load_workflow_choices('api');
         if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
@@ -743,9 +762,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/duplicateworkflow',
                 'block_opencast/importvideosenabled', 'notchecked');
+            $importvideossettings->hide_if('block_opencast/duplicateworkflow',
+                'block_opencast/importmode', 'eq', 'acl');
         }
 
         // Import videos: Enable import videos within Moodle core course import wizard feature.
+        // This setting applies to both of import modes, therefore hide_if is only limited to importvideosenabled.
         $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideoscoreenabled',
                 get_string('importvideos_settingcoreenabled', 'block_opencast'),
@@ -753,11 +775,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/importvideoscoreenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-            $importvideossettings->hide_if('block_opencast/importvideoscoreenabled',
-                'block_opencast/duplicateworkflow', 'eq', '');
         }
 
         // Import videos: Enable manual import videos feature.
+        // This setting applies to both of import modes, therefore hide_if is only limited to importvideosenabled.
         $importvideossettings->add(
             new admin_setting_configcheckbox('block_opencast/importvideosmanualenabled',
                 get_string('importvideos_settingmanualenabled', 'block_opencast'),
@@ -765,8 +786,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/importvideosmanualenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
-            $importvideossettings->hide_if('block_opencast/importvideosmanualenabled',
-                'block_opencast/duplicateworkflow', 'eq', '');
         }
 
         // Import videos: Handle Opencast series modules during manual import.
@@ -777,6 +796,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
+                'block_opencast/importmode', 'eq', 'acl');
             $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
             $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled',
@@ -791,6 +812,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/importvideosenabled', 'notchecked');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
+                'block_opencast/importmode', 'eq', 'acl');
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
                 'block_opencast/duplicateworkflow', 'eq', '');
             $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled',
