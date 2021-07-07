@@ -30,12 +30,12 @@ global $PAGE, $OUTPUT, $CFG;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 require_login($courseid, false);
 
@@ -53,10 +53,10 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$metadatacatalog = upload_helper::get_opencast_metadata_catalog($instanceid);
+$metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
 $addvideoform = new \block_opencast\local\addvideo_form(null,
-    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog, 'instanceid' => $instanceid));
+    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog, 'ocinstanceid' => $ocinstanceid));
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);
@@ -139,7 +139,7 @@ if ($data = $addvideoform->get_data()) {
     $options->chunkupload_presentation = isset($chunkuploadpresentation) ? $chunkuploadpresentation : '';
 
     // Update all upload jobs.
-    \block_opencast\local\upload_helper::save_upload_jobs($courseid, $coursecontext, $options);
+    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 

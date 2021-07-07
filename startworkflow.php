@@ -31,9 +31,9 @@ $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $workflow = required_param('workflow', PARAM_ALPHANUMEXT);
 $configparams = required_param('configparams', PARAM_RAW);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 require_login($courseid, false);
 
@@ -41,7 +41,7 @@ require_login($courseid, false);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:startworkflow', $coursecontext);
 
-$apibridge = apibridge::get_instance($instanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 
 // Check that video is in opencast series.
 $video = $apibridge->get_opencast_video($videoid);
@@ -54,7 +54,7 @@ if ($seriesid->identifier != $video->video->is_part_of) {
 }
 
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
-if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag_' . $instanceid), $apiworkflow->tags)) {
+if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), $apiworkflow->tags)) {
     redirect($redirecturl,
         get_string('workflow_opencast_invalid', 'block_opencast'),
         null,

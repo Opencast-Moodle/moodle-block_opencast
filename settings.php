@@ -43,6 +43,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
+        $sharedsettings = new admin_settingpage('block_opencast_sharedsettings', get_string('shared_settings', 'block_opencast'));
+        $ADMIN->add('block_opencast', $sharedsettings);
+
         foreach ($ocinstances as $instance) {
             if (count($ocinstances) > 1) {
                 $instancecategory = new admin_category('block_opencast_instance_' . $instance->id, $instance->name);
@@ -80,6 +83,13 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
+        $sharedsettings = new admin_settingpage('block_opencast_sharedsettings', get_string('shared_settings', 'block_opencast'));
+        $sharedsettings->add(
+            new admin_setting_configtext('block_opencast/cachevalidtime',
+                get_string('cachevalidtime', 'block_opencast'),
+                get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
+        $ADMIN->add('block_opencast', $sharedsettings);
+
         foreach ($ocinstances as $instance) {
             if (count($ocinstances) > 1) {
                 $instancecategory = new admin_category('block_opencast_instance_' . $instance->id, $instance->name);
@@ -224,12 +234,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configtext('block_opencast/limitvideos_' . $instance->id,
                     get_string('limitvideos', 'block_opencast'),
                     get_string('limitvideosdesc', 'block_opencast'), 5, PARAM_INT));
-
-            $generalsettings->add(
-                new admin_setting_configtext('block_opencast/cachevalidtime_' . $instance->id,
-                    get_string('cachevalidtime', 'block_opencast'),
-                    get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
-
 
             $generalsettings->add(
                 new admin_setting_heading('block_opencast/groupseries_header_' . $instance->id,

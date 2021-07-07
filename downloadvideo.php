@@ -31,12 +31,12 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/downloadvideo.php', array('courseid' => $courseid, 'video_identifier' => $videoid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/downloadvideo.php', array('courseid' => $courseid, 'video_identifier' => $videoid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 require_login($courseid, false);
 
@@ -50,13 +50,13 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:downloadvideo', $coursecontext);
 
-$apibridge = apibridge::get_instance($instanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 $result = $apibridge->get_opencast_video($videoid, true);
 if (!$result->error) {
     $video = $result->video;
     if ($video->is_downloadable) {
         foreach ($video->publications as $publication) {
-            if ($publication->channel == get_config('block_opencast', 'download_channel_' . $instanceid)) {
+            if ($publication->channel == get_config('block_opencast', 'download_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     if ($media->id === $mediaid) {
                         $downloadurl = $publication->media[0]->url;

@@ -46,23 +46,23 @@ class addlti_form extends \moodleform
         $mform = $this->_form;
 
         $courseid = $this->_customdata['courseid'];
-        $instanceid = $this->_customdata['instanceid'];
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
 
         $mform->addElement('text', 'title', get_string('addlti_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
-        $mform->setDefault('title', \block_opencast\local\ltimodulemanager::get_default_title_for_series($instanceid));
+        $mform->setDefault('title', \block_opencast\local\ltimodulemanager::get_default_title_for_series($ocinstanceid));
         $mform->addRule('title',
             get_string('addlti_noemptytitle', 'block_opencast', get_string('addlti_defaulttitle', 'block_opencast')),
             'required');
 
-        if (get_config('block_opencast', 'addltiintro_' . $instanceid) == true) {
+        if (get_config('block_opencast', 'addltiintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addlti_formltiintro', 'block_opencast'),
                 array('rows' => 5),
                 array('maxfiles' => 0, 'noclean' => true));
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
-        if (get_config('block_opencast', 'addltisection_' . $instanceid) == true) {
+        if (get_config('block_opencast', 'addltisection_' . $ocinstanceid) == true) {
             // Get course sections.
             $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($courseid);
 
@@ -75,7 +75,7 @@ class addlti_form extends \moodleform
             }
         }
 
-        if (get_config('block_opencast', 'addltiavailability_' . $instanceid) == true && !empty($CFG->enableavailability)) {
+        if (get_config('block_opencast', 'addltiavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addlti_formltiavailability', 'block_opencast'));
             \core_availability\frontend::include_all_javascript(get_course($courseid));

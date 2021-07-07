@@ -28,14 +28,14 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $workflowid = required_param('workflowid', PARAM_ALPHANUMEXT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
 require_login($courseid, false);
 
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:startworkflow', $coursecontext);
 
-$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
+$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 $workflow = $apibridge->get_workflow_definition($workflowid);
 if ($workflow) {
     // Display form.

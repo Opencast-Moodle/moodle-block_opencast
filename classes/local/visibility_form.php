@@ -53,9 +53,9 @@ class visibility_form extends \moodleform
         $courseid = $this->_customdata['courseid'];
         $eventid = $this->_customdata['identifier'];
         $visibility = $this->_customdata['visibility'];
-        $instanceid = $this->_customdata['instanceid'];
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
 
-        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
@@ -64,7 +64,7 @@ class visibility_form extends \moodleform
         $mform->setType('identifier', PARAM_INT);
 
         // Check if the teacher should be allowed to restrict the episode to course groups.
-        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $instanceid);
+        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
 
         // If group restriction is generally enabled, check if there are roles which allow group visibility.
         if ($controlgroupsenabled) {

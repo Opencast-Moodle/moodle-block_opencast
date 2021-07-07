@@ -64,6 +64,10 @@ class block_opencast extends block_base
 
         $renderer = $this->page->get_renderer('block_opencast');
 
+        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $rendername = count($ocinstances) > 1;
+
+        # todo check isvisible
         $cache = cache::make('block_opencast', 'videodata');
         if ($result = $cache->get($COURSE->id)) {
             if ($result->timevalid > time()) {
@@ -71,18 +75,17 @@ class block_opencast extends block_base
                 $videos = $result->videos;
             }
         }
+
         if (!isset($videos)) {
             $videos = array();
-
-            $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
 
             try {
                 foreach ($ocinstances as $instance) {
                     $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
-                    $videos[] = $apibridge->get_block_videos($COURSE->id);
+                    $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
                 }
                 $cacheobj = new stdClass();
-                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime'); // TODO per instance
+                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
                 $cacheobj->videos = $videos;
                 $cache->set($COURSE->id, $cacheobj);
             } catch (opencast_connection_exception $e) {
@@ -91,9 +94,8 @@ class block_opencast extends block_base
             }
         }
 
-        $rendername = count($ocinstances) > 1;
-        for ($i = 0; $i < count($ocinstances); $i++) {
-            $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$i], $instance, $rendername);
+        foreach ($ocinstances as $instance) {
+            $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
         }
 
         return $this->content;

@@ -72,7 +72,7 @@ class upload_failed extends \core\event\base
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'instanceid' => $instanceid));
+        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'ocinstanceid' => $ocinstanceid));
     }
 
 }

@@ -53,7 +53,7 @@ class workflow_setting_helper
         return false;
     }
 
-    public static function load_workflow_choices($instanceid, $workflowtag) {
+    public static function load_workflow_choices($ocinstanceid, $workflowtag) {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
         if (during_initial_install()) {
@@ -61,7 +61,7 @@ class workflow_setting_helper
         }
 
         // Get the available workflows.
-        $apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
         try {

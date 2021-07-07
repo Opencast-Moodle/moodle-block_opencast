@@ -26,13 +26,13 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $CFG, $USER;
 
 $courseid = required_param('courseid', PARAM_INT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 
-$baseurl = new moodle_url('/blocks/opencast/addactivity.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/addactivity.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
 
 require_login($courseid, false);
@@ -44,7 +44,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('addactivity_addbuttontitle', 'block_opencast'), $baseurl);
 
 // Check if the Opencast Activity module feature is enabled and working.
-if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series($instanceid) == false) {
+if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == false) {
     throw new moodle_exception('add opencast activity series module not enabled or working',
         'block_opencast', $redirecturloverview);
 }
@@ -54,16 +54,16 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addactivity', $coursecontext);
 
 // Existing Opencast Activity module check.
-$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($courseid);
+$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $courseid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
         get_string('addactivity_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
-$addactivityform = new \block_opencast\local\addactivity_form(null, array('courseid' => $courseid, 'instanceid' => $instanceid));
+$addactivityform = new \block_opencast\local\addactivity_form(null, array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
-$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
+$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
 if ($addactivityform->is_cancelled()) {
     redirect($redirecturloverview);
@@ -76,7 +76,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
-    if (get_config('block_opencast', 'addactivityintro_' . $instanceid) != true || !isset($data->intro) || !$data->intro) {
+    if (get_config('block_opencast', 'addactivityintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
         $introtext = '';
         $introformat = FORMAT_HTML;
 
@@ -87,7 +87,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addactivitysection_'. $instanceid) != true || !isset($data->section) || !$data->section) {
+    if (get_config('block_opencast', 'addactivitysection_'. $ocinstanceid) != true || !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.
@@ -96,7 +96,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addactivityavailability_' . $instanceid) != true || empty($CFG->enableavailability) ||
+    if (get_config('block_opencast', 'addactivityavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
         !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 

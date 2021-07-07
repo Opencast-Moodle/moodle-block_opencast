@@ -45,7 +45,7 @@ class editseries_form extends \moodleform
      */
     public function definition() {
         $mform = $this->_form;
-        $instanceid = $this->_customdata['instanceid'];
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
 
         $attributes = array(
             'size' => '40',
@@ -55,7 +55,7 @@ class editseries_form extends \moodleform
             $attributes);
         $mform->setType('seriesid', PARAM_ALPHANUMEXT);
 
-        $apibridge = apibridge::get_instance($instanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
         $seriesid = $apibridge->get_stored_seriesid($this->_customdata['courseid']);
 
         if ($seriesid) {

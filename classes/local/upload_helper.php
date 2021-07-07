@@ -61,16 +61,6 @@ class upload_helper
     /** @var int Video is successfully transferred to Opencast. */
     const STATUS_TRANSFERRED = 40;
 
-    /** @var apibridge Apibridge */
-    private $apibridge;
-
-    /**
-     * upload_helper constructor.
-     */
-    public function __construct() {
-        $this->apibridge = apibridge::get_instance(); // TODO
-    }
-
     /**
      * Get explaination string for status code
      * @param int $statuscode Status code
@@ -102,7 +92,7 @@ class upload_helper
      * @param int $courseid Course id
      * @return array
      */
-    public static function get_upload_jobs($courseid) {
+    public static function get_upload_jobs($ocinstanceid, $courseid) {
         global $DB, $CFG;
 
         if ($CFG->branch >= 311) {
@@ -128,13 +118,14 @@ class upload_helper
                 "LEFT JOIN {local_chunkupload_files} cu2 ON uj.chunkupload_presentation = cu2.id";
         }
 
-        $where = " WHERE uj.status < :status AND uj.courseid = :courseid ORDER BY uj.timecreated DESC";
+        $where = " WHERE uj.status < :status AND uj.courseid = :courseid AND uj.ocinstanceid = :ocinstanceid ORDER BY uj.timecreated DESC";
 
         $sql = $select . $from . $where;
 
         $params = [];
         $params['status'] = self::STATUS_TRANSFERRED;
         $params['courseid'] = $courseid;
+        $params['ocinstanceid'] = $ocinstanceid;
 
         return $DB->get_records_sql($sql, $params);
     }
@@ -149,7 +140,7 @@ class upload_helper
      * @param object $coursecontext Course context
      * @param object $options Options
      */
-    public static function save_upload_jobs($courseid, $coursecontext, $options) {
+    public static function save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options) {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -218,6 +209,7 @@ class upload_helper
         $job->userid = $USER->id;
         $job->timecreated = time();
         $job->timemodified = $job->timecreated;
+        $job->ocinstanceid = $ocinstanceid;
         $uploadjobid = $DB->insert_record('block_opencast_uploadjob', $job);
 
         $options->uploadjobid = $uploadjobid;
@@ -437,15 +429,16 @@ class upload_helper
     protected function process_upload_job($job) {
         global $DB;
         $stepsuccessful = false;
+        $apibridge = apibridge::get_instance($job->ocinstanceid);
 
         switch ($job->status) {
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if (boolval(get_config('block_opencast', 'group_creation_' . $instanceid))) {
+                if (boolval(get_config('block_opencast', 'group_creation_' . $job->ocinstanceid))) {
                     try {
                         // Check if group exists.
-                        $group = $this->apibridge->ensure_acl_group_exists($job->courseid, $job->userid);
+                        $group = $apibridge->ensure_acl_group_exists($job->courseid, $job->userid);
                         if ($group) {
                             $stepsuccessful = true;
                             mtrace('... group exists');
@@ -464,7 +457,7 @@ class upload_helper
             case self::STATUS_CREATING_SERIES:
                 try {
                     // Check if series exists.
-                    $series = $this->apibridge->ensure_course_series_exists($job->courseid, $job->userid);
+                    $series = $apibridge->ensure_course_series_exists($job->courseid, $job->userid);
                     if ($series) {
                         $stepsuccessful = true;
                         mtrace('... series exists');
@@ -482,7 +475,7 @@ class upload_helper
 
                 if ($job->opencasteventid) {
                     array_push($eventids, $job->opencasteventid);
-                } else if (get_config('block_opencast', 'reuseexistingupload_' . $instanceid)) {
+                } else if (get_config('block_opencast', 'reuseexistingupload_' . $job->ocinstanceid)) {
                     // Check, whether this file was uploaded any time before.
                     $params = array(
                         'contenthash_presenter' => $job->contenthash_presenter,
@@ -503,8 +496,8 @@ class upload_helper
                     }
                 }
 
-                $series = $this->apibridge->get_course_series($job->courseid);
-                $event = $this->apibridge->ensure_event_exists($job, $eventids, $series->identifier);
+                $series = $apibridge->get_course_series($job->courseid);
+                $event = $apibridge->ensure_event_exists($job, $eventids, $series->identifier);
 
                 // Check result.
                 if (!isset($event->identifier)) {
@@ -529,7 +522,7 @@ class upload_helper
                     throw new \moodle_exception('missingeventidentifier', 'block_opencast');
                 }
 
-                if (!($event = $this->apibridge->get_already_existing_event(array($job->opencasteventid)))) {
+                if (!($event = $apibridge->get_already_existing_event(array($job->opencasteventid)))) {
                     mtrace('... event does not exist');
                     break;
                 }
@@ -543,9 +536,9 @@ class upload_helper
                     return $event;
                 }
 
-                if (boolval(get_config('block_opencast', 'group_creation_' . $instanceid))) {
+                if (boolval(get_config('block_opencast', 'group_creation_' . $job->ocinstanceid))) {
                     // Ensure the assignment of a suitable role.
-                    if (!$this->apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
+                    if (!$apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
                         mtrace('... group not yet assigned.');
                         break;
                     }
@@ -553,8 +546,8 @@ class upload_helper
                 }
 
                 // Ensure the assignment of a series.
-                $series = $this->apibridge->get_course_series($job->courseid);
-                if (!$this->apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
+                $series = $apibridge->get_course_series($job->courseid);
+                if (!$apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
                     mtrace('... series not yet assigned.');
                     break;
                 }
@@ -580,38 +573,41 @@ class upload_helper
     public function cron() {
         global $DB;
 
-        // Get all waiting jobs.
-        $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? ORDER BY timemodified ASC ";
+        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        foreach ($ocinstances as $ocinstance) {
+            // Get all waiting jobs.
+            $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
 
-        $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $instanceid);
+            $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $ocinstance->id);
 
-        if (!$limituploadjobs) {
-            $limituploadjobs = 0;
-        }
+            if (!$limituploadjobs) {
+                $limituploadjobs = 0;
+            }
 
-        $jobs = $DB->get_records_sql($sql, array(self::STATUS_TRANSFERRED), 0, $limituploadjobs);
+            $jobs = $DB->get_records_sql($sql, array(self::STATUS_TRANSFERRED, $ocinstance->id), 0, $limituploadjobs);
 
-        if (!$jobs) {
-            mtrace('...no jobs to proceed');
-        }
+            if (!$jobs) {
+                mtrace('...no jobs to proceed for instance "' . $ocinstance->name . '"');
+            }
 
-        foreach ($jobs as $job) {
-            mtrace('proceed: ' . $job->id);
-            try {
-                $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id),
-                    $fields = 'metadata', $strictness = IGNORE_MISSING);
-                if ($joboptions) {
-                    $job = (object)array_merge((array)$job, (array)$joboptions);
+            foreach ($jobs as $job) {
+                mtrace('proceed: ' . $job->id);
+                try {
+                    $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id),
+                        $fields = 'metadata', $strictness = IGNORE_MISSING);
+                    if ($joboptions) {
+                        $job = (object)array_merge((array)$job, (array)$joboptions);
+                    }
+                    $event = $this->process_upload_job($job);
+                    if ($event) {
+                        $this->upload_succeeded($job, $event->identifier);
+                    } else {
+                        mtrace('job ' . $job->id . ' is postponed');
+                    }
+                } catch (\moodle_exception $e) {
+                    mtrace('Job failed due to: ' . $e);
+                    $this->upload_failed($job, $e->getMessage());
                 }
-                $event = $this->process_upload_job($job);
-                if ($event) {
-                    $this->upload_succeeded($job, $event->identifier);
-                } else {
-                    mtrace('job ' . $job->id . ' is postponed');
-                }
-            } catch (\moodle_exception $e) {
-                mtrace('Job failed due to: ' . $e);
-                $this->upload_failed($job, $e->getMessage());
             }
         }
     }
@@ -652,8 +648,8 @@ class upload_helper
      *
      * @return stdClass $metadata the metadata object
      */
-    public static function get_opencast_metadata_catalog($instanceid) {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $instanceid));
+    public static function get_opencast_metadata_catalog($ocinstanceid) {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
         return $metadatacatalog;
     }
 }

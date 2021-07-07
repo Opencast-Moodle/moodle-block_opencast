@@ -46,7 +46,7 @@ class importvideos_step3_form extends \moodleform
 
         // Define mform.
         $mform = $this->_form;
-        $instanceid = $this->_customdata['instanceid'];
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
 
         // Get renderer.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
@@ -67,13 +67,13 @@ class importvideos_step3_form extends \moodleform
         $coursecontext = \context_course::instance($this->_customdata['courseid']);
 
         // Check if the handle series feature is enabled _and_ the user is allowed to use the feature.
-        if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($instanceid) == true &&
+        if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true &&
             has_capability('block/opencast:addlti', $coursecontext))) {
             // Remember this fact.
             $handleseriesmodules = true;
 
             // Get Opencast LTI series modules in this course which point to the source course's series.
-            $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course($instanceid,
+            $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course($ocinstanceid,
                 $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
         } else {
             // Remember this fact.
@@ -81,14 +81,14 @@ class importvideos_step3_form extends \moodleform
         }
 
         // Check if the handle episode feature is enabled _and_ the user is allowed to use the feature.
-        if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($instanceid) == true &&
+        if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true &&
             has_capability('block/opencast:addltiepisode', $coursecontext))) {
             // Remember this fact.
             $handleepisodemodules = true;
 
             // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
             $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
-                $instanceid,
+                $ocinstanceid,
                 $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
                 array_keys($this->_customdata['coursevideos']));
         } else {

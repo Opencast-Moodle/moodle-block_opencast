@@ -44,8 +44,8 @@ class activitymodulemanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_series($instanceid): bool {
-        return get_config('block_opencast', 'addactivityenabled_' . $instanceid) != false &&
+    public static function is_enabled_and_working_for_series($ocinstanceid): bool {
+        return get_config('block_opencast', 'addactivityenabled_' . $ocinstanceid) != false &&
             \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
@@ -55,8 +55,8 @@ class activitymodulemanager
      *
      * @return boolean
      */
-    public static function is_enabled_and_working_for_episodes($instanceid) {
-        return get_config('block_opencast', 'addactivityepisodeenabled_'.$instanceid) != false &&
+    public static function is_enabled_and_working_for_episodes($ocinstanceid) {
+        return get_config('block_opencast', 'addactivityepisodeenabled_'.$ocinstanceid) != false &&
             \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
@@ -221,10 +221,10 @@ class activitymodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($courseid) {
+    public static function get_module_for_series($ocinstanceid, $courseid) {
         global $DB;
 
-        $apibridge = apibridge::get_instance(); // TODO
+        $apibridge = apibridge::get_instance($ocinstanceid);
         $seriesid = $apibridge->get_stored_seriesid($courseid);
 
         // Return false, if there isn't a series for this course yet.
@@ -295,9 +295,9 @@ class activitymodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_series($instanceid) {
+    public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_'.$instanceid);
+        $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_'.$ocinstanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {
@@ -316,9 +316,9 @@ class activitymodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_episode($episodeuuid) {
+    public static function get_default_title_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);
@@ -350,9 +350,9 @@ class activitymodulemanager
      *
      * @return string
      */
-    public static function get_default_intro_for_episode($episodeuuid) {
+    public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);

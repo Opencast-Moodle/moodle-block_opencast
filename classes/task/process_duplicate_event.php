@@ -75,7 +75,7 @@ class process_duplicate_event extends \core\task\adhoc_task
         try {
 
             // Get duplication workflow.
-            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $instanceid);
+            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
             if (empty($duplicateworkflow)) {
                 throw new \moodle_exception('error_workflow_setup_missing', 'block_opencast');
             }

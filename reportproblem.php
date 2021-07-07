@@ -30,9 +30,9 @@ global $PAGE, $OUTPUT, $CFG, $USER, $COURSE;
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $message = required_param('inputMessage', PARAM_TEXT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 require_login($courseid, false);
 
@@ -41,7 +41,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 // Check if support email is set.
-if (empty(get_config('block_opencast', 'support_email_' . $instanceid))) {
+if (empty(get_config('block_opencast', 'support_email_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('support_setting_notset', 'block_opencast'),
         null, \core\output\notification::NOTIFY_ERROR);
@@ -50,10 +50,10 @@ if (empty(get_config('block_opencast', 'support_email_' . $instanceid))) {
 // Create email.
 $user = new \stdClass();
 $user->id = -1;
-$user->email = get_config('block_opencast', 'support_email_' . $instanceid);
+$user->email = get_config('block_opencast', 'support_email_' . $ocinstanceid);
 $user->mailformat = 1;
 
-$apibridge = apibridge::get_instance($instanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 $result = $apibridge->get_opencast_video($videoid);
 
 if (!$result->error) {
@@ -69,7 +69,7 @@ if (!$result->error) {
     $mailinfo = new \stdClass();
     $mailinfo->username = $USER->username;
     $mailinfo->useremail = $USER->email;
-    $mailinfo->courselink = (new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid)))->out();
+    $mailinfo->courselink = (new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)))->out();
     $mailinfo->course = $COURSE->fullname;
     $mailinfo->series = $result->video->series;
     $mailinfo->seriesid = $result->video->is_part_of;

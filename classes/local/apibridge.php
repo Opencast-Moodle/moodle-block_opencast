@@ -48,16 +48,18 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  */
 class apibridge
 {
-    private $instanceid; // TODO what about concurrent requests? is there really only one instance or multiple ones?
+    private $ocinstanceid; // TODO what about concurrent requests? is there really only one instance or multiple ones?
 
     /** @var bool True for tests */
     private static $testing = false;
 
+    // TODO use only one api object
+
     /**
      * apibridge constructor.
      */
-    private function __construct($instanceid) {
-        $this->instanceid = $instanceid;
+    private function __construct($ocinstanceid) {
+        $this->ocinstanceid = $ocinstanceid;
     }
 
     /**
@@ -65,22 +67,22 @@ class apibridge
      * @param boolean $forcenewinstance true, when a new instance should be created.
      * @return apibridge
      */
-    public static function get_instance($instanceid, $forcenewinstance = false) {
+    public static function get_instance($ocinstanceid, $forcenewinstance = false) {
         static $apibridge;
 
         if (isset($apibridge) && !$forcenewinstance) {
-            $apibridge->instanceid = $instanceid;
+            $apibridge->ocinstanceid = $ocinstanceid;
             return $apibridge;
         }
 
         // Use replacement of api bridge for test cases.
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
             $apibridge = new \block_opencast_apibridge_testable();
-            $apibridge->instanceid = 1;
+            $apibridge->ocinstanceid = 1;
             return $apibridge;
         }
 
-        $apibridge = new apibridge($instanceid);
+        $apibridge = new apibridge($ocinstanceid);
 
         return $apibridge;
     }
@@ -95,7 +97,7 @@ class apibridge
     public function check_api_configuration() {
         // Try to get an instance of the Opencast API from tool_opencast.
         try {
-            $api = $this->get_instance();
+            $api = $this->get_instance($this->ocinstanceid);
 
             // If the API is not set up correctly, the constructor will throw an exception.
         } catch (\moodle_exception $e) {
@@ -122,7 +124,7 @@ class apibridge
         $result->videos = array();
         $result->error = 0;
 
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
 
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
             return $result;
@@ -132,16 +134,16 @@ class apibridge
 
         $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode($seriesfilter);
 
-        if (get_config('block_opencast', 'limitvideos_'.$this->instanceid) > 0) {
+        if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
             // Try to fetch one more to decide whether display "more link" is necessary.
-            $query .= '&limit=' . (get_config('block_opencast', 'limitvideos_'.$this->instanceid) + 1);
+            $query .= '&limit=' . (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) + 1);
         }
 
         $url = '/api/events?' . $query;
 
         $withroles = array();
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $videos = $api->oc_get($url, $withroles);
 
@@ -156,7 +158,7 @@ class apibridge
         }
 
         $result->count = count($videos);
-        $result->more = ($result->count > get_config('block_opencast', 'limitvideos_' . $this->instanceid));
+        $result->more = ($result->count > get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
 
         // If we have received more than limit count of videos remove one.
         if ($result->more) {
@@ -205,7 +207,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $videos = $api->oc_get($resource, $withroles);
 
         if ($api->get_http_code() != 200) {
@@ -261,7 +263,7 @@ class apibridge
      * @param \stdClass $video Video to be updated
      */
     private function set_download_state(&$video) {
-        if (in_array(get_config('block_opencast', 'download_channel_' . $this->instanceid), $video->publication_status)) {
+        if (in_array(get_config('block_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
             $video->is_downloadable = true;
         } else {
             $video->is_downloadable = false;
@@ -283,7 +285,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $video = $api->oc_get($resource, $withroles);
 
@@ -318,10 +320,10 @@ class apibridge
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->instanceid), $courseid, null, $userid)[0];
+        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $group = $api->oc_get('/api/groups/' . $groupidentifier);
 
         return json_decode($group);
@@ -348,12 +350,12 @@ class apibridge
      */
     protected function create_acl_group($courseid, $userid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->instanceid), $courseid, null, $userid)[0];
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $result = $api->oc_post('/api/groups', $params);
 
@@ -429,7 +431,7 @@ class apibridge
      */
     public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
         // Get series mapping.
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
 
         // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
@@ -467,7 +469,7 @@ class apibridge
 
         $url = '/api/series/' . $seriesid;
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $series = $api->oc_get($url);
 
@@ -485,7 +487,7 @@ class apibridge
         if ($seriesid = $this->get_stored_seriesid($courseid)) {
             $url = '/api/series/' . $seriesid;
 
-            $api = new api();
+            $api = new api($this->ocinstanceid);
 
             $series = $api->oc_get($url);
 
@@ -566,7 +568,7 @@ class apibridge
      * @return string default series title.
      */
     public function get_default_seriestitle($courseid, $userid) {
-        $title = get_config('block_opencast', 'series_name_' . $this->instanceid);
+        $title = get_config('block_opencast', 'series_name_' . $this->ocinstanceid);
         return $this->replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
@@ -578,7 +580,7 @@ class apibridge
      * @return bool  tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $seriestitle = null, $userid = null) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
         if ($mapping && $seriesid = $mapping->get('series')) {
             throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
         }
@@ -613,7 +615,7 @@ class apibridge
         $params['acl'] = json_encode(array_values($acl));
         $params['theme'] = '';
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $result = $api->oc_post('/api/series', $params);
 
@@ -624,6 +626,7 @@ class apibridge
         $series = json_decode($result);
         if (isset($series) && object_property_exists($series, 'identifier')) {
             $mapping = new seriesmapping();
+            $mapping->set('ocinstanceid', $this->ocinstanceid);
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
             $mapping->create();
@@ -667,10 +670,11 @@ class apibridge
      * @param int $userid
      */
     public function update_course_series($courseid, $seriesid, $userid) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
 
         if (!$mapping) {
             $mapping = new seriesmapping();
+            $mapping->set('ocinstanceid', $this->ocinstanceid);
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $seriesid);
             $mapping->create();
@@ -680,7 +684,7 @@ class apibridge
         }
 
         // Update Acl roles.
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource = '/api/series/' . $seriesid . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -724,7 +728,7 @@ class apibridge
             return true;
         }
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -738,7 +742,7 @@ class apibridge
      * @param int $courseid Course ID
      */
     public function unset_course_series($courseid) {
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
 
         if ($mapping) {
             $mapping->delete();
@@ -753,7 +757,7 @@ class apibridge
      * @throws \moodle_exception if there is no connection to the server.
      */
     public function ensure_series_is_valid($seriesid) {
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_get('/api/series/' . $seriesid);
 
         if ($api->get_http_code() === 404) {
@@ -780,7 +784,7 @@ class apibridge
 
             $resource = '/api/events/' . $opencastid;
 
-            $api = new api();
+            $api = new api($this->ocinstanceid);
 
             $event = $api->oc_get($resource);
             $event = json_decode($event);
@@ -848,9 +852,9 @@ class apibridge
             }
         }
         $event->add_meta_data('isPartOf', $seriesidentifier);
-        $params = $event->get_form_params($this->instanceid);
+        $params = $event->get_form_params($this->ocinstanceid);
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $result = $api->oc_post('/api/events', $params);
 
@@ -870,7 +874,7 @@ class apibridge
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
     public function getroles($permanent = null) {
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->instanceid));
+        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
         $rolesprocessed = [];
         foreach ($roles as $role) {
             if ($permanent === null || $permanent === $role->permanent) {
@@ -926,7 +930,7 @@ class apibridge
      * @return boolean true if succeeded
      */
     public function ensure_acl_group_assigned($eventidentifier, $courseid, $userid) {
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -950,7 +954,7 @@ class apibridge
             return true;
         }
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -970,7 +974,7 @@ class apibridge
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
 
-        $config = get_config('block_opencast', 'allowunassign_'. $this->instanceid);
+        $config = get_config('block_opencast', 'allowunassign_' . $this->ocinstanceid);
 
         if (!$config) {
             return false;
@@ -999,7 +1003,7 @@ class apibridge
         $grouprole = api::get_course_acl_role($courseid);
         $resource = '/api/events/' . $eventidentifier . '/acl/read/' . $grouprole;
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_delete($resource);
 
         if ($api->get_http_code() != 204) {
@@ -1060,7 +1064,7 @@ class apibridge
             $this->store_group_access($eventidentifier, $groups);
         }
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -1096,7 +1100,7 @@ class apibridge
             return 'aclnothingtobesaved';
         }
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -1131,7 +1135,7 @@ class apibridge
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         return ($api->get_http_code() == 204);
@@ -1229,7 +1233,7 @@ class apibridge
      */
     public function is_event_visible($eventidentifier, $courseid) {
         $resource = '/api/events/' . $eventidentifier . '/acl';
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $jsonacl = $api->oc_get($resource);
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
@@ -1263,7 +1267,7 @@ class apibridge
             }
         }
 
-        $roles = $this->getroles( 0);
+        $roles = $this->getroles(0);
         $hasnogroupacls = true;
         foreach ($roles as $role) {
             $pattern = $this->get_pattern_for_group_placeholder($role->rolename, $courseid);
@@ -1301,7 +1305,7 @@ class apibridge
      * @throws \moodle_exception
      */
     private function update_metadata($eventid) {
-        $workflow = get_config('block_opencast', 'workflow_roles_' . $this->instanceid);
+        $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
         if (!$workflow) {
             return true;
         }
@@ -1329,7 +1333,7 @@ class apibridge
         $params['workflow_definition_identifier'] = $workflow;
         $params['event_identifier'] = $eventid;
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $result = $api->oc_post($resource, $params);
 
         if ($api->get_http_code() != 201) {
@@ -1372,7 +1376,7 @@ class apibridge
     public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
         $workflows = array();
         $resource = '/api/workflow-definitions';
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource .= '?filter=tag:' . $tag;
 
         if ($withconfigurations) {
@@ -1410,7 +1414,7 @@ class apibridge
      */
     public function get_workflow_definition($id) {
         $resource = '/api/workflow-definitions/' . $id;
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource .= '?withconfigurationpanel=true';
 
         $result = $api->oc_get($resource);
@@ -1498,7 +1502,7 @@ class apibridge
 
         $resource = '/api/events/' . $eventidentifier;
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_delete($resource);
 
         if ($api->get_http_code() != 204) {
@@ -1544,7 +1548,7 @@ class apibridge
      */
     public function supports_api_level($level) {
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         try {
             return $api->supports_api_level($level);
         } catch (\moodle_exception $e) {
@@ -1591,7 +1595,7 @@ class apibridge
      * @return bool|int|mixed Event metadata
      */
     public function get_event_metadata($eventidentifier, $query = '') {
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/metadata' . $query;
         $metadata = $api->oc_get($resource);
 
@@ -1615,7 +1619,7 @@ class apibridge
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode($metadata);
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
@@ -1654,7 +1658,7 @@ class apibridge
         }
 
         // Get API.
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         // Build API request.
         $resource = '/api/workflows/' . $workflowid . '?withconfiguration=true';
@@ -1673,7 +1677,7 @@ class apibridge
         }
 
         // If we are not looking at a duplication workflow at all, return.
-        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $this->instanceid);
+        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
         if (isset($workflowconfiguration->workflow_definition_identifier) &&
             $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
             return false;

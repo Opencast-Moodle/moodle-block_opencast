@@ -445,6 +445,7 @@ $string['privacy:metadata:core_files'] = 'The opencast block stores files (video
 $string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
 $string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
 
+$string['shared_settings'] = 'Shared settings';
 $string['support_setting'] = 'Support email';
 $string['support_settingdesc'] = 'Email address to which reports are sent if users report problems with videos.';
 $string['support_setting_notset'] = 'Support email is not set. Please contact the administrator and resubmit the report.';

@@ -28,12 +28,12 @@ global $PAGE, $OUTPUT, $CFG;
 $episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
 
 require_login($courseid, false);
@@ -45,7 +45,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('addactivityepisode_addicontitle', 'block_opencast'), $baseurl);
 
 // Check if the Opencast Activity module feature is enabled and working.
-if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($instanceid) == false) {
+if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == false) {
     throw new moodle_exception('add opencast activity episode module not enabled or working',
         'block_opencast', $redirecturloverview);
 }
@@ -73,7 +73,7 @@ if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1
 }
 
 $addactivityform = new \block_opencast\local\addactivityepisode_form(null,
-    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'instanceid' => $instanceid));
+    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 if ($addactivityform->is_cancelled()) {
     redirect($redirecturloverview);
@@ -86,7 +86,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
-    if (get_config('block_opencast', 'addactivityepisodeintro_' . $instanceid) != true || !isset($data->intro) || !$data->intro) {
+    if (get_config('block_opencast', 'addactivityepisodeintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
         $introtext = '';
         $introformat = FORMAT_HTML;
 
@@ -97,7 +97,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addactivityepisodesection_' . $instanceid) != true || !isset($data->section) || !$data->section) {
+    if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) != true || !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.
@@ -106,7 +106,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addactivityepisodeavailability_' . $instanceid) != true || empty($CFG->enableavailability) ||
+    if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
         !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 

@@ -94,7 +94,7 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $options->metadata = json_encode($metadata);
         $options->presenter = $file ? $file->get_itemid() : '';
         $options->presentation = $file ? $file->get_itemid() : '';
-        \block_opencast\local\upload_helper::save_upload_jobs($course->id, $coursecontext, $options);
+        \block_opencast\local\upload_helper::save_upload_jobs(1, $course->id, $coursecontext, $options);
 
         // Check upload job.
         $jobs = $DB->get_records('block_opencast_uploadjob');

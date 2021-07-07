@@ -28,7 +28,7 @@ global $PAGE, $OUTPUT, $CFG;
 // Handle submitted parameters of the form.
 // This course id of the target course.
 $courseid = required_param('courseid', PARAM_INT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 // The current step of the wizard.
 $step = optional_param('step', 1, PARAM_INT);
 // The course id of the course where the videos are imported from (this is submitted by the course search component in step 1 only).
@@ -43,11 +43,11 @@ $fixseriesmodules = optional_param('fixseriesmodules', false, PARAM_BOOL);
 $fixepisodemodules = optional_param('fixepisodemodules', false, PARAM_BOOL);
 
 // Set base URL.
-$baseurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
 // Remember URLs for redirecting.
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $redirecturlcancel = $redirecturloverview;
 
 // Require login and course membership.
@@ -61,7 +61,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('importvideos_importbuttontitle', 'block_opencast'), $baseurl);
 
 // Check if the manual import videos feature is enabled and working.
-if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport($instanceid) == false) {
+if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == false) {
     throw new moodle_exception('importvideos_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
@@ -71,9 +71,9 @@ require_capability('block/opencast:manualimporttarget', $coursecontext);
 
 // Check if either the handle series feature or the handle episodes feature is enabled _and_ the user is allowed to use the feature,
 // we have to include step 3.
-if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($instanceid) == true &&
+if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true &&
         has_capability('block/opencast:addlti', $coursecontext)) ||
-        (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($instanceid) == true &&
+        (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true &&
                 has_capability('block/opencast:addltiepisode', $coursecontext))) {
     $hasstep3 = true;
 } else {
@@ -122,7 +122,7 @@ switch ($step) {
             // If a course was not selected yet with the course search component.
             if ($importid == null) {
                 // Prepare next step URL.
-                $url = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+                $url = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
                 // Prepare course search component.
                 $search = new \block_opencast\local\importvideos_coursesearch(array('url' => $url), $courseid);
@@ -197,7 +197,7 @@ switch ($step) {
                         array('courseid' => $courseid,
                               'sourcecourseid' => $sourcecourseid,
                               'coursevideos' => $coursevideos,
-                              'instanceid' => $instanceid));
+                              'ocinstanceid' => $ocinstanceid));
 
                 // Otherwise, we skip step 3 and go directly to step 4.
             } else {
@@ -232,7 +232,7 @@ switch ($step) {
                 array('courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid,
                       'coursevideos' => $coursevideos,
-                      'instanceid' => $instanceid));
+                      'ocinstanceid' => $ocinstanceid));
 
         // Redirect if the form was cancelled.
         if ($importvideosform->is_cancelled()) {
@@ -305,7 +305,7 @@ switch ($step) {
             // If cleanup of the series modules was requested and the user is allowed to do this.
             if ($fixseriesmodules == true && has_capability('block/opencast:addlti', $coursecontext)) {
                 // Clean up the series modules.
-                $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($instanceid, $courseid, $sourcecourseid);
+                $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($ocinstanceid, $courseid, $sourcecourseid);
 
                 // If clean up did not completed correctly.
                 if ($resulthandleseries != true) {

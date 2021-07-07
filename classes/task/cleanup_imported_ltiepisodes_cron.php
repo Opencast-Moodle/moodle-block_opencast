@@ -48,7 +48,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
         global $DB;
 
         // If the import feature is disabled but the scheduled task is not, we are already done.
-        if (get_config('block_opencast', 'importvideosenabled_' . $instanceid) != true) {
+        if (get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid) != true) {
             mtrace('...importing videos is disabled, so nothing to do.');
             return;
         }

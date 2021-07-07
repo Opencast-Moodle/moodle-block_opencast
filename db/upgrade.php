@@ -564,12 +564,25 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021062401, 'opencast');
     }
 
-    if ($oldversion < 2021062501) {
+    if ($oldversion < 2021070700) {
         // Update configs to use default tenant (id=1).
         $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name != 'version';");
 
+        // Add new instance field to upload job table.
+        $table = new xmldb_table('block_opencast_uploadjob');
+        $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $DB->set_field('block_opencast_uploadjob', 'ocinstanceid', 1);
+
+        $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $dbman->change_field_notnull($table, $field);
+
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2021062501, 'opencast');
+        upgrade_block_savepoint(true, 2021070700, 'opencast');
     }
 
     return true;

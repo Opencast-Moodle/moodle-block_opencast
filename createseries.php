@@ -27,16 +27,16 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$instanceid = required_param('instanceid', PARAM_INT);
+$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$baseurl = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'instanceid' => $instanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
 require_login($courseid, false);
 
-$apibridge = \block_opencast\local\apibridge::get_instance($instanceid);
+$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
 if ($apibridge->get_stored_seriesid($courseid)) {
     throw new moodle_exception('series_already_exists', 'block_opencast');

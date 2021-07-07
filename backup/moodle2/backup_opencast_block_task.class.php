@@ -47,7 +47,7 @@ class backup_opencast_block_task extends backup_block_task {
 
         // Check whether this feature is enabled and working at all.
         // TODO
-        if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($instanceid) == true) {
+        if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($ocinstanceid) == true) {
 
             // Check, whether there are course videos available.
             // TODO
