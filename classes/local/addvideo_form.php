@@ -48,7 +48,7 @@ class addvideo_form extends \moodleform
      * Form definition.
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $USER;
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload');
 
@@ -95,6 +95,18 @@ class addvideo_form extends \moodleform
 
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
+
+            // We want to set default for Presenter (creator).
+            if ($field->name == 'creator') {
+                // Get firstname and lastname of the user.
+                $creatorname = trim($USER->firstname . ' ' . $USER->lastname);
+                // If creator name is empty we get username.
+                if (empty($creatorname)) {
+                    $creatorname = $USER->username;
+                }
+                // Set default creator (Presenter) value.
+                $mform->setDefault($field->name, $creatorname);
+            }
 
             if ($field->datatype == 'text') {
                 $mform->setType($field->name, PARAM_TEXT);
