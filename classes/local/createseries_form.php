@@ -54,6 +54,9 @@ class createseries_form extends \moodleform
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
+        $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
+        $mform->setType('ocinstanceid', PARAM_INT);
+
         $mform->addElement('text', 'seriestitle', get_string('form_seriestitle', 'block_opencast', array('size' => '40')));
         $mform->setType('seriestitle', PARAM_TEXT);
         $mform->addRule('seriestitle', get_string('required'), 'required', null, 'server');

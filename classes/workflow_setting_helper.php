@@ -38,10 +38,14 @@ defined('MOODLE_INTERNAL') || die();
 class workflow_setting_helper
 {
     public static function validate_workflow_setting($data) {
+        // Hack to get the opencast instance id.
+        $category = required_param('category', PARAM_RAW);
+        $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
+
         // Do only if a workflow was set.
         if ($data != null) {
             // Get an APIbridge instance.
-            $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
             // Verify if the given value is a valid Opencast workflow.
             if (!$apibridge->check_if_workflow_exists($data)) {

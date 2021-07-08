@@ -147,7 +147,9 @@ switch ($step) {
 
                 // Set form for next step.
                 $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
-                        array('courseid' => $courseid,
+                        array(
+                            'ocinstanceid' => $ocinstanceid,
+                            'courseid' => $courseid,
                               'sourcecourseid' => $importid));
 
                 // Output the page header.
@@ -168,7 +170,9 @@ switch ($step) {
     case 2:
         // Use step 2 form.
         $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
-                array('courseid' => $courseid,
+                array(
+                    'ocinstanceid' => $ocinstanceid,
+                    'courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid));
 
         // Redirect if the form was cancelled.
@@ -194,7 +198,9 @@ switch ($step) {
 
                 // Replace form with next step.
                 $importvideosform = new \block_opencast\local\importvideos_step3_form(null,
-                        array('courseid' => $courseid,
+                        array(
+                            'ocinstanceid' => $ocinstanceid,
+                            'courseid' => $courseid,
                               'sourcecourseid' => $sourcecourseid,
                               'coursevideos' => $coursevideos,
                               'ocinstanceid' => $ocinstanceid));
@@ -206,7 +212,9 @@ switch ($step) {
 
                 // Replace form with next step.
                 $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
-                        array('courseid' => $courseid,
+                        array(
+                            'ocinstanceid' => $ocinstanceid,
+                            'courseid' => $courseid,
                               'sourcecourseid' => $sourcecourseid,
                               'coursevideos' => $coursevideos));
             }
@@ -229,7 +237,9 @@ switch ($step) {
         // Use step 3 form.
 
         $importvideosform = new \block_opencast\local\importvideos_step3_form(null,
-                array('courseid' => $courseid,
+                array(
+                    'ocinstanceid' => $ocinstanceid,
+                    'courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid,
                       'coursevideos' => $coursevideos,
                       'ocinstanceid' => $ocinstanceid));
@@ -246,7 +256,9 @@ switch ($step) {
 
             // Replace form with next step.
             $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
-                    array('courseid' => $courseid,
+                    array(
+                        'ocinstanceid' => $ocinstanceid,
+                        'courseid' => $courseid,
                           'sourcecourseid' => $sourcecourseid,
                           'coursevideos' => $coursevideos,
                           'fixseriesmodules' => $fixseriesmodules,
@@ -269,7 +281,9 @@ switch ($step) {
     case 4:
         // Use step 4 form.
         $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
-                array('courseid' => $courseid,
+                array(
+                    'ocinstanceid' => $ocinstanceid,
+                    'courseid' => $courseid,
                       'sourcecourseid' => $sourcecourseid,
                       'coursevideos' => $coursevideos,
                       'fixseriesmodules' => $fixseriesmodules,
@@ -285,11 +299,11 @@ switch ($step) {
             // If cleanup of the episode modules was requested and the user is allowed to do this.
             if ($fixepisodemodules == true && has_capability('block/opencast:addltiepisode', $coursecontext)) {
                 // Duplicate the videos with episode module cleanup.
-                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid,
+                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid, $sourcecourseid, $courseid,
                         $coursevideos, true);
             } else {
                 // Duplicate the videos without episode module cleanup.
-                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($sourcecourseid, $courseid,
+                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid, $sourcecourseid, $courseid,
                         $coursevideos, false);
             }
 

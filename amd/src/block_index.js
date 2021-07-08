@@ -24,7 +24,7 @@
 define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url'],
     function ($, ModalFactory, ModalEvents, str, url) {
 
-        var initWorkflowModal = function (courseid, langstrings) {
+        var initWorkflowModal = function (ocinstanceid, courseid, langstrings) {
             if(document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
 
@@ -44,8 +44,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                         title: langstrings[5],
                         body: '<form id="startWorkflowForm" method="post" action="' +
                             url.relativeUrl('blocks/opencast/startworkflow.php', {
+                                'ocinstanceid': ocinstanceid,
                                 'courseid': courseid,
-                                'videoid': clickedVideo.data('id') // TODO
+                                'videoid': clickedVideo.data('id')
                             }) + '"><div class="form-group">' +
                             '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
                             '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
@@ -64,8 +65,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                             modal.show().then(function () {
                                 $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
                                 $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                                    'ocinstanceid': ocinstanceid,
                                     'courseid': courseid,
-                                    'workflowid': $('#workflowselect').val() // TODO
+                                    'workflowid': $('#workflowselect').val()
                                 }));
 
                                 // Show workflow description when selected.
@@ -73,8 +75,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                                     let workflowid = $(this).val();
                                     $('#workflowdesc').html(workflows[workflowid].description);
                                     $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                                        'ocinstanceid': ocinstanceid,
                                         'courseid': courseid,
-                                        'workflowid': workflowid // TODO
+                                        'workflowid': workflowid
                                     }));
                                 });
                             });
@@ -83,7 +86,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
             }
         };
 
-        var initReportModal = function (courseid, langstrings) {
+        var initReportModal = function (ocinstanceid, courseid, langstrings) {
             $('.report-problem').on('click', function (e) {
                 e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
@@ -91,7 +94,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                     type: ModalFactory.types.SAVE_CANCEL,
                     title: langstrings[0],
                     body: '<form id="reportProblemForm" method="post" action="' +
-                        url.relativeUrl('blocks/opencast/reportproblem.php', { // TODO
+                        url.relativeUrl('blocks/opencast/reportproblem.php', {
+                            'ocinstanceid': ocinstanceid,
                             'courseid': courseid,
                             'videoid': clickedVideo.data('id')
                         }) + '"><div class="form-group">' +
@@ -122,7 +126,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
         /*
          * Initialise all of the modules for the opencast block.
          */
-        var init = function (courseid) {
+        var init = function (courseid, ocinstanceid) {
             // Load strings
             var strings = [
                 {
@@ -155,8 +159,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                 }
             ];
             str.get_strings(strings).then(function (results) {
-                initWorkflowModal(courseid, results);
-                initReportModal(courseid, results);
+                initWorkflowModal(ocinstanceid, courseid, results);
+                initReportModal(ocinstanceid, courseid, results);
             });
             window.addEventListener('message', function (event) {
                 if (event.origin !== "null") {

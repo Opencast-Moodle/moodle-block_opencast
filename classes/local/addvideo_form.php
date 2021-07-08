@@ -25,7 +25,6 @@
 
 namespace block_opencast\local;
 
-use core_form;
 use local_chunkupload\chunkupload_form_element;
 
 defined('MOODLE_INTERNAL') || die();
@@ -194,6 +193,7 @@ class addvideo_form extends \moodleform
 
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 

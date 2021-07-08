@@ -63,7 +63,7 @@ $api = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 $seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
 
 // Create parameters.
-$params = block_opencast_create_lti_parameters($ltiendpoint, $seriesid);
+$params = block_opencast_create_lti_parameters($ocinstanceid, $ltiendpoint, $seriesid);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
@@ -83,7 +83,7 @@ echo $OUTPUT->footer();
  * @throws dml_exception
  * @throws moodle_exception
  */
-function block_opencast_create_lti_parameters($endpoint, $seriesid) {
+function block_opencast_create_lti_parameters($ocinstanceid, $endpoint, $seriesid) {
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.

@@ -57,9 +57,11 @@ class importvideos_step2_form extends \moodleform
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
         $mform->setType('sourcecourseid', PARAM_INT);
+        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->setType('ocinstanceid', PARAM_INT);
 
         // Get list of course videos.
-        $coursevideos = importvideosmanager::get_import_source_course_videos_menu(
+        $coursevideos = importvideosmanager::get_import_source_course_videos_menu($this->_customdata['ocinstanceid'],
             $this->_customdata['sourcecourseid']);
 
         // If there isn't any course video in the course.

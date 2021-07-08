@@ -585,5 +585,28 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021070700, 'opencast');
     }
 
+    if ($oldversion < 2021070701) {
+        $dbtables = ['block_opencast_deletejob', 'block_opencast_groupaccess', 'block_opencast_ltimodule',
+            'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu'];
+
+        foreach ($dbtables as $dbtable) {
+            // Add new opencast instance field
+            $table = new xmldb_table($dbtable);
+            $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10');
+
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+
+            $DB->set_field($dbtable, 'ocinstanceid', 1);
+
+            $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021070701, 'opencast');
+    }
+
     return true;
 }

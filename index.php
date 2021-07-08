@@ -61,7 +61,7 @@ foreach ($workflows as $workflow) {
     }
 }
 
-$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid]);
+$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));

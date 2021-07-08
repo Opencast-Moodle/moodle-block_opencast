@@ -93,6 +93,9 @@ class addltiepisode_form extends \moodleform
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
 
+        $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
+        $mform->setType('ocinstanceid', PARAM_INT);
+
         $this->add_action_buttons();
     }
 

@@ -40,6 +40,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
     private $backupeventids = [];
     private $missingeventids = [];
     private $seriesid = null;
+    private $ocinstanceid;
 
     /**
      * Function that will return the structure to be processed by this restore_step.
@@ -47,11 +48,13 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @return array of @restore_path_element elements
      */
     protected function define_structure() {
+        $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
+        $this->ocinstanceid = $ocinstanceid;
 
         // Check, target series.
         $courseid = $this->get_courseid();
 
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
         // If seriesid does not exist, we do not skip restore task here,
         // because we want to collect all the events (see process event),
         // that should have been restored.
@@ -82,14 +85,14 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
 
         // Check, whether event exists on opencast server.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
 
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {
             $this->missingeventids[] = $data->eventid;
         } else {
             $courseid = $this->get_courseid();
-            event::create_duplication_task($courseid, $this->seriesid, $data->eventid);
+            event::create_duplication_task($this->ocinstanceid, $courseid, $this->seriesid, $data->eventid);
         }
     }
 

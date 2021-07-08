@@ -53,6 +53,8 @@ class importvideos_step4_form extends \moodleform
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->setType('ocinstanceid', PARAM_INT);
         $mform->addElement('hidden', 'step', 4);
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
@@ -109,6 +111,7 @@ class importvideos_step4_form extends \moodleform
 
         // Summary item: Course videos.
         $coursevideossummary = importvideosmanager::get_import_source_course_videos_summary(
+            $this->_customdata['ocinstanceid'],
             $this->_customdata['sourcecourseid'], $this->_customdata['coursevideos']);
         $importvideocounter = 1;
         foreach ($coursevideossummary as $identifier => $label) {

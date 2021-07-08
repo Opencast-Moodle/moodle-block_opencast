@@ -21,6 +21,9 @@
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use tool_opencast\local\settings_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -37,15 +40,18 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
 class backup_opencast_block_structure_step extends backup_block_structure_step {
 
     protected function define_structure() {
+        $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
+
         // Root.
         $opencast = new backup_nested_element('opencast');
 
         // Site information.
-        $site = new backup_nested_element('site', array(), array('apiurl', 'identifier'));
+        $site = new backup_nested_element('site', array(), array('apiurl', 'identifier', 'ocinstanceid'));
         $opencast->add_child($site);
 
-        $apiurl = get_config('tool_opencast', 'apiurl');
+        $apiurl = settings_api::get_apiurl($ocinstanceid);
         $sitedata = (object) [
+                'ocinstanceid' => $ocinstanceid,
                 'apiurl' => $apiurl
         ];
         $site->set_source_array([$sitedata]);
@@ -57,8 +63,7 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $opencast->add_child($events);
 
         // Check, whether there are course videos available.
-        // TODO
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         $courseid = $this->get_courseid();
         $coursevideos = $apibridge->get_course_videos_for_backup($courseid);
@@ -75,5 +80,4 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         // Return the root element ($opencast), wrapped into standard block structure.
         return $this->prepare_block_structure($opencast);
     }
-
 }

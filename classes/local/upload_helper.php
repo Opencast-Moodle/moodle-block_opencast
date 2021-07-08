@@ -327,6 +327,7 @@ class upload_helper
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
+                'ocinstanceid' => $job->ocinstanceid,
                 'userid' => $job->userid,
                 'other' => array('filename' => implode(' & ', $filenames))
             )
@@ -378,6 +379,7 @@ class upload_helper
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
+                'ocinstanceid' => $job->ocinstanceid,
                 'userid' => $job->userid,
                 'other' => array(
                     'filename' => /* $filename */ implode(' & ', $filenames),

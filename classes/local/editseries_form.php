@@ -65,6 +65,9 @@ class editseries_form extends \moodleform
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
+        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->setType('ocinstanceid', PARAM_INT);
+
         $this->add_action_buttons(true, get_string('savechanges'));
     }
 
@@ -80,7 +83,7 @@ class editseries_form extends \moodleform
     public function validation($data, $files) {
         $error = array();
 
-        $apibridge = apibridge::get_instance(); // TODO
+        $apibridge = apibridge::get_instance($data['ocinstanceid']);
 
         if (!empty($data['seriesid'])) {
             $seriesid = $apibridge->get_series_by_identifier($data['seriesid']);

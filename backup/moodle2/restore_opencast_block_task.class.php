@@ -39,9 +39,8 @@ class restore_opencast_block_task extends restore_block_task
      *
      * @return boolean
      */
-    private function can_restore_events() {
-        // TODO
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+    private function can_restore_events($ocinstanceid) {
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         $courseid = $this->get_courseid();
         $seriesid = $apibridge->get_stored_seriesid($courseid);
@@ -62,20 +61,23 @@ class restore_opencast_block_task extends restore_block_task
      *   2. target course has not yet an assigned series.
      */
     protected function define_my_settings() {
+        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        foreach ($ocinstances as $ocinstance) {
+            if (!file_exists($this->get_taskbasepath() . '/opencast_' . $ocinstance->id . '.xml')) {
+                continue;
+            }
 
-        if (!file_exists($this->get_taskbasepath() . '/opencast.xml')) {
-            return;
+            // Check, whether we may may import or restore events into the target course.
+            $canrestore = $this->can_restore_events($ocinstance->id);
+            $locktype = ($canrestore) ? backup_setting::NOT_LOCKED : backup_setting::LOCKED_BY_CONFIG;
+
+            $setting = new restore_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN,
+                $canrestore, backup_setting::VISIBLE, $locktype);
+            // TODO lang string if only one instance
+            $setting->get_ui()->set_label(get_string('restoreopencastvideos', 'block_opencast', $ocinstance->name));
+
+            $this->add_setting($setting);
         }
-
-        // Check, whether we may may import or restore events into the target course.
-        $canrestore = $this->can_restore_events();
-        $locktype = ($canrestore) ? backup_setting::NOT_LOCKED : backup_setting::LOCKED_BY_CONFIG;
-
-        $setting = new restore_block_opencast_setting('opencast_videos_include', base_setting::IS_BOOLEAN,
-            $canrestore, backup_setting::VISIBLE, $locktype);
-        $setting->get_ui()->set_label(get_string('restoreopencastvideos', 'block_opencast'));
-
-        $this->add_setting($setting);
     }
 
     /**
@@ -84,27 +86,31 @@ class restore_opencast_block_task extends restore_block_task
     protected function define_my_steps() {
         global $USER;
 
-        // Settings, does not exists, if opencast system does not support copying workflow.
-        if (!$this->setting_exists('opencast_videos_include')) {
-            return;
-        }
+        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
 
-        if (!$this->get_setting_value('opencast_videos_include') && ($this->plan->get_mode() != backup::MODE_IMPORT)) {
-            return;
-        }
-
-        // Try to create a course series, if neccessary.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
-        $courseid = $this->get_courseid();
-
-        if (!$apibridge->get_stored_seriesid($courseid)) {
-            if (!$apibridge->create_course_series($courseid, null, $USER->id)) {
-                echo get_string('seriesnotcreated', 'block_opencast');
+        foreach($ocinstances as $ocinstance) {
+            // Settings, does not exists, if opencast system does not support copying workflow.
+            if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
+                return;
             }
-        }
 
-        // Add the restore step to collect the events, that should have been restored.
-        $this->add_step(new restore_opencast_block_structure_step('opencast_structure', 'opencast.xml'));
+            if (!$this->get_setting_value('opencast_videos_include_' . $ocinstance->id) && ($this->plan->get_mode() != backup::MODE_IMPORT)) {
+                return;
+            }
+
+            // Try to create a course series, if neccessary.
+            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstance->id);
+            $courseid = $this->get_courseid();
+
+            if (!$apibridge->get_stored_seriesid($courseid)) {
+                if (!$apibridge->create_course_series($courseid, null, $USER->id)) {
+                    echo get_string('seriesnotcreated', 'block_opencast');
+                }
+            }
+
+            // Add the restore step to collect the events, that should have been restored.
+            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_'.$ocinstance->id.'.xml'));
+        }
     }
 
     /**

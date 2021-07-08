@@ -173,7 +173,7 @@ $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
 $string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
-$string['backupopencastvideos'] = 'Include Opencast videos in this course';
+$string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['blocksettings'] = 'Settings for a block instance';
 $string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Uploaded by';
@@ -396,7 +396,7 @@ $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
 $string['ocstateprocessing'] = 'Processing';
 $string['ocstatesucceeded'] = 'Succeeded';
-$string['restoreopencastvideos'] = 'Restore opencast videos';
+$string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
 $string['ocstatecapturing'] = 'Capturing';
 $string['ocstateneedscutting'] = 'Needs cutting';
 $string['uploadfileextensions'] = 'Allowed file extensions';

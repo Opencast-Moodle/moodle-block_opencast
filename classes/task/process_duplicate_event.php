@@ -73,9 +73,10 @@ class process_duplicate_event extends \core\task\adhoc_task
         // Test, whether opencast server is available.
 
         try {
+            // TODO data with ocinstanceid
 
             // Get duplication workflow.
-            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
+            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $data->ocinstanceid);
             if (empty($duplicateworkflow)) {
                 throw new \moodle_exception('error_workflow_setup_missing', 'block_opencast');
             }
@@ -88,7 +89,7 @@ class process_duplicate_event extends \core\task\adhoc_task
             }
 
             // Check, whether seriesid of course exists...
-            $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+            $apibridge = \block_opencast\local\apibridge::get_instance($data->ocinstanceid);
             if (!$seriesid = $apibridge->get_stored_seriesid($course->id)) {
                 throw new \moodle_exception('error_seriesid_missing_course', 'block_opencast', '', $a);
             }
@@ -138,11 +139,12 @@ class process_duplicate_event extends \core\task\adhoc_task
                 $now = time(); // This is fetched before the loop to ensure that all records for this workflow get the same time.
                 foreach ($data->episodemodules as $coursemoduleid => $oldepisodeid) {
                     // Just proceed if the record does not already exist for some reason.
-                    if (!$DB->record_exists('block_opencast_ltiepisode_cu', array('cmid' => $coursemoduleid))) {
+                    if (!$DB->record_exists('block_opencast_ltiepisode_cu', array('cmid' => $coursemoduleid, 'ocinstanceid' => $data->ocinstanceid))) {
                         $record = new \stdClass();
                         $record->courseid = $course->id;
                         $record->cmid = $coursemoduleid;
                         $record->ocworkflowid = $ocworkflowid;
+                        $record->ocinstanceid = $data->ocinstanceid;
                         $record->queuecount = 0;
                         $record->timecreated = $now;
                         $record->timemodified = $now;
@@ -172,5 +174,4 @@ class process_duplicate_event extends \core\task\adhoc_task
             }
         }
     }
-
 }

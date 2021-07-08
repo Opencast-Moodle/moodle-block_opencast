@@ -278,6 +278,7 @@ class ltimodulemanager
         $record = new \stdClass();
         $record->courseid = $courseid;
         $record->cmid = $modulecreated->coursemodule;
+        $record->ocinstanceid = $ocinstanceid;
         $DB->insert_record('block_opencast_ltimodule', $record);
 
         return true;
@@ -344,6 +345,7 @@ class ltimodulemanager
         $record->courseid = $courseid;
         $record->episodeuuid = $episodeuuid;
         $record->cmid = $modulecreated->coursemodule;
+        $record->ocinstanceid = $ocinstanceid;
         $DB->insert_record('block_opencast_ltiepisode', $record);
 
         return true;
@@ -472,6 +474,7 @@ class ltimodulemanager
         // If there is more than one module, the list will be ordered by the time when the module was added to the course.
         // The oldest module is probably the module which should be kept when the modules are cleaned up later,
         // the newer ones will probably be from additional course content imports.
+        // TODO custom parameter for ocinstance id -> also check if backwards compatible
         $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
             'JOIN {course_modules} AS cm ' .
             'ON l.id = cm.instance ' .

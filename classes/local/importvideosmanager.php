@@ -71,7 +71,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -130,7 +130,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -242,7 +242,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_menu($sourcecourseid) {
+    public static function get_import_source_course_videos_menu($ocinstanceid, $sourcecourseid) {
         global $PAGE;
 
         // Get renderer.
@@ -258,7 +258,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get course videos which are qualified to be imported.
         $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
@@ -286,7 +286,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_summary($sourcecourseid, $selectedcoursevideos) {
+    public static function get_import_source_course_videos_summary($ocinstanceid, $sourcecourseid, $selectedcoursevideos) {
         global $PAGE;
 
         // Get renderer.
@@ -302,7 +302,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get course videos which are qualified to be imported.
         $allcoursevideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
@@ -345,7 +345,7 @@ class importvideosmanager
      *
      * @return bool
      */
-    public static function duplicate_videos($sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
+    public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
         global $USER;
 
         // If the user is not allowed to import from the source course at all, return.
@@ -361,7 +361,7 @@ class importvideosmanager
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance(); // TODO
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get source course series ID.
         $sourceseriesid = $apibridge->get_stored_seriesid($sourcecourseid);
@@ -393,7 +393,6 @@ class importvideosmanager
             // If cleanup of the episode modules was requested, look for existing modules.
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
-                // TODO
                 $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
                     $ocinstanceid, $targetcourseid, $identifier);
             }
@@ -401,11 +400,11 @@ class importvideosmanager
             // If there are existing modules to be cleaned up.
             if ($modulecleanup == true && count($episodemodules) > 0) {
                 // Create duplication task for this event.
-                $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
+                $ret = \block_opencast\local\event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
                     true, $episodemodules);
             } else {
                 // Create duplication task for this event.
-                $ret = \block_opencast\local\event::create_duplication_task($targetcourseid, $targetseriesid, $identifier,
+                $ret = \block_opencast\local\event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
                     false, null);
             }
 

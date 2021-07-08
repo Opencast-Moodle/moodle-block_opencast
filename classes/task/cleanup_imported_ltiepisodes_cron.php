@@ -47,121 +47,128 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
     public function execute() {
         global $DB;
 
-        // If the import feature is disabled but the scheduled task is not, we are already done.
-        if (get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid) != true) {
-            mtrace('...importing videos is disabled, so nothing to do.');
-            return;
-        }
+        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        foreach ($ocinstances as $ocinstance) {
 
-        // Get all workflows which are scheduled to be handled.
-        $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified FROM {block_opencast_ltiepisode_cu}';
-        $workflows = $DB->get_records_sql($workflowsql);
-
-        // If there aren't any jobs, we are done already.
-        if (count($workflows) < 1) {
-            mtrace('...no cleanup jobs are scheduled currently, so nothing to do.');
-            return;
-        }
-
-        // Iterate over workflows.
-        foreach ($workflows as $workflow) {
-            mtrace('Proceed: OC workflow ' . $workflow->ocworkflowid);
-
-            // Decide if we really want to proceed this workflow now.
-            // If the workflow has been postponed 2 times, which means that we tried it 3 times in a row
-            // and which means that, in normal setups, 3 minutes have passed since the job was scheduled.
-            if ($workflow->queuecount > 2) {
-                // Then we want to wait some more time until the next try to avoid to bother Opencast too much.
-                // Before making the 4th try, we will wait 3 minutes instead of just 1 minute.
-                // Then we wait 6 minutes, then 12, then 24, then 48 and finally keep waiting 96 minutes before every try.
-                $waitminutes = min(3 * (2 ** ($workflow->queuecount - 3)), 96);
-                $waituntil = $workflow->timemodified + ($waitminutes * MINSECS);
-
-                // If we haven't waited long enough.
-                if ($waituntil > time()) {
-                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
-                        ' were skipped as OC hasn\'t had a result for us yet and we don\'t want to bother it that much. ' .
-                        'Next try will be at ' .
-                        date_format_string($waituntil, get_string('strftimedatetime', 'langconfig')));
-                    continue;
-                }
-
-                // But in the end, if Opencast did not give us an episode id for 5 days, nobody will be waiting anymore for this
-                // course module update and this job should be deleted.
-                if ($workflow->timecreated + (5 * DAYSECS) < time()) {
-                    // Remove the cleanup job.
-                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
-                        ' were removed as we have waited for 5 days without success to get the duplicated episode ID from OC.');
-                    // TODO: Send a notification to the admin in this case.
-                    continue;
-                }
-            }
-
-            try {
-                $apibridge = apibridge::get_instance(); // TODO
-                $episodeid = $apibridge->get_duplicated_episodeid($workflow->ocworkflowid);
-
-                // If we have no chance to get an episode ID - not now and not if we postpone the job.
-                // (See function get_duplicated_episodeid() in apibridge for details when this can happen).
-                if ($episodeid === false) {
-                    // Remove the cleanup job.
-                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' ' .
-                        'were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
-                    continue;
-                }
-
-                // If the OC workflow exists but if there isn't an episode ID (yet).
-                if ($episodeid === '') {
-                    // Postpone the cleanup job.
-                    $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid);
-                    $DB->execute('UPDATE {block_opencast_ltiepisode_cu} ' .
-                        'SET queuecount = queuecount + :increment, timemodified = :time ' .
-                        'WHERE ocworkflowid = :ocworkflowid',
-                        $params);
-                    mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
-                        ' were postponed as the stored OC workflow does not hold a duplicated episode ID (yet)');
-                    continue;
-                }
-
-                // Get all course modules which relate to the given workflow.
-                $coursemodules = $DB->get_fieldset_select('block_opencast_ltiepisode_cu', 'cmid', 'ocworkflowid = :ocworkflowid',
-                    array('ocworkflowid' => $workflow->ocworkflowid));
-
-                // Get the course where these course modules are located.
-                // Here, we assume that even if we have to handle multiple course modules for this job, all belong to the same
-                // course. This assumption is ok as one workflow can just be triggered from within one single course.
-                $courseid = $DB->get_field('block_opencast_ltiepisode_cu', 'courseid',
-                    array('ocworkflowid' => $workflow->ocworkflowid), IGNORE_MULTIPLE);
-
-                // Let the LTI Module manager cleanup these episodes.
-                $cleanupresult = ltimodulemanager::cleanup_episode_modules($courseid, $coursemodules, $episodeid);
-
-                // If something with the cleanup failed.
-                if ($cleanupresult != true) {
-                    // Remove the cleanup job.
-                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
-                        ' failed during the update of the episode activities and were removed. There won\'t be a retry.');
-                    // TODO: Send a notification to the admin in this case.
-                    continue;
-
-                    // Otherwise.
-                } else {
-                    // Remove the cleanup job.
-                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                    mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' finished successfully.');
-                    continue;
-                }
-            } catch (\moodle_exception $e) {
-                mtrace('  Cleanup job(s) failed with an exception: ' . $e->getMessage());
-                // Remove the cleanup job.
-                $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid));
-                mtrace('  Cleanup job(s) were removed. There won\'t be a retry.');
-                // TODO: Send a notification to the admin in this case.
+            // If the import feature is disabled but the scheduled task is not, we are already done.
+            if (get_config('block_opencast', 'importvideosenabled_' . $ocinstance->id) != true) {
+                mtrace("...importing videos is disabled for opencast instance {$ocinstance->id}, so nothing to do.");
                 continue;
             }
+
+            // Get all workflows which are scheduled to be handled.
+            $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified FROM {block_opencast_ltiepisode_cu} WHERE ocinstanceid = :ocinstanceid';
+            $workflows = $DB->get_records_sql($workflowsql, array('ocinstanceid' => $ocinstance->id));
+
+            // If there aren't any jobs, we are done already.
+            if (count($workflows) < 1) {
+                mtrace("...no cleanup jobs for opencast instance {$ocinstance->id} are scheduled currently, so nothing to do.");
+                continue;
+            }
+
+            // Iterate over workflows.
+            foreach ($workflows as $workflow) {
+                mtrace('Proceed: OC workflow ' . $workflow->ocworkflowid);
+
+                // Decide if we really want to proceed this workflow now.
+                // If the workflow has been postponed 2 times, which means that we tried it 3 times in a row
+                // and which means that, in normal setups, 3 minutes have passed since the job was scheduled.
+                if ($workflow->queuecount > 2) {
+                    // Then we want to wait some more time until the next try to avoid to bother Opencast too much.
+                    // Before making the 4th try, we will wait 3 minutes instead of just 1 minute.
+                    // Then we wait 6 minutes, then 12, then 24, then 48 and finally keep waiting 96 minutes before every try.
+                    $waitminutes = min(3 * (2 ** ($workflow->queuecount - 3)), 96);
+                    $waituntil = $workflow->timemodified + ($waitminutes * MINSECS);
+
+                    // If we haven't waited long enough.
+                    if ($waituntil > time()) {
+                        mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
+                            ' were skipped as OC hasn\'t had a result for us yet and we don\'t want to bother it that much. ' .
+                            'Next try will be at ' .
+                            date_format_string($waituntil, get_string('strftimedatetime', 'langconfig')));
+                        continue;
+                    }
+
+                    // But in the end, if Opencast did not give us an episode id for 5 days, nobody will be waiting anymore for this
+                    // course module update and this job should be deleted.
+                    if ($workflow->timecreated + (5 * DAYSECS) < time()) {
+                        // Remove the cleanup job.
+                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
+                            ' were removed as we have waited for 5 days without success to get the duplicated episode ID from OC.');
+                        // TODO: Send a notification to the admin in this case.
+                        continue;
+                    }
+                }
+
+                try {
+                    $apibridge = apibridge::get_instance($ocinstance->id);
+                    $episodeid = $apibridge->get_duplicated_episodeid($workflow->ocworkflowid);
+
+                    // If we have no chance to get an episode ID - not now and not if we postpone the job.
+                    // (See function get_duplicated_episodeid() in apibridge for details when this can happen).
+                    if ($episodeid === false) {
+                        // Remove the cleanup job.
+                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' ' .
+                            'were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
+                        continue;
+                    }
+
+                    // If the OC workflow exists but if there isn't an episode ID (yet).
+                    if ($episodeid === '') {
+                        // Postpone the cleanup job.
+                        $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id);
+                        $DB->execute('UPDATE {block_opencast_ltiepisode_cu} ' .
+                            'SET queuecount = queuecount + :increment, timemodified = :time ' .
+                            'WHERE ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',
+                            $params);
+                        mtrace('  Cleanup job(s) for OC workflow ' . $workflow->ocworkflowid .
+                            ' were postponed as the stored OC workflow does not hold a duplicated episode ID (yet)');
+                        continue;
+                    }
+
+                    // Get all course modules which relate to the given workflow.
+                    $coursemodules = $DB->get_fieldset_select('block_opencast_ltiepisode_cu', 'cmid', 'ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',
+                        array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+
+                    // Get the course where these course modules are located.
+                    // Here, we assume that even if we have to handle multiple course modules for this job, all belong to the same
+                    // course. This assumption is ok as one workflow can just be triggered from within one single course.
+                    $courseid = $DB->get_field('block_opencast_ltiepisode_cu', 'courseid',
+                        array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id), IGNORE_MULTIPLE);
+
+                    // Let the LTI Module manager cleanup these episodes.
+                    // TODO opencast instance id?
+                    $cleanupresult = ltimodulemanager::cleanup_episode_modules($courseid, $coursemodules, $episodeid);
+
+                    // If something with the cleanup failed.
+                    if ($cleanupresult != true) {
+                        // Remove the cleanup job.
+                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
+                            ' failed during the update of the episode activities and were removed. There won\'t be a retry.');
+                        // TODO: Send a notification to the admin in this case.
+                        continue;
+
+                        // Otherwise.
+                    } else {
+                        // Remove the cleanup job.
+                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' finished successfully.');
+                        continue;
+                    }
+                } catch (\moodle_exception $e) {
+                    mtrace('  Cleanup job(s) failed with an exception: ' . $e->getMessage());
+                    // Remove the cleanup job.
+                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                    mtrace('  Cleanup job(s) were removed. There won\'t be a retry.');
+                    // TODO: Send a notification to the admin in this case.
+                    continue;
+                }
+            }
+
         }
+
     }
 }

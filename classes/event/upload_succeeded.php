@@ -47,6 +47,8 @@ class upload_succeeded extends \core\event\base
         $this->data['objecttable'] = 'block_opencast_uploadjob';
     }
 
+    // TODO debug this with ocinstanceid
+
     /**
      * Return localised event name.
      *
@@ -62,7 +64,7 @@ class upload_succeeded extends \core\event\base
      * @return string
      */
     public function get_description() {
-        return "the upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) to opencast was successful.";
+        return "the upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) to opencast instance {$this->data['ocinstanceid']} was successful.";
     }
 
     /**
@@ -71,7 +73,7 @@ class upload_succeeded extends \core\event\base
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'ocinstanceid' => $ocinstanceid));
+        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['ocinstanceid']));
     }
 
 }

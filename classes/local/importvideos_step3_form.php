@@ -54,6 +54,8 @@ class importvideos_step3_form extends \moodleform
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->setType('ocinstanceid', PARAM_INT);
         $mform->addElement('hidden', 'step', 3);
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
