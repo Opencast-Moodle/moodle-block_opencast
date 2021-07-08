@@ -22,6 +22,9 @@
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\apibridge;
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -76,6 +79,43 @@ class block_opencast_renderer extends plugin_renderer_base
             default :
                 return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
         }
+    }
+
+    public function render_series_intro($seriesname) {
+        // TODO show bootstrap badge in how many courses the series is used (if more than one).
+        return $this->heading($seriesname, 4, array('mt-4'));
+    }
+
+    public function create_videos_tables($id, $headers, $columns, $baseurl) {
+        // TODO create unique ids.
+        $table = new block_opencast\local\flexible_table($id);
+        $table->set_attribute('cellspacing', '0');
+        $table->set_attribute('cellpadding', '3');
+        $table->set_attribute('class', 'generaltable');
+        $table->set_attribute('id', $id);
+        $table->headers = $headers;
+        $table->define_columns($columns);
+        $table->define_baseurl($baseurl);
+
+        $table->no_sorting('action');
+        $table->no_sorting('provide');
+        $table->no_sorting('provide-activity');
+        $table->no_sorting('published');
+        $table->sortable(true, 'start_date', SORT_DESC);
+
+        $table->pageable(true);
+        $table->is_downloadable(false);
+
+        $table->set_control_variables(
+            array(
+                TABLE_VAR_SORT => 'tsort',
+                TABLE_VAR_PAGE => 'page'
+            )
+        );
+
+        $table->setup();
+        return $table;
+
     }
 
     /**
@@ -189,6 +229,7 @@ class block_opencast_renderer extends plugin_renderer_base
         $table->head = array(
             get_string('hstart_date', 'block_opencast'),
             get_string('title', 'block_opencast'),
+            get_string('series', 'block_opencast'),
             get_string('presenterfile', 'block_opencast'),
             get_string('presentationfile', 'block_opencast'),
             get_string('status'),
@@ -201,6 +242,7 @@ class block_opencast_renderer extends plugin_renderer_base
 
             $uploadjob->metadata ? $metadata = json_decode($uploadjob->metadata) : $metadata = '';
             $title = '';
+            $series = '';
             $startdatetime = null;
             if ($metadata) {
                 $startdate = '';
@@ -212,6 +254,12 @@ class block_opencast_renderer extends plugin_renderer_base
                         $startdate = $ms->value;
                     } else if ($ms->id == 'startTime') {
                         $starttime = $ms->value;
+                    } else if($ms->id == 'isPartOf') {
+                        $apibridge = apibridge::get_instance();
+                        $ocseries = $apibridge->get_series_by_identifier($ms->value);
+                        if($ocseries) {
+                            $series = $ocseries->title;
+                        }
                     }
                 }
 
@@ -229,6 +277,8 @@ class block_opencast_renderer extends plugin_renderer_base
             }
 
             $row[] = $title;
+            $row[] = $series;
+
             if ($uploadjob->presenter_filename) {
                 if ($uploadjob->presenter_filesize) {
                     $row[] = $uploadjob->presenter_filename . ' (' . display_size($uploadjob->presenter_filesize) . ')';
@@ -587,7 +637,7 @@ class block_opencast_renderer extends plugin_renderer_base
         }
         if ($editseries) {
             $context->hasanyactions = true;
-            $url = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+            $url = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
             $context->editseriesurl = $url->out();
         }
         return $this->render_from_template('block_opencast/series_settings_actions', $context);
@@ -646,5 +696,14 @@ class block_opencast_renderer extends plugin_renderer_base
     public function render_report_problem_icon($identifier) {
         $icon = $this->output->pix_icon('t/message', get_string('reportproblem_modal_title', 'block_opencast'));
         return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
+    }
+
+    public function render_manage_series_table()
+    {
+        return \html_writer::div('', 'mt-3', array('id' => 'seriestable')) .
+            \html_writer::tag('button', get_string('createseriesforcourse', 'block_opencast'),
+                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'createseries')).
+            \html_writer::tag('button', get_string('addexistingseries', 'block_opencast'),
+                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'addrow-seriestable'));
     }
 }

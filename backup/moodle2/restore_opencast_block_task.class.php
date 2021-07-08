@@ -84,11 +84,10 @@ class restore_opencast_block_task extends restore_block_task
      * Add a restore step, when required.
      */
     protected function define_my_steps() {
-        global $USER;
 
         $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
 
-        foreach($ocinstances as $ocinstance) {
+        foreach ($ocinstances as $ocinstance) {
             // Settings, does not exists, if opencast system does not support copying workflow.
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 return;
@@ -98,18 +97,8 @@ class restore_opencast_block_task extends restore_block_task
                 return;
             }
 
-            // Try to create a course series, if neccessary.
-            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstance->id);
-            $courseid = $this->get_courseid();
-
-            if (!$apibridge->get_stored_seriesid($courseid)) {
-                if (!$apibridge->create_course_series($courseid, null, $USER->id)) {
-                    echo get_string('seriesnotcreated', 'block_opencast');
-                }
-            }
-
             // Add the restore step to collect the events, that should have been restored.
-            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_'.$ocinstance->id.'.xml'));
+            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_' . $ocinstance->id . '.xml'));
         }
     }
 

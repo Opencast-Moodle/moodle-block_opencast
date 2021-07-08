@@ -29,6 +29,7 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 
 use block_opencast\opencast_state_exception;
 use local_chunkupload\chunkupload_form_element;
+use tool_opencast\seriesmapping;
 
 /**
  * Upload helper.
@@ -459,7 +460,19 @@ class upload_helper
             case self::STATUS_CREATING_SERIES:
                 try {
                     // Check if series exists.
-                    $series = $apibridge->ensure_course_series_exists($job->courseid, $job->userid);
+                    $metadata = json_decode($job->metadata);
+                    $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
+                    $series = null;
+
+                    if ($mtseries !== false) {
+                        // todo check if this really returns null if not existing.
+                        $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
+                    }
+
+                    if (!$series) {
+                        $series = $apibridge->ensure_course_series_exists($job->courseid, $job->userid);
+                    }
+
                     if ($series) {
                         $stepsuccessful = true;
                         mtrace('... series exists');
@@ -498,8 +511,25 @@ class upload_helper
                     }
                 }
 
-                $series = $apibridge->get_course_series($job->courseid);
-                $event = $apibridge->ensure_event_exists($job, $eventids, $series->identifier);
+                $metadata = json_decode($job->metadata);
+                $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
+                $series = null;
+                if ($mtseries !== false) {
+                    $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
+                }
+
+                if (!$series) {
+                    $series = $apibridge->get_course_series($job->courseid);
+
+                    // Set series metadata.
+                    if ($mtseries !== false) {
+                        $metadata[$mtseries]->value = $series->identifier;
+                    } else {
+                        $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
+                        $job->metadata = json_encode($metadata);
+                    }
+                }
+                $event = $apibridge->ensure_event_exists($job, $eventids);
 
                 // Check result.
                 if (!isset($event->identifier)) {

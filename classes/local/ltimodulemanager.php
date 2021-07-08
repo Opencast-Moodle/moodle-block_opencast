@@ -411,9 +411,10 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($courseid) {
+    public static function get_module_for_series($courseid, $series) {
         global $DB;
 
+        // TODO check how we can do this with lti
         // Get the LTI series module id.
         $moduleid = $DB->get_field('block_opencast_ltimodule', 'cmid', array('courseid' => $courseid));
 

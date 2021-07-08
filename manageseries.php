@@ -20,17 +20,26 @@
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use core\persistent;
+use tool_opencast\seriesmapping;
+
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $CFG, $USER;
+global $PAGE, $OUTPUT, $CFG, $USER, $DB;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$coursecontext = context_course::instance($courseid);
 $ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/editseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
+
+$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, 'seriesinput']);
+$PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
+$PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
@@ -43,7 +52,6 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('editseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
-$coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
 $editseriesform = new \block_opencast\local\editseries_form(null, array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -55,6 +63,62 @@ if ($editseriesform->is_cancelled()) {
 }
 
 if ($data = $editseriesform->get_data()) {
+    $allseries = json_decode($data->seriesinput);
+
+    $numdefault = 0;
+
+    // First check that all series are valid.
+    foreach($allseries as $seriesid => $isdefault) {
+        if(!$apibridge->ensure_series_is_valid($seriesid)) {
+            redirect($baseurl, get_string('seriesidnotvalid', 'block_opencast', $seriesid), null, \core\output\notification::NOTIFY_ERROR);
+        }
+        if($isdefault) {
+            $numdefault += 1;
+        }
+    }
+
+    // Ensure only one default series is given.
+    if($numdefault > 1 || $numdefault === 0 && !empty($allseries)) {
+        redirect($baseurl, get_string('seriesonedefault', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    }
+
+    // Now update database.
+    foreach($allseries as $seriesid => $isdefault) {
+        // todo write method
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid, 'series' => $seriesid));
+
+        if($mapping) {
+            if(intval($mapping->get('isdefault')) != $isdefault) {
+                $mapping->set('isdefault', $isdefault);
+                $mapping->update();
+            }
+        }
+        else {
+            $mapping = new seriesmapping();
+            $mapping->set('courseid', $courseid);
+            $mapping->set('series', $seriesid);
+            $mapping->set('isdefault', $isdefault);
+            $mapping->set('ocinstanceid', $ocinstanceid);
+            $mapping->create();
+        }
+
+
+        // todo update acls
+
+    }
+
+    $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $tobedeleted = array_diff(array_column($courseseries, 'series'), array_keys(get_object_vars($allseries)));
+
+    foreach($tobedeleted as $series) {
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'series' => $series), true);
+
+        if ($mapping) {
+            $mapping->delete();
+        }
+    }
+
+/*
     if ($data->seriesid) {
         if ($apibridge->ensure_series_is_valid($data->seriesid)) {
             $apibridge->update_course_series($courseid, $data->seriesid, $USER->id);
@@ -69,12 +133,18 @@ if ($data = $editseriesform->get_data()) {
         redirect($redirecturl, get_string('seriesidunset', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 
     }
+*/
 }
 
+/** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('editseriesforcourse', 'block_opencast'));
 
+// TODO maybe render from template?!
+echo $renderer->render_manage_series_table();
+
 $editseriesform->display();
+
 echo $OUTPUT->footer();

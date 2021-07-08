@@ -229,7 +229,7 @@ class block_opencast_backup_testcase extends advanced_testcase
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
 
         // But delete the course series in Moodle.
-        $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id));
+        $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id, 'isdefault' => '1'));
         $mapping->delete();
 
         // The series is now missing, so the task should fail.
@@ -239,6 +239,7 @@ class block_opencast_backup_testcase extends advanced_testcase
         $mappingwrong = new seriesmapping();
         $mappingwrong->set('courseid', $newcourse->id);
         $mappingwrong->set('series', 'wrong-series-id');
+        $mappingwrong->set('isdefault', '1');
         $mappingwrong->create();
 
         // The series is now incorrect, so the task should fail.

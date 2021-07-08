@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\series_form;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -29,9 +31,59 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return array
  */
-function block_opencast_get_fontawesome_icon_map() {
+function block_opencast_get_fontawesome_icon_map()
+{
     return [
         'block_opencast:share' => 'fa-share-square',
         'block_opencast:play' => 'fa-play-circle'
     ];
+}
+
+/**
+ * Serve the create series form as a fragment.
+ */
+function block_opencast_output_fragment_series_form($args)
+{
+    global $CFG;
+
+    $args = (object)$args;
+    $context = $args->context;
+    $o = '';
+
+    $formdata = [];
+    if (!empty($args->jsonformdata)) {
+        parse_str($args->jsonformdata, $formdata);
+        foreach($formdata as $field => $value) {
+            if($value === "_qf__force_multiselect_submisstion") {
+                $formdata[$field] = '';
+            }
+        }
+    }
+
+    list($ignored, $course) = get_context_info_array($context->id);
+
+    require_capability('block/opencast:createseriesforcourse', $context);
+
+    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries'));
+
+    if ($formdata['series']) {
+        $mform = new series_form(null, array('courseid' => $course->id, 'seriesid' => $formdata['series'],
+            'metadata_catalog' => $metadatacatalog));
+    } else {
+        $mform = new series_form(null, array('courseid' => $course->id, 'metadata_catalog' => $metadatacatalog));
+    }
+
+    $mform->set_data($formdata);
+
+    if (!empty($formdata)) {
+        $mform->is_validated();
+    }
+    // TODO validation errors are not displayed.
+
+    ob_start();
+    $mform->display();
+    $o .= ob_get_contents();
+    ob_end_clean();
+
+    return $o;
 }

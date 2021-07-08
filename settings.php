@@ -135,10 +135,26 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 set_config('metadata_' . $instance->id, $metadatadefault, 'block_opencast');
             }
 
-            $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
-                'helpbtnname', 'descriptionmdfn', 'block_opencast'));
-            $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams_' . $instance->id,
-                'helpbtnparams', 'catalogparam', 'block_opencast'));
+        $metdataseriesdefault = '[' .
+            '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"subject","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
+            '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
+            '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
+            '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
+            '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},' .
+            '{"name":"rightsHolder","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"license","datatype":"select","required":1,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
+            '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
+            '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
+            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+
+        $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
+            'helpbtnname', 'descriptionmdfn', 'block_opencast'));
+        $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams_' . $instance->id,
+            'helpbtnparams', 'catalogparam', 'block_opencast'));
 
             $rolessetting = new admin_setting_configtext('block_opencast/roles_' . $instance->id,
                 get_string('aclrolesname', 'block_opencast'),
@@ -150,12 +166,21 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('metadatadesc',
                     'block_opencast'), $metadatadefault);
 
-            // Crashes if plugins.php is opened because css cannot be included anymore.
-            if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
-                $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [$rolessetting->get_id(), $metadatasetting->get_id()]);
-                $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
-                $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
-            }
+        $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries_' . $instance->id,
+            get_string('metadataseries', 'block_opencast'),
+            get_string('metadataseriesdesc',
+                'block_opencast'), $metdataseriesdefault);
+
+        // Crashes if plugins.php is opened because css cannot be included anymore.
+        if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
+            $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [
+                $rolessetting->get_id(),
+                $metadatasetting->get_id(),
+                $metadataseriessetting->get_id()
+            ]);
+            $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
+            $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
+        }
 
             $generalsettings->add(
                 new admin_setting_heading('block_opencast/general_settings_' . $instance->id,
@@ -274,17 +299,28 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     null, $workflowchoices)
             );
 
-            $generalsettings->add($rolessetting);
+        $generalsettings->add($rolessetting);
             // Todo check rolestable multiple instances
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' . $instance->id, 'rolestable'));
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' . $instance->id, 'rolestable',
+            get_string('addrole', 'block_opencast')));
 
             $generalsettings->add(
                 new admin_setting_heading('block_opencast/metadata_header_' . $instance->id,
                     get_string('metadata', 'block_opencast'),
                     ''));
 
-            $generalsettings->add($metadatasetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' . $instance->id, 'metadatatable'));
+        $generalsettings->add($metadatasetting);
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' . $instance->id, 'metadatatable',
+            get_string('addcatalog', 'block_opencast')));
+
+        $generalsettings->add(
+            new admin_setting_heading('block_opencast/metadataseries_header_' . $instance->id,
+                get_string('metadataseries', 'block_opencast'),
+                ''));
+
+        $generalsettings->add($metadataseriessetting);
+        $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable_' . $instance->id, 'metadataseriestable',
+            get_string('addcatalog', 'block_opencast')));
 
             // Settings page: Appearance settings.
             $appearancesettings = new admin_settingpage('block_opencast_appearancesettings_' . $instance->id,
@@ -712,17 +748,36 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('importvideos_settingenabled', 'block_opencast'),
                     get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
-            // Import videos: Duplicate workflow.
-            $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'api');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
-                $opencasterror = $workflowchoices->getMessage();
-                $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
-            }
-            $select = new admin_setting_configselect('block_opencast/duplicateworkflow_' . $instance->id,
-                get_string('duplicateworkflow', 'block_opencast'),
-                get_string('duplicateworkflowdesc', 'block_opencast'),
-                null, $workflowchoices);
+        // Import Video: define modes (ACL Change / Duplicating Events).
+        $importmodechoices = array(
+            'duplication' => get_string('importvideos_settingmodeduplication', 'block_opencast'),
+            'acl' => get_string('importvideos_settingmodeacl', 'block_opencast')
+        );
+
+        // Set default to duplication mode.
+        $select = new admin_setting_configselect('block_opencast/importmode_' . $instance->id,
+            get_string('importmode', 'block_opencast'),
+            get_string('importmodedesc', 'block_opencast'),
+            'duplication', $importmodechoices);
+
+        $importvideossettings->add($select);
+
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importmode_' . $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+        }
+
+        // Import videos: Duplicate workflow.
+        $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'api');
+        if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
+            $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            $opencasterror = $workflowchoices->getMessage();
+            $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
+        }
+        $select = new admin_setting_configselect('block_opencast/duplicateworkflow_' . $instance->id,
+            get_string('duplicateworkflow', 'block_opencast'),
+            get_string('duplicateworkflowdesc', 'block_opencast'),
+            null, $workflowchoices);
 
             if ($CFG->branch >= 310) { // The validation functionality for admin settings is not available before Moodle 3.10.
                 $select->set_validate_function([workflow_setting_helper::class, 'validate_workflow_setting']);
@@ -730,64 +785,66 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             $importvideossettings->add($select);
 
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $importvideossettings->hide_if('block_opencast/duplicateworkflow_' . $instance->id,
-                    'block_opencast/importvideosenabled', 'notchecked');
-            }
-
-            // Import videos: Enable import videos within Moodle core course import wizard feature.
-            $importvideossettings->add(
-                new admin_setting_configcheckbox('block_opencast/importvideoscoreenabled_' . $instance->id,
-                    get_string('importvideos_settingcoreenabled', 'block_opencast'),
-                    get_string('importvideos_settingcoreenabled_desc', 'block_opencast'), 1));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $importvideossettings->hide_if('block_opencast/importvideoscoreenabled_' . $instance->id,
-                    'block_opencast/importvideosenabled', 'notchecked');
-                $importvideossettings->hide_if('block_opencast/importvideoscoreenabled_' . $instance->id,
-                    'block_opencast/duplicateworkflow', 'eq', '');
-            }
-
-            // Import videos: Enable manual import videos feature.
-            $importvideossettings->add(
-                new admin_setting_configcheckbox('block_opencast/importvideosmanualenabled_' . $instance->id,
-                    get_string('importvideos_settingmanualenabled', 'block_opencast'),
-                    get_string('importvideos_settingmanualenabled_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $importvideossettings->hide_if('block_opencast/importvideosmanualenabled_' . $instance->id,
-                    'block_opencast/importvideosenabled', 'notchecked');
-                $importvideossettings->hide_if('block_opencast/importvideosmanualenabled_' . $instance->id,
-                    'block_opencast/duplicateworkflow', 'eq', '');
-            }
-
-            // Import videos: Handle Opencast series modules during manual import.
-            $importvideossettings->add(
-                new admin_setting_configcheckbox('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
-                    get_string('importvideos_settinghandleseriesenabled', 'block_opencast'),
-                    get_string('importvideos_settinghandleseriesenabled_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
-                    'block_opencast/importvideosenabled', 'notchecked');
-                $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
-                    'block_opencast/duplicateworkflow', 'eq', '');
-                $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
-                    'block_opencast/importvideosmanualenabled', 'notchecked');
-            }
-
-            // Import videos: Handle Opencast episode modules during manual import.
-            $importvideossettings->add(
-                new admin_setting_configcheckbox('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
-                    get_string('importvideos_settinghandleepisodeenabled', 'block_opencast'),
-                    get_string('importvideos_settinghandleepisodeenabled_desc', 'block_opencast'), 0));
-            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
-                    'block_opencast/importvideosenabled', 'notchecked');
-                $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
-                    'block_opencast/duplicateworkflow', 'eq', '');
-                $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
-                    'block_opencast/importvideosmanualenabled', 'notchecked');
-            }
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/duplicateworkflow_' . $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+            $importvideossettings->hide_if('block_opencast/duplicateworkflow_' . $instance->id,
+                'block_opencast/importmode_' . $instance->id, 'eq', 'acl');
         }
 
+        // Import videos: Enable import videos within Moodle core course import wizard feature.
+        // This setting applies to both of import modes, therefore hide_if is only limited to importvideosenabled.
+        $importvideossettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideoscoreenabled_' . $instance->id,
+                get_string('importvideos_settingcoreenabled', 'block_opencast'),
+                get_string('importvideos_settingcoreenabled_desc', 'block_opencast'), 1));
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importvideoscoreenabled_'. $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+        }
+
+        // Import videos: Enable manual import videos feature.
+        // This setting applies to both of import modes, therefore hide_if is only limited to importvideosenabled.
+        $importvideossettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideosmanualenabled_' . $instance->id,
+                get_string('importvideos_settingmanualenabled', 'block_opencast'),
+                get_string('importvideos_settingmanualenabled_desc', 'block_opencast'), 0));
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importvideosmanualenabled_' . $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+        }
+
+        // Import videos: Handle Opencast series modules during manual import.
+        $importvideossettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
+                get_string('importvideos_settinghandleseriesenabled', 'block_opencast'),
+                get_string('importvideos_settinghandleseriesenabled_desc', 'block_opencast'), 0));
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
+                'block_opencast/importmode_' . $instance->id, 'eq', 'acl');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
+                'block_opencast/duplicateworkflow_' . $instance->id, 'eq', '');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleseriesenabled_' . $instance->id,
+                'block_opencast/importvideosmanualenabled_' . $instance->id, 'notchecked');
+        }
+
+        // Import videos: Handle Opencast episode modules during manual import.
+        $importvideossettings->add(
+            new admin_setting_configcheckbox('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
+                get_string('importvideos_settinghandleepisodeenabled', 'block_opencast'),
+                get_string('importvideos_settinghandleepisodeenabled_desc', 'block_opencast'), 0));
+        if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+            $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
+                'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
+                'block_opencast/importmode_' . $instance->id, 'eq', 'acl');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
+                'block_opencast/duplicateworkflow_' . $instance->id, 'eq', '');
+            $importvideossettings->hide_if('block_opencast/importvideoshandleepisodeenabled_' . $instance->id,
+                'block_opencast/importvideosmanualenabled_' . $instance->id, 'notchecked');
+        }
 
         // Don't spam other setting pages with error messages just because the tree was built.
         if ($opencasterror && $PAGE->pagetype == 'admin-setting-block_opencast') {
