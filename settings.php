@@ -137,7 +137,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 set_config('metadata_' . $instance->id, $metadatadefault, 'block_opencast');
             }
 
-            $metdataseriesdefault = '[' .
+            $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subject","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
                 '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
@@ -152,6 +152,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
+
+            if (!get_config('block_opencast', 'metadataseries_' . $instance->id)) {
+                set_config('metadataseries_' . $instance->id, $metadataseriesdefault, 'block_opencast');
+            }
 
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname', 'descriptionmdfn', 'block_opencast'));
@@ -171,7 +175,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries_' . $instance->id,
                 get_string('metadataseries', 'block_opencast'),
                 get_string('metadataseriesdesc',
-                    'block_opencast'), $metdataseriesdefault);
+                    'block_opencast'), $metadataseriesdefault);
 
             // Crashes if plugins.php is opened because css cannot be included anymore.
             if ($PAGE->state !== moodle_page::STATE_IN_BODY) {

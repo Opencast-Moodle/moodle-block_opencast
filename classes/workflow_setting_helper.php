@@ -39,8 +39,14 @@ class workflow_setting_helper
 {
     public static function validate_workflow_setting($data) {
         // Hack to get the opencast instance id.
-        $category = required_param('category', PARAM_RAW);
-        $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
+        $category = optional_param('category', null, PARAM_RAW);
+        if($category) {
+            $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
+        }
+        else {
+            $section = optional_param('section', null, PARAM_RAW);
+            $ocinstanceid = intval(ltrim($section, 'block_opencast_importvideossettings_'));
+        }
 
         // Do only if a workflow was set.
         if ($data != null) {
