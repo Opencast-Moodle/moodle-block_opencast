@@ -223,7 +223,7 @@ class block_opencast_renderer extends plugin_renderer_base
      *
      * @return string
      */
-    public function render_upload_jobs($uploadjobs, $showdeletebutton = true) {
+    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true) {
 
         $table = new html_table();
         $table->head = array(
@@ -255,7 +255,7 @@ class block_opencast_renderer extends plugin_renderer_base
                     } else if ($ms->id == 'startTime') {
                         $starttime = $ms->value;
                     } else if($ms->id == 'isPartOf') {
-                        $apibridge = apibridge::get_instance();
+                        $apibridge = apibridge::get_instance($ocinstanceid);
                         $ocseries = $apibridge->get_series_by_identifier($ms->value);
                         if($ocseries) {
                             $series = $ocseries->title;
@@ -627,19 +627,11 @@ class block_opencast_renderer extends plugin_renderer_base
         return html_writer::tag('ul', $o);
     }
 
-    public function render_series_settings_actions(int $ocinstanceid, int $courseid, bool $createseries, bool $editseries): string {
+    public function render_series_settings_actions(int $ocinstanceid, int $courseid): string {
         $context = new \stdClass();
-        $context->hasanyactions = false;
-        if ($createseries) {
-            $context->hasanyactions = true;
-            $url = new moodle_url('/blocks/opencast/createseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-            $context->createseriesurl = $url->out();
-        }
-        if ($editseries) {
-            $context->hasanyactions = true;
-            $url = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-            $context->editseriesurl = $url->out();
-        }
+        $context->hasanyactions = true;
+        $url = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+        $context->manageseriesurl = $url->out();
         return $this->render_from_template('block_opencast/series_settings_actions', $context);
     }
 
@@ -703,7 +695,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::div('', 'mt-3', array('id' => 'seriestable')) .
             \html_writer::tag('button', get_string('createseriesforcourse', 'block_opencast'),
                 array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'createseries')).
-            \html_writer::tag('button', get_string('addexistingseries', 'block_opencast'),
+            \html_writer::tag('button', get_string('importseries', 'block_opencast'),
                 array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'addrow-seriestable'));
     }
 }

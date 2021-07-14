@@ -83,7 +83,7 @@ if (($action == 'delete') && confirm_sesskey()) {
 $html = $OUTPUT->notification(get_string('deletedraftdesc', 'block_opencast'), 'error');
 
 $renderer = $PAGE->get_renderer('block_opencast');
-$html .= $renderer->render_upload_jobs([$jobtodelete], false);
+$html .= $renderer->render_upload_jobs($ocinstanceid, [$jobtodelete], false);
 
 $label = get_string('dodeletedraft', 'block_opencast');
 $params = array(

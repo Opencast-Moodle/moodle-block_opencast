@@ -64,13 +64,13 @@ function block_opencast_output_fragment_series_form($args)
 
     require_capability('block/opencast:createseriesforcourse', $context);
 
-    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries'));
+    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_'. $args->ocinstanceid));
 
     if ($formdata['series']) {
-        $mform = new series_form(null, array('courseid' => $course->id, 'seriesid' => $formdata['series'],
+        $mform = new series_form(null, array('courseid' => $course->id, 'ocinstanceid' => $args->ocinstanceid, 'seriesid' => $formdata['series'],
             'metadata_catalog' => $metadatacatalog));
     } else {
-        $mform = new series_form(null, array('courseid' => $course->id, 'metadata_catalog' => $metadatacatalog));
+        $mform = new series_form(null, array('courseid' => $course->id,  'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
     }
 
     $mform->set_data($formdata);

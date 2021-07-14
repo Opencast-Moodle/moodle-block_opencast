@@ -25,6 +25,7 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\apibridge;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $DB;
 
@@ -64,7 +65,14 @@ foreach ($workflows as $workflow) {
 $PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
-$PAGE->set_heading(get_string('pluginname', 'block_opencast'));
+
+if(settings_api::num_ocinstances() > 1) {
+    $PAGE->set_heading(get_string('pluginname', 'block_opencast') . ': ' . settings_api::get_ocinstance($ocinstanceid)->name);
+}
+else {
+    $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
+}
+
 $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 
 // Invalidate Block cache.
@@ -160,10 +168,9 @@ if ($seriesid && !$ocseriesid) {
     }
 }
 
-if (!$opencasterror) {
-    echo $renderer->render_series_settings_actions($ocinstanceid, $courseid,
-        !$apibridge->get_stored_seriesid($courseid) && has_capability('block/opencast:createseriesforcourse', $coursecontext),
-        has_capability('block/opencast:defineseriesforcourse', $coursecontext));
+if (!$opencasterror && (has_capability('block/opencast:createseriesforcourse', $coursecontext)
+        || has_capability('block/opencast:defineseriesforcourse', $coursecontext))) {
+    echo $renderer->render_series_settings_actions($ocinstanceid, $courseid);
 }
 
 
@@ -209,7 +216,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
         // Show explanation.
         echo html_writer::tag('p', get_string('uploadqueuetoopencastexplanation', 'block_opencast'));
-        echo $renderer->render_upload_jobs($videojobs);
+        echo $renderer->render_upload_jobs($ocinstanceid, $videojobs);
     }
 }
 
@@ -266,11 +273,18 @@ if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_ser
 foreach ($seriesvideodata as $series => $videodata) {
     if ($showseriesinfo) {
         // Get series title from first video.
-        if ($videodata->videos[0]) {
+        if ($videodata->videos && $videodata->videos[0]) {
             echo $renderer->render_series_intro($videodata->videos[0]->series);
         } else {
-            // If that fails use id.
-            echo $renderer->render_series_intro($series);
+            // Try to retrieve name from opencast.
+            $ocseries = $apibridge->get_series_by_identifier($series);
+            if($ocseries){
+                echo $renderer->render_series_intro($ocseries->title);
+            }
+            else {
+                // If that fails use id.
+                echo $renderer->render_series_intro($series);
+            }
         }
 
         // If enabled and working, add LTI series module feature.

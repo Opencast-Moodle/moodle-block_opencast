@@ -29,12 +29,12 @@ import ModalEvents from 'core/modal_events';
 import Fragment from 'core/fragment';
 import Ajax from 'core/ajax';
 
-function getBody(contextid, formdata) {
+function getBody(contextid, ocinstanceid, formdata) {
     if (typeof formdata === 'undefined') {
-        formdata = {};
+        formdata = "";
     }
 
-    var params = {jsonformdata: formdata};
+    var params = {ocinstanceid: ocinstanceid, jsonformdata: formdata};
     return Fragment.loadFragment('block_opencast', 'series_form', contextid, params);
 }
 
@@ -69,7 +69,7 @@ function submitFormAjax(e) {
     // Submit form.
     Ajax.call([{
         methodname: 'block_opencast_submit_series_form',
-        args: {contextid: contextid, jsonformdata: formData},
+        args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, jsonformdata: formData},
         done: function (newseries) {
             modal.destroy();
             if(seriestable !== undefined) {
@@ -78,15 +78,15 @@ function submitFormAjax(e) {
             }
         },
         fail: function () {
-            modal.setBody(getBody(contextid, formData));
+            modal.setBody(getBody(contextid, e.data.ocinstanceid, formData));
         }
     }]);
 }
 
-function loadSeriesTitles(contextid, series, seriestable, row) {
+function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     Ajax.call([{
         methodname: 'block_opencast_get_series_titles',
-        args: {contextid: contextid, series: JSON.stringify(series)},
+        args: {contextid: contextid, ocinstanceid: ocinstanceid, series: JSON.stringify(series)},
         done: function (data) {
             var titles = JSON.parse(data);
             if (seriestable !== null) {
@@ -111,7 +111,7 @@ function loadSeriesTitles(contextid, series, seriestable, row) {
     }]);
 }
 
-export const init = (contextid, seriesinputname) => {
+export const init = (contextid, ocinstanceid, seriesinputname) => {
 
     // Load strings
     var strings = [
@@ -146,23 +146,11 @@ export const init = (contextid, seriesinputname) => {
             },
             dataLoaded: function (data) {
                 // Load series titles.
-                loadSeriesTitles(contextid, data.map(x => x['series']), this);
+                loadSeriesTitles(contextid, ocinstanceid, data.map(x => x['series']), this);
             },
             columns: [
                 {title: jsstrings[0], field: "seriesname", editable: false},
-                {
-                    title: jsstrings[1], field: "series", editor: 'input', cellEdited: function (cell) {
-                        // Check if it matches Opencast series id regex.
-                        var r = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/;
-                        if (r.test(cell.getValue())) {
-                            cell.getRow().update({"seriesname": jsstrings[9]});
-                            loadSeriesTitles(contextid, [cell.getValue()], null, cell.getRow());
-                        }
-                        else {
-                            cell.getRow().update({"seriesname": ""});
-                        }
-                    }
-                },
+                {title: jsstrings[1], field: "series", editable: false},
                 {
                     title: jsstrings[2], field: "isdefault",
                     hozAlign: "center",
@@ -187,7 +175,7 @@ export const init = (contextid, seriesinputname) => {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[7],
-                            body: getBody(contextid, formdata)
+                            body: getBody(contextid, ocinstanceid, formdata)
                         })
                             .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[7]);
@@ -258,7 +246,7 @@ export const init = (contextid, seriesinputname) => {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[4],
-                body: getBody(contextid)
+                body: getBody(contextid, ocinstanceid)
             })
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[4]);
@@ -266,7 +254,7 @@ export const init = (contextid, seriesinputname) => {
 
                     // Reset modal on every open event.
                     modal.getRoot().on(ModalEvents.hidden, function () {
-                        modal.setBody(getBody(contextid));
+                        modal.setBody(getBody(contextid, ocinstanceid));
                     }).bind(this);
 
                     // We want to hide the submit buttons every time it is opened.
@@ -279,6 +267,7 @@ export const init = (contextid, seriesinputname) => {
                         modal.getRoot().find('form').submit();
                     });
                     modal.getRoot().on('submit', 'form', {'modal': modal, 'contextid': contextid,
+                        'ocinstanceid': ocinstanceid,
                         'seriestable': seriestable}, submitFormAjax);
 
                     modal.show();

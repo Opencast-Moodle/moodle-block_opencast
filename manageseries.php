@@ -22,6 +22,7 @@
  */
 
 use core\persistent;
+use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
 require_once('../../config.php');
@@ -37,7 +38,7 @@ $ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 $baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, 'seriesinput']);
+$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, $ocinstanceid, 'seriesinput']);
 $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
 $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
 
@@ -47,9 +48,14 @@ require_login($courseid, false);
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
-$PAGE->set_heading(get_string('pluginname', 'block_opencast'));
+if(settings_api::num_ocinstances() > 1) {
+    $PAGE->set_heading(get_string('pluginname', 'block_opencast') . ': ' . settings_api::get_ocinstance($ocinstanceid)->name);
+}
+else {
+    $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
+}
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('editseriesforcourse', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('manageseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
@@ -140,7 +146,7 @@ if ($data = $editseriesform->get_data()) {
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('editseriesforcourse', 'block_opencast'));
+echo $OUTPUT->heading(get_string('manageseriesforcourse', 'block_opencast'));
 
 // TODO maybe render from template?!
 echo $renderer->render_manage_series_table();

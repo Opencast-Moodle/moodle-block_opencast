@@ -48,6 +48,7 @@ class block_opencast_external extends external_api
     {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create group form, encoded as json array')
         ]);
     }
@@ -61,6 +62,7 @@ class block_opencast_external extends external_api
     {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'series' => new external_value(PARAM_RAW, 'Requested series, encoded as json array')
         ]);
     }
@@ -73,12 +75,13 @@ class block_opencast_external extends external_api
      *
      * @return string new series id
      */
-    public static function submit_series_form($contextid, string $jsonformdata)
+    public static function submit_series_form($contextid, int $ocinstanceid, string $jsonformdata)
     {
         global $USER;
 
         $params = self::validate_parameters(self::submit_series_form_parameters(), [
             'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
             'jsonformdata' => $jsonformdata
         ]);
 
@@ -92,8 +95,9 @@ class block_opencast_external extends external_api
         parse_str($params['jsonformdata'], $data);
         $data['courseid'] = $course->id;
 
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries'));
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $params['ocinstanceid']));
         $createseriesform = new series_form(null, array('courseid' => $course->id,
+            'ocinstanceid' => $params['ocinstanceid'],
             'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $data);
         $validateddata = $createseriesform->get_data();
 
@@ -110,10 +114,9 @@ class block_opencast_external extends external_api
                 );
             }
 
-            $apibridge = apibridge::get_instance();
+            $apibridge = apibridge::get_instance($params['ocinstanceid']);
             if (empty($validateddata->seriesid)) {
-                // TODO also set other metadata if given
-                return json_encode($apibridge->create_course_series($course->id, $validateddata->seriestitle, $USER->id));
+                return json_encode($apibridge->create_course_series($course->id, $metadata, $USER->id));
             } else {
 
                 return $apibridge->update_series_metadata($validateddata->seriesid, $metadata);
@@ -131,10 +134,11 @@ class block_opencast_external extends external_api
      *
      * @return string Series titles
      */
-    public static function get_series_titles(int $contextid, string $series)
+    public static function get_series_titles(int $contextid, int $ocinstanceid, string $series)
     {
         $params = self::validate_parameters(self::get_series_titles_parameters(), [
             'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
             'series' => $series
         ]);
 
@@ -145,7 +149,7 @@ class block_opencast_external extends external_api
         $serialiseddata = json_decode($params['series']);
         $seriestitles = array();
 
-        $apibridge = apibridge::get_instance();
+        $apibridge = apibridge::get_instance($params['ocinstanceid']);
         $seriesrecords = $apibridge->get_multiple_series_by_identifier($serialiseddata);
 
         foreach ($seriesrecords as $s) {

@@ -543,12 +543,12 @@ class apibridge
 
         $url = '/api/series?' ;
 
-        $params = array();
+        $identifierfilter = array();
         foreach($allseries as $series){
-            $params[] = 'identifier='.$series->series;
+            $identifierfilter[] = 'identifier:'.$series->series;
         }
 
-        $url .= implode("&", $params);
+        $url .= 'filter=' . implode(",", $identifierfilter);
 
         $api = new api();
 
@@ -666,15 +666,10 @@ class apibridge
      * @param int $userid
      * @return bool  tells if the creation of the series was successful.
      */
-    public function create_course_series($courseid, $seriestitle = null, $userid = null) {
+    public function create_course_series($courseid, $metadatafields = null, $userid = null) {
         $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
-        // TODO check if new implementation works with other places where this method is used.
 
-        $isdefault = true;
-        if ($mapping) {
-            $isdefault = false;
-        }
-
+        $isdefault = $mapping ? false : true;
         $params = [];
 
         $metadata = array();
@@ -682,18 +677,16 @@ class apibridge
         $metadata['flavor'] = "dublincore/series";
         $metadata['fields'] = [];
 
-        if (is_null($seriestitle)) {
-            $title = $this->get_default_seriestitle($courseid, $userid);
-        } else {
-            $title = $seriestitle;
+        if (is_null($metadatafields)) {
+            $metadatafields = array();
+            $metadatafields[] = array('id' => 'title', 'value' => $this->get_default_seriestitle($courseid, $userid));
         }
 
-        $metadata['fields'][] = array('id' => 'title', 'value' => $title);
+        $metadata['fields'] = $metadatafields;
 
         $params['metadata'] = json_encode(array($metadata));
 
         $acl = array();
-        // TODO
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
@@ -715,6 +708,8 @@ class apibridge
 
         $series = json_decode($result);
         if (isset($series) && object_property_exists($series, 'identifier')) {
+            $title = $metadata['fields'][array_search('title', array_column($metadata['fields'], 'id'))]['value'];
+
             $mapping = new seriesmapping();
             $mapping->set('ocinstanceid', $this->ocinstanceid);
             $mapping->set('courseid', $courseid);
@@ -1112,12 +1107,12 @@ class apibridge
 
         // Adapt course series.
         if (!$courseid = $event->get_next_series_courseid()) {
-            $this->ensure_series_assigned($eventidentifier, '');
+            $this->assign_series($eventidentifier, '');
         }
 
         $series = $this->ensure_course_series_exists($courseid, null);
 
-        return $this->ensure_series_assigned($eventidentifier, $series->identifier);
+        return $this->assign_series($eventidentifier, $series->identifier);
     }
 
     /**
@@ -1223,8 +1218,7 @@ class apibridge
      * @param string $seriesidentifier
      * @return boolean
      */
-    public function ensure_series_assigned($eventidentifier, $seriesidentifier) {
-
+    public function assign_series($eventidentifier, $seriesidentifier) {
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));

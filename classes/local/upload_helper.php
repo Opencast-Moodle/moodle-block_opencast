@@ -328,20 +328,19 @@ class upload_helper
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
-                'ocinstanceid' => $job->ocinstanceid,
                 'userid' => $job->userid,
-                'other' => array('filename' => implode(' & ', $filenames))
+                'other' => array('filename' => implode(' & ', $filenames), 'ocinstanceid' => $job->ocinstanceid)
             )
         );
 
         $event->trigger();
 
         // Delete file from files table.
-        $config = get_config('block_opencast'); // TODO
+        $adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion_' . $job->ocinstanceid);
 
         foreach ($files as $file) {
             $file->delete();
-            if (!empty($config->adhocfiledeletion)) {
+            if (!empty($adhocfiledeletion)) {
                 file_deletionmanager::fulldelete_file($file);
             }
         }
@@ -577,12 +576,24 @@ class upload_helper
                     mtrace('... group assigned');
                 }
 
-                // Ensure the assignment of a series.
-                $series = $apibridge->get_course_series($job->courseid);
-                if (!$apibridge->ensure_series_assigned($event->identifier, $series->identifier)) {
-                    mtrace('... series not yet assigned.');
-                    break;
+                // Ensure the assignment of a course series.
+                $assignedseries = $event->is_part_of;
+                $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
+
+                if(!array_search($assignedseries, array_column($courseseries, 'series'))) {
+                    // Try to assign series again.
+                    $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
+
+                    if(!array_search($mtseries, array_column($courseseries, 'series'))) {
+                        $mtseries =  $apibridge->get_course_series($job->courseid)->identifier;
+                    }
+
+                    if (!$apibridge->assign_series($event->identifier, $mtseries)) {
+                        mtrace('... series not yet assigned.');
+                        break;
+                    }
                 }
+
                 mtrace('... series assigned');
 
                 // If a event was created, the upload is finished and the event can be returned.

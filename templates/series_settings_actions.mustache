@@ -22,26 +22,18 @@
     Example context (json):
     {
         "hasanyactions": true,
-        "createseriesurl": "https://moodle.local/blocks/opencast/editseries.php?courseid=3&ocinstanceid=1"
+        "manageseriesurl": "https://moodle.local/blocks/opencast/manageseries.php?courseid=3&ocinstanceid=1"
     }
 }}
 {{#hasanyactions}}
 <div class="d-flex flex-wrap flex-row-reverse m-b-1 text-right">
-    {{#createseriesurl}}
+    {{#manageseriesurl}}
         <div class="pl-1">
-            <a class="iconsmall" title="{{#str}} createseriesforcourse, block_opencast {{/str}}" href="{{{createseriesurl}}}">
-                {{#pix}} a/create_folder, core{{/pix}}
-                {{#str}} createseriesforcourse, block_opencast {{/str}}
-            </a>
-        </div>
-    {{/createseriesurl}}
-    {{#editseriesurl}}
-        <div class="pl-1">
-            <a class="iconsmall" title="{{#str}} editseriesforcourse, block_opencast {{/str}}" href="{{{editseriesurl}}}">
+            <a class="iconsmall" title="{{#str}} manageseriesforcourse, block_opencast {{/str}}" href="{{{manageseriesurl}}}">
                 {{#pix}} i/edit, core{{/pix}}
-                {{#str}} editseriesforcourse, block_opencast {{/str}}
+                {{#str}} manageseriesforcourse, block_opencast {{/str}}
             </a>
         </div>
-    {{/editseriesurl}}
+    {{/manageseriesurl}}
 </div>
 {{/hasanyactions}}

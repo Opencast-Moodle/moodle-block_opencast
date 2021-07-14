@@ -50,7 +50,9 @@ class series_form extends \moodleform
         global $USER;
         $mform = $this->_form;
 
-        $apibridge = apibridge::get_instance();
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
+
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);

@@ -175,7 +175,7 @@ $string['allowunassigndesc'] = 'Delete the assignment of a course series to cont
     when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['blocksettings'] = 'Settings for a block instance';
-$string['addexistingseries'] = 'Add existing series';
+$string['importseries'] = 'Import series';
 $string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Uploaded by';
 $string['createseriesforcourse'] = 'Create new series';
@@ -204,7 +204,7 @@ $string['importmode'] = 'Import mode';
 $string['importmodedesc'] = 'In order to define an approach to import videos into a course, a mode should be seleted. The default mode is Duplicating Events in which a new series would be created and events will be avaible in the series by using a dupliaction workflow. <br /> ACL Change approach on the other hand will use the same seriesid among courses but series and events\' ACLs are changes to grant access from the course which imports the videos.';
 $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for importing opencast events from one course into another. If not set, it is not possible to import Opencast events.';
-$string['editseriesforcourse'] = 'Manage series';
+$string['manageseriesforcourse'] = 'Manage series';
 $string['editseries'] = 'Edit series';
 $string['enablechunkupload'] = 'Enable Chunkupload';
 $string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possible to upload videos using the chunkupload plugin';
