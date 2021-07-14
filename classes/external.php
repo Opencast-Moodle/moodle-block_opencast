@@ -195,13 +195,7 @@ class block_opencast_external extends external_api
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        // TODO return error (http code) on failure -> throw exception
-        // either: the series could not be found or general error
-        //todo return series information as json
-        //
-        //
-        //
-           // Perform ACL change.
+        // Perform ACL change.
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
         $result= $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
 
@@ -212,10 +206,10 @@ class block_opencast_external extends external_api
 
         $seriesinfo = new stdClass();
         $seriesinfo->id = $params['seriesid'];
-        $seriesinfo->name = $apibridge->get_series_by_identifier($params['seriesid'])->title;
+        $seriesinfo->title = $apibridge->get_series_by_identifier($params['seriesid'])->title;
         $seriesinfo->isdefault = $result;
 
-        return json_encode($apibridge->get_series_by_identifier($params['seriesid']));
+        return json_encode($seriesinfo);
     }
 
 

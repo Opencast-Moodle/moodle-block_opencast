@@ -176,6 +176,7 @@ $string['allowunassigndesc'] = 'Delete the assignment of a course series to cont
 $string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['blocksettings'] = 'Settings for a block instance';
 $string['importseries'] = 'Import series';
+$string['importfailed'] = 'The series could not be imported.';
 $string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Uploaded by';
 $string['createseriesforcourse'] = 'Create new series';

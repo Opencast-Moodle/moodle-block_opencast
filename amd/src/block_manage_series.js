@@ -28,6 +28,8 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Fragment from 'core/fragment';
 import Ajax from 'core/ajax';
+import Templates from 'core/templates';
+import Notification from 'core/notification';
 
 function getBody(contextid, ocinstanceid, formdata) {
     if (typeof formdata === 'undefined') {
@@ -125,7 +127,9 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
         {key: 'editseries', component: 'block_opencast'},
         {key: 'delete', component: 'moodle'},
         {key: 'loading', component: 'block_opencast'},
-        {key: 'importseries', component: 'block_opencast'}
+        {key: 'importseries', component: 'block_opencast'},
+        {key: 'importfailed', component: 'block_opencast'}
+
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
@@ -287,8 +291,19 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
                                 }
                             },
                             fail: function () {
-                                // TODO print error notification
-                                window.console.log("failed");
+                                modal.destroy();
+                                var context = {
+                                    announce: true,
+                                    closebutton: true,
+                                    extraclasses: "",
+                                    message: jsstrings[11]
+                                };
+
+                                Templates.render("core/notification_error", context).then(function (html){
+                                    $('#user-notifications').append(html);
+                                }).fail(function() {
+                                    Notification.alert(jsstrings[11], jsstrings[11]);
+                                });
                             }
                         }]);
                     });
