@@ -293,6 +293,7 @@ class upload_helper
      * - timemodified
      *
      * and create event, delete file from files table.
+     * and add notification job for the uploaded video if the admin setting is enabled.
      *
      * @param object $job
      * @param string $eventidentifier
@@ -350,6 +351,13 @@ class upload_helper
             if (!empty($config->adhocfiledeletion)) {
                 file_deletionmanager::fulldelete_file($file);
             }
+        }
+
+        // Get admin config, whether to send notification or not.
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled');
+        if ($notificationenabled) {
+            // Add the uploaded video for the event status notification job.
+            eventstatus_notification_helper::save_notification_jobs($eventidentifier, $job->courseid, $job->userid);
         }
     }
 
