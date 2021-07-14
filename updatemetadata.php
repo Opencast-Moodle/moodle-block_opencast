@@ -64,7 +64,7 @@ if ($data = $updatemetadataform->get_data()) {
     $newmetadata = [];
     $metadataids = array_column($metadata, 'id');
     foreach ($metadataids as $key) {
-        if (array_key_exists($key, $data)) {
+        if (isset($data->$key)) {
             $contentobj = [
                 'id' => $key,
                 'value' => $key == 'startDate' ? date('Y-m-d', $data->startDate) : $data->$key
