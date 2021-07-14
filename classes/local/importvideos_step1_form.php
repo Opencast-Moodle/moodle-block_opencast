@@ -60,6 +60,5 @@ class importvideos_step1_form extends \moodleform {
                 get_string('importvideos_wizardstep1sourcecoursenone', 'block_opencast'));
         $mform->addElement('html', $notification);
         $mform->addElement('cancel');
-        return;
     }
 }

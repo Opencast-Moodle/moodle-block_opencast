@@ -147,7 +147,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $this->seriesid = $data->seriesid;
 
         // Assign Seriesid to new course and change ACL.
-        $this->aclchanged = $apibridge->import_series_to_course_with_acl_change($courseid, $data->seriesid, $data->sourcecourseid, $USER->id);
+        $this->aclchanged = $apibridge->import_series_to_course_with_acl_change($courseid, $data->seriesid, $USER->id);
      }
 
 

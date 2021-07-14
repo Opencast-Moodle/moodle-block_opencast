@@ -59,7 +59,7 @@ class importvideos_step2_form_acl extends \moodleform
         $mform->setType('sourcecourseid', PARAM_INT);
         
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($this->_customdata['ocinstanceid']);
         // Get series object first to know if we can proceed.
         $seriesobject = $apibridge->get_course_series($this->_customdata['sourcecourseid']);
 
@@ -99,7 +99,7 @@ class importvideos_step2_form_acl extends \moodleform
         $mform->addElement('html', '<hr>');
 
         // Summary item: Course videos.
-        $coursevideossummary = importvideosmanager::get_import_acl_source_course_videos_summary(
+        $coursevideossummary = importvideosmanager::get_import_acl_source_course_videos_summary($this->_customdata['ocinstanceid'],
             $this->_customdata['sourcecourseid']);
         $mform->addElement('static', 'summarycoursevideos',
             get_string('importvideos_wizardstep1coursevideos', 'block_opencast'),

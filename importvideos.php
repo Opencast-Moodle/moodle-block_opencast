@@ -23,6 +23,8 @@
  */
 require_once('../../config.php');
 
+// TODO add possibility to select series if more than one exists (also support multi select)
+
 global $PAGE, $OUTPUT, $CFG;
 
 // Handle submitted parameters of the form.
@@ -159,7 +161,6 @@ switch ($step) {
                 // Initializing an empty string to replace the string name of the heading in this step.
                 $aclheadingstringname = '';
 
-                // When the Duplicating Events is selected.
                 if ($importmode == 'duplication') {
                     // Set form for next step.
                     $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
@@ -168,14 +169,14 @@ switch ($step) {
                             'courseid' => $courseid,
                             'sourcecourseid' => $importid));
                 } else if ($importmode == 'acl') {
-                    // When ACL Change is selected.
-
                     // Giving value to replace for string name of the heading.
                     $aclheadingstringname = 'acl';
 
                     // Set form for next step.
                     $importvideosform = new \block_opencast\local\importvideos_step2_form_acl(null,
-                        array('courseid' => $courseid,
+                        array(
+                            'ocinstanceid' => $ocinstanceid,
+                            'courseid' => $courseid,
                             'sourcecourseid' => $importid));
                 }
                 // Output the page header.
@@ -236,7 +237,7 @@ switch ($step) {
             // If we are in ACL Change summary step.
             if ($isaclsummary) {
                 // Perform ACL change.
-                $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($sourcecourseid, $courseid);
+                $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($ocinstanceid, $sourcecourseid, $courseid);
                 // Redirec the user with corresponding messages.
                 redirect($redirecturloverview, $resultaclchange->message, null, $resultaclchange->type);
             } else {

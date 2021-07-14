@@ -378,6 +378,7 @@ $string['opencast:addvideo'] = 'Add a new video to opencast upload block';
 $string['opencast:createseriesforcourse'] = 'Create a new series in opencast for a moodle course';
 $string['opencast:deleteevent'] = 'Finally delete a video (event) in opencast';
 $string['opencast:defineseriesforcourse'] = 'Link an existing opencast series to a moodle course';
+$string['opencast:importeriesintocourse'] = 'Link an existing opencast series to a moodle course';
 $string['opencast:downloadvideo'] = 'Download processed videos';
 $string['opencast:startworkflow'] = 'Manually start workflows for videos';
 $string['opencast:manualimportsource'] = 'Manually import videos from this course';

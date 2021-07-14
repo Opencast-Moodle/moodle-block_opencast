@@ -42,5 +42,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'block/opencast:defineseriesforcourse'
+    ),
+    'block_opencast_import_series' => array(
+        'classname' => 'block_opencast_external',
+        'methodname' => 'import_series',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Imports a series into a course',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:importseriesintocourse'
     )
 );

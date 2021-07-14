@@ -101,9 +101,6 @@ class importvideosmanager
                 // Inform the caller.
                 return false;
             }
-        } else if ($importmode == 'acl') {
-            // If ACL Change is selected as the import mode.
-            // If there is any other settings related to acl change, we check them here.
         }
 
         // The feature should be working.
@@ -183,10 +180,6 @@ class importvideosmanager
                 // Inform the caller.
                 return false;
             }
-        } else if ($importmode == 'acl') {
-            // If ACL Change is selected as the import mode.
-
-            // TODO: Add necessary validations for ACL here...
         }
 
         // The feature should be working.
@@ -466,17 +459,14 @@ class importvideosmanager
      *
      * @return string
      */
-    public static function get_import_acl_source_course_videos_summary($sourcecourseid) {
+    public static function get_import_acl_source_course_videos_summary($ocinstanceid, $sourcecourseid) {
         global $PAGE;
 
         // Get renderers.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
-        // Initialize course videos summary as empty string.
-        $coursevideossummary = '';
-
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get course videos which are qualified to be imported.
         $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
@@ -510,7 +500,7 @@ class importvideosmanager
      *
      * @return object
      */
-    public static function change_acl($sourcecourseid, $targetcourseid) {
+    public static function change_acl($ocinstanceid, $sourcecourseid, $targetcourseid) {
         global $USER, $PAGE;
 
         // Initialize the result as empty object to handle it later on.
@@ -521,13 +511,13 @@ class importvideosmanager
         $aclchangeresult->type = \core\output\notification::NOTIFY_SUCCESS;
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance();
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get the stored seriesid for this course.
         $seriesid = $apibridge->get_stored_seriesid($sourcecourseid);
 
         // Import series and course videos into the targeted course.
-        $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $seriesid, $sourcecourseid, $USER->id);
+        $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $seriesid, $USER->id);
 
         // We decide what to show as a return message based on errors.
         if ($result->error == 1) {

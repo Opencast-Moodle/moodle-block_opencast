@@ -696,6 +696,6 @@ class block_opencast_renderer extends plugin_renderer_base
             \html_writer::tag('button', get_string('createseriesforcourse', 'block_opencast'),
                 array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'createseries')).
             \html_writer::tag('button', get_string('importseries', 'block_opencast'),
-                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'addrow-seriestable'));
+                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'importseries'));
     }
 }

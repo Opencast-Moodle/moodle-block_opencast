@@ -195,43 +195,8 @@ class apibridge
         if (!isset($series)) {
             return $result;
         }
-        $seriesfilter = "series:" . $series->identifier;
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
-        if ($sortcolumns) {
-            $sort = api::get_sort_param($sortcolumns);
-            $query .= $sort;
-        }
-
-        $resource = '/api/events?' . $query;
-
-        $withroles = array();
-
-        $api = new api($this->ocinstanceid);
-        $videos = $api->oc_get($resource, $withroles);
-
-        if ($api->get_http_code() != 200) {
-            $result->error = $api->get_http_code();
-
-            return $result;
-        }
-
-        if (!$videos = json_decode($videos)) {
-            return $result;
-        }
-
-        $result->videos = $videos;
-
-        if ($result->error == 0) {
-            foreach ($videos as $video) {
-                $this->extend_video_status($video);
-                $this->set_download_state($video);
-            }
-        }
-
-        $result->videos = $videos;
-
-        return $result;
+        return $this->get_series_videos($series->identifier, $sortcolumns);
     }
 
     /**
@@ -259,7 +224,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $videos = $api->oc_get($resource, $withroles);
 
         if ($api->get_http_code() != 200) {
@@ -1825,7 +1790,7 @@ class apibridge
      *
      * @return stdClass $result
      */
-    public function import_series_to_course_with_acl_change($courseid, $seriesid, $sourcecourseid, $userid) {
+    public function import_series_to_course_with_acl_change($courseid, $seriesid, $userid) {
         // Define result object to return.
         $result = new \stdClass();
         // Assume there is no error at all.
@@ -1833,17 +1798,17 @@ class apibridge
 
         // Step 1: Update events ACL roles.
 
-        // Get course videos of the source course.
-        $coursevideos = $this->get_course_videos($sourcecourseid);
+        // Get videos of series.
+        $videos = $this->get_series_videos($seriesid);
 
         // Put events data in one place to make it simpler to use later.
         $eventsaclchangeobject = new \stdClass();
         // If there are vidoes.
-        if ($coursevideos &&  $coursevideos->error == 0) {
+        if ($videos &&  $videos->error == 0) {
             // Defining count will help with further process of result.
-            $eventsaclchangeobject->total = count($coursevideos->videos);
+            $eventsaclchangeobject->total = count($videos->videos);
             // Looping through videos.
-            foreach ($coursevideos->videos as $video) {
+            foreach ($videos->videos as $video) {
                 // Change the ACL of the event, by using making it visible for the new course.
                 $eventaclchange = $this->imported_events_acl_change($video->identifier, $courseid);
 
@@ -1869,7 +1834,6 @@ class apibridge
         if (!$result->seriesaclchange) {
             $result->error = 1;
         }
-
 
         // Step 3: Assign seriesid to the new course in seriesmapping.
         $result->seriesmapped = $this->map_imported_series_to_course($courseid, $seriesid);
@@ -1966,34 +1930,28 @@ class apibridge
     /**
      * Map the seriesid to the course that has been imported to, by assinging the series as secondary.
      *
-     * @return int $courseid id of the course being imported to.
      * @param string $seriesid series id.
      */
     private function map_imported_series_to_course($courseid, $seriesid) {
-        try {
-            // Get the current record.
-            $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'series' => $seriesid), true);
+        // Get the current record.
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid), true);
 
-            // If the mapping record does not exists, we create one.
-            if (!$mapping) {
-                $mapping = new seriesmapping();
-                $mapping->set('courseid', $courseid);
-                $mapping->set('series', $seriesid);
+        // If the mapping record does not exists, we create one.
+        if (!$mapping) {
+            $mapping = new seriesmapping();
+            $mapping->set('ocinstanceid', $this->ocinstanceid);
+            $mapping->set('courseid', $courseid);
+            $mapping->set('series', $seriesid);
 
-                // Try to check if there is any default series for this course.
-                $defaultcourseseries = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => 1), true);
-                // In case there is no default series for this course, this series will be the default.
-                $isdefault = !($defaultcourseseries) ? 1 : 0;
+            // Try to check if there is any default series for this course.
+            $defaultcourseseries = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => 1), true);
+            // In case there is no default series for this course, this series will be the default.
+            $isdefault = $defaultcourseseries ? 0 : 1;
 
-                $mapping->set('isdefault', $isdefault);
-                $mapping->create();
-            }
-        } catch (\moodle_exception $e) {
-            // Unlikely but who knows.
-            return false;
+            $mapping->set('isdefault', $isdefault);
+            $mapping->create();
         }
 
-        // Return true, except when there is a system error.
-        return true;
+        return $mapping->to_record();
     }
 }

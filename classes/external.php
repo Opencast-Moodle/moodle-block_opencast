@@ -68,6 +68,19 @@ class block_opencast_external extends external_api
     }
 
     /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function import_series_parameters() {
+        return new external_function_parameters([
+            'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be imported')
+        ]);
+    }
+
+    /**
      * Submits the series form.
      *
      * @param int $contextid The context id for the course.
@@ -159,6 +172,52 @@ class block_opencast_external extends external_api
         return json_encode($seriestitles);
     }
 
+    /**
+     * Imports a series into a course.
+     *
+     * @param int $contextid The context id for the course.
+     * @param string $series Series to be imported
+     *
+     * @return bool True if successful
+     */
+    public static function import_series(int $contextid, int $ocinstanceid, string $series)
+    {
+        global $USER;
+        $params = self::validate_parameters(self::import_series_parameters(), [
+            'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
+            'seriesid' => $series
+        ]);
+#
+        $context = context::instance_by_id($params['contextid']);
+        self::validate_context($context);
+        require_capability('block/opencast:importseriesintocourse', $context);
+
+        list($unused, $course, $cm) = get_context_info_array($context->id);
+
+        // TODO return error (http code) on failure -> throw exception
+        // either: the series could not be found or general error
+        //todo return series information as json
+        //
+        //
+        //
+           // Perform ACL change.
+        $apibridge = apibridge::get_instance($params['ocinstanceid']);
+        $result= $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
+
+        if($result->error){
+            // TODO improve message
+            throw new moodle_exception('missingrequiredfield');
+        }
+
+        $seriesinfo = new stdClass();
+        $seriesinfo->id = $params['seriesid'];
+        $seriesinfo->name = $apibridge->get_series_by_identifier($params['seriesid'])->title;
+        $seriesinfo->isdefault = $result;
+
+        return json_encode($apibridge->get_series_by_identifier($params['seriesid']));
+    }
+
 
     /**
      * Returns description of method result value
@@ -178,5 +237,15 @@ class block_opencast_external extends external_api
     public static function get_series_titles_returns()
     {
         return new external_value(PARAM_RAW, 'json array for the series');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function import_series_returns()
+    {
+        return new external_value(PARAM_RAW, 'Json series data');
     }
 }

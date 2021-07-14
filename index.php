@@ -254,7 +254,7 @@ if (!empty($errors) && $errors[0] == 0) {
 }
 
 // TODO also do for lti.
-
+// TODO use bootstrap badge instead of button
 // If enabled and working, add Opencast Activity series module feature.
 
 

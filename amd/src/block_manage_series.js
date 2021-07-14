@@ -124,7 +124,8 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
         {key: 'delete_confirm_series', component: 'block_opencast'},
         {key: 'editseries', component: 'block_opencast'},
         {key: 'delete', component: 'moodle'},
-        {key: 'loading', component: 'block_opencast'}
+        {key: 'loading', component: 'block_opencast'},
+        {key: 'importseries', component: 'block_opencast'}
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
@@ -224,22 +225,6 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
             ],
         });
 
-        $('#addrow-seriestable').click(function () {
-            if (seriestable.getDataCount() === 0) {
-                seriestable.addRow({'isdefault': 1}).then(function (row) {
-                    setTimeout(function () {
-                        row.getCell("series").edit(true);
-                    }, 100);
-                });
-            } else {
-                seriestable.addRow({'isdefault': 0}).then(function (row) {
-                    setTimeout(function () {
-                        row.getCell("series").edit(true);
-                    }, 100);
-                });
-            }
-        });
-
         // Create new series in modal
         // Button for connection a new series
         $('#createseries').click(function () {
@@ -275,6 +260,43 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
 
         });
 
+        // Import new series in modal
+        $('#importseries').click(function () {
+            ModalFactory.create({
+                type: ModalFactory.types.SAVE_CANCEL,
+                title: jsstrings[10],
+                body: '<p><input type="text" id="importseriesid"></p>'
+            })
+                .then(function (modal) {
+                    modal.setSaveButtonText(jsstrings[10]);
+                    modal.setLarge();
+
+                    modal.getRoot().on(ModalEvents.save, function (e) {
+                        e.preventDefault();
+                        var seriesid = $('#importseriesid').val();
+
+                        // Submit form.
+                        Ajax.call([{
+                            methodname: 'block_opencast_import_series',
+                            args: {contextid: contextid, ocinstanceid: ocinstanceid, seriesid: seriesid},
+                            done: function (newseries) {
+                                modal.destroy();
+                                if(seriestable !== undefined) {
+                                    var s = JSON.parse(newseries);
+                                    seriestable.addRow({'seriesname': s.title, 'series':s.id, 'isdefault': s.isdefault});
+                                }
+                            },
+                            fail: function () {
+                                // TODO print error notification
+                                window.console.log("failed");
+                            }
+                        }]);
+                    });
+
+                    modal.show();
+                });
+
+        });
     });
 };
 
