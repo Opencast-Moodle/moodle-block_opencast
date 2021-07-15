@@ -128,7 +128,7 @@ function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     }]);
 }
 
-export const init = (contextid, ocinstanceid, seriesinputname) => {
+export const init = (contextid, ocinstanceid) => {
 
     // Load strings
     var strings = [
@@ -150,7 +150,7 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
-        var seriesinput = $('input[name="' + seriesinputname + '"]');
+        var seriesinput = $('#seriesinput');
 
         var seriestable = new Tabulator("#seriestable", {
             data: JSON.parse(seriesinput.val()),

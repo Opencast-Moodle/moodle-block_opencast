@@ -690,9 +690,17 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
     }
 
-    public function render_manage_series_table()
+    public function render_manage_series_table($ocinstanceid, $courseid)
     {
-        return \html_writer::div('', 'mt-3', array('id' => 'seriestable')) .
+        global $DB;
+        $series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+        // Transform isdefault to int.
+        array_walk($series, function ($item) {
+            $item->isdefault = intval($item->isdefault);
+        });
+
+        return  \html_writer::tag('input', '', array('type' => 'hidden', 'id' => 'seriesinput', 'class' => 'd-none', 'value' => json_encode(array_values($series)))) .
+            \html_writer::div('', 'mt-3', array('id' => 'seriestable')) .
             \html_writer::tag('button', get_string('createseriesforcourse', 'block_opencast'),
                 array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'createseries')).
             \html_writer::tag('button', get_string('importseries', 'block_opencast'),
