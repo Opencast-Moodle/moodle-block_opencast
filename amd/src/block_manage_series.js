@@ -85,6 +85,21 @@ function submitFormAjax(e) {
     }]);
 }
 
+function displayError(message) {
+    var context = {
+        announce: true,
+        closebutton: true,
+        extraclasses: "",
+        message: message
+    };
+
+    Templates.render("core/notification_error", context).then(function (m){
+        $('#user-notifications').append(m);
+    }).fail(function() {
+        Notification.alert(message, message);
+    });
+}
+
 function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     Ajax.call([{
         methodname: 'block_opencast_get_series_titles',
@@ -220,7 +235,26 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
                             .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[8]);
                                 modal.getRoot().on(ModalEvents.save, function () {
-                                    cell.getRow().delete();
+                                    // TODO create new function.
+                                    Ajax.call([{
+                                        methodname: 'block_opencast_unlink_series',
+                                        args: {contextid: contextid, ocinstanceid: ocinstanceid,
+                                            seriesid: cell.getRow().getData().series},
+                                        done: function (result) {
+                                            modal.destroy();
+                                            let res = JSON.parse(result);
+                                            if(res.error) {
+                                                displayError(res.message);
+                                            }
+                                            else {
+                                                cell.getRow().delete();
+                                            }
+                                        },
+                                        fail: function (e) {
+                                            modal.destroy();
+                                            displayError(e.message);
+                                        }
+                                    }]);
                                 });
                                 modal.show();
                             });
@@ -266,10 +300,23 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
 
         // Import new series in modal
         $('#importseries').click(function () {
+            let context = {
+                label: "My label",
+                required: true,
+                advanced: false,
+                element: {
+                    wrapperid: "importseriesid_wrapper",
+                    name: 'importseriesid',
+                    id: 'importseriesid',
+                    type: 'text',
+                    value: ''
+                }
+            };
+
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[10],
-                body: '<p><input type="text" id="importseriesid"></p>'
+                body: Templates.render("core_form/element-template", context)
             })
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[10]);
@@ -292,18 +339,7 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
                             },
                             fail: function () {
                                 modal.destroy();
-                                var context = {
-                                    announce: true,
-                                    closebutton: true,
-                                    extraclasses: "",
-                                    message: jsstrings[11]
-                                };
-
-                                Templates.render("core/notification_error", context).then(function (html){
-                                    $('#user-notifications').append(html);
-                                }).fail(function() {
-                                    Notification.alert(jsstrings[11], jsstrings[11]);
-                                });
+                                displayError(jsstrings[11]);
                             }
                         }]);
                     });

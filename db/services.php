@@ -51,5 +51,23 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'block/opencast:importseriesintocourse'
+    ),
+    'block_opencast_unlink_series' => array(
+        'classname' => 'block_opencast_external',
+        'methodname' => 'unlink_series',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Removes a series from a course',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:manageseriesforcourse'
+    ),
+    'block_opencast_set_default_series' => array(
+        'classname' => 'block_opencast_external',
+        'methodname' => 'set_default_series',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Sets a new default series for a course',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:manageseriesforcourse'
     )
 );

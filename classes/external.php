@@ -25,6 +25,7 @@
 
 use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
+use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -77,6 +78,32 @@ class block_opencast_external extends external_api
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be imported')
+        ]);
+    }
+
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function unlink_series_parameters() {
+        return new external_function_parameters([
+            'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be removed')
+        ]);
+    }
+
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function set_default_series_parameters() {
+        return new external_function_parameters([
+            'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be set as default')
         ]);
     }
 
@@ -188,7 +215,7 @@ class block_opencast_external extends external_api
             'ocinstanceid' => $ocinstanceid,
             'seriesid' => $series
         ]);
-#
+
         $context = context::instance_by_id($params['contextid']);
         self::validate_context($context);
         require_capability('block/opencast:importseriesintocourse', $context);
@@ -210,6 +237,90 @@ class block_opencast_external extends external_api
         $seriesinfo->isdefault = $result;
 
         return json_encode($seriesinfo);
+    }
+
+    /**
+     * Removes a series from a course but does not delete it in Opencast.
+     *
+     * @param int $contextid The context id for the course.
+     * @param string $series Series to be removed from the course
+     *
+     * @return bool True if successful
+     */
+    public static function unlink_series(int $contextid, int $ocinstanceid, string $series)
+    {
+        global $USER;
+        $params = self::validate_parameters(self::unlink_series_parameters(), [
+            'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
+            'seriesid' => $series
+        ]);
+
+        $context = context::instance_by_id($params['contextid']);
+        self::validate_context($context);
+        require_capability('block/opencast:manageseriesforcourse', $context);
+
+
+        list($unused, $course, $cm) = get_context_info_array($context->id);
+
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
+            'series' => $params['seriesid']), true);
+
+        if ($mapping) {
+            if($mapping->get('isdefault')) {
+                return json_encode(array('error' => 1,
+                    'message' => get_string('cantdeletedefaultseries', 'block_opencast')));
+            }
+
+            if(!$mapping->delete()) {
+                return json_encode(array('error' => 1,
+                    'message' => get_string('delete_series_failed', 'block_opencast')));
+            }
+        }
+
+        return json_encode(array('error' => 0));
+    }
+
+    /**
+     * Sets a new default series for a course.
+     *
+     * @param int $contextid The context id for the course.
+     * @param string $series Series to be set as default
+     *
+     * @return bool True if successful
+     */
+    public static function set_default_series(int $contextid, int $ocinstanceid, string $series)
+    {
+        global $USER;
+        $params = self::validate_parameters(self::set_default_series_parameters(), [
+            'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
+            'seriesid' => $series
+        ]);
+
+        $context = context::instance_by_id($params['contextid']);
+        self::validate_context($context);
+        require_capability('block/opencast:manageseriesforcourse', $context);
+
+        list($unused, $course, $cm) = get_context_info_array($context->id);
+
+        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'isdefault' => true));
+
+        // Set new series as default.
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'series' => $params['seriesid']));
+
+        if($mapping) {
+            $mapping->set('isdefault', true);
+            if ($mapping->update()) {
+                // Remove default flag from old series.
+                if($olddefaultseries) {
+                    $olddefaultseries->set('isdefault', false);
+                    return $olddefaultseries->update();
+                }
+            }
+        }
+
+        return false;
     }
 
 
@@ -241,5 +352,25 @@ class block_opencast_external extends external_api
     public static function import_series_returns()
     {
         return new external_value(PARAM_RAW, 'Json series data');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function unlink_series_returns()
+    {
+        return new external_value(PARAM_RAW, 'True if successful');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function set_default_series_returns()
+    {
+        return new external_value(PARAM_RAW, 'Information if successful');
     }
 }
