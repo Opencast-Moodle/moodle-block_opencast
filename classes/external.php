@@ -268,17 +268,15 @@ class block_opencast_external extends external_api
 
         if ($mapping) {
             if($mapping->get('isdefault')) {
-                return json_encode(array('error' => 1,
-                    'message' => get_string('cantdeletedefaultseries', 'block_opencast')));
+                throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
             }
 
             if(!$mapping->delete()) {
-                return json_encode(array('error' => 1,
-                    'message' => get_string('delete_series_failed', 'block_opencast')));
+                throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
         }
 
-        return json_encode(array('error' => 0));
+        return true;
     }
 
     /**
@@ -291,7 +289,6 @@ class block_opencast_external extends external_api
      */
     public static function set_default_series(int $contextid, int $ocinstanceid, string $series)
     {
-        global $USER;
         $params = self::validate_parameters(self::set_default_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
@@ -306,21 +303,28 @@ class block_opencast_external extends external_api
 
         $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'isdefault' => true));
 
-        // Set new series as default.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'series' => $params['seriesid']));
+        // Series is already set as default.
+        if ($olddefaultseries->get('series') == $params['seriesid']) {
+            return true;
+        }
 
-        if($mapping) {
+        // Set new series as default.
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'series' => $params['seriesid']), true);
+
+        if ($mapping) {
             $mapping->set('isdefault', true);
             if ($mapping->update()) {
                 // Remove default flag from old series.
-                if($olddefaultseries) {
+                if ($olddefaultseries) {
                     $olddefaultseries->set('isdefault', false);
-                    return $olddefaultseries->update();
+                    if ($olddefaultseries->update()) {
+                        return true;
+                    }
                 }
             }
         }
 
-        return false;
+        throw new moodle_exception('setdefaultseriesfailed', 'block_opencast');
     }
 
 
@@ -341,6 +345,7 @@ class block_opencast_external extends external_api
      */
     public static function get_series_titles_returns()
     {
+        // TODO create structre insead of using generic value.
         return new external_value(PARAM_RAW, 'json array for the series');
     }
 
@@ -361,7 +366,7 @@ class block_opencast_external extends external_api
      */
     public static function unlink_series_returns()
     {
-        return new external_value(PARAM_RAW, 'True if successful');
+        return new external_value(PARAM_BOOL, 'True if successful');
     }
 
     /**
@@ -371,6 +376,6 @@ class block_opencast_external extends external_api
      */
     public static function set_default_series_returns()
     {
-        return new external_value(PARAM_RAW, 'Information if successful');
+        return new external_value(PARAM_BOOL, 'True if successful');
     }
 }

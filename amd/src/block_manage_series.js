@@ -143,8 +143,10 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
         {key: 'delete', component: 'moodle'},
         {key: 'loading', component: 'block_opencast'},
         {key: 'importseries', component: 'block_opencast'},
-        {key: 'importfailed', component: 'block_opencast'}
-
+        {key: 'importfailed', component: 'block_opencast'},
+        {key: 'form_seriesid', component: 'block_opencast'},
+        {key: 'setdefaultseries_heading', component: 'block_opencast'},
+        {key: 'setdefaultseries', component: 'bock_opencast'}
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
@@ -177,10 +179,34 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
                     widthGrow: 0,
                     formatter: function (cell) {
                         var input = document.createElement('input');
-                        input.type = 'checkbox';
+                        input.type = 'radio';
+                        input.name = 'defaultseries';
                         input.checked = cell.getValue();
-                        input.addEventListener('click', function () {
-                            cell.getRow().update({'isdefault': $(this).prop('checked') ? 1 : 0});
+                        input.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            ModalFactory.create({
+                                type: ModalFactory.types.SAVE_CANCEL,
+                                title: jsstrings[13],
+                                body: jsstrings[14]
+                            })
+                                .then(function (modal) {
+                                    modal.getRoot().on(ModalEvents.save, function () {
+                                        Ajax.call([{
+                                            methodname: 'block_opencast_set_default_series',
+                                            args: {contextid: contextid, ocinstanceid: ocinstanceid,
+                                                seriesid: cell.getRow().getData().series},
+                                            done: function () {
+                                                modal.destroy();
+                                                cell.getRow().update({'isdefault': 1});
+                                            },
+                                            fail: function (e) {
+                                                modal.destroy();
+                                                displayError(e.message);
+                                            }
+                                        }]);
+                                    });
+                                    modal.show();
+                                });
                         });
                         return input;
                     }
@@ -301,14 +327,15 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
         // Import new series in modal
         $('#importseries').click(function () {
             let context = {
-                label: "My label",
-                required: true,
+                label: jsstrings[12],
+                required: false,
                 advanced: false,
                 element: {
                     wrapperid: "importseriesid_wrapper",
                     name: 'importseriesid',
                     id: 'importseriesid',
                     type: 'text',
+                    size: 40,
                     value: ''
                 }
             };
@@ -316,7 +343,7 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[10],
-                body: Templates.render("core_form/element-template", context)
+                body: Templates.render("core_form/element-text", context)
             })
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[10]);
@@ -331,6 +358,7 @@ export const init = (contextid, ocinstanceid, seriesinputname) => {
                             methodname: 'block_opencast_import_series',
                             args: {contextid: contextid, ocinstanceid: ocinstanceid, seriesid: seriesid},
                             done: function (newseries) {
+                                // TODO check result
                                 modal.destroy();
                                 if(seriestable !== undefined) {
                                     var s = JSON.parse(newseries);
