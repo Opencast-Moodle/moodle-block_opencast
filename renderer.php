@@ -23,7 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
+use block_opencast\local\ltimodulemanager;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -63,27 +65,90 @@ class block_opencast_renderer extends plugin_renderer_base
         switch ($processingstate) {
 
             case 'FAILED' :
-                return $this->output->pix_icon('failed', get_string('ocstatefailed', 'block_opencast'), 'block_opencast');
+                $tooltip = get_string('ocstatefailed', 'block_opencast');
+                return $this->output->pix_icon('failed', $tooltip, 'block_opencast',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'PLANNED' :
-                return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'));
+                $tooltip = get_string('planned', 'block_opencast');
+                return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'), 'moodle',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'CAPTURING' :
-                return $this->output->pix_icon('capturing', get_string('ocstatecapturing', 'block_opencast'), 'block_opencast');
+                $tooltip = get_string('ocstatecapturing', 'block_opencast');
+                return $this->output->pix_icon('capturing', get_string('ocstatecapturing', 'block_opencast'), 'block_opencast',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'NEEDSCUTTING' :
-                return $this->output->pix_icon('e/cut', get_string('ocstateneedscutting', 'block_opencast'));
+                $tooltip = get_string('ocstateneedscutting', 'block_opencast');
+                return $this->output->pix_icon('e/cut', get_string('ocstateneedscutting', 'block_opencast'), 'moodle',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'DELETING' :
-                return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'));
+                $tooltip = get_string('deleting', 'block_opencast');
+                return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'), 'moodle',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'RUNNING' :
             case 'PAUSED' :
-                return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast');
+                $tooltip = get_string('ocstateprocessing', 'block_opencast');
+                return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'SUCCEEDED' :
             default :
-                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast');
+                $tooltip = get_string('ocstatesucceeded', 'block_opencast');
+                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast',
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
         }
     }
 
-    public function render_series_intro($seriesname) {
-        // TODO show bootstrap badge in how many courses the series is used (if more than one).
-        return $this->heading($seriesname, 4, array('mt-4'));
+    public function render_series_intro($coursecontext, $ocinstanceid, $courseid, $seriesid, $seriesname) {
+        $url = null;
+        $text = null;
+        // TODO how to support lti and activity?! (maybe add (LTI) if both are enabled)
+
+        if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
+            // Fetch existing LTI series module for this series.
+            $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
+
+            if ($moduleid) {
+                $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
+                $text = get_string('addlti_viewbuttontitle', 'block_opencast');
+            } else if (has_capability('block/opencast:addlti', $coursecontext)) {
+                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid));
+                $text = get_string('addlti_addbuttontitle', 'block_opencast');
+            }
+        }
+
+        if (activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
+            // Fetch existing Opencast Activity series module for this series.
+            $moduleid = activitymodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
+
+            if ($moduleid) {
+                $url = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
+                $text = get_string('addactivity_viewbuttontitle', 'block_opencast');
+            } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
+                $url = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
+                $text = get_string('addactivity_addbuttontitle', 'block_opencast');
+            }
+        }
+
+        $icon = $this->output->pix_icon('share', $text, 'block_opencast');
+        $addactivitylink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+
+        $courses = \tool_opencast\seriesmapping::get_records(array('series' => $seriesid, 'ocinstanceid' => $ocinstanceid));
+
+        if(count($courses) > 1) {
+            $tooltip = '';
+            foreach($courses as $course) {
+                if($tooltip) {
+                    $tooltip .= '<br>';
+                }
+                $tooltip .= get_course($course->get('courseid'))->fullname;
+            }
+
+            $usedin = \html_writer::tag('span', get_string('series_used', 'block_opencast', count($courses)),
+                array("class" => "badge badge-secondary mb-4", "data-toggle" => 'tooltip' ,'data-placement' => 'top', 'title' => $tooltip,
+                    'data-html' => 'true'));
+            return $this->heading($seriesname, 4, array('mt-4 d-inline-block')) . ' ' . $addactivitylink . '<br>' . $usedin;
+        }
+
+        return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink;
     }
 
     public function create_videos_tables($id, $headers, $columns, $baseurl) {
@@ -699,11 +764,9 @@ class block_opencast_renderer extends plugin_renderer_base
             $item->isdefault = intval($item->isdefault);
         });
 
-        return  \html_writer::tag('input', '', array('type' => 'hidden', 'id' => 'seriesinput', 'class' => 'd-none', 'value' => json_encode(array_values($series)))) .
-            \html_writer::div('', 'mt-3', array('id' => 'seriestable')) .
-            \html_writer::tag('button', get_string('createseriesforcourse', 'block_opencast'),
-                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'createseries')).
-            \html_writer::tag('button', get_string('importseries', 'block_opencast'),
-                array('type' => 'button', 'class' => 'btn btn-primary mt-3 float-right', 'id' => 'importseries'));
+        $context = new stdClass();
+        $context->series = json_encode(array_values($series));
+
+        return  $this->render_from_template('block_opencast/series_table', $context);
     }
 }

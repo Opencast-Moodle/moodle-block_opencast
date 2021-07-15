@@ -31,12 +31,12 @@ import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 
-function getBody(contextid, ocinstanceid, formdata) {
+function getBody(contextid, ocinstanceid, seriesid, formdata) {
     if (typeof formdata === 'undefined') {
         formdata = "";
     }
 
-    var params = {ocinstanceid: ocinstanceid, jsonformdata: formdata};
+    var params = {ocinstanceid: ocinstanceid, seriesid: seriesid, jsonformdata: formdata};
     return Fragment.loadFragment('block_opencast', 'series_form', contextid, params);
 }
 
@@ -71,7 +71,7 @@ function submitFormAjax(e) {
     // Submit form.
     Ajax.call([{
         methodname: 'block_opencast_submit_series_form',
-        args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, jsonformdata: formData},
+        args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, seriesid: e.data.seriesid, jsonformdata: formData},
         done: function (newseries) {
             modal.destroy();
             if(seriestable !== undefined) {
@@ -80,7 +80,7 @@ function submitFormAjax(e) {
             }
         },
         fail: function () {
-            modal.setBody(getBody(contextid, e.data.ocinstanceid, formData));
+            modal.setBody(getBody(contextid, e.data.ocinstanceid, e.data.seriesid, formData));
         }
     }]);
 }
@@ -217,11 +217,10 @@ export const init = (contextid, ocinstanceid) => {
                             return '<i class="icon fa fa-edit fa-fw"></i>';
                         },
                     cellClick: function (_, cell) {
-                        var formdata = "series=" + cell.getRow().getCell("series").getValue();
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[7],
-                            body: getBody(contextid, ocinstanceid, formdata)
+                            body: getBody(contextid, ocinstanceid, cell.getRow().getCell("series").getValue())
                         })
                             .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[7]);
@@ -241,7 +240,12 @@ export const init = (contextid, ocinstanceid) => {
                                     e.preventDefault();
                                     modal.getRoot().find('form').submit();
                                 });
-                                modal.getRoot().on('submit', 'form', {'modal': modal, 'contextid': contextid}, submitFormAjax);
+                                modal.getRoot().on('submit', 'form', {
+                                    'modal': modal,
+                                    'contextid': contextid,
+                                    'ocinstanceid': ocinstanceid,
+                                    'seriesid': cell.getRow().getCell("series").getValue()
+                                }, submitFormAjax);
 
                                 modal.show();
                             });
@@ -315,9 +319,13 @@ export const init = (contextid, ocinstanceid) => {
                         e.preventDefault();
                         modal.getRoot().find('form').submit();
                     });
-                    modal.getRoot().on('submit', 'form', {'modal': modal, 'contextid': contextid,
+                    modal.getRoot().on('submit', 'form', {
+                        'modal': modal,
+                        'contextid': contextid,
                         'ocinstanceid': ocinstanceid,
-                        'seriestable': seriestable}, submitFormAjax);
+                        'seriestable': seriestable,
+                        'seriesid': null
+                    }, submitFormAjax);
 
                     modal.show();
                 });

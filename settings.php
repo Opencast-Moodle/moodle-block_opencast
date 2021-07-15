@@ -139,9 +139,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 set_config('metadata_' . $instance->id, $metadatadefault, 'block_opencast');
             }
 
+            // TODO are they really different?
             $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
-                '{"name":"subject","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
+                '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
                 '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
                 '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .

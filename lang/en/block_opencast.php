@@ -423,6 +423,7 @@ $string['series_does_not_exist'] = 'The series assigned to this course is not va
 $string['seriesname'] = 'Series name';
 $string['seriesnamedesc'] = 'Series to which the video is added. You can use placeholders which are automatically replaced (<a target="_blank" href="https://moodle.docs.opencast.org/#block/general_settings/#placeholders">list of placeholders</a>).';
 $string['series_name_empty'] = 'Series name must not be empty.';
+$string['series_used'] = 'Used in {$a} courses';
 $string['seriesonedefault'] = 'There must be exactly one default series.';
 $string['setdefaultseries_heading'] = 'Set default series';
 $string['setdefaultseries'] = 'Do you really want to use this series as new default series?';

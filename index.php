@@ -274,95 +274,21 @@ foreach ($seriesvideodata as $series => $videodata) {
     if ($showseriesinfo) {
         // Get series title from first video.
         if ($videodata->videos && $videodata->videos[0]) {
-            echo $renderer->render_series_intro($videodata->videos[0]->series);
+            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
         } else {
             // Try to retrieve name from opencast.
             $ocseries = $apibridge->get_series_by_identifier($series);
             if($ocseries){
-                echo $renderer->render_series_intro($ocseries->title);
+                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
             }
             else {
                 // If that fails use id.
-                echo $renderer->render_series_intro($series);
+                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
             }
         }
-
-        // If enabled and working, add LTI series module feature.
-        if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
-
-            // Fetch existing LTI series module for this course.
-            $moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $series);
-
-            // If there is already a LTI series module created in this course.
-            if ($moduleid) {
-
-                // Show button to view the LTI series module.
-                $viewltiurl = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
-                $viewltibutton = $OUTPUT->single_button($viewltiurl, get_string('addlti_viewbuttontitle', 'block_opencast'), 'get');
-                echo html_writer::tag('p', $viewltibutton);
-
-                // If enabled and working, add additional explanation for LTI episodes module feature.
-                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true &&
-                    count($videodata->videos) > 0) {
-                    echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
-                }
-
-                // If there isn't a LTI series module yet in this course and the user is allowed to add one.
-            } else if (has_capability('block/opencast:addlti', $coursecontext)) {
-
-                // Show button to add the LTI series module.
-                $addltiurl = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid));
-                $addltibutton = $OUTPUT->single_button($addltiurl, get_string('addlti_addbuttontitle', 'block_opencast'), 'get');
-                echo html_writer::tag('p', $addltibutton);
-
-                // If enabled and working, add additional explanation for LTI episodes module feature.
-                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true &&
-                    count($videodata->videos) > 0) {
-                    echo html_writer::tag('p', get_string('addltiepisode_explanation', 'block_opencast'));
-                }
-            }
-        }
-
-// If enabled and working, add Opencast Activity series module feature.
-        if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
-
-            // Fetch existing Opencast Activity series module for this course.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $courseid, $series);
-
-            // If there is already a Opencast Activity series module created in this course.
-            if ($moduleid) {
-
-                // Show button to view the Opencast Activity series module.
-                $viewactivityurl = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
-                $viewactivitybutton = $OUTPUT->single_button($viewactivityurl,
-                    get_string('addactivity_viewbuttontitle', 'block_opencast'), 'get');
-                echo html_writer::tag('p', $viewactivitybutton);
-
-                // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
-                if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true &&
-                    count($videodata->videos) > 0) {
-                    echo html_writer::tag('p', get_string('addactivityepisode_explanation', 'block_opencast'));
-                }
-
-                // If there isn't a Opencast Activity series module yet in this course and the user is allowed to add one.
-            } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
-
-                // Show button to add the Opencast Activity series module.
-                $addactivityurl = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $series));
-                $addactivitybutton = $OUTPUT->single_button($addactivityurl,
-                    get_string('addactivity_addbuttontitle', 'block_opencast'), 'get');
-                echo html_writer::tag('p', $addactivitybutton);
-
-                // If enabled and working, add additional explanation for Opencast Activity episodes module feature.
-                if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true &&
-                    count($videodata->videos) > 0) {
-                    echo html_writer::tag('p', get_string('addactivityepisode_explanation', 'block_opencast'));
-                }
-            }
-        }
-
     }
 
+    // TODO show provide videos if seriesintro not rendered
 
     if ($videodata->error == 0) {
         $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);

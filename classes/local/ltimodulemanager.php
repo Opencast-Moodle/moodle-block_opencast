@@ -411,7 +411,7 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($courseid, $series) {
+    public static function get_module_for_series($ocinstanceid, $courseid, $series) {
         global $DB;
 
         // TODO check how we can do this with lti

@@ -50,6 +50,7 @@ class block_opencast_external extends external_api
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'The series id'),
             'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create group form, encoded as json array')
         ]);
     }
@@ -115,13 +116,14 @@ class block_opencast_external extends external_api
      *
      * @return string new series id
      */
-    public static function submit_series_form($contextid, int $ocinstanceid, string $jsonformdata)
+    public static function submit_series_form($contextid, int $ocinstanceid, string $seriesid, string $jsonformdata)
     {
         global $USER;
 
         $params = self::validate_parameters(self::submit_series_form_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
+            'seriesid' => $seriesid,
             'jsonformdata' => $jsonformdata
         ]);
 
@@ -144,7 +146,7 @@ class block_opencast_external extends external_api
         if ($validateddata) {
             $metadata = [];
             foreach ($validateddata as $field => $value) {
-                if ($field === 'courseid' || $field === 'seriesid') {
+                if ($field === 'courseid') {
                     continue;
                 }
 
@@ -155,11 +157,10 @@ class block_opencast_external extends external_api
             }
 
             $apibridge = apibridge::get_instance($params['ocinstanceid']);
-            if (empty($validateddata->seriesid)) {
+            if (!$params['seriesid']) {
                 return json_encode($apibridge->create_course_series($course->id, $metadata, $USER->id));
             } else {
-
-                return $apibridge->update_series_metadata($validateddata->seriesid, $metadata);
+                return $apibridge->update_series_metadata($params['seriesid'], $metadata);
             }
         } else {
             throw new moodle_exception('missingrequiredfield');

@@ -57,12 +57,9 @@ class series_form extends \moodleform
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
-        $mform->addElement('hidden', 'seriesid', $this->_customdata['seriesid']);
-        $mform->setType('seriesid', PARAM_ALPHANUMEXT);
-
-
         $settitle = true;
         foreach ($this->_customdata['metadata_catalog'] as $field) {
+            $value = $this->extract_value($field->name);
             $param = array();
             $attributes = array();
             if ($field->name == 'title') {
@@ -86,18 +83,16 @@ class series_form extends \moodleform
                         $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
+                foreach ($value as $val) {
+                    $param[$val] = $val;
+                }
             }
 
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
 
             if ($field->name == 'title') {
-                if (!empty($this->_customdata['seriesid'])) {
-                    $ocseries = $apibridge->get_series_by_identifier($this->_customdata['seriesid']);
-                    $mform->setDefault('title', $ocseries->title, $USER->id);
-                } else {
-                    $mform->setDefault('title', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
-                }
+                $mform->setDefault('title', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));
             }
 
             if ($field->datatype == 'text') {
@@ -110,6 +105,10 @@ class series_form extends \moodleform
                 } else {
                     $mform->addRule($field->name, get_string('required'), 'required');
                 }
+            }
+
+            if ($value) {
+                $mform->setDefault($field->name, $value);
             }
         }
 
@@ -142,5 +141,22 @@ class series_form extends \moodleform
         } else {
             return get_string($identifier, $component, $a);
         }
+    }
+
+    /**
+     * Searches through metadata to find the value of the field defined in catalog
+     * @param string $fieldname the name of the catalog field which is defined as id in metadata set
+     * @return string|array $value An array or string derived from metadata
+     */
+    protected function extract_value($fieldname) {
+        $metadata = $this->_customdata['metadata'];
+
+        foreach ($metadata as $data) {
+
+            if ($data->id == $fieldname) {
+                return $data->value;
+            }
+        }
+        return '';
     }
 }

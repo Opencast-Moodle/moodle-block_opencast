@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
 
 defined('MOODLE_INTERNAL') || die();
@@ -66,19 +67,19 @@ function block_opencast_output_fragment_series_form($args)
 
     $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_'. $args->ocinstanceid));
 
-    if ($formdata['series']) {
-        $mform = new series_form(null, array('courseid' => $course->id, 'ocinstanceid' => $args->ocinstanceid, 'seriesid' => $formdata['series'],
-            'metadata_catalog' => $metadatacatalog));
-    } else {
-        $mform = new series_form(null, array('courseid' => $course->id,  'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
-    }
-
-    $mform->set_data($formdata);
-
-    if (!empty($formdata)) {
+    if ($formdata) {
+        $mform = new series_form(null, array('courseid' => $course->id,
+            'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $formdata);
         $mform->is_validated();
+    } else if ($args->seriesid) {
+        // Load stored series metadata.
+        $apibridge = apibridge::get_instance($args->ocinstanceid);
+        $ocseries = $apibridge->get_series_metadata($args->seriesid);
+        $mform = new series_form(null, array('courseid' => $course->id, 'metadata' => $ocseries,
+            'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
+    } else {
+        $mform = new series_form(null, array('courseid' => $course->id, 'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
     }
-    // TODO validation errors are not displayed.
 
     ob_start();
     $mform->display();

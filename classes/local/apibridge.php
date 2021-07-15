@@ -480,7 +480,7 @@ class apibridge
      * API call to check, whether series exists in opencast system.
      *
      * @param int $seriesid
-     * @return null|string id of the series id if it exists in the opencast system.
+     * @return null|\stdClass series if it exists in the opencast system.
      */
     public function get_series_by_identifier($seriesid) {
 
@@ -1656,7 +1656,24 @@ class apibridge
         }
 
         return json_decode($metadata);
+    }
 
+    /**
+     * Get the series's metadata of the specified type
+     * @param string $seriesid Series id
+     * @param string $query Api query additions
+     * @return bool|int|mixed Event metadata
+     */
+    public function get_series_metadata($seriesid) {
+        $api = new api($this->ocinstanceid);
+        $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
+        $metadata = $api->oc_get($resource);
+
+        if ($api->get_http_code() != 200) {
+            return $api->get_http_code();
+        }
+
+        return json_decode($metadata);
     }
 
     /**
