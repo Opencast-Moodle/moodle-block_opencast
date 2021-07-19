@@ -299,7 +299,7 @@ export const init = (contextid, ocinstanceid) => {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[4],
-                body: getBody(contextid, ocinstanceid)
+                body: getBody(contextid, ocinstanceid, '')
             })
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[4]);
@@ -307,7 +307,7 @@ export const init = (contextid, ocinstanceid) => {
 
                     // Reset modal on every open event.
                     modal.getRoot().on(ModalEvents.hidden, function () {
-                        modal.setBody(getBody(contextid, ocinstanceid));
+                        modal.setBody(getBody(contextid, ocinstanceid, ''));
                     }).bind(this);
 
                     // We want to hide the submit buttons every time it is opened.
@@ -324,7 +324,7 @@ export const init = (contextid, ocinstanceid) => {
                         'contextid': contextid,
                         'ocinstanceid': ocinstanceid,
                         'seriestable': seriestable,
-                        'seriesid': null
+                        'seriesid': ''
                     }, submitFormAjax);
 
                     modal.show();

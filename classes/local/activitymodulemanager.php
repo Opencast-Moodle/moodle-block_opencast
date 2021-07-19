@@ -73,7 +73,7 @@ class activitymodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_series($courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
+    public static function create_module_for_series($courseid, $ocinstanceid, $title, $seriesid, $sectionid = 0, $introtext = '',
                                                     $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
@@ -102,7 +102,7 @@ class activitymodulemanager
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_activity_modinfo($pluginid, $title, $sectionid, $seriesid, opencasttype::SERIES,
+        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $seriesid, opencasttype::SERIES,
             $introtext, $introformat, $availability);
 
         // Add the Opencast Activity series module to the given course.
@@ -125,7 +125,7 @@ class activitymodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_episode($courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
+    public static function create_module_for_episode($courseid, $ocinstanceid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
                                                      $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
@@ -154,7 +154,7 @@ class activitymodulemanager
         }
 
         // Create an Opencast Activity modinfo object.
-        $moduleinfo = self::build_activity_modinfo($pluginid, $title, $sectionid, $episodeuuid, opencasttype::EPISODE,
+        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $episodeuuid, opencasttype::EPISODE,
             $introtext, $introformat, $availability);
 
         // Add the Opencast Activity episode module to the given course.
@@ -178,7 +178,7 @@ class activitymodulemanager
      *
      * @return object
      */
-    public static function build_activity_modinfo($pluginid, $title, $sectionid, $opencastid, $type,
+    public static function build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $opencastid, $type,
                                                   $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
         global $CFG;
 
@@ -208,6 +208,7 @@ class activitymodulemanager
         // Populate the modinfo object with opencast activity specific parameters.
         $moduleinfo->type = $type;
         $moduleinfo->opencastid = $opencastid;
+        $moduleinfo->ocinstanceid = $ocinstanceid;
 
         // Return modinfo.
         return $moduleinfo;

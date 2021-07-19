@@ -565,8 +565,13 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021070700) {
+        // Define settings fields so that update can be executed multiple times without problems.
+        // TODO
+        $settingsfields = [];
+
+        // TODO
         // Update configs to use default tenant (id=1).
-        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name != 'version';");
+        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name != 'version'");
 
         // Add new instance field to upload job table.
         $table = new xmldb_table('block_opencast_uploadjob');

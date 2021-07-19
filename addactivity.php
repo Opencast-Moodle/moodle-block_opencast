@@ -120,7 +120,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // Create the module.
-    $result = \block_opencast\local\activitymodulemanager::create_module_for_series($courseid, $data->title, $seriesid,
+    $result = \block_opencast\local\activitymodulemanager::create_module_for_series($courseid, $ocinstanceid, $data->title, $seriesid,
         $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.

@@ -510,12 +510,17 @@ class apibridge
 
         $identifierfilter = array();
         foreach($allseries as $series){
-            $identifierfilter[] = 'identifier:'.$series->series;
+            if(isset($series->series)) {
+                $identifierfilter[] = 'identifier:'.$series->series;
+            }
+            else {
+                $identifierfilter[] = 'identifier:'.$series;
+            }
         }
 
         $url .= 'filter=' . implode(",", $identifierfilter);
 
-        $api = new api();
+        $api = new api($this->ocinstanceid);
 
         $series = $api->oc_get($url);
 
@@ -1719,7 +1724,7 @@ class apibridge
         $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
 
         $params['metadata'] = json_encode($metadata);
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
@@ -1872,7 +1877,7 @@ class apibridge
     private function imported_series_acl_change($courseid, $seriesid, $userid) {
 
         // Reading acl from opencast server.
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $resource = '/api/series/' . $seriesid . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -1918,7 +1923,7 @@ class apibridge
         }
 
         // Update the acls via put request.
-        $api = new api();
+        $api = new api($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         // Finally we return the result of that request to the server.
