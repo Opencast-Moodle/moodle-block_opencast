@@ -586,7 +586,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         if($DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
             $DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name'=>'roles_1'))) {
             // Remove already upgraded settings and only keep old ones.
-            $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name not in " . $fieldsjoined);
+            $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name != 'version' AND name not in " . $fieldsjoined);
         }
 
         // Update configs to use default tenant (id=1).
