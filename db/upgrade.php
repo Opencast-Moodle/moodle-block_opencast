@@ -535,7 +535,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
                         "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid AND f.contextid = :contextid";
 
                     if (!$dotfiles = $DB->get_records_sql($sql, $params)) {
-                        return;
+                        continue;
                     }
 
                     $fs = get_file_storage();
@@ -564,12 +564,12 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021062401, 'opencast');
     }
 
-    if ($oldversion < 2021070700) {
+    if ($oldversion < 2021072000) {
         // Define settings fields so that update can be executed multiple times without problems.
         $settingsfields = ['roles', 'metadata', 'limituploadjobs', 'uploadworkflow', 'publishtoengage',
             'reuseexistingupload', 'allowunassign', 'deleteworkflow', 'adhocfiledeletion', 'uploadfileextensions',
-            'limitvideos', 'cachevalidtime', 'group_creation', 'group_name', 'series_name', 'workflow_roles',
-            'showpublicationchannels', 'showenddate', 'showlocation', 'enablechunkupload', 'uploadfilelimits',
+            'limitvideos', 'group_creation', 'group_name', 'series_name', 'workflow_roles',
+            'showpublicationchannels', 'showenddate', 'showlocation', 'enablechunkupload', 'uploadfilelimit',
             'offerchunkuploadalternative', 'enable_opencast_studio_link', 'lticonsumerkey', 'lticonsumersecret',
             'aclcontrolafter', 'aclcontrolgroup', 'addactivityenabled', 'addactivitydefaulttitle', 'addactivityintro',
             'addactivitysection', 'addactivityavailability', 'addactivityepisodeenabled', 'addactivityepisodeintro',
@@ -582,36 +582,17 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
 
-        // TODO test
         // Check if settings were upgraded without upgrading the plugin.
-        if($DB->get_record('m_config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
-            $DB->get_record('m_config_plugins', array('plugin' => 'block_opencast', 'name'=>'roles_1'))) {
+        if($DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
+            $DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name'=>'roles_1'))) {
             // Remove already upgraded settings and only keep old ones.
-            $DB->execute("DELECTE FROM m_config_plugins WHERE plugin='block_opencast' AND name not in " . $fieldsjoined);
+            $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name not in " . $fieldsjoined);
         }
 
         // Update configs to use default tenant (id=1).
-        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name in " . $fieldsjoined);
+        $DB->execute("UPDATE {config_plugins} SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name in " . $fieldsjoined);
 
-        // Add new instance field to upload job table.
-        $table = new xmldb_table('block_opencast_uploadjob');
-        $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10');
-
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $DB->set_field('block_opencast_uploadjob', 'ocinstanceid', 1);
-
-        $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
-        $dbman->change_field_notnull($table, $field);
-
-        // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2021070700, 'opencast');
-    }
-
-    if ($oldversion < 2021070701) {
-        $dbtables = ['block_opencast_deletejob', 'block_opencast_groupaccess', 'block_opencast_ltimodule',
+        $dbtables = ['block_opencast_uploadjob', 'block_opencast_deletejob', 'block_opencast_groupaccess', 'block_opencast_ltimodule',
             'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu'];
 
         foreach ($dbtables as $dbtable) {
@@ -630,7 +611,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2021070701, 'opencast');
+        upgrade_block_savepoint(true, 2021072000, 'opencast');
     }
 
     return true;
