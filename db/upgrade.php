@@ -566,12 +566,32 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
     if ($oldversion < 2021070700) {
         // Define settings fields so that update can be executed multiple times without problems.
-        // TODO
-        $settingsfields = [];
+        $settingsfields = ['roles', 'metadata', 'limituploadjobs', 'uploadworkflow', 'publishtoengage',
+            'reuseexistingupload', 'allowunassign', 'deleteworkflow', 'adhocfiledeletion', 'uploadfileextensions',
+            'limitvideos', 'cachevalidtime', 'group_creation', 'group_name', 'series_name', 'workflow_roles',
+            'showpublicationchannels', 'showenddate', 'showlocation', 'enablechunkupload', 'uploadfilelimits',
+            'offerchunkuploadalternative', 'enable_opencast_studio_link', 'lticonsumerkey', 'lticonsumersecret',
+            'aclcontrolafter', 'aclcontrolgroup', 'addactivityenabled', 'addactivitydefaulttitle', 'addactivityintro',
+            'addactivitysection', 'addactivityavailability', 'addactivityepisodeenabled', 'addactivityepisodeintro',
+            'addactivityepisodesection', 'addactivityepisodeavailability', 'download_channel', 'workflow_tag',
+            'support_email', 'termsofuse', 'addltienabled', 'addltidefaulttitle', 'addltipreconfiguredtool',
+            'addltiintro', 'addltisection', 'addltiavailability', 'addltiepisodeenabled',
+            'addltiepisodepreconfiguredtool', 'addltiepisodeintro', 'addltiepisodesection', 'addltiepisodeavailability',
+            'importvideosenabled', 'duplicateworkflow', 'importvideoscoreenabled', 'importvideosmanualenabled',
+            'importvideoshandleseriesenabled', 'importvideoshandleepisodeenabled'];
 
-        // TODO
+        $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
+
+        // TODO test
+        // Check if settings were upgraded without upgrading the plugin.
+        if($DB->get_record('m_config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
+            $DB->get_record('m_config_plugins', array('plugin' => 'block_opencast', 'name'=>'roles_1'))) {
+            // Remove already upgraded settings and only keep old ones.
+            $DB->execute("DELECTE FROM m_config_plugins WHERE plugin='block_opencast' AND name not in " . $fieldsjoined);
+        }
+
         // Update configs to use default tenant (id=1).
-        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name != 'version'");
+        $DB->execute("UPDATE m_config_plugins SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name in " . $fieldsjoined);
 
         // Add new instance field to upload job table.
         $table = new xmldb_table('block_opencast_uploadjob');
