@@ -1,0 +1,94 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_opencast/table_legend_details
+
+    This template renders the table containing details for table columns legend.
+
+    Example context (json):
+    {
+        "showstatusdetails": "true",
+        "showvisibilitydetails": "false"
+    }
+}}
+<div class="p-1">
+    <table class="table table-striped">
+        {{#showstatusdetails}}
+            <tbody>
+                <tr>
+                    <td>{{#pix}}succeeded, block_opencast{{/pix}}</td>
+                    <td>{{#str}}ocstatesucceeded, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendocstatesucceededdesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}processing, block_opencast{{/pix}}</td>
+                    <td>{{#str}}ocstateprocessing, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendocstateprocessingdesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}t/delete, core{{/pix}}</td>
+                    <td>{{#str}}deleting, block_opencast{{/str}}</td>
+                    <td>{{#str}}legenddeletingdesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}e/cut, core{{/pix}}</td>
+                    <td>{{#str}}ocstateneedscutting, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendocstateneedscuttingdesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}capturing, block_opencast{{/pix}}</td>
+                    <td>{{#str}}ocstatecapturing, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendocstatecapturingdesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}c/event, core{{/pix}}</td>
+                    <td>{{#str}}planned, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendplanneddesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}failed, block_opencast{{/pix}}</td>
+                    <td>{{#str}}ocstatefailed, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendocstatefaileddesc, block_opencast{{/str}}</td>
+                </tr>
+            </tbody>
+        {{/showstatusdetails}}
+        {{#showvisibilitydetails}}
+            <tbody>
+                <tr>
+                    <td>{{#pix}}t/show, core{{/pix}}</td>
+                    <td>{{#str}}legendvisibility_hidden, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendvisibility_hiddendesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}t/hide, core{{/pix}}</td>
+                    <td>{{#str}}legendvisibility_visible, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendvisibility_visibledesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}i/warning, core{{/pix}}</td>
+                    <td>{{#str}}legendvisibility_mixed, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendvisibility_mixeddesc, block_opencast{{/str}}</td>
+                </tr>
+                <tr>
+                    <td>{{#pix}}t/groups, core{{/pix}}</td>
+                    <td>{{#str}}legendvisibility_group, block_opencast{{/str}}</td>
+                    <td>{{#str}}legendvisibility_groupdesc, block_opencast{{/str}}</td>
+                </tr>
+            </tbody>
+        {{/showvisibilitydetails}}
+    </table>
+</div>

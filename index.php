@@ -408,6 +408,29 @@ if ($videodata->error == 0) {
 
 $table->finish_html();
 
+// Check admin config to show the legend below the table when there is videos to show.
+if (get_config('block_opencast', 'showtablelegend') && count($videodata->videos) > 0) {
+    echo "<hr />";
+
+    // Preparing the context for the template.
+    $context = new \stdClass();
+    $context->showstatuslegend = true;
+    $context->colname = get_string('hworkflow_state', 'block_opencast');
+    // Render from the template to show Status legend.
+    echo $renderer->render_from_template('block_opencast/table_legend_overview', $context);
+
+    // We check if the visibility is there, its legend will be shown as well.
+    if (in_array('visibility', $columns)) {
+        // Preparing the context for the template. 
+        $context = new \stdClass();
+        $context->showvisibilitylegend = true;
+        $context->colname = get_string('hvisibility', 'block_opencast');
+        // Render from the template to show Visibility legend.
+        echo $renderer->render_from_template('block_opencast/table_legend_overview', $context);
+    }
+    echo "<hr />";
+}
+
 // If enabled and working, add LTI series module feature.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series() == true) {
 
