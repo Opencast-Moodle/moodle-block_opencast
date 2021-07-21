@@ -285,12 +285,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('appearance_overview_settingshowlocation', 'block_opencast'),
                 get_string('appearance_overview_settingshowlocation_desc', 'block_opencast'), 1));
 
-        // Appearance setting to show table legend in overview page.
-        $appearancesettings->add(
-            new admin_setting_configcheckbox('block_opencast/showtablelegend',
-                get_string('appearance_overview_settingshowtablelegend', 'block_opencast'),
-                get_string('appearance_overview_settingshowtablelegend_desc', 'block_opencast'), 1));
-
         // Settings page: Additional settings.
         $additionalsettings = new admin_settingpage('block_opencast_additionalsettings',
             get_string('additional_settings', 'block_opencast'));
