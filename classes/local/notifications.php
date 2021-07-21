@@ -156,4 +156,32 @@ class notifications
         self::send_message('reportproblem_confirmation', $USER,
             get_string('reportproblem_subject', 'block_opencast'), nl2br($message), FORMAT_MOODLE);
     }
+
+    /**
+     * Notify user about opencast event status after upload.
+     * @param int $courseid Course id
+     * @param object $touser User to which notification is sent
+     * @param string $message the message containing the status of the event.
+     * @param object $video the video object to get title and identifier.
+     */
+    public static function notify_event_status($courseid, $touser, $message, $video) {
+        global $DB;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'videotitle' => $video->title,
+            'videoidentifier' => $video->identifier,
+            'statusmessage' => $message
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('notificationeventstatus_subj', 'block_opencast');
+        $body = get_string('notificationeventstatus_body', 'block_opencast', $a);
+
+        self::send_message('opencasteventstatus_notification', $touser, $subject, $body);
+    }
 }
