@@ -66,7 +66,7 @@ class autocomplete_suggestion_helper
         global $COURSE, $DB;
 
         // Initialize the array list to return.
-        $suggestionlist = [""];
+        $suggestionlist = [];
 
         // Get the role of teachers.
         $role = $DB->get_record('role', array('shortname' => 'editingteacher'));
@@ -167,8 +167,8 @@ class autocomplete_suggestion_helper
             }
         }
 
-        // Finally, we remove the duplicated values from the return list and return it.
-        return array_unique($suggestionlist);
+        // Finally, we return the suggestion list.
+        return $suggestionlist;
     }
 
     /**
@@ -205,7 +205,7 @@ class autocomplete_suggestion_helper
             }
         }
 
-        // Finally, we remove the duplicated values from the return list and return it.
-        return array_unique($suggestionlist);
+        // Finally, we return the suggestion list.
+        return $suggestionlist;
     }
 }
