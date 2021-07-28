@@ -85,7 +85,7 @@ class importvideosmanager
         // If Duplicating Events is selected as the import mode.
         if ($importmode == 'duplication') {
             // Get the configured duplicate workflow.
-            $workflow = get_config('block_opencast', 'duplicateworkflow');
+            $workflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
 
             // If the workflow is empty, then the feature is not working.
             if (empty($workflow)) {
