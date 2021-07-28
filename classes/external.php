@@ -235,7 +235,7 @@ class block_opencast_external extends external_api
         $seriesinfo = new stdClass();
         $seriesinfo->id = $params['seriesid'];
         $seriesinfo->title = $apibridge->get_series_by_identifier($params['seriesid'])->title;
-        $seriesinfo->isdefault = $result;
+        $seriesinfo->isdefault = $result->seriesmapped->isdefault;
 
         return json_encode($seriesinfo);
     }

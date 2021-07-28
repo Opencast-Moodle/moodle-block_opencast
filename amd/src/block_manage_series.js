@@ -146,7 +146,7 @@ export const init = (contextid, ocinstanceid) => {
         {key: 'importfailed', component: 'block_opencast'},
         {key: 'form_seriesid', component: 'block_opencast'},
         {key: 'setdefaultseries_heading', component: 'block_opencast'},
-        {key: 'setdefaultseries', component: 'bock_opencast'}
+        {key: 'setdefaultseries', component: 'block_opencast'}
     ];
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
@@ -366,7 +366,6 @@ export const init = (contextid, ocinstanceid) => {
                             methodname: 'block_opencast_import_series',
                             args: {contextid: contextid, ocinstanceid: ocinstanceid, seriesid: seriesid},
                             done: function (newseries) {
-                                // TODO check result
                                 modal.destroy();
                                 if(seriestable !== undefined) {
                                     var s = JSON.parse(newseries);
