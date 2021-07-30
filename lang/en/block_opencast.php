@@ -165,9 +165,17 @@ $string['appearance_overview_settingshowlocation_desc'] = 'If enabled, the table
 $string['appearance_overview_settingshowpublicationchannels'] = 'Show publication channels';
 $string['appearance_overview_settingshowpublicationchannels_desc'] = 'If enabled, the table of available videos on the overview page will contain a column which shows the publication channel of the Opencast episode. The same information will also be given on the Opencast episode deletion page.';
 $string['changevisibility_visible'] = 'The video is visible to all students of the course. Click to alter visibility.';
+$string['legendvisibility_visible'] = 'Visible';
+$string['legendvisibility_visibledesc'] = 'The video is visible to all students of the course.';
 $string['changevisibility_mixed'] = 'The visibility of the video is in an invalid status. Click to choose the correct visibility.';
+$string['legendvisibility_mixed'] = 'Invalid';
+$string['legendvisibility_mixeddesc'] = 'The visibility of the video is in an invalid status.';
 $string['changevisibility_hidden'] = 'The video is visible to no student. Click to alter visibility.';
+$string['legendvisibility_hidden'] = 'Hidden';
+$string['legendvisibility_hiddendesc'] = 'The video is not visible to any student.';
 $string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
+$string['legendvisibility_group'] = 'Group Visibilty';
+$string['legendvisibility_groupdesc'] = 'The video is visible to all student belonging to selected groups.';
 $string['changevisibility_header'] = 'Change visibility for {$a->title}';
 $string['changevisibility'] = 'Alter visibility';
 $string['allowunassign'] = 'Allow unassign from course';
@@ -207,6 +215,7 @@ $string['form_seriestitle'] = 'Series title';
 $string['dodeleteevent'] = 'Delete video permanently';
 $string['dodeletedraft'] = 'Delete video before transfer to Opencast';
 $string['deleting'] = 'Going to be deleted';
+$string['legenddeletingdesc'] = 'The video is being deleted, and it will be removed shortly.';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
@@ -346,6 +355,7 @@ $string['opencast:unassignevent'] = 'Unassign a video from the course, where the
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not published';
 $string['overview'] = 'Overview';
 $string['planned'] = 'Planned';
+$string['legendplanneddesc'] = 'The video has been scheduled for processing.';
 $string['pluginname'] = 'Opencast Videos';
 $string['processepisodecleanup'] = 'Process Opencast LTI episode cleanup after course imports';
 $string['processupload'] = 'Process upload';
@@ -394,11 +404,16 @@ $string['ltimodule_settings'] = 'LTI module features';
 $string['setting_permanent'] = 'Is permanent';
 $string['submit'] = 'Save changes';
 $string['ocstatefailed'] = 'Failed';
+$string['legendocstatefaileddesc'] = 'Something went wrong while processing this video, and it has failed. Please contact the support/administrator in order to resolve this issue.';
 $string['ocstateprocessing'] = 'Processing';
+$string['legendocstateprocessingdesc'] = 'The video is uploaded, and it is being processed by Opencast.';
 $string['ocstatesucceeded'] = 'Succeeded';
+$string['legendocstatesucceededdesc'] = 'The video has been processed and it is ready.';
 $string['restoreopencastvideos'] = 'Restore opencast videos';
 $string['ocstatecapturing'] = 'Capturing';
+$string['legendocstatecapturingdesc'] = 'Live capturing in progress.';
 $string['ocstateneedscutting'] = 'Needs cutting';
+$string['legendocstateneedscuttingdesc'] = 'The Video requires further attention in order to finish the processing stage.';
 $string['uploadfileextensions'] = 'Allowed file extensions';
 $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
@@ -554,5 +569,10 @@ $string['failedtogetvideo'] = 'Cannot get event data from Opencast.';
 $string['notificationeventstatus_subj'] = 'Opencast Event Status Notification';
 $string['notificationeventstatus_body'] = 'The process status of the uploaded video: {$a->videotitle} (ID: {$a->videoidentifier}) in the course: {$a->coursefullname} (ID: {$a->courseid}) has been changed to: {$a->statusmessage}';
 $string['messageprovider:opencasteventstatus_notification'] = 'Opencast event status notification';
+
+// Legend modal title.
+$string['legendtitle'] = 'Details Table';
+$string['legendalt'] = 'More details about all possible values of this column.';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
