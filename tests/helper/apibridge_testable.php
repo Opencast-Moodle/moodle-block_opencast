@@ -194,10 +194,10 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return false;
     }
 
-    public function get_course_series($courseid) {
+    public function get_default_course_series($courseid) {
 
         $result = null;
-        if ($value = $this->get_testdata('get_course_series', $courseid)) {
+        if ($value = $this->get_testdata('get_default_course_series', $courseid)) {
             return (object) ['identifier' => $value];
         }
 

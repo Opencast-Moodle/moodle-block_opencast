@@ -367,6 +367,20 @@ class importvideosmanager
         return $coursevideossummary;
     }
 
+    public static function get_import_source_course_series($ocinstanceid, $sourcecourseid) {
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $series = $apibridge->get_course_series($sourcecourseid);
+        $serieswithnames = array();
+
+        foreach($series as $s) {
+           $ocseries =  $apibridge->get_series_by_identifier($s->series);
+           $serieswithnames[$s->series] = $ocseries->title;
+        }
+
+        return $serieswithnames;
+    }
+
     /**
      * Helperfunction to duplicate the videos which have been selected during manual import.
      *
@@ -459,7 +473,7 @@ class importvideosmanager
      *
      * @return string
      */
-    public static function get_import_acl_source_course_videos_summary($ocinstanceid, $sourcecourseid) {
+    public static function get_import_acl_source_series_videos_summary($ocinstanceid, $seriesid) {
         global $PAGE;
 
         // Get renderers.
@@ -469,10 +483,18 @@ class importvideosmanager
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get course videos which are qualified to be imported.
-        $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
+        $result = $apibridge->get_series_videos($seriesid);
+
+        $videos = [];
+
+        if ($result && $result->error == 0) {
+            foreach ($result->videos as $video) {
+                $videos[$video->identifier] = $video;
+            }
+        }
 
         // If there aren't any videos, return only a warning message.
-        if (count($coursebackupvideos) < 1) {
+        if (count($videos) < 1) {
             return $renderer->wizard_warning_notification(
                 get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
         }
@@ -480,7 +502,7 @@ class importvideosmanager
         // Initialize course videos entry strings as empty array.
         $coursevideosenteries = [];
 
-        foreach ($coursebackupvideos as $identifier => $video) {
+        foreach ($videos as $identifier => $video) {
             // Get video entry string one by one.
             $coursevideosenteries[] = $renderer->course_video_menu_entry($video);
         }
@@ -500,7 +522,7 @@ class importvideosmanager
      *
      * @return object
      */
-    public static function change_acl($ocinstanceid, $sourcecourseid, $targetcourseid) {
+    public static function change_acl($ocinstanceid, $sourcecourseid, $sourcecourseseries, $targetcourseid) {
         global $USER, $PAGE;
 
         // Initialize the result as empty object to handle it later on.
@@ -513,11 +535,8 @@ class importvideosmanager
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get the stored seriesid for this course.
-        $seriesid = $apibridge->get_stored_seriesid($sourcecourseid);
-
         // Import series and course videos into the targeted course.
-        $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $seriesid, $USER->id);
+        $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $sourcecourseseries, $USER->id);
 
         // We decide what to show as a return message based on errors.
         if ($result->error == 1) {

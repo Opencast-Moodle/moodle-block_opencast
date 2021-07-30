@@ -45,7 +45,7 @@ $apibridge = apibridge::get_instance($ocinstanceid);
 
 // Check that video is in opencast series.
 $video = $apibridge->get_opencast_video($videoid);
-$seriesid = $apibridge->get_course_series($courseid);
+$seriesid = $apibridge->get_default_course_series($courseid);
 if ($seriesid->identifier != $video->video->is_part_of) {
     redirect($redirecturl,
         get_string('video_notallowed', 'block_opencast'),

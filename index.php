@@ -158,7 +158,7 @@ echo $OUTPUT->header();
 
 // Check if series exists in OC system. Show a error otherwise.
 $seriesid = $apibridge->get_stored_seriesid($courseid);
-$ocseriesid = $apibridge->get_course_series($courseid);
+$ocseriesid = $apibridge->get_default_course_series($courseid);
 
 if ($seriesid && !$ocseriesid) {
     if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {

@@ -58,7 +58,7 @@ $result = $apibridge->get_opencast_video($videoid);
 
 if (!$result->error) {
     // Check that series is associated with block.
-    $seriesid = $apibridge->get_course_series($courseid);
+    $seriesid = $apibridge->get_default_course_series($courseid);
     if ($seriesid->identifier != $result->video->is_part_of) {
         redirect($redirecturl,
             get_string('video_notallowed', 'block_opencast'),

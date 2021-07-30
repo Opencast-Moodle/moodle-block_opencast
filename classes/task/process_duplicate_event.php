@@ -100,7 +100,7 @@ class process_duplicate_event extends \core\task\adhoc_task
             }
 
             // Check, whether series exists in opencast system.
-            $series = $apibridge->get_course_series($course->id);
+            $series = $apibridge->get_default_course_series($course->id);
             if (!isset($series)) {
                 throw new \moodle_exception('error_seriesid_missing_opencast', 'block_opencast', '', $a);
             }

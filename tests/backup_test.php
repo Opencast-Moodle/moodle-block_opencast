@@ -253,7 +253,7 @@ class block_opencast_backup_testcase extends advanced_testcase
         $this->check_task_fail_with_error('error_seriesid_missing_opencast', 4);
 
         // Setup a series in the Opencast simulation.
-        $apibridge->set_testdata('get_course_series', $newcourse->id, '1234-1234-1234');
+        $apibridge->set_testdata('get_default_course_series', $newcourse->id, '1234-1234-1234');
 
         // Revert the mockuped workflow to make sure that the generated task would fail in the case that the task was
         // created despite of all safety nets but then the workflow does not exist (anymore).

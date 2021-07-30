@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2021 Farbod Zamani Boroujeni, ELAN e.V. <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step2_form_acl extends \moodleform
+class importvideos_step3_form_acl extends \moodleform
 {
 
     /**
@@ -53,15 +53,24 @@ class importvideos_step2_form_acl extends \moodleform
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'step', 2);
+        $mform->addElement('hidden', 'step', 3);
         $mform->setType('step', PARAM_INT);
         $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
         $mform->setType('sourcecourseid', PARAM_INT);
+        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->setType('ocinstanceid', PARAM_INT);
+        $mform->addElement('hidden', 'sourcecourseseries', $this->_customdata['series']);
+        $mform->setType('sourcecourseseries', PARAM_ALPHANUMEXT);
         
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($this->_customdata['ocinstanceid']);
-        // Get series object first to know if we can proceed.
-        $seriesobject = $apibridge->get_course_series($this->_customdata['sourcecourseid']);
+
+        if($this->_customdata['series']) {
+            $seriesobject = $apibridge->get_series_by_identifier($this->_customdata['series']);
+        }
+        else {
+            $seriesobject = $apibridge->get_default_course_series($this->_customdata['sourcecourseid']);
+        }
 
         // If there isn't any series in the course.
         if (!$seriesobject) {
@@ -92,15 +101,15 @@ class importvideos_step2_form_acl extends \moodleform
         // Summary item: Series
         $seriesentry = $renderer->series_menu_entry($seriesobject);
         $mform->addElement('static', 'summaryseries',
-            get_string('importvideos_wizardstep1series', 'block_opencast'),
+            get_string('importvideos_wizard_seriesimported', 'block_opencast'),
             $seriesentry);
 
         // Horizontal line.
         $mform->addElement('html', '<hr>');
 
         // Summary item: Course videos.
-        $coursevideossummary = importvideosmanager::get_import_acl_source_course_videos_summary($this->_customdata['ocinstanceid'],
-            $this->_customdata['sourcecourseid']);
+        $coursevideossummary = importvideosmanager::get_import_acl_source_series_videos_summary($this->_customdata['ocinstanceid'],
+            $this->_customdata['series']);
         $mform->addElement('static', 'summarycoursevideos',
             get_string('importvideos_wizardstep1coursevideos', 'block_opencast'),
             $coursevideossummary);

@@ -190,7 +190,7 @@ class apibridge
         $result->videos = array();
         $result->error = 0;
 
-        $series = $this->get_course_series($courseid);
+        $series = $this->get_default_course_series($courseid);
 
         if (!isset($series)) {
             return $result;
@@ -539,7 +539,7 @@ class apibridge
      * @param int $courseid
      * @return null|string id of the series id if it exists in the opencast system.
      */
-    public function get_course_series($courseid) {
+    public function get_default_course_series($courseid) {
 
         if ($seriesid = $this->get_stored_seriesid($courseid)) {
             $url = '/api/series/' . $seriesid;
@@ -551,6 +551,12 @@ class apibridge
             return json_decode($series);
         }
         return null;
+    }
+
+    public function get_course_series($courseid) {
+        global $DB;
+        return $DB->get_records('tool_opencast_series',
+            array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
     }
 
     /**
@@ -705,12 +711,12 @@ class apibridge
      */
     public function ensure_course_series_exists($courseid, $userid) {
 
-        $series = $this->get_course_series($courseid);
+        $series = $this->get_default_course_series($courseid);
 
         if (!isset($series)) {
             $this->create_course_series($courseid, null, $userid);
             // Check success.
-            $series = $this->get_course_series($courseid);
+            $series = $this->get_default_course_series($courseid);
         }
 
         if (!isset($series)) {

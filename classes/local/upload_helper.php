@@ -518,7 +518,7 @@ class upload_helper
                 }
 
                 if (!$series) {
-                    $series = $apibridge->get_course_series($job->courseid);
+                    $series = $apibridge->get_default_course_series($job->courseid);
 
                     // Set series metadata.
                     if ($mtseries !== false) {
@@ -585,7 +585,7 @@ class upload_helper
                     $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
 
                     if(!array_search($mtseries, array_column($courseseries, 'series'))) {
-                        $mtseries =  $apibridge->get_course_series($job->courseid)->identifier;
+                        $mtseries =  $apibridge->get_default_course_series($job->courseid)->identifier;
                     }
 
                     if (!$apibridge->assign_series($event->identifier, $mtseries)) {
