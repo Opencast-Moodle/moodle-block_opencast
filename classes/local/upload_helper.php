@@ -464,7 +464,6 @@ class upload_helper
                     $series = null;
 
                     if ($mtseries !== false) {
-                        // todo check if this really returns null if not existing.
                         $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
                     }
 

@@ -279,6 +279,7 @@ class ltimodulemanager
         $record->courseid = $courseid;
         $record->cmid = $modulecreated->coursemodule;
         $record->ocinstanceid = $ocinstanceid;
+        $record->seriesid = $seriesid;
         $DB->insert_record('block_opencast_ltimodule', $record);
 
         return true;
@@ -414,9 +415,9 @@ class ltimodulemanager
     public static function get_module_for_series($ocinstanceid, $courseid, $series) {
         global $DB;
 
-        // TODO check how we can do this with lti
         // Get the LTI series module id.
-        $moduleid = $DB->get_field('block_opencast_ltimodule', 'cmid', array('courseid' => $courseid));
+        $moduleid = $DB->get_field('block_opencast_ltimodule', 'cmid', array('ocinstanceid' => $ocinstanceid,
+            'courseid' => $courseid, 'seriesid' => $series));
 
         // If there is a LTI series module found.
         if ($moduleid) {
@@ -475,7 +476,6 @@ class ltimodulemanager
         // If there is more than one module, the list will be ordered by the time when the module was added to the course.
         // The oldest module is probably the module which should be kept when the modules are cleaned up later,
         // the newer ones will probably be from additional course content imports.
-        // TODO custom parameter for ocinstance id -> also check if backwards compatible
         $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
             'JOIN {course_modules} AS cm ' .
             'ON l.id = cm.instance ' .
@@ -697,6 +697,8 @@ class ltimodulemanager
         if ($referencedseriesid == null) {
             return array();
         }
+
+        // TODO check this
 
         // Get episodes which are located in the referenced course.
         $coursevideos = $apibridge->get_course_videos($referencedcourseid);

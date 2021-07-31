@@ -47,8 +47,6 @@ class upload_succeeded extends \core\event\base
         $this->data['objecttable'] = 'block_opencast_uploadjob';
     }
 
-    // TODO debug this with ocinstanceid
-
     /**
      * Return localised event name.
      *

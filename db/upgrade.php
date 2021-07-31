@@ -614,5 +614,31 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021072000, 'opencast');
     }
 
+    if ($oldversion < 2021073101) {
+
+        // Define field seriesid to be added to block_opencast_ltimodule.
+        $table = new xmldb_table('block_opencast_ltimodule');
+        $field = new xmldb_field('seriesid', XMLDB_TYPE_CHAR, '36', null, null, null, null, 'cmid');
+
+        // Conditionally launch add field seriesid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+            // TODO check again if that works correctly.
+
+            $DB->execute("UPDATE {block_opencast_ltimodule} SET seriesid=(SELECT ts.series FROM {tool_opencast_series} as ts WHERE ts.isdefault=1 AND ts.courseid={block_opencast_ltimodule}.courseid AND ts.ocinstanceid={block_opencast_ltimodule}.ocinstanceid)");
+
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        // Allow course id to occur multiple times.
+        // TODO also test
+        $key = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+        $dbman->drop_key($table, $key);
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021073101, 'opencast');
+    }
+
     return true;
 }

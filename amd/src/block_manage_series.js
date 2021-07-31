@@ -265,7 +265,6 @@ export const init = (contextid, ocinstanceid) => {
                             .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[8]);
                                 modal.getRoot().on(ModalEvents.save, function () {
-                                    // TODO create new function.
                                     Ajax.call([{
                                         methodname: 'block_opencast_unlink_series',
                                         args: {contextid: contextid, ocinstanceid: ocinstanceid,

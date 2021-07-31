@@ -100,20 +100,8 @@ class block_opencast_renderer extends plugin_renderer_base
     public function render_series_intro($coursecontext, $ocinstanceid, $courseid, $seriesid, $seriesname) {
         $url = null;
         $text = null;
-        // TODO how to support lti and activity?! (maybe add (LTI) if both are enabled)
-
-        if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
-            // Fetch existing LTI series module for this series.
-            $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
-
-            if ($moduleid) {
-                $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
-                $text = get_string('addlti_viewbuttontitle', 'block_opencast');
-            } else if (has_capability('block/opencast:addlti', $coursecontext)) {
-                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid));
-                $text = get_string('addlti_addbuttontitle', 'block_opencast');
-            }
-        }
+        $addactivitylink = '';
+        $addltilink = '';
 
         if (activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
             // Fetch existing Opencast Activity series module for this series.
@@ -122,14 +110,30 @@ class block_opencast_renderer extends plugin_renderer_base
             if ($moduleid) {
                 $url = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
                 $text = get_string('addactivity_viewbuttontitle', 'block_opencast');
+                $icon = $this->output->pix_icon('play', $text, 'block_opencast');
             } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
                 $url = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
+                $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-        }
+            $addactivitylink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+        };
 
-        $icon = $this->output->pix_icon('share', $text, 'block_opencast');
-        $addactivitylink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+        if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
+            // Fetch existing LTI series module for this series.
+            $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
+
+            if ($moduleid) {
+                $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
+                $text = get_string('addlti_viewbuttontitle', 'block_opencast');
+                $icon = $this->output->pix_icon('play', $text, 'block_opencast');
+            } else if (has_capability('block/opencast:addlti', $coursecontext)) {
+                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid, 'seriesid' => $seriesid));
+                $text = get_string('addlti_addbuttontitle', 'block_opencast');
+                $icon = $this->output->pix_icon('share', $text, 'block_opencast');
+            }
+            $addltilink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+        }
 
         $courses = \tool_opencast\seriesmapping::get_records(array('series' => $seriesid, 'ocinstanceid' => $ocinstanceid));
 
@@ -145,14 +149,13 @@ class block_opencast_renderer extends plugin_renderer_base
             $usedin = \html_writer::tag('span', get_string('series_used', 'block_opencast', count($courses)),
                 array("class" => "badge badge-secondary mb-4", "data-toggle" => 'tooltip' ,'data-placement' => 'top', 'title' => $tooltip,
                     'data-html' => 'true'));
-            return $this->heading($seriesname, 4, array('mt-4 d-inline-block')) . ' ' . $addactivitylink . '<br>' . $usedin;
+            return $this->heading($seriesname, 4, array('mt-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink . '<br>' . $usedin;
         }
 
-        return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink;
+        return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink;
     }
 
     public function create_videos_tables($id, $headers, $columns, $baseurl) {
-        // TODO create unique ids.
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
         $table->set_attribute('cellpadding', '3');

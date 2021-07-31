@@ -346,7 +346,6 @@ class block_opencast_external extends external_api
      */
     public static function get_series_titles_returns()
     {
-        // TODO create structre insead of using generic value.
         return new external_value(PARAM_RAW, 'json array for the series');
     }
 

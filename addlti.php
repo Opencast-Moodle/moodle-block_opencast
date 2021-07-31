@@ -29,6 +29,7 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = required_param('ocinstanceid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
+$seriesid = required_param('seriesid', PARAM_ALPHANUMEXT);
 
 // Set base URL.
 $baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -59,7 +60,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addlti', $coursecontext);
 
 // Existing LTI module check.
-$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($courseid);
+$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
@@ -67,7 +68,7 @@ if ($moduleid) {
 }
 
 // Use Add LTI form.
-$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'seriesid' => $seriesid));
 
 // Get API bridge instance.
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
@@ -114,11 +115,8 @@ if ($data = $addltiform->get_data()) {
         $availability = $data->availabilityconditionsjson;
     }
 
-    // Get series ID, create a new one if necessary.
-    $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
-
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($ocinstanceid, $courseid, $data->title, $seriesid,
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($ocinstanceid, $courseid, $data->title, $data->seriesid,
             $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.

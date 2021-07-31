@@ -53,8 +53,6 @@ class apibridge
     /** @var bool True for tests */
     private static $testing = false;
 
-    // TODO use only one api object
-
     /**
      * apibridge constructor.
      */
@@ -185,7 +183,6 @@ class apibridge
      * @return array
      */
     public function get_course_videos($courseid, $sortcolumns = null) {
-    // todo  check where this method is used and if this is fine to be used with the new series funciton.
         $result = new \stdClass();
         $result->videos = array();
         $result->error = 0;
@@ -311,7 +308,7 @@ class apibridge
         $result->error = 0;
 
         if ($api->get_http_code() != 200) {
-            $result->error = $api->get_http_code();
+            $result->error = True;
 
             return $result;
         }
@@ -915,8 +912,7 @@ class apibridge
                 $event->add_meta_data($metadata->id, $metadata->value);
             }
         }
-        // Todo check other method that are calling this one.
-     //   $event->add_meta_data('isPartOf', $seriesidentifier);
+
         $params = $event->get_form_params($this->ocinstanceid);
 
         $api = new api($this->ocinstanceid);
@@ -1585,6 +1581,7 @@ class apibridge
      */
     public function get_course_videos_for_backup($courseid, $processingstates = ['SUCCEEDED']) {
 
+        // TODO check this method
         if (!$result = $this->get_course_videos($courseid)) {
             return [];
         }
@@ -1734,8 +1731,6 @@ class apibridge
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
-            // TODO do I need to trigger any workflow for this?
-           //  return $this->update_metadata($eventidentifier);
             return true;
         };
         return false;

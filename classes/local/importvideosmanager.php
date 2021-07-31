@@ -132,11 +132,10 @@ class importvideosmanager
             return false;
         }
 
-        // Get the configured duplicate workflow.
-        $workflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
+        // Get the import mode.
+        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
 
-        // If the workflow is empty, then the feature is not working.
-        if (empty($workflow)) {
+        if (empty($importmode)) {
             // Inform the caller.
             return false;
         }
@@ -149,14 +148,6 @@ class importvideosmanager
 
         // If the status is false, then the feature is not working.
         if (!$apibridgeworking) {
-            // Inform the caller.
-            return false;
-        }
-
-        // Get the import mode.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
-
-        if (empty($importmode)) {
             // Inform the caller.
             return false;
         }

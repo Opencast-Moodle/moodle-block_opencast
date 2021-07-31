@@ -104,7 +104,7 @@ $string['addltiepisode_viewicontitle'] = 'View Opencast episode module in course
 $string['addactivity_modulecreated'] = 'The \'{$a}\' series module has been added to this course.';
 $string['addactivity_moduleexists'] = 'There is already an Opencast series module added to this course. There is no need to add another one.';
 $string['addactivity_modulenotcreated'] = 'The \'{$a}\' series module could not be created. Please try again or contact your Moodle administrator.';
-$string['addactivity_addbuttonexplanation'] = 'The videos which are added to and are available in this course are not provided to your students automatically.<br />Here, you can add an Opencast Video Provider activity to your course which provides all available videos as an Opencast series list to your students.';
+$string['addactivity_addbuttonexplanation'] = 'The videos which are added to and are available in this course are not provided to your students automatically.<br />Using the "Provide" buttons, you can add activities to your course which provide either all videos in a series or single videos to your students.';
 $string['addactivity_addbuttontitle'] = 'Add Opencast Video Provider activity to course';
 $string['addactivity_addbuttontitlereturncourse'] = 'Add module and return to course';
 $string['addactivity_addbuttontitlereturnoverview'] = 'Add module and return to overview';
@@ -224,7 +224,7 @@ $string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {
     The event ({$a->eventid}) could not be restored.';
 $string['error_seriesid_missing_opencast'] = 'The series of course {$a->coursefullname} (ID: {$a->courseid}) can not be found in the opencast system.
     The event ({$a->eventid}) could not be restored.';
-$string['series_not_found'] = 'The series {$a} can not be found in the opencast system.';
+$string['series_not_found'] = 'The series {$a} could not be found in the opencast system.';
 $string['error_seriesid_taskdata_missing'] = 'The task data contains no series id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_workflow_setup_missing'] = 'The plugin block_opencast is not properly configurated. The duplication workflow is missing!';
@@ -286,6 +286,7 @@ $string['hworkflow_state'] = 'Status';
 $string['hpublished'] = 'Published';
 $string['hvisibility'] = 'Visibility';
 $string['hprovide'] = 'Provide';
+$string['hprovidelti'] = 'Provide (LTI)';
 $string['importvideos_settingmodeduplication'] = 'Duplicating Events';
 $string['importvideos_settingmodeacl'] = 'ACL Change';
 $string['importvideos_errornotenabledorworking'] = 'The import videos feature is not enabled or not working';

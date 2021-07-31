@@ -52,15 +52,26 @@ class backup_opencast_block_task extends backup_block_task {
                 // Check, whether there are course videos available.
                 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstance->id);
                 $courseid = $this->get_courseid();
-                $videostobackup = $apibridge->get_course_videos_for_backup($courseid);
 
-                if (count($videostobackup) > 0) {
-                    // TODO if only default instance print different string
+                $seriestobackup = $apibridge->get_course_series($courseid);
 
-                    $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN, false);
-                    $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
-                    $this->add_setting($setting);
-                    $this->plan->get_setting('blocks')->add_dependency($setting);
+                foreach($seriestobackup as $series) {
+                    $result = $apibridge->get_series_videos($series->series);
+
+                    $videostobackup = [];
+                    foreach ($result->videos as $video) {
+                        if ($video->processing_state == 'SUCCEEDED') {
+                            $videostobackup[$video->identifier] = $video;
+                        }
+                    }
+
+                    if (count($videostobackup) > 0) {
+                        $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN, false);
+                        $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
+                        $this->add_setting($setting);
+                        $this->plan->get_setting('blocks')->add_dependency($setting);
+                        break;
+                    }
                 }
             }
         }
@@ -75,6 +86,8 @@ class backup_opencast_block_task extends backup_block_task {
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 continue;
             }
+
+            // TODO
 
             if ($this->get_setting_value('opencast_videos_include_' . $ocinstance->id)) {
                 $this->add_step(new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_'.$ocinstance->id.'.xml'));
