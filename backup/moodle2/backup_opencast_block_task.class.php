@@ -44,7 +44,7 @@ class backup_opencast_block_task extends backup_block_task {
      * Add a setting to backup process, when course videos are available.
      */
     protected function define_my_settings() {
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
         foreach($ocinstances as $ocinstance) {
             // Check whether this feature is enabled and working at all.
             if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
@@ -81,13 +81,11 @@ class backup_opencast_block_task extends backup_block_task {
      * Add the structure step, when course videos are available.
      */
     protected function define_my_steps() {
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
         foreach($ocinstances as $ocinstance) {
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 continue;
             }
-
-            // TODO
 
             if ($this->get_setting_value('opencast_videos_include_' . $ocinstance->id)) {
                 $this->add_step(new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_'.$ocinstance->id.'.xml'));

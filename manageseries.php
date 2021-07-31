@@ -58,7 +58,6 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('manageseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
-// TODO change capability?
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
@@ -70,6 +69,5 @@ $renderer = $PAGE->get_renderer('block_opencast');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manageseriesforcourse', 'block_opencast'));
 
-// TODO maybe render from template?!
 echo $renderer->render_manage_series_table($ocinstanceid, $courseid);
 echo $OUTPUT->footer();

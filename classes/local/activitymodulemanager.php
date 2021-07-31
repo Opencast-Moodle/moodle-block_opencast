@@ -264,12 +264,19 @@ class activitymodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_episode($courseid, $episodeuuid) {
+    public static function get_module_for_episode($courseid, $episodeuuid, $ocinstanceid) {
         global $DB;
 
         // Get the Opencast Activity series module id.
-        $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
-            'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE), IGNORE_MULTIPLE);
+        // TODO update version number before release
+        if(get_config('mod_opencast', 'version') >= 2021072000) {
+            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
+        }
+        else {
+            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE), IGNORE_MULTIPLE);
+        }
 
         // If there is a Opencast Activity series module found.
         if ($instance) {

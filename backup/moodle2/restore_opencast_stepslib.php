@@ -39,8 +39,9 @@ class restore_opencast_block_structure_step extends restore_structure_step {
 
     private $backupeventids = [];
     private $missingeventids = [];
-    private $seriesid = null;
+    private $series = [];
     private $ocinstanceid;
+    private $importmode;
 
     /**
      * Function that will return the structure to be processed by this restore_step.
@@ -67,8 +68,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // If ACL Change is the mode.
         if ($importmode == 'acl') {
             // We process the rest in the process import.
-            $paths[] = new restore_path_element('import', '/block/opencast/import');
-
+            $paths[] = new restore_path_element('import', '/block/opencast/import',);
+            $paths[] = new restore_path_element('series', '/block/opencast/import/series');
         } else if ($importmode == 'duplication') {
             // In case Duplicating Events is the mode.
 
@@ -79,7 +80,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                 // Make sure to create using another method.
                 $seriesid = $apibridge->create_course_series($courseid, null, $USER->id);
             }
-            $this->seriesid = $seriesid;
+            $this->series[] = $seriesid;
 
             $paths[] = new restore_path_element('event', '/block/opencast/events/event');
         }
@@ -101,29 +102,24 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $this->backupeventids[] = $data->eventid;
 
         // Exit when there is no course series.
-        if (!$this->seriesid) {
+        if (!$this->series) {
             return;
         }
 
         // Check, whether event exists on opencast server.
         $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
 
+        // TODO import into different series or join old series?
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {
             $this->missingeventids[] = $data->eventid;
         } else {
             $courseid = $this->get_courseid();
-            event::create_duplication_task($this->ocinstanceid, $courseid, $this->seriesid, $data->eventid);
+            event::create_duplication_task($this->ocinstanceid, $courseid, $this->series[0], $data->eventid);
         }
     }
 
-    /**
-     * Process the backuped data for import.
-     *
-     * @param array $data The import data needed for ACL change mode.
-     * @return void
-     */
-    public function process_import($data) {
+    public function process_series($data) {
         global $USER;
 
         $data = (object) $data;
@@ -135,19 +131,30 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
 
         // Exit when there is no original series, no course course id and the original seriesid is not valid.
-        // Also exit when the course by any chance wanted to resote itself.
+        // Also exit when the course by any chance wanted to restore itself.
         if (!$data->seriesid && !$data->sourcecourseid && $apibridge->ensure_series_is_valid($data->seriesid) && $courseid == $data->sourcecourseid) {
             return;
         }
 
-        // Collect sourcecourseid for notifications.
-        $this->sourcecourseid = $data->sourcecourseid;
-
         // Collect series id for notifications.
-        $this->seriesid = $data->seriesid;
+        $this->series[] = $data->seriesid;
 
         // Assign Seriesid to new course and change ACL.
         $this->aclchanged = $apibridge->import_series_to_course_with_acl_change($courseid, $data->seriesid, $USER->id);
+    }
+
+    /**
+     * Process the backuped data for import.
+     *
+     * @param array $data The import data needed for ACL change mode.
+     * @return void
+     */
+    public function process_import($data) {
+
+        $data = (object) $data;
+
+        // Collect sourcecourseid for notifications.
+        $this->sourcecourseid = $data->sourcecourseid;
      }
 
 
@@ -168,7 +175,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
 
         if ($this->importmode == 'duplication') {
             // None of the backupeventids are used for starting a workflow.
-            if (!$this->seriesid) {
+            if (!$this->series) {
                 notifications::notify_failed_course_series($courseid, $this->backupeventids);
                 return;
             }
@@ -184,11 +191,12 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                 return;
             }
 
-            if (!$this->seriesid) {
+            if (!$this->series) {
                 notifications::notify_missing_seriesid($courseid);
                 return;
             }
             // The ACL change import process is not successful.
+            // TODO that should be conducted for every imported series
             if ($this->aclchanged->error == 1) {
                 if (!$this->aclchanged->seriesaclchange) {
                     notifications::notify_failed_series_acl_change($courseid, $this->sourcecourseid);
@@ -201,10 +209,9 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                 }
 
                 if (!$this->aclchanged->seriesmapped) {
-                    notifications::notify_failed_series_mapping($courseid, $this->seriesid);
+                    notifications::notify_failed_series_mapping($courseid, $this->series[0]);
                 }
             }
         }
     }
-
 }

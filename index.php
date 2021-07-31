@@ -235,7 +235,6 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes(
     $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episodes($courseid);
 }
 
-// if theres ony one (unqiue series) do not show todo?
 $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $seriesvideodata = array_fill_keys(array_column($courseseries, 'series'), null);
 foreach ($courseseries as $series) {
@@ -399,7 +398,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                 if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
                     // Pick existing Opencast Activity episode module for this episode.
                     $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid,
-                        $video->identifier); // TODO oc instanceid?
+                        $video->identifier, $ocinstanceid);
 
                     $activityicon = '';
                     // If there is already a Opencast Activity episode module created for this episode.

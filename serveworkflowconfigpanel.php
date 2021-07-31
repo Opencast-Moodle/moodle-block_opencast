@@ -42,7 +42,7 @@ if ($workflow) {
     $context = new \stdClass();
     $context->language = $CFG->lang;
     $context->config_panel = $workflow->configuration_panel;
-    $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out(); // todo?
+    $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
     $context->parent_origin = $CFG->wwwroot;
 
     echo $OUTPUT->render_from_template('block_opencast/workflow_settings_opencast', $context);

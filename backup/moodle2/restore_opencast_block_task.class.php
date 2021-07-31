@@ -34,7 +34,7 @@ class restore_opencast_block_task extends restore_block_task
     /**
      * Check, if it is possible to restore events into given target course.
      *
-     * - the course has not series assinged OR
+     * - the course has not series assigned OR
      * - we are importing into an existing course.
      *
      * @return boolean
@@ -61,7 +61,7 @@ class restore_opencast_block_task extends restore_block_task
      *   2. target course has not yet an assigned series.
      */
     protected function define_my_settings() {
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             if (!file_exists($this->get_taskbasepath() . '/opencast_' . $ocinstance->id . '.xml')) {
                 continue;
@@ -73,7 +73,6 @@ class restore_opencast_block_task extends restore_block_task
 
             $setting = new restore_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN,
                 $canrestore, backup_setting::VISIBLE, $locktype);
-            // TODO lang string if only one instance
             $setting->get_ui()->set_label(get_string('restoreopencastvideos', 'block_opencast', $ocinstance->name));
 
             $this->add_setting($setting);

@@ -55,7 +55,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addactivityepisode', $coursecontext);
 
 // Existing Opencast Activity module check.
-$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid, $episodeuuid);
+$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid, $episodeuuid, $ocinstanceid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,

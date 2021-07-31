@@ -139,7 +139,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 set_config('metadata_' . $instance->id, $metadatadefault, 'block_opencast');
             }
 
-            // TODO are they really different?
             $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
@@ -309,8 +308,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             );
 
             $generalsettings->add($rolessetting);
-            // Todo check rolestable multiple instances
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' . $instance->id, 'rolestable',
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' . $instance->id, 'rolestable_' . $instance->id,
                 get_string('addrole', 'block_opencast')));
 
             $generalsettings->add(
@@ -319,7 +317,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $generalsettings->add($metadatasetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' . $instance->id, 'metadatatable',
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' . $instance->id, 'metadatatable_' . $instance->id,
                 get_string('addcatalog', 'block_opencast')));
 
             $generalsettings->add(
@@ -328,7 +326,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $generalsettings->add($metadataseriessetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable_' . $instance->id, 'metadataseriestable',
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable_' . $instance->id, 'metadataseriestable_' . $instance->id,
                 get_string('addcatalog', 'block_opencast')));
 
             // Settings page: Appearance settings.

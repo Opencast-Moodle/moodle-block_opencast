@@ -1581,7 +1581,6 @@ class apibridge
      */
     public function get_course_videos_for_backup($courseid, $processingstates = ['SUCCEEDED']) {
 
-        // TODO check this method
         if (!$result = $this->get_course_videos($courseid)) {
             return [];
         }

@@ -96,7 +96,7 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-    'block/opencast:defineseriesforcourse' => array( // TODO deprecate this
+    'block/opencast:defineseriesforcourse' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,

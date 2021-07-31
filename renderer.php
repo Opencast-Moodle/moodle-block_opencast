@@ -140,10 +140,15 @@ class block_opencast_renderer extends plugin_renderer_base
         if(count($courses) > 1) {
             $tooltip = '';
             foreach($courses as $course) {
-                if($tooltip) {
-                    $tooltip .= '<br>';
+                try {
+                    $c = get_course($course->get('courseid'));
+                    if ($tooltip) {
+                        $tooltip .= '<br>';
+                    }
+                    $tooltip .= $c->fullname;
+                }catch (dml_exception $e) {
+                    continue;
                 }
-                $tooltip .= get_course($course->get('courseid'))->fullname;
             }
 
             $usedin = \html_writer::tag('span', get_string('series_used', 'block_opencast', count($courses)),

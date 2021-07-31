@@ -64,10 +64,10 @@ class block_opencast extends block_base
 
         $renderer = $this->page->get_renderer('block_opencast');
 
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+        $ocinstances = array_filter($ocinstances, function($oci) {return $oci->isvisible;});
         $rendername = count($ocinstances) > 1;
 
-        # todo check isvisible
         $cache = cache::make('block_opencast', 'videodata');
         if ($result = $cache->get($COURSE->id)) {
             if ($result->timevalid > time()) {

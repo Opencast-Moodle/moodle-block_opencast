@@ -73,7 +73,6 @@ class process_duplicate_event extends \core\task\adhoc_task
         // Test, whether opencast server is available.
 
         try {
-            // TODO data with ocinstanceid
 
             // Get duplication workflow.
             $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $data->ocinstanceid);

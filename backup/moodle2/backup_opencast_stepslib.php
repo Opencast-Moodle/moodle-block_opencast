@@ -78,14 +78,21 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $event->set_source_array($list);
 
         // Import information.
-        $import = new backup_nested_element('import', array(), array('seriesid', 'sourcecourseid'));
+        $import = new backup_nested_element('import', array(), array('sourcecourseid'));
+        $series_element = new backup_nested_element('series', array(), array('seriesid'));
+        $import->add_child($series_element);
         $opencast->add_child($import);
 
         // Get the stored seriesid for this course.
-        $seriesid = $apibridge->get_stored_seriesid($courseid);
+        $courseseries = $apibridge->get_course_series($courseid);
+
+        $list = [];
+        foreach($courseseries as $series) {
+            $list[] = (object) ['seriesid' => $series->series];
+        }
+        $series_element->set_source_array($list);
 
         $importdata = (object) [
-            'seriesid' => $seriesid,
             'sourcecourseid' => $courseid
         ];
 
