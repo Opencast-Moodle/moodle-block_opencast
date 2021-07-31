@@ -405,6 +405,31 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('opencaststudiointegration', 'block_opencast'),
                     ''));
 
+            // Notifications in additional features settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/notifications_' . $instance->id,
+                    get_string('notifications_settings_header', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/eventstatusnotificationenabled_' . $instance->id,
+                    get_string('notificationeventstatus', 'block_opencast'),
+                    get_string('notificationeventstatus_desc', 'block_opencast'), 1));
+
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/eventstatusnotifyteachers_' . $instance->id,
+                    get_string('notificationeventstatusteachers', 'block_opencast'),
+                    get_string('notificationeventstatusteachers_desc', 'block_opencast'), 0));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/eventstatusnotifyteachers_' . $instance->id,
+                        'block_opencast/eventstatusnotificationenabled', 'notchecked');
+            }
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/eventstatusnotificationdeletion_' . $instance->id,
+                    get_string('notificationeventstatusdeletion', 'block_opencast'),
+                    get_string('notificationeventstatusdeletion_desc', 'block_opencast'), 0, PARAM_INT));
+
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link_' . $instance->id,
                     get_string('enableopencaststudiolink', 'block_opencast'),

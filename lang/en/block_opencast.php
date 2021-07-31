@@ -599,5 +599,19 @@ $string['video_not_downloadable'] = 'This video was not published in the downloa
 $string['connection_failure'] = 'Could not reach Opencast server.';
 $string['unexpected_api_response'] = 'Unexpected API response.';
 
+// Notifications.
+$string['notifications_settings_header'] = 'Notifications';
+$string['notificationeventstatus'] = 'Allow event process status notification';
+$string['notificationeventstatus_desc'] = 'This option allows the system to send notification about the status of the uploaded video from Opencast during the process to the users. This option only includes uploader of the video into the user list. To Notify all teachers of the course, the following setting should be enabled.<br />This feature is done through a scheduled task that is recommended to run every minute.';
+$string['notificationeventstatusteachers'] = 'Notify all course teachers about the event process status';
+$string['notificationeventstatusteachers_desc'] = 'With this option, apart from the uploader of the video, all the teachers of the course where the video is uploaded from get notified about the Opencast processing status.';
+$string['notificationeventstatusdeletion'] = 'Cleanup notification jobs after (Days)';
+$string['notificationeventstatusdeletion_desc'] = 'This setting sets a deadline in day for the jobs that are not yet completed. After the deadline has reached, the job will be deleted despite its process state. <br />This features helps to remove the pending notification jobs from the list and it is done through a scheduled task that is recommended to run once a day.<br />NOTE: (zero) "0" value disables the setting.';
+$string['processnotification'] = 'Process event status notification jobs after upload';
+$string['processdeletenotification'] = 'Process delete notification jobs';
+$string['failedtogetvideo'] = 'Cannot get event data from Opencast.';
+$string['notificationeventstatus_subj'] = 'Opencast Event Status Notification';
+$string['notificationeventstatus_body'] = 'The process status of the uploaded video: {$a->videotitle} (ID: {$a->videoidentifier}) in the course: {$a->coursefullname} (ID: {$a->courseid}) has been changed to: {$a->statusmessage}';
+$string['messageprovider:opencasteventstatus_notification'] = 'Opencast event status notification';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

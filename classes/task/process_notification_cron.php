@@ -15,30 +15,26 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Message providers for block opencast.
- *
  * @package   block_opencast
- * @copyright 2018 Andreas Wagner, Synergy Learning
+ * @copyright  2021 Farbod Zamani Boroujeni, ELAN e.V.
+ * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace block_opencast\task;
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array(
-    'error' => [
-        'defaults' => [
-            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN,
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDOFF,
-        ]
-    ],
-    'reportproblem_confirmation' => [
-        'defaults' => [
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN + MESSAGE_DEFAULT_LOGGEDOFF,
-        ]
-    ],
-    'opencasteventstatus_notification' => [
-        'defaults' => [
-            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDIN,
-            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_LOGGEDOFF,
-        ]
-    ]
-);
+/**
+ * Task for processing the event status notification jobs.
+ * @package block_opencast
+ */
+class process_notification_cron extends \core\task\scheduled_task {
+
+    public function get_name() {
+        return get_string('processnotification', 'block_opencast');
+    }
+
+    public function execute() {
+        $notificationhelper = new \block_opencast\local\eventstatus_notification_helper();
+        $notificationhelper->cron();
+    }
+}

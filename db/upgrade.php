@@ -640,5 +640,32 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021073101, 'opencast');
     }
 
+    if ($oldversion < 2021080100) {
+        // Define table block_opencast_notifications to be created.
+        $table = new xmldb_table('block_opencast_notifications');
+
+        // Adding fields to table block_opencast_notifications.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
+        $table->add_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('opencasteventid', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
+        $table->add_field('notified', XMLDB_TYPE_INTEGER, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL);
+        $table->add_field('timenotified', XMLDB_TYPE_INTEGER, '10');
+
+        // Adding keys to table block_opencast_notifications.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for block_opencast_notifications.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021080100, 'opencast');
+    }
+
     return true;
 }

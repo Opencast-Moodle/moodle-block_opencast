@@ -116,6 +116,12 @@ class addvideo_form extends \moodleform
                         $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
+
+                // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
+                if ($field->name == 'creator' || $field->name == 'contributor') {
+                    // We merge param values with the suggestions, because param is already initialized.
+                    $param = array_merge($param, autocomplete_suggestion_helper::get_suggestions_for_creator_and_contributor());
+                }
             }
 
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
@@ -163,7 +169,7 @@ class addvideo_form extends \moodleform
             }
         }
 
-        $maxuploadsize = get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
+        $maxuploadsize = (int) get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
 
         $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
         $mform->addElement('html', $presenterdesc);
