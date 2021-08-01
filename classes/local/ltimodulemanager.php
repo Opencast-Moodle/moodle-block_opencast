@@ -701,8 +701,6 @@ class ltimodulemanager
             return array();
         }
 
-        // TODO check this
-
         // Get episodes which are located in the referenced course.
         $coursevideos = $apibridge->get_course_videos($referencedcourseid);
 

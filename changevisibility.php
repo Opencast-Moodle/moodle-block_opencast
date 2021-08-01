@@ -70,15 +70,21 @@ $changevisibilityform = new \block_opencast\local\visibility_form(null, array('c
     'identifier' => $identifier, 'visibility' => $visibility, 'ocinstanceid' => $ocinstanceid));
 
 // Check if video exists.
-// TODO
-$videos = $apibridge->get_course_videos($courseid);
+$courseseries = $apibridge->get_course_series($courseid);
 $video = null;
-foreach ($videos->videos as $v) {
-    if ($v->identifier === $identifier) {
-        $video = $v;
+foreach($courseseries as $series) {
+    $videos = $apibridge->get_series_videos($series->series);
+    foreach ($videos->videos as $v) {
+        if ($v->identifier === $identifier) {
+            $video = $v;
+            break;
+        }
+    }
+    if($video) {
         break;
     }
 }
+
 if (!$video) {
     $message = get_string('videonotfound', 'block_opencast');
     redirect($redirecturl, $message);

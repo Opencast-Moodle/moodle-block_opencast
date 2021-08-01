@@ -228,8 +228,7 @@ class block_opencast_external extends external_api
         $result= $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
 
         if($result->error){
-            // TODO improve message
-            throw new moodle_exception('missingrequiredfield');
+            throw new moodle_exception('importfailed', 'block_opencast');
         }
 
         $seriesinfo = new stdClass();
