@@ -36,16 +36,6 @@ defined('MOODLE_INTERNAL') || die();
 class eventstatus_notification_helper
 {
 
-    /** @var apibridge Apibridge */
-    private $apibridge;
-
-    /**
-     * upload_helper constructor.
-     */
-    public function __construct() {
-        $this->apibridge = apibridge::get_instance();
-    }
-
     /**
      * Save the event status notification job onto the db table to be processed later with cronjobs.
      *
@@ -53,11 +43,12 @@ class eventstatus_notification_helper
      * @param int $courseid Course id
      * @param int $uploaderuserid userid of the uploader
      */
-    public static function save_notification_jobs($eventidentifier, $courseid, $uploaderuserid) {
+    public static function save_notification_jobs($ocinstanceid, $eventidentifier, $courseid, $uploaderuserid) {
         global $DB;
 
         // Initialize the notification job.
         $job = new \stdClass();
+        $job->ocinstanceid = $ocinstanceid;
         $job->opencasteventid = $eventidentifier;
         $job->courseid = $courseid;
         $job->userid = $uploaderuserid;
@@ -103,9 +94,11 @@ class eventstatus_notification_helper
      */
     protected function process_notification_job($job) {
         global $DB;
+        $ocinstanceid = $job->ocinstanceid;
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled');
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_'.$ocinstanceid);
 
         // If the job status is FAILED or SUCCEEDED and it has already been notified or the config is not enabled, we remove the job because it is completed.
         if (($job->status == 'FAILED' || $job->status == 'SUCCEEDED') && ($job->notified == 1 || !$notificationenabled)) {
@@ -115,7 +108,7 @@ class eventstatus_notification_helper
         }
 
         // Get the video status from Opencast
-        $eventobject = $this->apibridge->get_opencast_video($job->opencasteventid);
+        $eventobject = $apibridge->get_opencast_video($job->opencasteventid);
         $video = $eventobject->video;
 
         // If the video is not available anymore, we just print it out.

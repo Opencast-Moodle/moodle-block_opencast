@@ -139,8 +139,7 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                         array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id), IGNORE_MULTIPLE);
 
                     // Let the LTI Module manager cleanup these episodes.
-                    // TODO opencast instance id?
-                    $cleanupresult = ltimodulemanager::cleanup_episode_modules($courseid, $coursemodules, $episodeid);
+                    $cleanupresult = ltimodulemanager::cleanup_episode_modules($ocinstance->id, $courseid, $coursemodules, $episodeid);
 
                     // If something with the cleanup failed.
                     if ($cleanupresult != true) {

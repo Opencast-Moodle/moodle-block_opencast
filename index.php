@@ -232,7 +232,7 @@ echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 // If enabled and working, fetch the data for the LTI episodes feature.
 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
     // Fetch existing LTI episode modules for this course.
-    $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episodes($courseid);
+    $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episodes($ocinstanceid, $courseid);
 }
 
 $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -419,7 +419,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                 // Provide column.
                 if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
                     // Pick existing LTI episode module for this episode.
-                    $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($episodemodules, $courseid,
+                    $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($ocinstanceid, $episodemodules, $courseid,
                         $video->identifier);
                     $ltiicon = '';
                     // If there is already a LTI episode module created for this episode.

@@ -120,7 +120,7 @@ class addvideo_form extends \moodleform
                 // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
                 if ($field->name == 'creator' || $field->name == 'contributor') {
                     // We merge param values with the suggestions, because param is already initialized.
-                    $param = array_merge($param, autocomplete_suggestion_helper::get_suggestions_for_creator_and_contributor());
+                    $param = array_merge($param, autocomplete_suggestion_helper::get_suggestions_for_creator_and_contributor($ocinstanceid));
                 }
             }
 

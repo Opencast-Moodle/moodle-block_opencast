@@ -40,7 +40,7 @@ class autocomplete_suggestion_helper
      *
      * @return array
      */
-    public static function get_suggestions_for_creator_and_contributor() {
+    public static function get_suggestions_for_creator_and_contributor($ocinstanceid) {
         // We gather all suggestions array lists from different methods and return it as one array.
         // We use array_unique to make sure that there is no duplication.
         // We use array_filter to make sure there is no empty elements.
@@ -51,7 +51,7 @@ class autocomplete_suggestion_helper
                     array_merge(
                         self::get_suggestions_from_course_teachers(),
                         self::get_suggestions_from_existing_uploadjobs(),
-                        self::get_suggestions_from_opencast_course_videos()
+                        self::get_suggestions_from_opencast_course_videos($ocinstanceid)
                     )
                 ) 
             );
@@ -176,14 +176,14 @@ class autocomplete_suggestion_helper
      *
      * @return array
      */
-    private static function get_suggestions_from_opencast_course_videos() {
+    private static function get_suggestions_from_opencast_course_videos($ocinstanceid) {
         global $COURSE;
 
         // Initialize the array list to return.
         $suggestionlist = [];
 
         // Get apibridge instance.
-        $apibridge = apibridge::get_instance();
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get course videos.
         $coursevidoes = $apibridge->get_course_videos($COURSE->id);

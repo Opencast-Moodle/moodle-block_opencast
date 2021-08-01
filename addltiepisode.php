@@ -60,7 +60,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addltiepisode', $coursecontext);
 
 // Existing LTI module check.
-$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_episode($courseid, $episodeuuid);
+$moduleid = \block_opencast\local\ltimodulemanager::get_module_for_episode($ocinstanceid, $courseid, $episodeuuid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,

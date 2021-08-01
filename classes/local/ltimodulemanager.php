@@ -537,7 +537,7 @@ class ltimodulemanager
         $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
 
         // Get Opencast LTI series module in this course which point to the course's series.
-        $courseseriesmodule = self::get_module_for_series($modulecourseid);
+        $courseseriesmodule = self::get_module_for_series($ocinstanceid, $modulecourseid, $courseseries);
 
         // If there isn't a series module for this course' series in this course yet.
         if ($courseseriesmodule == false) {
@@ -563,6 +563,8 @@ class ltimodulemanager
             $record = new \stdClass();
             $record->courseid = $modulecourseid;
             $record->cmid = $seriesmoduleid;
+            $record->ocinstanceid = $ocinstanceid;
+            $record->seriesid = $courseseries;
             $DB->insert_record('block_opencast_ltimodule', $record);
 
             // Remove this module from the array of existing modules and preserve the keys.
@@ -600,11 +602,12 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episodes($courseid) {
+    public static function get_modules_for_episodes($ocinstanceid, $courseid) {
         global $DB;
 
         // Get the LTI episode module ids.
-        $modules = $DB->get_records_menu('block_opencast_ltiepisode', array('courseid' => $courseid), '', 'episodeuuid, cmid');
+        $modules = $DB->get_records_menu('block_opencast_ltiepisode', array('ocinstanceid' => $ocinstanceid,
+            'courseid' => $courseid), '', 'episodeuuid, cmid');
 
         // Return the LTI module ids.
         return $modules;
@@ -619,7 +622,7 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function pick_module_for_episode($modules, $courseid, $episodeuuid) {
+    public static function pick_module_for_episode($ocinstanceid, $modules, $courseid, $episodeuuid) {
         global $DB;
 
         // If there isn't an episode for the given episode.
@@ -642,7 +645,7 @@ class ltimodulemanager
             // This a big overhead over checking the existence only here when it is really needed.
             if ($cm == false || $cm->deletioninprogress == 1) {
                 // Clear the entry from the block_opencast_ltimodule table.
-                $DB->delete_records('block_opencast_ltiepisode', array('episodeuuid' => $episodeuuid));
+                $DB->delete_records('block_opencast_ltiepisode', array('episodeuuid' => $episodeuuid, 'ocinstanceid' => $ocinstanceid));
 
                 // Inform the caller.
                 return false;
@@ -661,12 +664,12 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_episode($courseid, $episodeuuid) {
+    public static function get_module_for_episode($ocinstanceid, $courseid, $episodeuuid) {
         // Get the existing modules of the course.
-        $modules = self::get_modules_for_episodes($courseid);
+        $modules = self::get_modules_for_episodes($ocinstanceid, $courseid);
 
         // Pick the module for the given episode.
-        $moduleid = self::pick_module_for_episode($modules, $courseid, $episodeuuid);
+        $moduleid = self::pick_module_for_episode($ocinstanceid, $modules, $courseid, $episodeuuid);
 
         // Return the LTI module id.
         return $moduleid;
@@ -782,7 +785,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function cleanup_episode_modules($modulecourseid, $episodemodules, $episodeid) {
+    public static function cleanup_episode_modules($ocinstanceid, $modulecourseid, $episodemodules, $episodeid) {
         global $CFG, $DB;
 
         // Require course module library.
@@ -797,7 +800,7 @@ class ltimodulemanager
         }
 
         // Get Opencast LTI episode module in this course which points to the given episode.
-        $courseepisodemodule = self::get_module_for_episode($modulecourseid, $episodeid);
+        $courseepisodemodule = self::get_module_for_episode($ocinstanceid, $modulecourseid, $episodeid);
 
         // If there isn't an episode module for the given episode in this course yet.
         if ($courseepisodemodule == false) {
@@ -822,6 +825,7 @@ class ltimodulemanager
             $record->courseid = $modulecourseid;
             $record->episodeuuid = $episodeid;
             $record->cmid = $episodemoduleid;
+            $record->ocinstanceid = $ocinstanceid;
             $DB->insert_record('block_opencast_ltiepisode', $record);
 
             // Remove this module from the array of existing modules and preserve the keys.
