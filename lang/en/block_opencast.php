@@ -528,7 +528,6 @@ $string['reportproblem_email'] = 'This is an automatic notification of the Moodl
 $string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
 $string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
 $string['recordvideo'] = 'Record video';
-$string['rights'] = 'Rights';
 $string['rightsHolder'] = 'Rights';
 
 $string['series'] = 'Series';
