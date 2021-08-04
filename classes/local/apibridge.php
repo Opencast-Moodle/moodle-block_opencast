@@ -1817,6 +1817,7 @@ class apibridge
         $result = new \stdClass();
         // Assume there is no error at all.
         $result->error = 0;
+        $result->seriesid = $seriesid;
 
         // Step 1: Update events ACL roles.
 

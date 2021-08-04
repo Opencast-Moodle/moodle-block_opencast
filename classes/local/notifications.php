@@ -236,7 +236,7 @@ class notifications
      * @param int $courseid
      * @param int $sourcecourseid
      */
-    public static function notify_failed_series_acl_change($courseid, $sourcecourseid) {
+    public static function notify_failed_series_acl_change($courseid, $sourcecourseid, $seriesid) {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -244,6 +244,7 @@ class notifications
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'seriesid' => $seriesid
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -275,7 +276,7 @@ class notifications
             'courseid' => $courseid,
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast')
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -303,7 +304,7 @@ class notifications
      * @param int $courseid
      * @param string $seriesid
      */
-    public static function notify_failed_series_mapping($courseid, $seriesid) {
+    public static function notify_failed_series_mapping($courseid, $sourcecourseid, $seriesid) {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -311,6 +312,7 @@ class notifications
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'seriesid' => $seriesid
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {

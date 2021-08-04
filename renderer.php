@@ -160,6 +160,39 @@ class block_opencast_renderer extends plugin_renderer_base
         return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink;
     }
 
+    public function render_provide_activity($coursecontext, $ocinstanceid, $courseid, $seriesid) {
+
+        if (activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
+            // Fetch existing Opencast Activity series module for this series.
+            $moduleid = activitymodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
+
+            if ($moduleid) {
+                $url = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
+                $text = get_string('addactivity_viewbuttontitle', 'block_opencast');
+            } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
+                $url = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
+                $text = get_string('addactivity_addbuttontitle', 'block_opencast');
+            }
+            $activitybutton = $this->single_button($url, $text, 'get');
+        };
+
+        if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
+            // Fetch existing LTI series module for this series.
+            $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
+
+            if ($moduleid) {
+                $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
+                $text = get_string('addlti_viewbuttontitle', 'block_opencast');
+            } else if (has_capability('block/opencast:addlti', $coursecontext)) {
+                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid, 'seriesid' => $seriesid));
+                $text = get_string('addlti_addbuttontitle', 'block_opencast');
+            }
+            $ltibutton = $this->single_button($url, $text, 'get');
+        }
+
+        return html_writer::tag('p', $activitybutton) . html_writer::tag('p', $ltibutton);
+    }
+
     public function create_videos_tables($id, $headers, $columns, $baseurl) {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');

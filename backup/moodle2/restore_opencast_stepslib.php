@@ -40,6 +40,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
     private $backupeventids = [];
     private $missingeventids = [];
     private $series = [];
+    private $aclchanged = [];
     private $ocinstanceid;
     private $importmode;
 
@@ -109,7 +110,6 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // Check, whether event exists on opencast server.
         $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
 
-        // TODO import into different series or join old series?
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {
             $this->missingeventids[] = $data->eventid;
@@ -140,7 +140,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $this->series[] = $data->seriesid;
 
         // Assign Seriesid to new course and change ACL.
-        $this->aclchanged = $apibridge->import_series_to_course_with_acl_change($courseid, $data->seriesid, $USER->id);
+        $this->aclchanged[] = $apibridge->import_series_to_course_with_acl_change($courseid, $data->seriesid, $USER->id);
     }
 
     /**
@@ -196,20 +196,21 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                 return;
             }
             // The ACL change import process is not successful.
-            // TODO that should be conducted for every imported series
-            if ($this->aclchanged->error == 1) {
-                if (!$this->aclchanged->seriesaclchange) {
-                    notifications::notify_failed_series_acl_change($courseid, $this->sourcecourseid);
-                    return;
-                }
+            foreach($this->aclchanged as $aclchange) {
+                if ($aclchange->error == 1) {
+                    if (!$aclchange->seriesaclchange) {
+                        notifications::notify_failed_series_acl_change($courseid, $this->sourcecourseid, $aclchange->seriesid);
+                        return;
+                    }
 
-                if (!$this->aclchanged->eventsaclchange && count($this->aclchanged->eventsaclchange->failed) > 0) {
-                    notifications::notify_failed_events_acl_change($courseid, $this->sourcecourseid, $this->aclchanged->eventsaclchange->failed);
-                    return;
-                }
+                    if (!$aclchange->eventsaclchange && count($aclchange->eventsaclchange->failed) > 0) {
+                        notifications::notify_failed_events_acl_change($courseid, $this->sourcecourseid, $aclchange->eventsaclchange->failed);
+                        return;
+                    }
 
-                if (!$this->aclchanged->seriesmapped) {
-                    notifications::notify_failed_series_mapping($courseid, $this->series[0]);
+                    if (!$aclchange->seriesmapped) {
+                        notifications::notify_failed_series_mapping($courseid, $this->sourcecourseid,$aclchange->seriesid);
+                    }
                 }
             }
         }

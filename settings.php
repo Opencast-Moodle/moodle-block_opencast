@@ -26,8 +26,6 @@ use block_opencast\admin_setting_configeditabletable;
 use block_opencast\admin_setting_hiddenhelpbtn;
 use block_opencast\workflow_setting_helper;
 
-// TODO add setting max series per course
-
 defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) { // Needs this condition or there is error on login page.

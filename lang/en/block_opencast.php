@@ -282,10 +282,10 @@ $string['errorrestorefailedeventsaclchange_body'] = 'There was a problem in the 
     The visibilty of the video(s) with the following identifier(s) could not be changed. This video(s) will not be accessible in the new course:';
 $string['errorrestorefailedseriesaclchange_subj'] = 'Opencast error during restore process';
 $string['errorrestorefailedseriesaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The Series ACL could not be changed.';
+    The series ACL could not be changed (series: {$a->seriesid}).';
 $string['errorrestorefailedseriesmapping_subj'] = 'Opencast error during restore process';
 $string['errorrestorefailedseriesmapping_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    Mapping the Series to the new course was failed.';
+    Mapping the series {$a->seriesid} to the new course failed.';
 $string['eventdeleted'] = 'The video has been deleted.';
 $string['eventdeletedfailed'] = 'Failed to delete the event';
 $string['eventdeletionstarted'] = 'The video will be deleted shortly.';
