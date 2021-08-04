@@ -133,7 +133,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
         });
 
         $('#addrow-rolestable_' + ocinstanceid).click(function () {
-            rolestable.addRow({'permanent': 0});
+            rolestable.addRow({'rolename': '', 'actions':'', 'permanent': 0});
         });
 
         var metadatatable = new Tabulator("#metadatatable_" + ocinstanceid, {
