@@ -37,6 +37,8 @@ $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
 $string['aclrolesnamedesc'] = 'You can use placeholders in the role name which are automatically replaced (<a target="_blank" href="https://moodle.docs.opencast.org/#block/general_settings/#placeholders">list of placeholders</a>). The list of actions must be comma-separated.';
 $string['actions'] = 'Comma-separated list of actions';
+$string['addcatalog'] = 'Add new metadata';
+$string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
 $string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
     Please note that the file will still remain in the file system, if it is used within other places in moodle.';
@@ -151,11 +153,14 @@ $string['addactivityepisode_settingenabled_desc'] = 'If enabled, teachers can ad
 $string['addactivityepisode_settingsection'] = 'Choose episode module section';
 $string['addactivityepisode_settingsection_desc'] = 'If enabled, teachers can choose the section which the Opencast Activity episode module will be added to.';
 $string['addactivityepisode_viewicontitle'] = 'View Opencast episode module in course';
-
+$string['additional_settings'] = 'Additional features';
 $string['addvideo'] = 'Add video';
 $string['addrole'] = 'Add new role';
 $string['adminchoice_noworkflow'] = "-- No workflow --";
 $string['adminchoice_noconnection'] = "-- Workflows could not be retrieved --";
+$string['allowunassign'] = 'Allow unassign from course';
+$string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
+    when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['appearance_settings'] = 'Appearance';
 $string['appearance_overview_settingheader'] = 'Overview page';
 $string['appearance_overview_settingshowenddate'] = 'Show end date';
@@ -164,24 +169,41 @@ $string['appearance_overview_settingshowlocation'] = 'Show location';
 $string['appearance_overview_settingshowlocation_desc'] = 'If enabled, the table of available videos on the overview page will contain a column which shows the location of the Opencast episode.';
 $string['appearance_overview_settingshowpublicationchannels'] = 'Show publication channels';
 $string['appearance_overview_settingshowpublicationchannels_desc'] = 'If enabled, the table of available videos on the overview page will contain a column which shows the publication channel of the Opencast episode. The same information will also be given on the Opencast episode deletion page.';
+
+$string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
+$string['blocksettings'] = 'Settings for a block instance';
+
+$string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
+$string['cachevalidtime'] = 'Cache valid time';
+$string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
 $string['cantdeletedefaultseries'] = 'You cannot delete the default series. Please choose another default series before deleting this series.';
+$string['catalog_static_params_empty'] = "Read only fields need to define a text in the parameters field.";
+$string['catalog_params_noarray'] = "Parameters have to be either empty or a JSON representation of an array or an object.";
 $string['changevisibility_visible'] = 'The video is visible to all students of the course. Click to alter visibility.';
 $string['changevisibility_mixed'] = 'The visibility of the video is in an invalid status. Click to choose the correct visibility.';
 $string['changevisibility_hidden'] = 'The video is visible to no student. Click to alter visibility.';
 $string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
 $string['changevisibility_header'] = 'Change visibility for {$a->title}';
 $string['changevisibility'] = 'Alter visibility';
-$string['allowunassign'] = 'Allow unassign from course';
-$string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
-    when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
-$string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
-$string['blocksettings'] = 'Settings for a block instance';
-$string['importseries'] = 'Import series';
-$string['importfailed'] = 'The series could not be imported.';
+$string['connection_failure'] = 'Could not reach Opencast server.';
 $string['coursefullnameunknown'] = 'Unkown coursename';
 $string['createdby'] = 'Uploaded by';
 $string['createseriesforcourse'] = 'Create new series';
 $string['cronsettings'] = 'Settings for upload jobs';
+$string['catalogparam'] = 'Parameters in JSON-Format';
+$string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>
+                                <b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>
+                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>
+                                <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
+                                <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
+$string['contributor'] = 'Contributor(s)';
+$string['created'] = 'Created at';
+$string['creator'] = 'Presenter(s)';
+
+$string['date'] = 'Start Date';
+$string['descriptionmdfn'] = 'Field name';
+$string['descriptionmdfn_help'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
+$string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
 $string['default'] = 'Default';
 $string['deleteaclgroup'] = 'Delete video from this list.';
 $string['delete_confirm_role'] = 'Are you sure you want to delete this role?';
@@ -198,29 +220,29 @@ $string['delete_role'] = 'Delete role';
 $string['delete_metadata'] = 'Delete metadata field';
 $string['delete_series'] = 'Delete series';
 $string['delete_series_failed'] = 'Deleting the series failed. Please try again later or contact an administrator.';
+$string['deleting'] = 'Going to be deleted';
+$string['description'] = 'Description';
+$string['duration'] = 'Duration';
 $string['dodeleteaclgroup'] = 'Delete access to videos from this course';
+$string['dodeleteevent'] = 'Delete video permanently';
+$string['dodeletedraft'] = 'Delete video before transfer to Opencast';
 $string['downloadvideo'] = 'Download video';
 $string['download_settingheader'] = 'Download videos';
 $string['download_setting'] = 'Download channel';
 $string['download_settingdesc'] = 'Opencast publication channel from which the videos are served when downloading them.';
-$string['importmode'] = 'Import mode';
-$string['importmodedesc'] = 'In order to define an approach to import videos into a course, a mode should be seleted. The default mode is Duplicating Events in which a new series would be created and events will be avaible in the series by using a dupliaction workflow. <br /> ACL Change approach on the other hand will use the same seriesid among courses but series and events\' ACLs are changes to grant access from the course which imports the videos.';
 $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for importing opencast events from one course into another. If not set, it is not possible to import Opencast events.';
-$string['manageseriesforcourse'] = 'Manage series';
-$string['maxseries'] = 'Maximum number of series';
-$string['maxseriesdesc'] = 'Specifies how many series can be assigned to a course. Teachers won\'t be able to add/import more series if the maximum number is reached.';
-$string['maxseriesreached'] = 'You cannot add another series to this course because the course contains already the maximum number of series.';
-$string['maxseriesreachedimport'] = 'Currently, you cannot import another series because the course contains already the maximum number of series.';
+
 $string['editseries'] = 'Edit series';
+$string['empty_catalogname'] = 'This field must not be empty';
+$string['emptyvideouploaderror'] = 'You must either upload a presenter video or a presentation video file.';
+$string['expirydate'] = 'Expiry Date';
+$string['exists_catalogname'] = 'The field is already existed';
 $string['enablechunkupload'] = 'Enable Chunkupload';
 $string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possible to upload videos using the chunkupload plugin';
-$string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
-$string['form_seriesid'] = 'Series ID';
-$string['form_seriestitle'] = 'Series title';
-$string['dodeleteevent'] = 'Delete video permanently';
-$string['dodeletedraft'] = 'Delete video before transfer to Opencast';
-$string['deleting'] = 'Going to be deleted';
+$string['enableopencaststudiolink'] = 'Show the link to opencast studio';
+$string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview.
+Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
@@ -270,6 +292,14 @@ $string['eventdeletionstarted'] = 'The video will be deleted shortly.';
 $string['eventuploadsucceeded'] = 'Upload succeeded';
 $string['eventuploadfailed'] = 'Upload failed';
 $string['errorgetblockvideos'] = 'List cannot be loaded (Error: {$a})';
+
+$string['failedtogetvideo'] = 'Cannot get event data from Opencast.';
+$string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
+$string['filetypes'] = 'Accepted file types';
+$string['form_seriesid'] = 'Series ID';
+$string['form_seriestitle'] = 'Series title';
+
+$string['general_settings'] = 'General settings';
 $string['gotooverview'] = 'Go to overview...';
 $string['groupcreation'] = 'Create a group';
 $string['groupcreationdesc'] = 'If checked, a group is created during the upload.';
@@ -277,6 +307,13 @@ $string['groupname'] = 'Group name';
 $string['groupnamedesc'] = 'Group to which the video is added. Important: The group name length is restricted to 128 Bytes. You can use the placeholders [COURSEID] and [COURSENAME] which are automatically replaced.';
 $string['groupseries_header'] = 'Group and Series';
 $string['group_name_empty'] = 'The group name must not be empty if a group should be created.';
+
+$string['heading_name'] = 'Field Name';
+$string['heading_datatype'] = 'Field Type';
+$string['heading_lti'] = 'Setting for LTI Configuration';$string['heading_position'] = 'Position';
+$string['heading_required'] = 'Required';
+$string['heading_readonly'] = 'Read Only';
+$string['heading_params'] = 'Parameters (JSON)';
 $string['heading_role'] = 'Role';
 $string['heading_actions'] = 'Actions';
 $string['heading_delete'] = 'Delete';
@@ -291,6 +328,12 @@ $string['hpublished'] = 'Published';
 $string['hvisibility'] = 'Visibility';
 $string['hprovide'] = 'Provide';
 $string['hprovidelti'] = 'Provide (LTI)';
+
+$string['identifier'] = 'Identifier';
+$string['importseries'] = 'Import series';
+$string['importfailed'] = 'The series could not be imported.';
+$string['importmode'] = 'Import mode';
+$string['importmodedesc'] = 'In order to define an approach to import videos into a course, a mode should be seleted. The default mode is Duplicating Events in which a new series would be created and events will be avaible in the series by using a dupliaction workflow. <br /> ACL Change approach on the other hand will use the same seriesid among courses but series and events\' ACLs are changes to grant access from the course which imports the videos.';
 $string['importvideos_settingmodeduplication'] = 'Duplicating Events';
 $string['importvideos_settingmodeacl'] = 'ACL Change';
 $string['importvideos_errornotenabledorworking'] = 'The import videos feature is not enabled or not working';
@@ -308,6 +351,7 @@ $string['importvideos_importseriescleanupfailed'] = 'At least one of the existin
 $string['importvideos_processingexplanation'] = 'These video files will be duplicated in Opencast and then made available in this course.';
 $string['importvideos_sectionexplanation'] = 'In this section, you can import existing video files from other Moodle courses to this Moodle course.';
 $string['importvideos_aclprocessingexplanation'] = 'The seriesid of the selected course will be used in this course and the series\' ACL as well as ACLs of its videos will be changed accordingly.';
+$string['importvideos_settings'] = 'Import videos features';
 $string['importvideos_settingcoreenabled'] = 'Allow video import within Moodle core course import wizard';
 $string['importvideos_settingcoreenabled_desc'] = 'If enabled, teachers can import existing video files from other Moodle courses to their Moodle course by using the Moodle core course import wizard. Within the wizard, there is an additional option shown to import the videos which have been uploaded within the Opencast block in the other course. Using this feature, the teacher can import all videos from another course as bulk, but he cannot select individual videos.<br />When Dupliaction Events is selected as the Import mode then the videos are duplicated in Opencast by an ad-hoc task in Moodle and will show up in the course\'s video list with a short delay.<br />In case of ACL Change as Import mode, the seriesid of the course being imported is used but the ACL of the series and its videos will be changed in order to grant access within the new course.';
 $string['importvideos_settingenabled'] = 'Allow video import';
@@ -354,18 +398,41 @@ $string['importvideos_wizardstep4sourcecoursenone'] = 'There wasn\'t any source 
 $string['importvideos_wizardstepbuttontitlecontinue'] = 'Continue';
 $string['importvideos_wizardstepbuttontitlerunimport'] = 'Import videos and return to overview';
 $string['invalidacldata'] = 'Invalid acl data';
+
+$string['language'] = 'Language';
 $string['limituploadjobs'] = 'Limit upload job by cron';
 $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cronjob. The cronjob can be scheduled here: {$a}';
 $string['limitvideos'] = 'Number of videos';
 $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
 $string['loading'] = 'Loading...';
+$string['ltimodule_settings'] = 'LTI module features';
+$string['lticonsumerkey'] = 'Consumer key';
+$string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integration.';
+$string['lticonsumersecret'] = 'Consumer secret';
+$string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
+$string['license'] = 'License';
+$string['location'] = 'Location';
+
+$string['manageseriesforcourse'] = 'Manage series';
+$string['maxseries'] = 'Maximum number of series';
+$string['maxseriesdesc'] = 'Specifies how many series can be assigned to a course. Teachers won\'t be able to add/import more series if the maximum number is reached.';
+$string['maxseriesreached'] = 'You cannot add another series to this course because the course contains already the maximum number of series.';
+$string['maxseriesreachedimport'] = 'Currently, you cannot import another series because the course contains already the maximum number of series.';
 $string['messageprovider:error'] = 'Processing error notification';
 $string['messageprovider:reportproblem_confirmation'] = 'Copy of reported problems for Opencast videos';
+$string['metadata'] = 'Event Metadata';
+$string['metadatadesc'] = 'Here you can define which metadata fields can or have to be set when uploading videos to Opencast. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
+$string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';
+$string['metadataseries'] = 'Series Metadata';
+$string['metadataseriesdesc'] = 'Here you can define which metadata fields can or have to be set for creating Opencast series. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
+$string['mediatype'] = 'Media Source';
+$string['metadata_autocomplete_placeholder'] = 'Enter {$a}';
+$string['metadata_autocomplete_noselectionstring'] = 'No {$a} provided!';
+$string['messageprovider:opencasteventstatus_notification'] = 'Opencast event status notification';
 $string['missingevent'] = 'Creation of event failed';
 $string['missinggroup'] = 'Missing group in opencast';
 $string['missingseries'] = 'Missing series in opencast';
 $string['missingseriesassignment'] = 'Missing series assignment';
-$string['series_already_exists'] = 'This course is already assigned to a series.';
 $string['morevideos'] = 'More videos...';
 $string['mstatereadytoupload'] = 'Ready for transfer';
 $string['mstatecreatinggroup'] = 'Creating Opencast Group...';
@@ -374,11 +441,27 @@ $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
+
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';
 $string['notpublished'] = 'Not published';
+$string['notifications_settings_header'] = 'Notifications';
+$string['notificationeventstatus'] = 'Allow event process status notification';
+$string['notificationeventstatus_desc'] = 'This option allows the system to send notification about the status of the uploaded video from Opencast during the process to the users. This option only includes uploader of the video into the user list. To Notify all teachers of the course, the following setting should be enabled.<br />This feature is done through a scheduled task that is recommended to run every minute.';
+$string['notificationeventstatusteachers'] = 'Notify all course teachers about the event process status';
+$string['notificationeventstatusteachers_desc'] = 'With this option, apart from the uploader of the video, all the teachers of the course where the video is uploaded from get notified about the Opencast processing status.';
+$string['notificationeventstatusdeletion'] = 'Cleanup notification jobs after (Days)';
+$string['notificationeventstatusdeletion_desc'] = 'This setting sets a deadline in day for the jobs that are not yet completed. After the deadline has reached, the job will be deleted despite its process state. <br />This features helps to remove the pending notification jobs from the list and it is done through a scheduled task that is recommended to run once a day.<br />NOTE: (zero) "0" value disables the setting.';
+$string['notificationeventstatus_subj'] = 'Opencast Event Status Notification';
+$string['notificationeventstatus_body'] = 'The process status of the uploaded video: {$a->videotitle} (ID: {$a->videoidentifier}) in the course: {$a->coursefullname} (ID: {$a->courseid}) has been changed to: {$a->statusmessage}';
 $string['novideosavailable'] = 'No videos available';
+
+$string['ocstatefailed'] = 'Failed';
+$string['ocstateprocessing'] = 'Processing';
+$string['ocstatesucceeded'] = 'Succeeded';
+$string['ocstatecapturing'] = 'Capturing';
+$string['ocstateneedscutting'] = 'Needs cutting';
 $string['offerchunkuploadalternative'] = 'Offer filepicker as alternative';
 $string['offerchunkuploadalternative_desc'] = 'If this option is enabled, a checkbox labeled as \'{$a}\' will be shown below the chunk upload widget. As soon as this checkbox is checked, the chunk upload widget is hidden and the Moodle default file picker is shown, giving access to all Moodle repositories.';
 $string['opencast:addinstance'] = 'Add a new opencast upload block';
@@ -398,14 +481,37 @@ $string['opencast:manualimporttarget'] = 'Manually import videos from other cour
 $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboard';
 $string['opencast:unassignevent'] = 'Unassign a video from the course, where the video was uploaded.';
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not published';
+$string['opencaststudiointegration'] = 'Opencast studio integration';
 $string['overview'] = 'Overview';
+
 $string['planned'] = 'Planned';
 $string['pluginname'] = 'Opencast Videos';
+$string['publisher'] = 'Publisher';
+$string['presenterfile'] = 'Presenter file';
+$string['presentationfile'] = 'Presentation file';
+$string['presenter'] = 'Presenter video';
+$string['presenterdesc'] = 'Use the presenter video if you have a video file of a person speaking to an audience or a motion picture.';
+$string['presentation'] = 'Presentation video';
+$string['presentationdesc'] = 'Use the presentation video if you have a video file of a slide presentation recording or a screencast.';
+$string['privacy:metadata:block_opencast_uploadjob'] = 'Information about video uploads.';
+$string['privacy:metadata:block_opencast_uploadjob:fileid'] = 'ID of the file/video which is uploaded';
+$string['privacy:metadata:block_opencast_uploadjob:opencasteventid'] = 'ID of the opencast event that was created during upload';
+$string['privacy:metadata:block_opencast_uploadjob:userid'] = 'ID of the user who uploaded the video';
+$string['privacy:metadata:block_opencast_uploadjob:status'] = 'Status of upload process';
+$string['privacy:metadata:block_opencast_uploadjob:courseid'] = 'ID of the course where the video is uploaded';
+$string['privacy:metadata:block_opencast_uploadjob:timecreated'] = 'The date the upload job was created.';
+$string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date the upload job was last modified.';
+$string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
+$string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
+$string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
 $string['processepisodecleanup'] = 'Process Opencast LTI episode cleanup after course imports';
 $string['processupload'] = 'Process upload';
 $string['processdelete'] = 'Process delete jobs for Opencast';
+$string['processnotification'] = 'Process event status notification jobs after upload';
+$string['processdeletenotification'] = 'Process delete notification jobs';
 $string['publishtoengage'] = 'Publish to Engage';
 $string['publishtoengagedesc'] = 'Select this option to publish the video after upload to engage player. Setup workflow must support this.';
+
 $string['reuseexistingupload'] = 'Reuse existing uploads';
 $string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
 This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
@@ -415,13 +521,18 @@ $string['reportproblem_modal_body'] = 'If you there is a problem with a video, y
 $string['reportproblem_modal_placeholder'] = 'Please explain the problem.';
 $string['reportproblem_modal_submit'] = 'Report problem';
 $string['reportproblem_modal_required'] = 'Please enter a message.';
-$string['video_notallowed'] = 'The video is not part of the course series.';
 $string['reportproblem_success'] = 'The email was successfully sent to the support team.';
 $string['reportproblem_failure'] = 'The email could not be sent. Please contact the support team manually.';
 $string['reportproblem_notification'] = '#### This is a copy of the email sent to the support team. ####<br>';
 $string['reportproblem_email'] = 'This is an automatic notification of the Moodle Opencast plugin.<br>Somebody reported a problem with a video.<br><br><b>User: </b>{$a->username}<br><b>User email: </b>{$a->useremail}<br><b>Moodle course: </b><a href="{$a->courselink}">{$a->course}</a><br><b>Opencast series: </b>{$a->series} (Id: {$a->seriesid})<br><b>Opencast event id: </b>{$a->event} (Id: {$a->eventid})<br><b>Message:</b><br><hr>{$a->message}<hr>';
 $string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
+$string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
+$string['recordvideo'] = 'Record video';
+$string['rights'] = 'Rights';
+$string['rightsHolder'] = 'Rights';
+
 $string['series'] = 'Series';
+$string['series_already_exists'] = 'This course is already assigned to a series.';
 $string['seriescreated'] = 'Series was created.';
 $string['seriesnotcreated'] = 'Series could not be created.';
 $string['seriesidsaved'] = 'The series ID was saved.';
@@ -437,28 +548,30 @@ $string['seriesonedefault'] = 'There must be exactly one default series.';
 $string['setdefaultseries_heading'] = 'Set default series';
 $string['setdefaultseries'] = 'Do you really want to use this series as new default series?';
 $string['setdefaultseriesfailed'] = 'Changing the default series failed. Please try again later or contact an administrator.';
+$string['settings'] = 'Opencast Videos';
+$string['setting_permanent'] = 'Is permanent';
+$string['source'] = 'Source';
+$string['startDate'] = 'Date';
+$string['startTime'] = 'Time';
+$string['subjects'] = 'Subjects';
+$string['space_catalogname'] = 'This field must not contain space';
 $string['startworkflow'] = 'Start workflow';
 $string['startworkflow_modal_body'] = 'Choose the workflow you want to start.';
+$string['submit'] = 'Save changes';
+$string['shared_settings'] = 'Shared settings';
+$string['support_setting'] = 'Support email';
+$string['support_settingdesc'] = 'Email address to which reports are sent if users report problems with videos.';
+$string['support_setting_notset'] = 'Support email is not set. Please contact the administrator and resubmit the report.';
+
 $string['termsofuse'] = 'Terms of use';
 $string['termsofuse_accept'] = 'I have read and agree to the {$a}.';
 $string['termsofuse_accept_toggle'] = 'terms of use';
 $string['termsofuse_desc'] = 'If you enter some text, a checkbox with the terms of use will appear on the "Video upload" page.
 The users must accept the entered terms of use before they can upload the video.';
-$string['catalog_static_params_empty'] = "Read only fields need to define a text in the parameters field.";
-$string['catalog_params_noarray'] = "Parameters have to be either empty or a JSON representation of an array or an object.";
-$string['settings'] = 'Opencast Videos';
-$string['general_settings'] = 'General settings';
-$string['additional_settings'] = 'Additional features';
-$string['importvideos_settings'] = 'Import videos features';
-$string['ltimodule_settings'] = 'LTI module features';
-$string['setting_permanent'] = 'Is permanent';
-$string['submit'] = 'Save changes';
-$string['ocstatefailed'] = 'Failed';
-$string['ocstateprocessing'] = 'Processing';
-$string['ocstatesucceeded'] = 'Succeeded';
-$string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
-$string['ocstatecapturing'] = 'Capturing';
-$string['ocstateneedscutting'] = 'Needs cutting';
+$string['title'] = 'Title';
+$string['type'] = 'Media Type';
+
+$string['unexpected_api_response'] = 'Unexpected API response.';
 $string['uploadfileextensions'] = 'Allowed file extensions';
 $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
@@ -473,15 +586,30 @@ $string['uploadprocessingexplanation'] = 'These video files will be processed in
 $string['uploadworkflow'] = 'Workflow to start after upload';
 $string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, that should be started after succesfully uploading a video file to opencast.
     If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
+$string['uploadsettings'] = 'Settings for the chunkuploader';
+$string['uploadfilelimit'] = 'Video size limit';
+$string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
+$string['updatemetadatasaved'] = 'Metadata is saved.';
+$string['updatemetadata'] = 'Update metadata for this event';
+$string['updatemetadata_short'] = 'Update metadata';
+$string['upload'] = 'File Upload';
+$string['uploadexplanation'] = 'You have the option to upload a presenter video file and / or a presentation video file.<br />Most likely you will only upload one file, but Opencast is also capable of dealing with two videos at once which will be combined in a media package.';
 $string['usedefaultfilepicker'] = 'Use Moodle default file picker to access all repositories';
+
 $string['videosavailable'] = 'Videos available in this course';
+$string['video_notallowed'] = 'The video is not part of the course series.';
 $string['videonotfound'] = 'Video not found';
 $string['videodraftnotfound'] = 'The video to be deleted before the transfer to Opencast was not found.';
+$string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before the transfer to Opencast as the processing status is already "{$a}"';
+$string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
+$string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
+$string['video_not_downloadable'] = 'This video was not published in the download channel.';
 $string['videostoupload'] = 'Videos to upload to opencast';
 $string['visibility'] = 'Visibility of the video';
 $string['visibility_hide'] = 'Prevent any student from accessing the video';
 $string['visibility_show'] = 'Allow all students of the course to access the video';
 $string['visibility_group'] = 'Allow all students belonging to selected groups to access the video';
+
 $string['workflow_settings_opencast'] = 'Workflow Settings';
 $string['workflownotdefined'] = 'The workflow for updating metadata is not defined.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
@@ -493,129 +621,9 @@ $string['workflow_invalid'] = 'This workflow does not exist or is not enabled.';
 $string['workflow_opencast_invalid'] = 'This workflow does not exist in Opencast or is restricted. Please contact the administrator.';
 $string['workflowtag_setting'] = 'Workflow tag';
 $string['workflowtag_settingdesc'] = 'Tag for Opencast workflows that can be configured by the admin and manually started by teachers.';
-$string['privacy:metadata:block_opencast_uploadjob'] = 'Information about video uploads.';
-$string['privacy:metadata:block_opencast_uploadjob:fileid'] = 'ID of the file/video which is uploaded';
-$string['privacy:metadata:block_opencast_uploadjob:opencasteventid'] = 'ID of the opencast event that was created during upload';
-$string['privacy:metadata:block_opencast_uploadjob:userid'] = 'ID of the user who uploaded the video';
-$string['privacy:metadata:block_opencast_uploadjob:status'] = 'Status of upload process';
-$string['privacy:metadata:block_opencast_uploadjob:courseid'] = 'ID of the course where the video is uploaded';
-$string['privacy:metadata:block_opencast_uploadjob:timecreated'] = 'The date the upload job was created.';
-$string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date the upload job was last modified.';
-$string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
-$string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
-$string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
-
-$string['shared_settings'] = 'Shared settings';
-$string['support_setting'] = 'Support email';
-$string['support_settingdesc'] = 'Email address to which reports are sent if users report problems with videos.';
-$string['support_setting_notset'] = 'Support email is not set. Please contact the administrator and resubmit the report.';
-
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';
-$string['metadata'] = 'Event Metadata';
-$string['metadatadesc'] = 'Here you can define which metadata fields can or have to be set when uploading videos to Opencast. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
-$string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';
-$string['metadataseries'] = 'Series Metadata';
-$string['metadataseriesdesc'] = 'Here you can define which metadata fields can or have to be set for creating Opencast series. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
-$string['mediatype'] = 'Media Source';
-$string['title'] = 'Title';
-$string['description'] = 'Description';
-$string['rights'] = 'Rights';
-$string['presenter'] = 'Presenter(s)';
-$string['contributor'] = 'Contributor(s)';
-$string['source'] = 'Source';
-$string['type'] = 'Media Type';
-$string['date'] = 'Start Date';
-$string['upload'] = 'File Upload';
-$string['uploadexplanation'] = 'You have the option to upload a presenter video file and / or a presentation video file.<br />Most likely you will only upload one file, but Opencast is also capable of dealing with two videos at once which will be combined in a media package.';
-$string['subjects'] = 'Subjects';
-$string['language'] = 'Language';
-$string['rightsHolder'] = 'Rights';
-$string['license'] = 'License';
-$string['creator'] = 'Presenter(s)';
-$string['startDate'] = 'Date';
-$string['startTime'] = 'Time';
-$string['duration'] = 'Duration';
-$string['location'] = 'Location';
-$string['created'] = 'Created at';
-$string['publisher'] = 'Publisher';
-$string['identifier'] = 'Identifier';
-$string['updatemetadatasaved'] = 'Metadata is saved.';
-$string['updatemetadata'] = 'Update metadata for this event';
-$string['updatemetadata_short'] = 'Update metadata';
-$string['presenter'] = 'Presenter video';
-$string['presenterdesc'] = 'Use the presenter video if you have a video file of a person speaking to an audience or a motion picture.';
-$string['presentation'] = 'Presentation video';
-$string['presentationdesc'] = 'Use the presentation video if you have a video file of a slide presentation recording or a screencast.';
-$string['emptyvideouploaderror'] = 'You must either upload a presenter video or a presentation video file.';
-$string['heading_position'] = 'Position';
-$string['heading_name'] = 'Field Name';
-$string['heading_datatype'] = 'Field Type';
-$string['heading_required'] = 'Required';
-$string['heading_readonly'] = 'Read Only';
-$string['heading_params'] = 'Parameters (JSON)';
-$string['catalogparam'] = 'Parameters in JSON-Format';
-$string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>
-                                <b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>
-                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>
-                                <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
-                                <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
-$string['addcatalog'] = 'Add new metadata';
-$string['descriptionmdfn'] = 'Field name';
-$string['descriptionmdfn_help'] = 'This is the actual field name passing as metadata (id); the presented name according to this field name should be set in language string.';
-$string['descriptionmdpj'] = 'The value should be JSON string format and it is used to define parameters for the field!';
-$string['empty_catalogname'] = 'This field must not be empty';
-$string['space_catalogname'] = 'This field must not contain space';
-$string['exists_catalogname'] = 'The field is already existed';
-$string['metadata_autocomplete_placeholder'] = 'Enter {$a}';
-$string['metadata_autocomplete_noselectionstring'] = 'No {$a} provided!';
-$string['expirydate'] = 'Expiry Date';
-$string['filetypes'] = 'Accepted file types';
-$string['title'] = 'Title';
-$string['presenterfile'] = 'Presenter file';
-$string['presentationfile'] = 'Presentation file';
-$string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
-$string['recordvideo'] = 'Record video';
-$string['heading_lti'] = 'Setting for LTI Configuration';
-$string['enableopencaststudiolink'] = 'Show the link to opencast studio';
-$string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview.
-Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
-$string['lticonsumerkey'] = 'Consumer key';
-$string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integration.';
-$string['lticonsumersecret'] = 'Consumer secret';
-$string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
-$string['opencaststudiointegration'] = 'Opencast studio integration';
 
-$string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before the transfer to Opencast as the processing status is already "{$a}"';
-$string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
-
-$string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
-$string['cachevalidtime'] = 'Cache valid time';
-$string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
-$string['uploadsettings'] = 'Settings for the chunkuploader';
-$string['uploadfilelimit'] = 'Video size limit';
-$string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
-
-$string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
-$string['video_not_downloadable'] = 'This video was not published in the download channel.';
-
-$string['connection_failure'] = 'Could not reach Opencast server.';
-$string['unexpected_api_response'] = 'Unexpected API response.';
-
-// Notifications.
-$string['notifications_settings_header'] = 'Notifications';
-$string['notificationeventstatus'] = 'Allow event process status notification';
-$string['notificationeventstatus_desc'] = 'This option allows the system to send notification about the status of the uploaded video from Opencast during the process to the users. This option only includes uploader of the video into the user list. To Notify all teachers of the course, the following setting should be enabled.<br />This feature is done through a scheduled task that is recommended to run every minute.';
-$string['notificationeventstatusteachers'] = 'Notify all course teachers about the event process status';
-$string['notificationeventstatusteachers_desc'] = 'With this option, apart from the uploader of the video, all the teachers of the course where the video is uploaded from get notified about the Opencast processing status.';
-$string['notificationeventstatusdeletion'] = 'Cleanup notification jobs after (Days)';
-$string['notificationeventstatusdeletion_desc'] = 'This setting sets a deadline in day for the jobs that are not yet completed. After the deadline has reached, the job will be deleted despite its process state. <br />This features helps to remove the pending notification jobs from the list and it is done through a scheduled task that is recommended to run once a day.<br />NOTE: (zero) "0" value disables the setting.';
-$string['processnotification'] = 'Process event status notification jobs after upload';
-$string['processdeletenotification'] = 'Process delete notification jobs';
-$string['failedtogetvideo'] = 'Cannot get event data from Opencast.';
-$string['notificationeventstatus_subj'] = 'Opencast Event Status Notification';
-$string['notificationeventstatus_body'] = 'The process status of the uploaded video: {$a->videotitle} (ID: {$a->videoidentifier}) in the course: {$a->coursefullname} (ID: {$a->courseid}) has been changed to: {$a->statusmessage}';
-$string['messageprovider:opencasteventstatus_notification'] = 'Opencast event status notification';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
