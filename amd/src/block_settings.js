@@ -27,7 +27,7 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
 
-export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
+export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocinstanceid) => {
 
     // Load strings
     var strings = [
@@ -51,6 +51,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
         rolesinput.parent().hide();
         rolesinput.parent().next().hide(); // Default value.
 
+        // Don't create tables if they are not visible.
+        if(!rolesinput.length) {
+            return;
+        }
+
         var metadatainput = $('#' + metadatainputid);
         metadatainput.parent().hide();
         metadatainput.parent().next().hide(); // Default value.
@@ -59,7 +64,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
         metadataseriesinput.parent().hide();
         metadataseriesinput.parent().next().hide(); // Default value.
 
-        var rolestable = new Tabulator("#rolestable", {
+        var rolestable = new Tabulator("#rolestable_" + ocinstanceid, {
             data: JSON.parse(rolesinput.val()),
             layout: "fitColumns",
             dataChanged: function (data) {
@@ -127,11 +132,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
             ],
         });
 
-        $('#addrow-rolestable').click(function () {
+        $('#addrow-rolestable_' + ocinstanceid).click(function () {
             rolestable.addRow({'permanent': 0});
         });
 
-        var metadatatable = new Tabulator("#metadatatable", {
+        var metadatatable = new Tabulator("#metadatatable_" + ocinstanceid, {
             data: JSON.parse(metadatainput.val()),
             layout: "fitColumns",
             movableRows: true,
@@ -149,7 +154,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
             },
             columns: [
                 {
-                    title: jsstrings[7] + '   ' + $('#helpbtnname').html(),
+                    title: jsstrings[7] + '   ' + $('#helpbtnname_' + ocinstanceid).html(),
                     field: "name",
                     editor: "input",
                     widthGrow: 1,
@@ -197,7 +202,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
                         }
                 },
                 {
-                    title: jsstrings[11] + '   ' + $('#helpbtnparams').html(),
+                    title: jsstrings[11] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
                     field: "param_json",
                     editor: "textarea",
                     widthGrow: 2,
@@ -226,11 +231,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
             ],
         });
 
-        $('#addrow-metadatatable').click(function () {
+        $('#addrow-metadatatable_' + ocinstanceid).click(function () {
             metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
-        var metadataseriestable = new Tabulator("#metadataseriestable", {
+        var metadataseriestable = new Tabulator("#metadataseriestable_" + ocinstanceid, {
             data: JSON.parse(metadataseriesinput.val()),
             layout: "fitColumns",
             movableRows: true,
@@ -248,7 +253,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
             },
             columns: [
                 {
-                    title: jsstrings[7] + '   ' + $('#helpbtnname').html(),
+                    title: jsstrings[7] + '   ' + $('#helpbtnname_' + ocinstanceid).html(),
                     field: "name",
                     editor: "input",
                     widthGrow: 1,
@@ -296,7 +301,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
                         }
                 },
                 {
-                    title: jsstrings[11] + '   ' + $('#helpbtnparams').html(),
+                    title: jsstrings[11] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
                     field: "param_json",
                     editor: "textarea",
                     widthGrow: 2,
@@ -325,7 +330,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid) => {
             ],
         });
 
-        $('#addrow-metadataseriestable').click(function () {
+        $('#addrow-metadataseriestable_' + ocinstanceid).click(function () {
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
     });

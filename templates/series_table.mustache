@@ -27,9 +27,11 @@
 <input type="hidden" id="seriesinput" class="d-none" value="{{series}}">
 <div class="mt-3" id="seriestable">
 </div>
-<button type="button" class="btn btn-primary mt-3" id="createseries">
-{{# str}}createseriesforcourse, block_opencast {{/ str}}
-</button>
-<button type="button" class="btn btn-primary mt-3" id="importseries">
-{{# str}}importseries, block_opencast {{/ str}}
+{{#addseriesallowed}}
+    <button type="button" class="btn btn-primary mt-3" id="createseries">
+    {{# str}}createseriesforcourse, block_opencast {{/ str}}
+    </button>
+    <button type="button" class="btn btn-primary mt-3" id="importseries">
+    {{# str}}importseries, block_opencast {{/ str}}
+{{/addseriesallowed}}
 </button>

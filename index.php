@@ -458,20 +458,33 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
         $processingexplanation = get_string('importvideos_processingexplanation', 'block_opencast');
         // Get import mode from the admin setting.
         $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $renderimport = True;
+
         // Check if the import mode is acl change, then we get another explanation.
         if ($importmode == 'acl') {
             // Get explanation for ACL Change approach.
             $processingexplanation = get_string('importvideos_aclprocessingexplanation', 'block_opencast');
+
+            // Check if the maximum number of series is already reached.
+            $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+            if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+                $renderimport = false;
+            }
         }
+
         // Show explanation for manual import.
         echo html_writer::tag('p', get_string('importvideos_sectionexplanation', 'block_opencast') . '<br />' . $processingexplanation);
 
-
-        // Show "Import videos" button.
-        $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-        $importvideosbutton = $OUTPUT->single_button($importvideosurl,
-            get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
-        echo html_writer::div($importvideosbutton);
+        if($renderimport) {
+            // Show "Import videos" button.
+            $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+            $importvideosbutton = $OUTPUT->single_button($importvideosurl,
+                get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
+            echo html_writer::div($importvideosbutton);
+        }
+        else {
+            echo html_writer::tag('p', get_string('maxseriesreachedimport', 'block_opencast'));
+        }
     }
 }
 

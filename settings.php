@@ -87,6 +87,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
         // Create full settings page structure only if really needed.
     } else if ($ADMIN->fulltree) {
+        if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
+            $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
+            $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
+        }
+
         $sharedsettings = new admin_settingpage('block_opencast_sharedsettings', get_string('shared_settings', 'block_opencast'));
         $sharedsettings->add(
             new admin_setting_configtext('block_opencast/cachevalidtime',
@@ -160,9 +165,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
-                'helpbtnname', 'descriptionmdfn', 'block_opencast'));
+                'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams_' . $instance->id,
-                'helpbtnparams', 'catalogparam', 'block_opencast'));
+                'helpbtnparams_' . $instance->id, 'catalogparam', 'block_opencast'));
 
             $rolessetting = new admin_setting_configtext('block_opencast/roles_' . $instance->id,
                 get_string('aclrolesname', 'block_opencast'),
@@ -184,10 +189,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [
                     $rolessetting->get_id(),
                     $metadatasetting->get_id(),
-                    $metadataseriessetting->get_id()
+                    $metadataseriessetting->get_id(),
+                    $instance->id
                 ]);
-                $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
-                $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
             }
 
             $generalsettings->add(
@@ -256,6 +260,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $generalsettings->add(new admin_setting_filetypes('block_opencast/uploadfileextensions_' . $instance->id,
                 new lang_string('uploadfileextensions', 'block_opencast'),
                 get_string('uploadfileextensionsdesc', 'block_opencast', $CFG->wwwroot . '/admin/tool/filetypes/index.php')
+            ));
+
+            $generalsettings->add(new admin_setting_configtext('block_opencast/maxseries_' . $instance->id,
+                new lang_string('maxseries', 'block_opencast'),
+                get_string('maxseriesdesc', 'block_opencast'), 3, PARAM_INT
             ));
 
             $generalsettings->add(

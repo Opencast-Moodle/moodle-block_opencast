@@ -23,7 +23,7 @@
  */
 require_once('../../config.php');
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $DB;
 
 // Handle submitted parameters of the form.
 // This course id of the target course.
@@ -92,6 +92,12 @@ if ($importmode == 'acl') {
     $totalsteps = 3;
     // We need a normal 2 Steps progress bar.
     $hasstep3 = true;
+
+    // Check if the maximum number of series is already reached.
+    $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+    if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        throw new moodle_exception('maxseriesreached', 'block_opencast');
+    }
 }
 
 // Get renderer.

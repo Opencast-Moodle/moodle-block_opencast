@@ -81,8 +81,10 @@ class block_opencast extends block_base
 
             try {
                 foreach ($ocinstances as $instance) {
-                    $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
-                    $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
+                    if($instance->isvisible) {
+                        $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
+                        $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
+                    }
                 }
                 $cacheobj = new stdClass();
                 $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
@@ -95,7 +97,9 @@ class block_opencast extends block_base
         }
 
         foreach ($ocinstances as $instance) {
-            $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
+            if($instance->isvisible) {
+                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
+            }
         }
 
         return $this->content;

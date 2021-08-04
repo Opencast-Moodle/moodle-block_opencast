@@ -118,7 +118,7 @@ class block_opencast_external extends external_api
      */
     public static function submit_series_form($contextid, int $ocinstanceid, string $seriesid, string $jsonformdata)
     {
-        global $USER;
+        global $USER, $DB;
 
         $params = self::validate_parameters(self::submit_series_form_parameters(), [
             'contextid' => $contextid,
@@ -132,6 +132,12 @@ class block_opencast_external extends external_api
         require_capability('block/opencast:createseriesforcourse', $context);
 
         list($ignored, $course) = get_context_info_array($context->id);
+
+        // Check if the maximum number of series is already reached.
+        $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
+        if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+            throw new moodle_exception('maxseriesreached', 'block_opencast');
+        }
 
         $data = array();
         parse_str($params['jsonformdata'], $data);
@@ -210,7 +216,7 @@ class block_opencast_external extends external_api
      */
     public static function import_series(int $contextid, int $ocinstanceid, string $series)
     {
-        global $USER;
+        global $USER, $DB;
         $params = self::validate_parameters(self::import_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
@@ -222,6 +228,12 @@ class block_opencast_external extends external_api
         require_capability('block/opencast:importseriesintocourse', $context);
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
+
+        // Check if the maximum number of series is already reached.
+        $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
+        if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+            throw new moodle_exception('maxseriesreached', 'block_opencast');
+        }
 
         // Perform ACL change.
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
