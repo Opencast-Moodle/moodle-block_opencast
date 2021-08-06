@@ -400,6 +400,21 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('opencaststudiointegration', 'block_opencast'),
                     ''));
 
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link_' . $instance->id,
+                    get_string('enableopencaststudiolink', 'block_opencast'),
+                    get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/lticonsumerkey_' . $instance->id,
+                    get_string('lticonsumerkey', 'block_opencast'),
+                    get_string('lticonsumerkey_desc', 'block_opencast'), ""));
+
+            $additionalsettings->add(
+                new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret_' . $instance->id,
+                    get_string('lticonsumersecret', 'block_opencast'),
+                    get_string('lticonsumersecret_desc', 'block_opencast'), ""));
+
             // Notifications in additional features settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/notifications_' . $instance->id,
@@ -424,21 +439,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configtext('block_opencast/eventstatusnotificationdeletion_' . $instance->id,
                     get_string('notificationeventstatusdeletion', 'block_opencast'),
                     get_string('notificationeventstatusdeletion_desc', 'block_opencast'), 0, PARAM_INT));
-
-            $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/enable_opencast_studio_link_' . $instance->id,
-                    get_string('enableopencaststudiolink', 'block_opencast'),
-                    get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));
-
-            $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/lticonsumerkey_' . $instance->id,
-                    get_string('lticonsumerkey', 'block_opencast'),
-                    get_string('lticonsumerkey_desc', 'block_opencast'), ""));
-
-            $additionalsettings->add(
-                new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret_' . $instance->id,
-                    get_string('lticonsumersecret', 'block_opencast'),
-                    get_string('lticonsumersecret_desc', 'block_opencast'), ""));
 
 
             // Control ACL section.
