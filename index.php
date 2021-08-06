@@ -142,6 +142,9 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes(
     }
 }
 
+/** @var block_opencast_renderer $renderer */
+$renderer = $PAGE->get_renderer('block_opencast');
+
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
         $headers[$i] = get_string('h' . $header, 'block_opencast');
@@ -165,10 +168,6 @@ foreach ($headers as $i => $header) {
 }
 
 $perpage = optional_param('perpage', 20, PARAM_INT);
-
-/** @var block_opencast_renderer $renderer */
-$renderer = $PAGE->get_renderer('block_opencast');
-
 $opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 $table = $renderer->create_videos_tables('ignore', $headers, $columns, $baseurl);
 $sortcolumns = $table->get_sort_columns();
