@@ -807,7 +807,7 @@ class block_opencast_renderer extends plugin_renderer_base
 
         $context = new stdClass();
         $context->series = json_encode(array_values($series));
-        $context->addseriesallowed = count($series) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+        $context->addseriesallowed = count($series) < get_config('block_opencast', 'maxseries_' . $ocinstanceid);
 
         return  $this->render_from_template('block_opencast/series_table', $context);
     }
