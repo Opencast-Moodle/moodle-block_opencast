@@ -148,6 +148,20 @@ foreach ($headers as $i => $header) {
     } else {
         $headers[$i] = '';
     }
+    // We add customized help icons to the status and visibility headers.
+    if ($header == 'visibility' || $header == 'workflow_state') {
+        // Preparing the context for the template.
+        $context = new \stdClass();
+        // Passing proper flag to the template context to render related data.
+        if ($header == 'visibility') {
+            $context->visibilityhelpicon = true;
+        } else if ($header == 'workflow_state') {
+            $context->statushelpicon = true;
+        }
+        // Render from the template to show Status legend.
+        $legendicon = $renderer->render_from_template('block_opencast/table_legend_help_icon', $context);
+        $headers[$i] .= $legendicon;
+    }
 }
 
 $perpage = optional_param('perpage', 20, PARAM_INT);
