@@ -118,10 +118,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
                 '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
 
-            if (!get_config('block_opencast', 'roles_' . $instance->id)) {
-                set_config('roles_' . $instance->id, $rolesdefault, 'block_opencast');
-            }
-
             $metadatadefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
@@ -138,10 +134,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
 
-            if (!get_config('block_opencast', 'metadata_' . $instance->id)) {
-                set_config('metadata_' . $instance->id, $metadatadefault, 'block_opencast');
-            }
-
             $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
@@ -157,10 +149,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]';
-
-            if (!get_config('block_opencast', 'metadataseries_' . $instance->id)) {
-                set_config('metadataseries_' . $instance->id, $metadataseriesdefault, 'block_opencast');
-            }
 
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
@@ -421,7 +409,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/eventstatusnotificationenabled_' . $instance->id,
                     get_string('notificationeventstatus', 'block_opencast'),
-                    get_string('notificationeventstatus_desc', 'block_opencast'), 1));
+                    get_string('notificationeventstatus_desc', 'block_opencast'), 0));
 
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/eventstatusnotifyteachers_' . $instance->id,
