@@ -107,6 +107,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -125,6 +126,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -174,6 +176,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
             $job->userid = $teacher->id;
             $job->timecreated = time();
             $job->timemodified = time();
+            $job->ocinstanceid = 1;
 
             $DB->insert_record('block_opencast_uploadjob', $job);
         }
@@ -228,6 +231,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -274,6 +278,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
             $job->userid = $teacher1->id;
             $job->timecreated = time();
             $job->timemodified = time();
+            $job->ocinstanceid = 1;
 
             $DB->insert_record('block_opencast_uploadjob', $job);
         }
@@ -293,6 +298,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher2->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -363,6 +369,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
             $job->userid = $teacher1->id;
             $job->timecreated = time();
             $job->timemodified = time();
+            $job->ocinstanceid = 1;
 
             $DB->insert_record('block_opencast_uploadjob', $job);
         }
@@ -397,6 +404,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher2->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -422,6 +430,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher2->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -463,6 +472,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
             $job->userid = $teacher1->id;
             $job->timecreated = time();
             $job->timemodified = time();
+            $job->ocinstanceid = 1;
 
             $DB->insert_record('block_opencast_uploadjob', $job);
         }
@@ -482,6 +492,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher1->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
@@ -500,6 +511,7 @@ class block_opencast_privacy_testcase extends \core_privacy\tests\provider_testc
         $job->userid = $teacher2->id;
         $job->timecreated = time();
         $job->timemodified = time();
+        $job->ocinstanceid = 1;
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 

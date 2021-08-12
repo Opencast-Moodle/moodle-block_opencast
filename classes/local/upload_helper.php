@@ -29,6 +29,7 @@ require_once($CFG->dirroot . '/lib/filelib.php');
 
 use block_opencast\opencast_state_exception;
 use local_chunkupload\chunkupload_form_element;
+use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
 /**
@@ -387,12 +388,12 @@ class upload_helper
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
-                'ocinstanceid' => $job->ocinstanceid,
                 'userid' => $job->userid,
                 'other' => array(
                     'filename' => /* $filename */ implode(' & ', $filenames),
                     'errormessage' => $errormessage,
-                    'countfailed' => $job->countfailed
+                    'countfailed' => $job->countfailed,
+                    'ocinstanceid' => $job->ocinstanceid
                 )
             )
         );
@@ -623,7 +624,7 @@ class upload_helper
     public function cron() {
         global $DB;
 
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             // Get all waiting jobs.
             $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? AND ocinstanceid = ? ORDER BY timemodified ASC ";

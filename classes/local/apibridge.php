@@ -1624,7 +1624,7 @@ class apibridge
      */
     public static function set_testing($testing) {
         self::$testing = $testing;
-        self::get_instance(true);
+        self::get_instance(1);
     }
 
     // Metadata.

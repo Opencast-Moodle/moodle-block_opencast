@@ -156,6 +156,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $mapping->set('courseid', $courseid);
             $mapping->set('series', $series->identifier);
             $mapping->set('isdefault', '1');
+            $mapping->set('ocinstanceid', 1);
             $mapping->create();
             return true;
         }
