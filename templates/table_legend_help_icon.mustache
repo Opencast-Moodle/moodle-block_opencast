@@ -21,8 +21,8 @@
 
     Example context (json):
     {
-        "statushelpicon": "true",
-        "visibilityhelpicon": "false",
+        "statushelpicon": true,
+        "visibilityhelpicon": false
     }
 }}
 <a class="btn btn-link p-0" role="button" id="{{uniqid}}-legend-icon">
@@ -57,6 +57,5 @@
                 return modal;
             }).catch(Notification.exception);
         });
-        
     });
 {{/js}}
