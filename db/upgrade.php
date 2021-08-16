@@ -623,7 +623,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         // Conditionally launch add field seriesid.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
-            // TODO check again if that works correctly.
 
             $DB->execute("UPDATE {block_opencast_ltimodule} SET seriesid=(SELECT ts.series FROM {tool_opencast_series} as ts WHERE ts.isdefault=1 AND ts.courseid={block_opencast_ltimodule}.courseid AND ts.ocinstanceid={block_opencast_ltimodule}.ocinstanceid)");
 
@@ -631,7 +630,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Allow course id to occur multiple times.
-        // TODO also test
         $key = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
         $dbman->drop_key($table, $key);
         $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
