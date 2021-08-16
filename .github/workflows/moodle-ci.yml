@@ -58,7 +58,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch MOODLE_311_STABLE unirz-tu-ilmenau/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch master unirz-tu-ilmenau/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 --no-init
         env:
           DB: ${{ matrix.database }}
@@ -171,7 +171,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch MOODLE_311_STABLE unirz-tu-ilmenau/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch master unirz-tu-ilmenau/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
@@ -259,7 +259,7 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch MOODLE_311_STABLE unirz-tu-ilmenau/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch master unirz-tu-ilmenau/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
