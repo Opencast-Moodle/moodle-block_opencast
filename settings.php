@@ -41,7 +41,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $settingscategory = new admin_category('block_opencast', new lang_string('settings', 'block_opencast'));
     $ADMIN->add('blocksettings', $settingscategory);
 
-    $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+    $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
 
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
