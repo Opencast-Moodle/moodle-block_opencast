@@ -129,6 +129,58 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return $result;
     }
 
+    public function get_series_videos($series, $sortcolumns = null) {
+        // Used for behat test.
+        $video = new stdClass();
+        $video->identifier = '1111-2222-3333-4444';
+        $video->title = 'MyTitle';
+        $video->series = 'My Test Series';
+        $video->status = "EVENTS.EVENTS.STATUS.PROCESSED";
+        $video->processing_state = "SUCCEEDED";
+        $video->created = "2021-07-31T09:55:00Z";
+        $video->start = "2021-07-31T09:55:00Z";
+        $video->is_part_of = '1234-5678-abcd-efgh';
+        $video->is_downloadable = false;
+        $video->location = '';
+        $video->publication_status = array();
+
+        $result = new stdClass();
+        $result->error = 0;
+        $result->videos = [$video];
+
+        return $result;
+    }
+
+    public function get_block_videos($courseid) {
+        // Used for behat test.
+        $result = new \stdClass();
+        $result->count = 0;
+        $result->more = false;
+        $result->videos = array();
+        $result->error = 0;
+
+        $series = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => 1));
+        if($series) {
+            $video = new stdClass();
+            $video->identifier = '1111-2222-3333-4444';
+            $video->title = 'MyTitle';
+            $video->series = 'My Test Series';
+            $video->status = "EVENTS.EVENTS.STATUS.PROCESSED";
+            $video->processing_state = "SUCCEEDED";
+            $video->created = "2021-07-31T09:55:00Z";
+            $video->start = "2021-07-31T09:55:00Z";
+            $video->is_part_of = '1234-5678-abcd-efgh';
+            $video->is_downloadable = false;
+            $video->location = '';
+            $video->publication_status = array();
+
+            $result->count = 1;
+            $result->videos = [$video];
+        }
+
+        return $result;
+    }
+
     /**
      * Simulate calling opencast for creating a course series.
      *

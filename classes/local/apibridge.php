@@ -74,7 +74,8 @@ class apibridge
         }
 
         // Use replacement of api bridge for test cases.
-        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
+        if ((defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) ||
+            (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING)) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
             return $apibridge;

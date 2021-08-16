@@ -282,8 +282,10 @@ if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_ser
     // Show explanation.
     echo html_writer::tag('p', get_string('addactivity_addbuttonexplanation', 'block_opencast'));
 
-    if(!$showseriesinfo && (empty($errors) || $errors[0] !== 0)) {
-        $series = array_filter($seriesvideodata, function($vd) {return !$vd->error;});
+    $series = array_filter($seriesvideodata, function ($vd) {
+        return !$vd->error;
+    });
+    if (!$showseriesinfo && $series) {
         echo $renderer->render_provide_activity($coursecontext, $ocinstanceid, $courseid, array_keys($series)[0]);
     }
 }
@@ -500,6 +502,10 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
             echo html_writer::tag('p', get_string('maxseriesreachedimport', 'block_opencast'));
         }
     }
+}
+
+if(empty($seriesvideodata)) {
+    echo \html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
 }
 
 if ($opencasterror) {

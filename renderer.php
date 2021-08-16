@@ -161,6 +161,8 @@ class block_opencast_renderer extends plugin_renderer_base
     }
 
     public function render_provide_activity($coursecontext, $ocinstanceid, $courseid, $seriesid) {
+        $activitybutton = '';
+        $ltibutton = '';
 
         if (activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
             // Fetch existing Opencast Activity series module for this series.
