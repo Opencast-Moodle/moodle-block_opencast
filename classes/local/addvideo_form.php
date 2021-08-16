@@ -243,14 +243,14 @@ class addvideo_form extends \moodleform
     {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
-        if (!$chunkuploadinstalled ||
+        if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
             isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
             $presenterfile = $this->get_draft_files('video_presenter');
         } else {
             $presenterfile = isset($data['video_presenter_chunk']) &&
                 chunkupload_form_element::is_file_uploaded($data['video_presenter_chunk']);
         }
-        if (!$chunkuploadinstalled ||
+        if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
             isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
             $presentationfile = $this->get_draft_files('video_presentation');
         } else {

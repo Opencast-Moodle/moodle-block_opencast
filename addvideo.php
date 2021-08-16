@@ -66,14 +66,14 @@ if ($data = $addvideoform->get_data()) {
     $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
 
     // Record the user draft area in this context.
-    if (!$chunkuploadinstalled ||
+    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
         property_exists($data, 'presenter_already_uploaded') && $data->presenter_already_uploaded) {
         $storedfilepresenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id,
             'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
     } else {
         $chunkuploadpresenter = $data->video_presenter_chunk;
     }
-    if (!$chunkuploadinstalled ||
+    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
         property_exists($data, 'presentation_already_uploaded') && $data->presentation_already_uploaded) {
         $storedfilepresentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id,
             'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);

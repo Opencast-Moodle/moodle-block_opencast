@@ -65,22 +65,3 @@ Feature: Add Opencast block as Teacher
     And I reload the page
     Then I should not see "Ready for transfer"
     And I should see "Test"
-
-  @_file_upload @javascript
-  Scenario: Opencast remove Series ID
-    Given I click on "Go to overview..." "link"
-    And I click on "Add video" "button"
-    And I set the field "Title" to "Test"
-    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
-    And I click on "Add video" "button"
-    And I run the scheduled task "\block_opencast\task\process_upload_cron"
-    And I wait "10" seconds
-    And I run the scheduled task "\block_opencast\task\process_upload_cron"
-    And I wait "10" seconds
-    And I click on "Edit series mapping" "link"
-    And I set the field "seriesid" to ""
-    And I click on "Save changes" "button"
-    Then I should see "The series ID was removed."
-    And I should see "Create new series"
-    And I should see "Currently, no videos have been uploaded to this course yet."
-    And I should not see "Test"
