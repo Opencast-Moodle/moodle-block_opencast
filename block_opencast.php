@@ -79,26 +79,26 @@ class block_opencast extends block_base
         if (!isset($videos)) {
             $videos = array();
 
-            try {
-                foreach ($ocinstances as $instance) {
-                    if($instance->isvisible) {
+            foreach ($ocinstances as $instance) {
+                try {
+                    if ($instance->isvisible) {
                         $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
                         $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
                     }
+                } catch (opencast_connection_exception $e) {
+                    $videos[$instance->id] = new stdClass();
+                    $videos[$instance->id]->error = $e->getMessage();
                 }
-                $cacheobj = new stdClass();
-                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
-                $cacheobj->videos = $videos;
-                $cache->set($COURSE->id, $cacheobj);
-            } catch (opencast_connection_exception $e) {
-                $videos = new \stdClass();
-                $videos->error = $e->getmessage();
             }
-        }
+            $cacheobj = new stdClass();
+            $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
+            $cacheobj->videos = $videos;
+            $cache->set($COURSE->id, $cacheobj);
 
-        foreach ($ocinstances as $instance) {
-            if($instance->isvisible) {
-                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
+            foreach ($ocinstances as $instance) {
+                if ($instance->isvisible) {
+                    $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
+                }
             }
         }
 
