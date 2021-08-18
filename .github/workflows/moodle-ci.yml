@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Start MariaDB
-        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10
+        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10.5
 
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -119,7 +119,7 @@ jobs:
 
     steps:
       - name: Start MariaDB
-        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10
+        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10.5
 
       - name: Check out opencast-docker
         uses: actions/checkout@v2
@@ -203,7 +203,7 @@ jobs:
     steps:
       - name: Start MariaDB
         if: matrix.database == 'mariadb'
-        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10
+        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10.5
 
       - name: Start PostgreSQL
         if: matrix.database == 'pgsql'
