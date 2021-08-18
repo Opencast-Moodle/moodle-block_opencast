@@ -94,11 +94,11 @@ class block_opencast extends block_base
             $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
             $cacheobj->videos = $videos;
             $cache->set($COURSE->id, $cacheobj);
+        }
 
-            foreach ($ocinstances as $instance) {
-                if ($instance->isvisible) {
-                    $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
-                }
+        foreach ($ocinstances as $instance) {
+            if ($instance->isvisible) {
+                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
             }
         }
 
