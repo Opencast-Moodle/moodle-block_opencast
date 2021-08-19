@@ -45,6 +45,7 @@ function submitFormAjax(e) {
     var modal = e.data.modal;
     var contextid = e.data.contextid;
     var seriestable = e.data.seriestable;
+    var numseriesallowed = e.data.numseriesallowed;
 
     var changeEvent = document.createEvent('HTMLEvents');
     changeEvent.initEvent('change', true, true);
@@ -77,6 +78,11 @@ function submitFormAjax(e) {
             if(seriestable !== undefined) {
                 var s = JSON.parse(newseries);
                 seriestable.addRow({'seriesname': s.seriestitle, 'series':s.series, 'isdefault': s.isdefault});
+
+                if(seriestable.getRows().length >= numseriesallowed) {
+                    $("#createseries").hide();
+                    $("#importseries").hide();
+                }
             }
         },
         fail: function () {
@@ -151,6 +157,7 @@ export const init = (contextid, ocinstanceid) => {
     str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
         var seriesinput = $('#seriesinput');
+        var numseriesallowed = $('#numseriesallowed').val();
 
         var seriestable = new Tabulator("#seriestable", {
             data: JSON.parse(seriesinput.val()),
@@ -251,7 +258,8 @@ export const init = (contextid, ocinstanceid) => {
                                     'modal': modal,
                                     'contextid': contextid,
                                     'ocinstanceid': ocinstanceid,
-                                    'seriesid': cell.getRow().getCell("series").getValue()
+                                    'seriesid': cell.getRow().getCell("series").getValue(),
+                                    'numseriesallowed': numseriesallowed
                                 }, submitFormAjax);
 
                                 modal.show();
@@ -284,6 +292,10 @@ export const init = (contextid, ocinstanceid) => {
                                             }
                                             else {
                                                 cell.getRow().delete();
+                                                $("#createseries").show();
+                                                $("#createseries").removeClass('d-none');
+                                                $("#importseries").show();
+                                                $("#importseries").removeClass('d-none');
                                             }
                                         },
                                         fail: function (e) {
@@ -325,7 +337,8 @@ export const init = (contextid, ocinstanceid) => {
                         'contextid': contextid,
                         'ocinstanceid': ocinstanceid,
                         'seriestable': seriestable,
-                        'seriesid': ''
+                        'seriesid': '',
+                        'numseriesallowed': numseriesallowed
                     }, submitFormAjax);
 
                     modal.show();
@@ -371,6 +384,11 @@ export const init = (contextid, ocinstanceid) => {
                                 if(seriestable !== undefined) {
                                     var s = JSON.parse(newseries);
                                     seriestable.addRow({'seriesname': s.title, 'series':s.id, 'isdefault': s.isdefault});
+
+                                    if(seriestable.getRows().length >= numseriesallowed) {
+                                        $("#createseries").hide();
+                                        $("#importseries").hide();
+                                    }
                                 }
                             },
                             fail: function () {
