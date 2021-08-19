@@ -197,7 +197,14 @@ export const init = (contextid, ocinstanceid) => {
                                                 seriesid: cell.getRow().getData().series},
                                             done: function () {
                                                 modal.destroy();
-                                                cell.getRow().update({'isdefault': 1});
+                                                cell.getTable().getRows().forEach(function(row) {
+                                                    if(row === cell.getRow()) {
+                                                        row.update({'isdefault': 1});
+                                                    }
+                                                    else {
+                                                        row.update({'isdefault': 0});
+                                                    }
+                                                });
                                             },
                                             fail: function (e) {
                                                 modal.destroy();
@@ -303,11 +310,6 @@ export const init = (contextid, ocinstanceid) => {
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[4]);
                     modal.setLarge();
-
-                    // Reset modal on every open event.
-                    modal.getRoot().on(ModalEvents.hidden, function () {
-                        modal.setBody(getBody(contextid, ocinstanceid, ''));
-                    }).bind(this);
 
                     // We want to hide the submit buttons every time it is opened.
                     modal.getRoot().on(ModalEvents.shown, function () {
