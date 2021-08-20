@@ -85,8 +85,14 @@ function submitFormAjax(e) {
                 }
             }
         },
-        fail: function () {
-            modal.setBody(getBody(contextid, e.data.ocinstanceid, e.data.seriesid, formData));
+        fail: function (e) {
+            if(e.errorcode === 'metadataseriesupdatefailed') {
+                modal.destroy();
+                displayError(e.message);
+            }
+            else {
+                modal.setBody(getBody(contextid, e.data.ocinstanceid, e.data.seriesid, formData));
+            }
         }
     }]);
 }
@@ -197,6 +203,10 @@ export const init = (contextid, ocinstanceid) => {
                                 body: jsstrings[14]
                             })
                                 .then(function (modal) {
+                                    modal.getRoot().on(ModalEvents.hidden, function () {
+                                        modal.destroy();
+                                    }).bind(this);
+
                                     modal.getRoot().on(ModalEvents.save, function () {
                                         Ajax.call([{
                                             methodname: 'block_opencast_set_default_series',
@@ -323,6 +333,10 @@ export const init = (contextid, ocinstanceid) => {
                     modal.setSaveButtonText(jsstrings[4]);
                     modal.setLarge();
 
+                    modal.getRoot().on(ModalEvents.hidden, function () {
+                        modal.destroy();
+                    }).bind(this);
+
                     // We want to hide the submit buttons every time it is opened.
                     modal.getRoot().on(ModalEvents.shown, function () {
                         modal.getRoot().append('<style>[data-fieldtype=submit] { display: none ! important; }</style>');
@@ -370,6 +384,10 @@ export const init = (contextid, ocinstanceid) => {
                 .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[10]);
                     modal.setLarge();
+
+                    modal.getRoot().on(ModalEvents.hidden, function () {
+                        modal.destroy();
+                    }).bind(this);
 
                     modal.getRoot().on(ModalEvents.save, function (e) {
                         e.preventDefault();

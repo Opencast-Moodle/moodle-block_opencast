@@ -440,6 +440,7 @@ $string['metadatadesc'] = 'Here you can define which metadata fields can or have
 $string['metadataexplanation'] = 'When uploading existing video files to Opencast, you can set several metadata fields. These will be stored together with the video.';
 $string['metadataseries'] = 'Series Metadata';
 $string['metadataseriesdesc'] = 'Here you can define which metadata fields can or have to be set for creating Opencast series. You can drag-and-drop rows to reorder them defining the position of fields in the form.';
+$string['metadataseriesupdatefailed'] = 'Updating the series metadata failed.';
 $string['mediatype'] = 'Media Source';
 $string['metadata_autocomplete_placeholder'] = 'Enter {$a}';
 $string['metadata_autocomplete_noselectionstring'] = 'No {$a} provided!';

@@ -1730,7 +1730,7 @@ class apibridge
         $api = new api($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
-        if ($api->get_http_code() == 204) {
+        if ($api->get_http_code() == 200) {
             return true;
         };
         return false;

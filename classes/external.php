@@ -155,18 +155,29 @@ class block_opencast_external extends external_api
                 if ($field === 'courseid') {
                     continue;
                 }
-
-                $metadata[] = array(
-                    'id' => $field,
-                    'value' => $value
-                );
+                if($field === 'subjects') {
+                    $metadata[] = array(
+                        'id' => 'subject',
+                        'value' => implode(',', $value)
+                    );
+                }
+                else {
+                    $metadata[] = array(
+                        'id' => $field,
+                        'value' => $value
+                    );
+                }
             }
 
             $apibridge = apibridge::get_instance($params['ocinstanceid']);
             if (!$params['seriesid']) {
                 return json_encode($apibridge->create_course_series($course->id, $metadata, $USER->id));
             } else {
-                return $apibridge->update_series_metadata($params['seriesid'], $metadata);
+                $result = $apibridge->update_series_metadata($params['seriesid'], $metadata);
+                if(!$result) {
+                    throw new moodle_exception('metadataseriesupdatefailed', 'block_opencast');
+                }
+                return $result;
             }
         } else {
             throw new moodle_exception('missingrequiredfield');
