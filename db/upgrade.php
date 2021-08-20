@@ -615,6 +615,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021073101) {
+        // TODO nochmal testen
 
         // Define field seriesid to be added to block_opencast_ltimodule.
         $table = new xmldb_table('block_opencast_ltimodule');

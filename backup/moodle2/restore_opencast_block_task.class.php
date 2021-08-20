@@ -89,11 +89,11 @@ class restore_opencast_block_task extends restore_block_task
         foreach ($ocinstances as $ocinstance) {
             // Settings, does not exists, if opencast system does not support copying workflow.
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
-                return;
+                continue;
             }
 
             if (!$this->get_setting_value('opencast_videos_include_' . $ocinstance->id) && ($this->plan->get_mode() != backup::MODE_IMPORT)) {
-                return;
+                continue;
             }
 
             // Add the restore step to collect the events, that should have been restored.

@@ -197,16 +197,23 @@ class block_opencast_backup_testcase extends advanced_testcase
         $course = $generator->create_course();
         $coursecontext = context_course::instance($course->id);
         $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
+        $mapping = new seriesmapping();
+        $mapping->set('ocinstanceid', 1);
+        $mapping->set('courseid', $course->id);
+        $mapping->set('series', '1234-5678-abcd-efgh');
+        $mapping->set('isdefault', 1);
+        $mapping->create();
 
         // Setup simulation data for api.
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
+        $apibridge->set_testdata('get_series_videos', '1234-5678-abcd-efgh', 'file');
 
         // Backup the course with videos.
         $backupid = $this->backup_course($course->id, true, $USER->id);
 
         // Prepare server simulation (via apibridge).
         $apibridge->set_testdata('supports_api_level', 'level', 'v1.1.0');
-        $apibridge->set_testdata('create_course_series', 'newcourse', '1234-1234-1234');
+        $apibridge->set_testdata('create_course_series', 'newcourse', '1234-1234-1234-1234');
 
         // Restore the course with videos.
         $newcourse = $this->restore_course($backupid, 0, true, $USER->id);
@@ -237,9 +244,10 @@ class block_opencast_backup_testcase extends advanced_testcase
 
         // Create a wrong course series for the course.
         $mappingwrong = new seriesmapping();
+        $mappingwrong->set('ocinstanceid', 1);
         $mappingwrong->set('courseid', $newcourse->id);
         $mappingwrong->set('series', 'wrong-series-id');
-        $mappingwrong->set('isdefault', '1');
+        $mappingwrong->set('isdefault', 1);
         $mappingwrong->create();
 
         // The series is now incorrect, so the task should fail.

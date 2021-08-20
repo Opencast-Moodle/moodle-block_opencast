@@ -76,6 +76,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
 
             // Get series id.
             $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+
             // If seriesid does not exist, we create one.
             if (!$seriesid) {
                 // Make sure to create using another method.
@@ -96,7 +97,6 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @return void
      */
     public function process_event($data) {
-
         $data = (object) $data;
 
         // Collect eventids for notification.

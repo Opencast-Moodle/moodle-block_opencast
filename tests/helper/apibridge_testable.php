@@ -130,23 +130,29 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
     }
 
     public function get_series_videos($series, $sortcolumns = null) {
-        // Used for behat test.
-        $video = new stdClass();
-        $video->identifier = '1111-2222-3333-4444';
-        $video->title = 'MyTitle';
-        $video->series = 'My Test Series';
-        $video->status = "EVENTS.EVENTS.STATUS.PROCESSED";
-        $video->processing_state = "SUCCEEDED";
-        $video->created = "2021-07-31T09:55:00Z";
-        $video->start = "2021-07-31T09:55:00Z";
-        $video->is_part_of = '1234-5678-abcd-efgh';
-        $video->is_downloadable = false;
-        $video->location = '';
-        $video->publication_status = array();
-
         $result = new stdClass();
         $result->error = 0;
-        $result->videos = [$video];
+
+        if (!$value = $this->get_testdata('get_series_videos', $series)) {
+            // Used for behat test.
+            $video = new stdClass();
+            $video->identifier = '1111-2222-3333-4444';
+            $video->title = 'MyTitle';
+            $video->series = 'My Test Series';
+            $video->status = "EVENTS.EVENTS.STATUS.PROCESSED";
+            $video->processing_state = "SUCCEEDED";
+            $video->created = "2021-07-31T09:55:00Z";
+            $video->start = "2021-07-31T09:55:00Z";
+            $video->is_part_of = '1234-5678-abcd-efgh';
+            $video->is_downloadable = false;
+            $video->location = '';
+            $video->publication_status = array();
+            $result->videos = [$video];
+        }
+        else {
+            $result->videos = json_decode($value);
+        }
+
 
         return $result;
     }
