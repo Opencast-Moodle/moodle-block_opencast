@@ -195,6 +195,7 @@ export const init = (contextid, ocinstanceid) => {
                         input.type = 'radio';
                         input.name = 'defaultseries';
                         input.checked = cell.getValue();
+                        input.classList.add('ignoredirty');
                         input.addEventListener('click', function (e) {
                             e.preventDefault();
                             ModalFactory.create({
@@ -418,7 +419,6 @@ export const init = (contextid, ocinstanceid) => {
 
                     modal.show();
                 });
-
         });
     });
 };

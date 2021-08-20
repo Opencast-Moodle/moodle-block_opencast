@@ -88,6 +88,8 @@ class series_form extends \moodleform
                 }
             }
 
+            $param['class'] = 'ignoredirty';
+
             $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
 
