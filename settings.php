@@ -381,7 +381,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     2147483648, $filesizes));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
-                        'block_opencast/enablechunkupload', 'notchecked');
+                        'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
                 }
 
                 $additionalsettings->add(
@@ -391,7 +391,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                             get_string('usedefaultfilepicker', 'block_opencast')), true));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/offerchunkuploadalternative_' . $instance->id,
-                        'block_opencast/enablechunkupload', 'notchecked');
+                        'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
                 }
             }
 
@@ -432,7 +432,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('notificationeventstatusteachers_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $additionalsettings->hide_if('block_opencast/eventstatusnotifyteachers_' . $instance->id,
-                        'block_opencast/eventstatusnotificationenabled', 'notchecked');
+                        'block_opencast/eventstatusnotificationenabled_' . $instance->id, 'notchecked');
             }
 
             $additionalsettings->add(
@@ -460,7 +460,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('acl_settingcontrolgroup_desc', 'block_opencast'), 1));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $additionalsettings->hide_if('block_opencast/aclcontrolgroup_' . $instance->id,
-                    'block_opencast/aclcontrolafter', 'notchecked');
+                    'block_opencast/aclcontrolafter_' . $instance->id, 'notchecked');
             }
 
 
@@ -487,7 +487,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         PARAM_TEXT));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivitydefaulttitle_' . $instance->id,
-                        'block_opencast/addactivityenabled', 'notchecked');
+                        'block_opencast/addactivityenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity series modules: Intro.
@@ -497,7 +497,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('addactivity_settingintro_desc', 'block_opencast'), 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivityintro_' . $instance->id,
-                        'block_opencast/addactivityenabled', 'notchecked');
+                        'block_opencast/addactivityenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity series modules: Section.
@@ -507,7 +507,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('addactivity_settingsection_desc', 'block_opencast'), 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivitysection_' . $instance->id,
-                        'block_opencast/addactivityenabled', 'notchecked');
+                        'block_opencast/addactivityenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity series modules: Availability.
@@ -521,7 +521,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         $description, 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivityavailability_' . $instance->id,
-                        'block_opencast/addactivityenabled', 'notchecked');
+                        'block_opencast/addactivityenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity episode modules: Enable feature.
@@ -537,7 +537,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('addactivityepisode_settingintro_desc', 'block_opencast'), 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivityepisodeintro_' . $instance->id,
-                        'block_opencast/addactivityepisodeenabled', 'notchecked');
+                        'block_opencast/addactivityepisodeenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity episode modules: Section.
@@ -547,7 +547,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('addactivityepisode_settingsection_desc', 'block_opencast'), 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivityepisodesection_' . $instance->id,
-                        'block_opencast/addactivityepisodeenabled', 'notchecked');
+                        'block_opencast/addactivityepisodeenabled_' . $instance->id, 'notchecked');
                 }
 
                 // Add Opencast Activity episode modules: Availability.
@@ -561,7 +561,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         $description, 0));
                 if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                     $additionalsettings->hide_if('block_opencast/addactivityepisodeavailability_' . $instance->id,
-                        'block_opencast/addactivityepisodeenabled', 'notchecked');
+                        'block_opencast/addactivityepisodeenabled_' . $instance->id, 'notchecked');
                 }
             }
 
@@ -619,7 +619,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     PARAM_TEXT));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltidefaulttitle_' . $instance->id,
-                    'block_opencast/addltienabled', 'notchecked');
+                    'block_opencast/addltienabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI series modules: Preconfigured LTI tool.
@@ -647,7 +647,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltipreconfiguredtool_' . $instance->id,
-                    'block_opencast/addltienabled', 'notchecked');
+                    'block_opencast/addltienabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI series modules: Intro.
@@ -657,7 +657,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addlti_settingintro_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiintro_' . $instance->id,
-                    'block_opencast/addltienabled', 'notchecked');
+                    'block_opencast/addltienabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI series modules: Section.
@@ -667,7 +667,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addlti_settingsection_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltisection_' . $instance->id,
-                    'block_opencast/addltienabled', 'notchecked');
+                    'block_opencast/addltienabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI series modules: Availability.
@@ -681,7 +681,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     $description, 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiavailability_' . $instance->id,
-                    'block_opencast/addltienabled', 'notchecked');
+                    'block_opencast/addltienabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI episode modules section.
@@ -721,7 +721,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiepisodepreconfiguredtool_' . $instance->id,
-                    'block_opencast/addltiepisodeenabled', 'notchecked');
+                    'block_opencast/addltiepisodeenabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI episode modules: Intro.
@@ -731,7 +731,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addltiepisode_settingintro_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiepisodeintro_' . $instance->id,
-                    'block_opencast/addltiepisodeenabled', 'notchecked');
+                    'block_opencast/addltiepisodeenabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI episode modules: Section.
@@ -741,7 +741,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addltiepisode_settingsection_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiepisodesection_' . $instance->id,
-                    'block_opencast/addltiepisodeenabled', 'notchecked');
+                    'block_opencast/addltiepisodeenabled_' . $instance->id, 'notchecked');
             }
 
             // Add LTI episode modules: Availability.
@@ -755,7 +755,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     $description, 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $ltimodulesettings->hide_if('block_opencast/addltiepisodeavailability_' . $instance->id,
-                    'block_opencast/addltiepisodeenabled', 'notchecked');
+                    'block_opencast/addltiepisodeenabled_' . $instance->id, 'notchecked');
             }
 
             // Settings page: Import videos features.
