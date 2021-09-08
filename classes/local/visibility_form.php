@@ -62,6 +62,9 @@ class visibility_form extends \moodleform
 
         $mform->addElement('hidden', 'identifier', $eventid);
         $mform->setType('identifier', PARAM_INT);
+        
+        $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
+        $mform->setType('ocinstanceid', PARAM_INT);
 
         // Check if the teacher should be allowed to restrict the episode to course groups.
         $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
