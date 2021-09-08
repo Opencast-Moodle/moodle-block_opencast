@@ -100,6 +100,9 @@ class block_opencast_upload_testcase extends advanced_testcase {
         $jobs = $DB->get_records('block_opencast_uploadjob');
         $this->assertCount(1, $jobs);
 
+        \block_opencast\local\apibridge::set_testing(false);
+        $api = \block_opencast\local\apibridge::get_instance(1, true);
+
         $uploadhelper = new \block_opencast\local\upload_helper();
         // Prevent mtrace output, which would be considered risky.
         ob_start();
@@ -110,8 +113,6 @@ class block_opencast_upload_testcase extends advanced_testcase {
         sleep(10);
         $uploadhelper->cron();
         ob_end_clean();
-
-        $api = \block_opencast\local\apibridge::get_instance(1);
 
         // Check if video was uploaded.
         $videos = $api->get_course_videos($course->id);
