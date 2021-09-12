@@ -587,6 +587,7 @@ $string['termsofuse_accept_toggle'] = 'terms of use';
 $string['termsofuse_desc'] = 'If you enter some text, a checkbox with the terms of use will appear on the "Video upload" page.
 The users must accept the entered terms of use before they can upload the video.';
 $string['title'] = 'Title';
+$string['tool_requirement_not_fulfilled'] = 'The required version of tool_opencast is not installed.';
 $string['type'] = 'Media Type';
 
 $string['unexpected_api_response'] = 'Unexpected API response.';

@@ -615,7 +615,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021073101) {
-        // TODO nochmal testen
+        if(    get_config('tool_opencast', 'version') < 2021091200) {
+            // Required version is not fulfilled. Extra check needed because moodle does not do it sufficiently.
+            throw new moodle_exception('tool_requirement_not_fulfilled', 'block_opencast');
+        }
 
         // Define field seriesid to be added to block_opencast_ltimodule.
         $table = new xmldb_table('block_opencast_ltimodule');
@@ -639,7 +642,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021073101, 'opencast');
     }
 
-    if ($oldversion < 2021080100) {
+    if ($oldversion < 2021091200) {
         // Define table block_opencast_notifications to be created.
         $table = new xmldb_table('block_opencast_notifications');
 
@@ -663,7 +666,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2021080100, 'opencast');
+        upgrade_block_savepoint(true, 2021091200, 'opencast');
     }
 
     return true;
