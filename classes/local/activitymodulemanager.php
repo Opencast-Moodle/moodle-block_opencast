@@ -226,8 +226,7 @@ class activitymodulemanager
         global $DB;
 
         // Get the Opencast Activity series module id.
-        // TODO update version number before release
-        if(get_config('mod_opencast', 'version') >= 2021072000) {
+        if(get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
         }
@@ -268,8 +267,7 @@ class activitymodulemanager
         global $DB;
 
         // Get the Opencast Activity series module id.
-        // TODO update version number before release
-        if(get_config('mod_opencast', 'version') >= 2021072000) {
+        if(get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
         }
