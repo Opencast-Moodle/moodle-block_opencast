@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  */
 class apibridge
 {
-    private $ocinstanceid; // TODO what about concurrent requests? is there really only one instance or multiple ones?
+    private $ocinstanceid;
 
     /** @var bool True for tests */
     private static $testing = false;
@@ -66,11 +66,10 @@ class apibridge
      * @return apibridge
      */
     public static function get_instance($ocinstanceid, $forcenewinstance = false) {
-        static $apibridge;
+        static $apibridges = array();
 
-        if (isset($apibridge) && !$forcenewinstance) {
-            $apibridge->ocinstanceid = $ocinstanceid;
-            return $apibridge;
+        if (array_key_exists($ocinstanceid, $apibridges) && !$forcenewinstance) {
+            return $apibridges[$ocinstanceid];
         }
 
         // Use replacement of api bridge for test cases.
@@ -78,10 +77,12 @@ class apibridge
             (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING)) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
+            $apibridges[$ocinstanceid] = $apibridge;
             return $apibridge;
         }
 
         $apibridge = new apibridge($ocinstanceid);
+        $apibridges[$ocinstanceid] = $apibridge;
 
         return $apibridge;
     }
