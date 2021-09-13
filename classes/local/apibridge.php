@@ -77,7 +77,7 @@ class apibridge
             (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING)) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
-            $apibridges[$ocinstanceid] = $apibridge;
+            $apibridges[1] = $apibridge;
             return $apibridge;
         }
 
