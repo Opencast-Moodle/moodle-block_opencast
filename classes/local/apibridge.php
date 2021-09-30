@@ -73,8 +73,7 @@ class apibridge
         }
 
         // Use replacement of api bridge for test cases.
-        if ((defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) ||
-            (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING)) {
+        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
             $apibridges[1] = $apibridge;
@@ -143,7 +142,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $videos = $api->oc_get($url, $withroles);
 
@@ -223,7 +222,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $videos = $api->oc_get($resource, $withroles);
 
         if ($api->get_http_code() != 200) {
@@ -301,7 +300,7 @@ class apibridge
 
         $withroles = array();
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $video = $api->oc_get($resource, $withroles);
 
@@ -339,7 +338,7 @@ class apibridge
         $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $group = $api->oc_get('/api/groups/' . $groupidentifier);
 
         return json_decode($group);
@@ -371,7 +370,7 @@ class apibridge
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $result = $api->oc_post('/api/groups', $params);
 
@@ -485,7 +484,7 @@ class apibridge
 
         $url = '/api/series/' . $seriesid;
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $series = $api->oc_get($url);
 
@@ -505,21 +504,20 @@ class apibridge
      */
     public function get_multiple_series_by_identifier($allseries) {
 
-        $url = '/api/series?' ;
+        $url = '/api/series?';
 
         $identifierfilter = array();
-        foreach($allseries as $series){
-            if(isset($series->series)) {
-                $identifierfilter[] = 'identifier:'.$series->series;
-            }
-            else {
-                $identifierfilter[] = 'identifier:'.$series;
+        foreach ($allseries as $series) {
+            if (isset($series->series)) {
+                $identifierfilter[] = 'identifier:' . $series->series;
+            } else {
+                $identifierfilter[] = 'identifier:' . $series;
             }
         }
 
         $url .= 'filter=' . implode(",", $identifierfilter);
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $series = $api->oc_get($url);
 
@@ -543,7 +541,7 @@ class apibridge
         if ($seriesid = $this->get_stored_seriesid($courseid)) {
             $url = '/api/series/' . $seriesid;
 
-            $api = new api($this->ocinstanceid);
+            $api = api::get_instance($this->ocinstanceid);
 
             $series = $api->oc_get($url);
 
@@ -673,7 +671,7 @@ class apibridge
         $params['acl'] = json_encode(array_values($acl));
         $params['theme'] = '';
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $result = $api->oc_post('/api/series', $params);
 
@@ -748,7 +746,7 @@ class apibridge
         }
 
         // Update Acl roles.
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/series/' . $seriesid . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -792,7 +790,7 @@ class apibridge
             return true;
         }
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -821,7 +819,7 @@ class apibridge
      * @throws \moodle_exception if there is no connection to the server.
      */
     public function ensure_series_is_valid($seriesid) {
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_get('/api/series/' . $seriesid);
 
         if ($api->get_http_code() === 404) {
@@ -848,7 +846,7 @@ class apibridge
 
             $resource = '/api/events/' . $opencastid;
 
-            $api = new api($this->ocinstanceid);
+            $api = api::get_instance($this->ocinstanceid);
 
             $event = $api->oc_get($resource);
             $event = json_decode($event);
@@ -917,7 +915,7 @@ class apibridge
 
         $params = $event->get_form_params($this->ocinstanceid);
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $result = $api->oc_post('/api/events', $params);
 
@@ -992,7 +990,7 @@ class apibridge
      * @return boolean true if succeeded
      */
     public function ensure_acl_group_assigned($eventidentifier, $courseid, $userid) {
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -1016,7 +1014,7 @@ class apibridge
             return true;
         }
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -1065,7 +1063,7 @@ class apibridge
         $grouprole = api::get_course_acl_role($courseid);
         $resource = '/api/events/' . $eventidentifier . '/acl/read/' . $grouprole;
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_delete($resource);
 
         if ($api->get_http_code() != 204) {
@@ -1126,7 +1124,7 @@ class apibridge
             $this->store_group_access($eventidentifier, $groups);
         }
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -1162,7 +1160,7 @@ class apibridge
             return 'aclnothingtobesaved';
         }
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
 
@@ -1196,7 +1194,7 @@ class apibridge
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         return ($api->get_http_code() == 204);
@@ -1294,7 +1292,7 @@ class apibridge
      */
     public function is_event_visible($eventidentifier, $courseid) {
         $resource = '/api/events/' . $eventidentifier . '/acl';
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $jsonacl = $api->oc_get($resource);
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
@@ -1367,6 +1365,7 @@ class apibridge
      */
     private function update_metadata($eventid) {
         $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
+
         if (!$workflow) {
             return true;
         }
@@ -1394,7 +1393,7 @@ class apibridge
         $params['workflow_definition_identifier'] = $workflow;
         $params['event_identifier'] = $eventid;
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $result = $api->oc_post($resource, $params);
 
         if ($api->get_http_code() != 201) {
@@ -1437,7 +1436,7 @@ class apibridge
     public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
         $workflows = array();
         $resource = '/api/workflow-definitions';
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource .= '?filter=tag:' . $tag;
 
         if ($withconfigurations) {
@@ -1475,7 +1474,7 @@ class apibridge
      */
     public function get_workflow_definition($id) {
         $resource = '/api/workflow-definitions/' . $id;
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource .= '?withconfigurationpanel=true';
 
         $result = $api->oc_get($resource);
@@ -1536,21 +1535,23 @@ class apibridge
      */
     public function trigger_delete_event($eventidentifier) {
         global $DB;
-        $workflow = get_config("block_opencast", "deleteworkflow");
-        if ($workflow) {
-            $this->start_workflow($eventidentifier, $workflow);
+        $workflow = get_config("block_opencast", "deleteworkflow_" . $this->ocinstanceid);
 
-            $record = [
-                "opencasteventid" => $eventidentifier,
-                "failed" => false,
-                "timecreated" => time(),
-                "timemodified" => time()
-            ];
-            $DB->insert_record("block_opencast_deletejob", $record);
-        } else {
-            $this->delete_event($eventidentifier);
+        if ($workflow) {
+            if ($this->start_workflow($eventidentifier, $workflow)) {
+                $record = [
+                    "ocinstanceid" => $this->ocinstanceid,
+                    "opencasteventid" => $eventidentifier,
+                    "failed" => false,
+                    "timecreated" => time(),
+                    "timemodified" => time()
+                ];
+                $DB->insert_record("block_opencast_deletejob", $record);
+                return true;
+            }
+            return false;
         }
-        return true;
+        return $this->delete_event($eventidentifier);
     }
 
     /**
@@ -1563,7 +1564,7 @@ class apibridge
 
         $resource = '/api/events/' . $eventidentifier;
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_delete($resource);
 
         if ($api->get_http_code() != 204) {
@@ -1609,7 +1610,7 @@ class apibridge
      */
     public function supports_api_level($level) {
 
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         try {
             return $api->supports_api_level($level);
         } catch (\moodle_exception $e) {
@@ -1656,7 +1657,7 @@ class apibridge
      * @return bool|int|mixed Event metadata
      */
     public function get_event_metadata($eventidentifier, $query = '') {
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/events/' . $eventidentifier . '/metadata' . $query;
         $metadata = $api->oc_get($resource);
 
@@ -1674,7 +1675,7 @@ class apibridge
      * @return bool|int|mixed Event metadata
      */
     public function get_series_metadata($seriesid) {
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
         $metadata = $api->oc_get($resource);
 
@@ -1697,7 +1698,7 @@ class apibridge
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
         $params['metadata'] = json_encode($metadata);
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
@@ -1728,7 +1729,7 @@ class apibridge
         $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
 
         $params['metadata'] = json_encode($metadata);
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 200) {
@@ -1758,7 +1759,7 @@ class apibridge
         }
 
         // Get API.
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
 
         // Build API request.
         $resource = '/api/workflows/' . $workflowid . '?withconfiguration=true';
@@ -1829,7 +1830,7 @@ class apibridge
         // Put events data in one place to make it simpler to use later.
         $eventsaclchangeobject = new \stdClass();
         // If there are vidoes.
-        if ($videos &&  $videos->error == 0) {
+        if ($videos && $videos->error == 0) {
             // Defining count will help with further process of result.
             $eventsaclchangeobject->total = count($videos->videos);
             // Looping through videos.
@@ -1880,7 +1881,7 @@ class apibridge
     private function imported_series_acl_change($courseid, $seriesid, $userid) {
 
         // Reading acl from opencast server.
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/series/' . $seriesid . '/acl';
         $jsonacl = $api->oc_get($resource);
 
@@ -1904,11 +1905,11 @@ class apibridge
                     'action' => $action);
 
                 // Check if the role object already exists in the acl list.
-                $existingacl = array_filter($acl, function($v, $k) use ($roleobject) {
+                $existingacl = array_filter($acl, function ($v, $k) use ($roleobject) {
                     if ($v->role == $roleobject->role && $v->action == $roleobject->action) {
                         return true;
                     }
-                },ARRAY_FILTER_USE_BOTH);
+                }, ARRAY_FILTER_USE_BOTH);
 
                 // In case the role object is new, we add it to the acl list. This helps making a clean list.
                 if (empty($existingacl)) {
@@ -1926,7 +1927,7 @@ class apibridge
         }
 
         // Update the acls via put request.
-        $api = new api($this->ocinstanceid);
+        $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
         // Finally we return the result of that request to the server.

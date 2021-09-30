@@ -609,6 +609,7 @@ $string['uploadsettings'] = 'Settings for the chunkuploader';
 $string['uploadfilelimit'] = 'Video size limit';
 $string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
 $string['updatemetadatasaved'] = 'Metadata is saved.';
+$string['updatemetadatafailed'] = 'The metadata could not be saved.';
 $string['updatemetadata'] = 'Update metadata for this event';
 $string['updatemetadata_short'] = 'Update metadata';
 $string['upload'] = 'File Upload';

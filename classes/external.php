@@ -135,7 +135,7 @@ class block_opencast_external extends external_api
 
         // Check if the maximum number of series is already reached.
         $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
-        if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        if(!$params['seriesid'] && count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 

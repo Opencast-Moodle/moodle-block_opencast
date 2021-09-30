@@ -151,14 +151,17 @@ class series_form extends \moodleform
      * @return string|array $value An array or string derived from metadata
      */
     protected function extract_value($fieldname) {
-        $metadata = $this->_customdata['metadata'];
+        if(array_key_exists('metadata', $this->_customdata)) {
+            $metadata = $this->_customdata['metadata'];
 
-        foreach ($metadata as $data) {
+            foreach ($metadata as $data) {
 
-            if ($data->id == $fieldname) {
-                return $data->value;
+                if ($data->id == $fieldname) {
+                    return $data->value;
+                }
             }
         }
-        return '';
+
+        return [];
     }
 }

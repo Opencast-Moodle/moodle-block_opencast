@@ -62,16 +62,6 @@ if ($moduleid) {
         get_string('addactivityepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
-// Episode UUID Check.
-// We do not validate if the given episode is really published in the given course.
-// But we validate if the given episode UUID is really a UUID.
-// The test code is borrowed from /lib/tests/setuplib_tests.php.
-$uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
-if (strlen($episodeuuid) != 36 || preg_match($uuidv4pattern, $episodeuuid) !== 1) {
-    throw new moodle_exception('The given episode UUID is not valid', 'block_opencast',
-        $redirecturloverview);
-}
-
 $addactivityform = new \block_opencast\local\addactivityepisode_form(null,
     array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 

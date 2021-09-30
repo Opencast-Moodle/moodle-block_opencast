@@ -44,7 +44,8 @@ function submitFormAjax(e) {
     e.preventDefault();
     var modal = e.data.modal;
     var contextid = e.data.contextid;
-    var seriestable = e.data.seriestable;
+    var seriestable = window.seriestable;
+    var edited = e.data.edited;
     var numseriesallowed = e.data.numseriesallowed;
 
     var changeEvent = document.createEvent('HTMLEvents');
@@ -68,6 +69,7 @@ function submitFormAjax(e) {
 
     // Convert all the form elements values to a serialised string.
     var formData = modal.getRoot().find('form').serialize();
+    var seriestitle = $('.modal #id_title').val();
 
     // Submit form.
     Ajax.call([{
@@ -75,7 +77,11 @@ function submitFormAjax(e) {
         args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, seriesid: e.data.seriesid, jsonformdata: formData},
         done: function (newseries) {
             modal.destroy();
-            if(seriestable !== undefined) {
+            if(edited) {
+                let row = seriestable.getRows().find(r => r.getData().series === e.data.seriesid);
+                row.update({"seriesname": seriestitle});
+            }
+            else {
                 var s = JSON.parse(newseries);
                 seriestable.addRow({'seriesname': s.seriestitle, 'series':s.series, 'isdefault': s.isdefault});
 
@@ -85,10 +91,10 @@ function submitFormAjax(e) {
                 }
             }
         },
-        fail: function (e) {
-            if(e.errorcode === 'metadataseriesupdatefailed') {
+        fail: function (er) {
+            if(er.errorcode === 'metadataseriesupdatefailed') {
                 modal.destroy();
-                displayError(e.message);
+                displayError(er.message);
             }
             else {
                 modal.setBody(getBody(contextid, e.data.ocinstanceid, e.data.seriesid, formData));
@@ -270,7 +276,8 @@ export const init = (contextid, ocinstanceid) => {
                                     'contextid': contextid,
                                     'ocinstanceid': ocinstanceid,
                                     'seriesid': cell.getRow().getCell("series").getValue(),
-                                    'numseriesallowed': numseriesallowed
+                                    'numseriesallowed': numseriesallowed,
+                                    'edited': true
                                 }, submitFormAjax);
 
                                 modal.show();
@@ -322,6 +329,8 @@ export const init = (contextid, ocinstanceid) => {
             ],
         });
 
+        window.seriestable = seriestable;
+
         // Create new series in modal
         // Button for connection a new series
         $('#createseries').click(function () {
@@ -351,9 +360,9 @@ export const init = (contextid, ocinstanceid) => {
                         'modal': modal,
                         'contextid': contextid,
                         'ocinstanceid': ocinstanceid,
-                        'seriestable': seriestable,
                         'seriesid': '',
-                        'numseriesallowed': numseriesallowed
+                        'numseriesallowed': numseriesallowed,
+                        'edited': false
                     }, submitFormAjax);
 
                     modal.show();
