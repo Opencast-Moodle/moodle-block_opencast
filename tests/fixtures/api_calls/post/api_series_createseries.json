@@ -1,0 +1,86 @@
+{
+  "resource": "/api/series_metadata,acl,theme",
+  "params": {
+    "metadata": [
+      {
+        "label": "Opencast Series Dublincore",
+        "flavor": "dublincore\\/series",
+        "fields": [
+          {
+            "id": "title",
+            "value": "My new series"
+          },
+          {
+            "id": "subject",
+            "value": ""
+          },
+          {
+            "id": "description",
+            "value": ""
+          },
+          {
+            "id": "language",
+            "value": ""
+          },
+          {
+            "id": "rightsHolder",
+            "value": "Rightsholder"
+          },
+          {
+            "id": "license",
+            "value": "ALLRIGHTS"
+          },
+          {
+            "id": "creator",
+            "value": []
+          },
+          {
+            "id": "contributor",
+            "value": []
+          }
+        ]
+      }
+    ],
+    "acl": [
+      {
+        "allow": true,
+        "action": "write",
+        "role": "ROLE_ADMIN"
+      },
+      {
+        "allow": true,
+        "action": "read",
+        "role": "ROLE_ADMIN"
+      },
+      {
+        "allow": true,
+        "action": "write",
+        "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS"
+      },
+      {
+        "allow": true,
+        "action": "read",
+        "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS"
+      },
+      {
+        "allow": true,
+        "action": "write",
+        "role": "331000_Instructor"
+      },
+      {
+        "allow": true,
+        "action": "read",
+        "role": "331000_Instructor"
+      },
+      {
+        "allow": true,
+        "action": "read",
+        "role": "331000_Learner"
+      }
+    ],
+    "theme": ""
+  },
+  "response": {
+    "identifier": "84bab8de-5688-46a1-9af0-5ce9122eeb6a"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "resource": "/api/series/1234-1234-1234-1234-1234/metadata?type=dublincore/series",
+  "response": [
+    {
+      "readOnly": false,
+      "id": "title",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.TITLE",
+      "type": "text",
+      "value": "Test series",
+      "required": true
+    },
+    {
+      "readOnly": false,
+      "id": "subjects",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.SUBJECT",
+      "type": "text",
+      "value": [],
+      "required": false
+    },
+    {
+      "readOnly": false,
+      "id": "description",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.DESCRIPTION",
+      "type": "text",
+      "value": "",
+      "required": false
+    },
+    {
+      "translatable": true,
+      "readOnly": false,
+      "id": "language",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.LANGUAGE",
+      "type": "text",
+      "value": "",
+      "required": false
+    },
+    {
+      "readOnly": false,
+      "id": "rightsHolder",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.RIGHTS",
+      "type": "text",
+      "value": "",
+      "required": false
+    },
+    {
+      "translatable": true,
+      "readOnly": false,
+      "id": "license",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.LICENSE",
+      "type": "text",
+      "value": "",
+      "required": false
+    },
+    {
+      "translatable": false,
+      "readOnly": false,
+      "id": "creator",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.ORGANIZERS",
+      "type": "mixed_text",
+      "value": [],
+      "required": false
+    },
+    {
+      "translatable": false,
+      "readOnly": false,
+      "id": "contributor",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.CONTRIBUTORS",
+      "type": "mixed_text",
+      "value": [],
+      "required": false
+    },
+    {
+      "translatable": false,
+      "readOnly": false,
+      "id": "publisher",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.PUBLISHERS",
+      "type": "mixed_text",
+      "value": [],
+      "required": false
+    },
+    {
+      "readOnly": true,
+      "id": "createdBy",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.CREATED_BY",
+      "type": "text",
+      "value": "",
+      "required": false
+    },
+    {
+      "readOnly": true,
+      "id": "identifier",
+      "label": "EVENTS.SERIES.DETAILS.METADATA.ID",
+      "type": "text",
+      "value": "1234-1234-1234-1234-1234",
+      "required": false
+    }
+  ]
+}

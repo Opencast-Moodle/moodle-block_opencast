@@ -1,6 +1,8 @@
 @block @block_opencast
-Feature: Add Opencast block as Teacher
-  Overview and Add video / Edit upload tasks Page exists
+Feature: Add videos as Teacher
+  In order to upload videos to Opencast
+  As teacher
+  I need to be able to select video files and upload them to Opencast
 
   Background:
     Given the following "users" exist:
@@ -26,11 +28,18 @@ Feature: Add Opencast block as Teacher
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
 
-  Scenario: The Opencast Videos block is Added
-    Then I should see "No videos available"
+  Scenario: Opencast Add video page implemented
+    Given I click on "Go to overview..." "link"
+    When I click on "Add video" "button"
+    Then I should see "You can drag and drop files here to add them."
 
-  Scenario: Opencast Overview page implemented
-    When I click on "Go to overview..." "link"
-    Then I should not see "Videos scheduled to be transferred to Opencast"
-    And I should see "Videos available in this course"
-    And I should see "Currently, no videos have been uploaded to this course yet."
+  @_file_upload @javascript
+  Scenario: Opencast Upload Video
+    Given I click on "Go to overview..." "link"
+    And I click on "Add video" "button"
+    And I set the field "Title" to "Test"
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
+    And I click on "Add video" "button"
+    Then I should see "Test"
+    And I should see "test.mp4"
+    And I should see "Ready for transfer"

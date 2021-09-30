@@ -1,0 +1,40 @@
+{
+  "resource": "/api/events/abcd-abcd-abcd-abcd/acl",
+  "response": [
+    {
+      "allow": true,
+      "role": "ROLE_ADMIN",
+      "action": "read"
+    },
+    {
+      "allow": true,
+      "role": "ROLE_ADMIN",
+      "action": "write"
+    },
+    {
+      "allow": true,
+      "role": "1_Instructor",
+      "action": "read"
+    },
+    {
+      "allow": true,
+      "role": "1_Instructor",
+      "action": "write"
+    },
+    {
+      "allow": true,
+      "role": "1_Learner",
+      "action": "read"
+    },
+    {
+      "allow": true,
+      "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+      "action": "read"
+    },
+    {
+      "allow": true,
+      "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+      "action": "write"
+    }
+  ]
+}

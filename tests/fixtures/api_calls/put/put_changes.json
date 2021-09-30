@@ -1,0 +1,19 @@
+{
+  "/api/events/abcd-abcd-abcd-abcd/metadata?type=dublincore/episode": {
+    "http_code": 204
+  },
+  "/api/series/1234-1234-1234-1234-1234/metadata?type=dublincore/series": {
+    "method": "get",
+    "file": "api_series_update.json",
+    "http_code": 200
+  },
+  "/api/series/1111-1111-1111-1111-1111/acl": {
+    "http_code": 200
+  },
+  "/api/events/bbbb-bbbb-bbbb-bbbb/acl": {
+    "http_code": 200
+  },
+  "/api/events/abcd-abcd-abcd-abcd/acl": {
+    "http_code": 200
+  }
+}

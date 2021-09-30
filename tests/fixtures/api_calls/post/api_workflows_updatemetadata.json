@@ -1,0 +1,16 @@
+{
+  "resource": "/api/workflows_workflow_definition_identifier,event_identifier",
+  "params": {
+    "workflow_definition_identifier": "republish-metadata",
+    "event_identifier": "abcd-abcd-abcd-abcd"
+  },
+  "response": {
+    "workflow_definition_identifier": "republish-metadata",
+    "identifier": 314922119,
+    "creator": "",
+    "description": "",
+    "state": "instantiated",
+    "title": "Veröffentliche Metadaten und ACLs auf Opencast Media Module (engage Channel)",
+    "event_identifier": "abcd-abcd-abcd-abcd"
+  }
+}

@@ -1,6 +1,8 @@
 @block @block_opencast
-Feature: Add Opencast block as Teacher
-  Overview and Add video / Edit upload tasks Page exists
+Feature: Delete draft
+  In order to stop upload jobs
+  As admins
+  Teachers need to be able to delete upload jobs before uploading videos to Opencast
 
   Background:
     Given the following "users" exist:
@@ -26,11 +28,16 @@ Feature: Add Opencast block as Teacher
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
 
-  Scenario: The Opencast Videos block is Added
-    Then I should see "No videos available"
-
-  Scenario: Opencast Overview page implemented
-    When I click on "Go to overview..." "link"
-    Then I should not see "Videos scheduled to be transferred to Opencast"
-    And I should see "Videos available in this course"
-    And I should see "Currently, no videos have been uploaded to this course yet."
+  @_file_upload @javascript
+  Scenario: Delete a video draft
+    Given I click on "Go to overview..." "link"
+    And I click on "Add video" "button"
+    And I set the field "Title" to "Test"
+    And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
+    And I click on "Add video" "button"
+    Then I should see "test.mp4"
+    When I click on ".generaltable i.fa-trash" "css_element"
+    Then I should see "Delete video before transfer to Opencast"
+    And I click on "Continue" "button"
+    Then I should see "The video is deleted successfully"
+    And I should not see "test.mp4"

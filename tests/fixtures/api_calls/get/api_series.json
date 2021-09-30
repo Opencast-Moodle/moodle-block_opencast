@@ -1,0 +1,19 @@
+{
+  "resource": "/api/series/1234-1234-1234-1234-1234",
+  "response": {
+    "identifier": "1234-1234-1234-1234-1234",
+    "creator": "",
+    "opt_out": false,
+    "created": "2021-07-28T08:16:35Z",
+    "subjects": [],
+    "description": "",
+    "language": "",
+    "title": "Test series",
+    "license": "",
+    "organization": "mh_default_org",
+    "organizers": [],
+    "publishers": [],
+    "contributors": [],
+    "rightsholder": ""
+  }
+}

@@ -14,28 +14,27 @@ Feature: Add Opencast LTI series module as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
-    And the following "tool_opencast > series" exist:
-      | course | series              | isdefault | ocinstanceid |
-      | C1     | 1234-5678-abcd-efgh | 1         | 1            |
     And the following config values are set as admin:
-      | config          | value                    | plugin         |
-      | apiurl          | http://172.17.0.1:8080          | tool_opencast  |
-      | apipassword     | opencast                 | tool_opencast  |
-      | apiusername     | admin                    | tool_opencast  |
+      | config            | value                    | plugin         |
+      | apiurl            | http://172.17.0.1:8080   | tool_opencast  |
+      | apipassword       | opencast                 | tool_opencast  |
+      | apiusername       | admin                    | tool_opencast  |
       | limituploadjobs_1 | 0                        | block_opencast |
       | limitvideos_1     | 5                        | block_opencast |
       | group_creation_1  | 0                        | block_opencast |
       | group_name_1      | Moodle_course_[COURSEID] | block_opencast |
       | series_name_1     | Course_Series_[COURSEID] | block_opencast |
+    And I setup the opencast test api
+    And I upload a testvideo
     And I log in as "admin"
     And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
-      | Tool name                | Opencast series |
-      | Tool URL                 | 172.17.0.1:8080/lti |
+      | Tool name                | Opencast series                 |
+      | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
-      | Default launch container | Embed, without blocks |
+      | Default launch container | Embed, without blocks           |
       # The Opencast LTI provider does not need to be functional for this test. It just needs to be preconfigured in Moodle.
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
@@ -155,7 +154,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast LTI series module to course" "button"
     And I set the following fields to these values:
-      | Opencast series module title | |
+      | Opencast series module title |  |
     And I click on "Add module and return to course" "button"
     Then I should not see "Course 1" in the "#page-header" "css_element"
     And I should see "You have to set a title for the Opencast series module or to use the default title"
