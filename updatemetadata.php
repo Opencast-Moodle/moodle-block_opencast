@@ -55,7 +55,8 @@ $metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode
 $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null,
-    array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier));
+    array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier,
+        'ocinstanceid' => $ocinstanceid));
 
 if ($updatemetadataform->is_cancelled()) {
     redirect($redirecturl);
@@ -83,9 +84,11 @@ if ($data = $updatemetadataform->get_data()) {
     $msg = '';
     $res = $opencast->update_event_metadata($identifier, $newmetadata);
     if ($res) {
-        $msg = get_string('updatemetadatasaved', 'block_opencast');
+        redirect($redirecturl, get_string('updatemetadatasaved', 'block_opencast'));
     }
-    redirect($redirecturl, $msg);
+    else {
+        redirect($redirecturl, get_string('updatemetadatafailed', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    }
 }
 $PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');
 $renderer = $PAGE->get_renderer('block_opencast');
