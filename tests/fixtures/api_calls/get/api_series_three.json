@@ -1,0 +1,19 @@
+{
+  "resource": "/api/series/84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+  "response": {
+    "identifier": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+    "creator": "",
+    "opt_out": false,
+    "created": "2021-07-28T08:16:35Z",
+    "subjects": [],
+    "description": "",
+    "language": "",
+    "title": "Series for import",
+    "license": "",
+    "organization": "mh_default_org",
+    "organizers": [],
+    "publishers": [],
+    "contributors": [],
+    "rightsholder": ""
+  }
+}

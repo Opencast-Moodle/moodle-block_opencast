@@ -1,0 +1,118 @@
+{
+  "resource": "/api/workflow-definitions?filter=tag:",
+  "response": [
+    {
+      "identifier": "delete",
+      "description": "This workflow is used by the Admin UI to retract all publications of an event upon deletion",
+      "title": "Delete",
+      "tags": [
+        "delete"
+      ]
+    },
+    {
+      "identifier": "placeholdervideo",
+      "description": "\n    Delete all media related to this event, keeping the metadata and publishing a placeholder video instead.\n    The original media will be unrecoverable.\n  ",
+      "title": "Delete event, publish a placeholder instead",
+      "tags": [
+        "archive",
+        "editor"
+      ]
+    },
+    {
+      "identifier": "duplicate-event",
+      "description": "",
+      "title": "Duplicate Event",
+      "tags": [
+        "archive"
+      ]
+    },
+    {
+      "identifier": "fasthls",
+      "description": "\n    A minimal workflow that transcodes the media into serverless HLS distribution formats, then\n    sends the resulting distribution files, along with their associated metadata,\n    to the distribution channels.\n  ",
+      "title": "Fast HLS Testing Workflow",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "fast",
+      "description": "\n    A minimal workflow that transcodes the media into distribution formats, then\n    sends the resulting distribution files, along with their associated metadata,\n    to the distribution channels.\n  ",
+      "title": "Fast Testing Workflow",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "import",
+      "description": "\n  A minimal Workflow that only publishes a Mediapackage\n  ",
+      "title": "Import Mediapackage and Publish without reencode",
+      "tags": []
+    },
+    {
+      "identifier": "schedule-and-upload",
+      "description": "\n    A complex workflow, showcasing most of Opencast's features.\n  ",
+      "title": "Process upon upload and schedule",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "publish",
+      "description": "",
+      "title": "Publish",
+      "tags": [
+        "archive"
+      ]
+    },
+    {
+      "identifier": "publish-after-cutting",
+      "description": "\n    Process and publish media.\n  ",
+      "title": "Publish",
+      "tags": [
+        "editor"
+      ]
+    },
+    {
+      "identifier": "publish-uploaded-assets",
+      "description": "Publish uploaded assets",
+      "title": "Publish uploaded assets",
+      "tags": []
+    },
+    {
+      "identifier": "republish-metadata",
+      "description": "",
+      "title": "Republish metadata",
+      "tags": [
+        "archive"
+      ]
+    },
+    {
+      "identifier": "retract",
+      "description": "Retract a recording",
+      "title": "Retract",
+      "tags": [
+        "archive"
+      ]
+    },
+    {
+      "identifier": "studio-upload",
+      "description": "\n    A simple and fast workflow for publishing videos created by Opencast Studio.\n  ",
+      "title": "Studio Upload",
+      "tags": [
+        "archive",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "update-previews",
+      "description": "\n    Update or create the preview video, the waveforms and the thumbnails\n    on the internal publication channel for use by the video editor.\n  ",
+      "title": "Update editor previews",
+      "tags": [
+        "archive"
+      ]
+    }
+  ]
+}

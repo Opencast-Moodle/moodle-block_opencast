@@ -10,6 +10,9 @@
   "/api/series/1111-1111-1111-1111-1111/acl": {
     "http_code": 200
   },
+  "/api/series/1234-1234-1234-1234-1234/acl": {
+    "http_code": 200
+  },
   "/api/events/bbbb-bbbb-bbbb-bbbb/acl": {
     "http_code": 200
   },
