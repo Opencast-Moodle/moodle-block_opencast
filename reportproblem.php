@@ -83,7 +83,13 @@ if (!$result->error) {
         $user,
         get_admin(),
         get_string('reportproblem_subject', 'block_opencast'),
-        $message
+        $message,
+        '',
+        '',
+        '',
+        true,
+        $USER->email,
+        $USER->firstname . ' ' . $USER->lastname
     );
 
     if ($success) {
