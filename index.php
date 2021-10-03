@@ -250,26 +250,30 @@ if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes(
 
 $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $seriesvideodata = array_fill_keys(array_column($courseseries, 'series'), null);
+$errors = 0;
+
 foreach ($courseseries as $series) {
     $seriesvideodata[$series->series] = $opencast->get_series_videos($series->series, $sortcolumns);
+    if($seriesvideodata[$series->series]->error) {
+        $errors += 1;
+    }
 }
 
-$errors = array_count_values(array_column($seriesvideodata, 'error'));
-if (!empty($errors) && $errors[0] == 0) {
+$showseriesinfo = false;
+if ($seriesvideodata && $errors == count($seriesvideodata)) {
     // Show single error.
-    echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $seriesvideodata->error), 'opencast-bc-wrap');
+    echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', reset($seriesvideodata)->error), 'opencast-bc-wrap');
 } else {
     if ($workflowsavailable) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
     }
 
-    if (!empty($errors) && $errors[0] !== count($seriesvideodata)) {
+    if ($errors > 0) {
         // Show all series as only some have errors.
         $showseriesinfo = true;
     } else {
         $showseriesinfo = count($courseseries) > 1;
     }
-
 }
 
 // If enabled and working, add Opencast Activity series module feature.
