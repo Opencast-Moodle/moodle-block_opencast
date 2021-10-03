@@ -348,7 +348,7 @@ class upload_helper
         }
 
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled');
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled) {
             // Add the uploaded video for the event status notification job.
             eventstatus_notification_helper::save_notification_jobs($job->ocinstanceid, $eventidentifier, $job->courseid, $job->userid);

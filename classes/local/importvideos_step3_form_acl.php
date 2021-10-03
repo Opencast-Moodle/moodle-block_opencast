@@ -59,8 +59,6 @@ class importvideos_step3_form_acl extends \moodleform
         $mform->setType('sourcecourseid', PARAM_INT);
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);
-        $mform->addElement('hidden', 'sourcecourseseries', $this->_customdata['series']);
-        $mform->setType('sourcecourseseries', PARAM_ALPHANUMEXT);
         
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($this->_customdata['ocinstanceid']);
@@ -82,6 +80,9 @@ class importvideos_step3_form_acl extends \moodleform
 
             return;
         }
+
+        $mform->addElement('hidden', 'sourcecourseseries', $seriesobject->identifier);
+        $mform->setType('sourcecourseseries', PARAM_ALPHANUMEXT);
 
         // Add intro.
         $notification = $renderer->wizard_intro_notification(
@@ -109,7 +110,7 @@ class importvideos_step3_form_acl extends \moodleform
 
         // Summary item: Course videos.
         $coursevideossummary = importvideosmanager::get_import_acl_source_series_videos_summary($this->_customdata['ocinstanceid'],
-            $this->_customdata['series']);
+            $seriesobject->identifier);
         $mform->addElement('static', 'summarycoursevideos',
             get_string('importvideos_wizardstep1coursevideos', 'block_opencast'),
             $coursevideossummary);

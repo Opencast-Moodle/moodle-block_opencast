@@ -69,7 +69,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // If ACL Change is the mode.
         if ($importmode == 'acl') {
             // We process the rest in the process import.
-            $paths[] = new restore_path_element('import', '/block/opencast/import',);
+            $paths[] = new restore_path_element('import', '/block/opencast/import');
             $paths[] = new restore_path_element('series', '/block/opencast/import/series');
         } else if ($importmode == 'duplication') {
             // In case Duplicating Events is the mode.

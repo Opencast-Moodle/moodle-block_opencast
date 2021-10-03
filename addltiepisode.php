@@ -67,11 +67,6 @@ if ($moduleid) {
             get_string('addltiepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
-// Episode UUID Check.
-if (\block_opencast\local\ltimodulemanager::is_valid_episode_id($episodeuuid) == false) {
-    throw new moodle_exception('addltiepisode_errorepisodeuuidnotvalid', 'block_opencast', $redirecturloverview);
-}
-
 // Use Add LTI form.
 $addltiform = new \block_opencast\local\addltiepisode_form(null, array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 

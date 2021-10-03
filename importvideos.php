@@ -245,7 +245,7 @@ switch ($step) {
 
             if($importmode == 'acl') {
                 // Perform ACL change.
-                $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($ocinstanceid, $sourcecourseid, $sourcecourseseries, $courseid);
+                $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($ocinstanceid, $sourcecourseid, $data->sourcecourseseries, $courseid);
                 // Redirec the user with corresponding messages.
                 redirect($redirecturloverview, $resultaclchange->message, null, $resultaclchange->type);
             }

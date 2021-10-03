@@ -161,7 +161,7 @@ class eventstatus_notification_helper
         $usertolist[] = \core_user::get_user($job->userid);
 
         // Get admin config to check if all teachers of the course should be notified as well.
-        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers');
+        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
         if ($notifyteachers) {
             // Get the role of teachers.
             $role = $DB->get_record('role', array('shortname' => 'editingteacher'));
