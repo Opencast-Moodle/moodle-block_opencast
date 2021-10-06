@@ -1,4 +1,4 @@
-@block @block_opencast
+@block @block_opencast @block_opencast_updatemetadata
 Feature: Update video metadata as Teacher
   In order to update video metadata
   As teacher

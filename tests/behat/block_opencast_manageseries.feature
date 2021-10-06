@@ -1,4 +1,4 @@
-@block @block_opencast
+@block @block_opencast @block_opencast_manageseries
 Feature: Manage series as Teacher
   In order to manage series for a course
   As teacher
