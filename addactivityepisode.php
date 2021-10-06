@@ -28,7 +28,7 @@ global $PAGE, $OUTPUT, $CFG;
 $episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
-$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);

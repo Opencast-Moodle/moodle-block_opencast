@@ -28,7 +28,7 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $workflowid = required_param('workflowid', PARAM_ALPHANUMEXT);
-$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
 
 require_login($courseid, false);
 

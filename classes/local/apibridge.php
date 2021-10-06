@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 use block_opencast\groupaccess;
 use block_opencast\opencast_connection_exception;
 use block_opencast_renderer;
+use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
@@ -65,8 +66,12 @@ class apibridge
      * @param boolean $forcenewinstance true, when a new instance should be created.
      * @return apibridge
      */
-    public static function get_instance($ocinstanceid, $forcenewinstance = false) {
+    public static function get_instance($ocinstanceid = null, $forcenewinstance = false) {
         static $apibridges = array();
+
+        if(!$ocinstanceid) {
+            $ocinstanceid = settings_api::get_default_ocinstance()->id;
+        }
 
         if (array_key_exists($ocinstanceid, $apibridges) && !$forcenewinstance) {
             return $apibridges[$ocinstanceid];

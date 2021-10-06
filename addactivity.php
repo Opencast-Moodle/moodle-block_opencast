@@ -26,7 +26,7 @@ require_once('../../config.php');
 global $PAGE, $OUTPUT, $CFG, $USER;
 
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
 $seriesid = required_param('seriesid', PARAM_ALPHANUMEXT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 

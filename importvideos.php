@@ -28,7 +28,7 @@ global $PAGE, $OUTPUT, $CFG, $DB;
 // Handle submitted parameters of the form.
 // This course id of the target course.
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = required_param('ocinstanceid', PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
 // The current step of the wizard.
 $step = optional_param('step', 1, PARAM_INT);
 // The course id of the course where the videos are imported from (this is submitted by the course search component in step 1 only).
