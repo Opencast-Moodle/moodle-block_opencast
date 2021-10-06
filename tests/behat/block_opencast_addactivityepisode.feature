@@ -15,19 +15,20 @@ Feature: Add Opencast Video Provider episode module as Teacher
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
-      | config                           | value                    | plugin         |
-      | apiurl                           | http://172.17.0.1:8080   | tool_opencast  |
-      | apipassword                      | opencast                 | tool_opencast  |
-      | apiusername                      | admin                    | tool_opencast  |
-      | limituploadjobs_1                | 0                        | block_opencast |
-      | limitvideos_1                    | 5                        | block_opencast |
-      | group_creation_1                 | 0                        | block_opencast |
-      | group_name_1                     | Moodle_course_[COURSEID] | block_opencast |
-      | series_name_1                    | Course_Series_[COURSEID] | block_opencast |
-      | addactivityepisodeenabled_1      | 1                        | block_opencast |
-      | addactivityepisodeintro_1        | 1                        | block_opencast |
-      | addactivityepisodesection_1      | 1                        | block_opencast |
-      | addactivityepisodeavailability_1 | 1                        | block_opencast |
+      | config                           | value                                                         | plugin         |
+      | apiurl                           | http://172.17.0.1:8080                                        | tool_opencast  |
+      | apipassword                      | opencast                                                      | tool_opencast  |
+      | apiusername                      | admin                                                         | tool_opencast  |
+      | ocinstances                      | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
+      | limituploadjobs_1                | 0                                                             | block_opencast |
+      | limitvideos_1                    | 5                                                             | block_opencast |
+      | group_creation_1                 | 0                                                             | block_opencast |
+      | group_name_1                     | Moodle_course_[COURSEID]                                      | block_opencast |
+      | series_name_1                    | Course_Series_[COURSEID]                                      | block_opencast |
+      | addactivityepisodeenabled_1      | 1                                                             | block_opencast |
+      | addactivityepisodeintro_1        | 1                                                             | block_opencast |
+      | addactivityepisodesection_1      | 1                                                             | block_opencast |
+      | addactivityepisodeavailability_1 | 1                                                             | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"

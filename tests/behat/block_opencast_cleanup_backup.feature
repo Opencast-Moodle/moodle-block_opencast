@@ -15,23 +15,24 @@ Feature: Restore courses as Teacher
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
-      | config                             | value                    | plugin         |
-      | apiurl                             | http://172.17.0.1:8080   | tool_opencast  |
-      | apipassword                        | opencast                 | tool_opencast  |
-      | apiusername                        | admin                    | tool_opencast  |
-      | limituploadjobs_1                  | 0                        | block_opencast |
-      | group_creation_1                   | 0                        | block_opencast |
-      | group_name_1                       | Moodle_course_[COURSEID] | block_opencast |
-      | series_name_1                      | Course_Series_[COURSEID] | block_opencast |
-      | enablechunkupload_1                | 0                        | block_opencast |
-      | workflow_roles_1                   | republish-metadata       | block_opencast |
-      | importvideosenabled_1              | 1                        | block_opencast |
-      | importvideosmanualenabled_1        | 1                        | block_opencast |
-      | importmode_1                       | duplication              | block_opencast |
-      | duplicateworkflow_1                | duplicate-event          | block_opencast |
-      | importvideoshandleseriesenabled_1  | 1                        | block_opencast |
-      | importvideoshandleepisodeenabled_1 | 1                        | block_opencast |
-      | addltiepisodeenabled_1             | 1                        | block_opencast |
+      | config                             | value                                                         | plugin         |
+      | apiurl                             | http://172.17.0.1:8080                                        | tool_opencast  |
+      | apipassword                        | opencast                                                      | tool_opencast  |
+      | apiusername                        | admin                                                         | tool_opencast  |
+      | ocinstances                        | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
+      | limituploadjobs_1                  | 0                                                             | block_opencast |
+      | group_creation_1                   | 0                                                             | block_opencast |
+      | group_name_1                       | Moodle_course_[COURSEID]                                      | block_opencast |
+      | series_name_1                      | Course_Series_[COURSEID]                                      | block_opencast |
+      | enablechunkupload_1                | 0                                                             | block_opencast |
+      | workflow_roles_1                   | republish-metadata                                            | block_opencast |
+      | importvideosenabled_1              | 1                                                             | block_opencast |
+      | importvideosmanualenabled_1        | 1                                                             | block_opencast |
+      | importmode_1                       | duplication                                                   | block_opencast |
+      | duplicateworkflow_1                | duplicate-event                                               | block_opencast |
+      | importvideoshandleseriesenabled_1  | 1                                                             | block_opencast |
+      | importvideoshandleepisodeenabled_1 | 1                                                             | block_opencast |
+      | addltiepisodeenabled_1             | 1                                                             | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -101,5 +102,3 @@ Feature: Restore courses as Teacher
     And I open "Test video" actions menu
     And I choose "Edit settings" in the open action menu
     Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
-
-    # todo fake duplicated video to test cleanup for episode
