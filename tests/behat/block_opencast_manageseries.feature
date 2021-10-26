@@ -16,7 +16,7 @@ Feature: Manage series as Teacher
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
-      | apiurl              | http://172.17.0.1:8080                                        | tool_opencast  |
+      | apiurl              | http://testapi:8080                                           | tool_opencast  |
       | apipassword         | opencast                                                      | tool_opencast  |
       | apiusername         | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |

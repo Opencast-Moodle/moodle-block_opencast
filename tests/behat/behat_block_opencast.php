@@ -25,6 +25,7 @@
 
 // NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
 
+use tool_opencast\local\api_testable;
 use tool_opencast\seriesmapping;
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
@@ -43,7 +44,6 @@ class behat_block_opencast extends behat_base
      * @Given /^I setup the opencast test api$/
      */
     public function i_setup_the_opencast_test_api() {
-        require_once(__DIR__ . '/../../../../admin/tool/opencast/tests/helper/api_testable.php');
         set_config('api_testable_responses', '[]', 'block_opencast');
 
         $files = ['init_api_events.json', 'init_api_workflow_definitions.json', 'init_api_workflow_definitions_duplicate_event.json',
@@ -62,8 +62,6 @@ class behat_block_opencast extends behat_base
      * @Given /^I upload a testvideo$/
      */
     public function i_upload_a_testvideo() {
-        require_once(__DIR__ . '/../../../../admin/tool/opencast/tests/helper/api_testable.php');
-
         $courses = core_course_category::search_courses(array('search' => 'Course 1'));
 
         $mapping = new seriesmapping();
@@ -75,7 +73,7 @@ class behat_block_opencast extends behat_base
 
         $newdata = ['api_events.json', 'api_events_acl.json', 'api_events_detailpage.json', 'api_series.json',
             'api_series_metadata.json', 'api_series_two.json', 'api_events_with_publication.json',
-            'api_series_filter.json','api_events_metadata.json', 'api_events_single_event.json',
+            'api_series_filter.json', 'api_events_metadata.json', 'api_events_single_event.json',
             'api_events_nolimit.json'];
         $api_testable = new api_testable();
         foreach ($newdata as $file) {
@@ -99,8 +97,6 @@ class behat_block_opencast extends behat_base
      * @Given /^I create a second series$/
      */
     public function i_create_a_second_series() {
-        require_once(__DIR__ . '/../../../../admin/tool/opencast/tests/helper/api_testable.php');
-
         $courses = core_course_category::search_courses(array('search' => 'Course 1'));
 
         $mapping = new seriesmapping();
