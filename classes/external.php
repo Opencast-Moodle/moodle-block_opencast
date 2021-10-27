@@ -45,8 +45,7 @@ class block_opencast_external extends external_api
      *
      * @return external_function_parameters
      */
-    public static function submit_series_form_parameters()
-    {
+    public static function submit_series_form_parameters() {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
@@ -60,8 +59,7 @@ class block_opencast_external extends external_api
      *
      * @return external_function_parameters
      */
-    public static function get_series_titles_parameters()
-    {
+    public static function get_series_titles_parameters() {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
@@ -116,8 +114,7 @@ class block_opencast_external extends external_api
      *
      * @return string new series id
      */
-    public static function submit_series_form($contextid, int $ocinstanceid, string $seriesid, string $jsonformdata)
-    {
+    public static function submit_series_form($contextid, int $ocinstanceid, string $seriesid, string $jsonformdata) {
         global $USER, $DB;
 
         $params = self::validate_parameters(self::submit_series_form_parameters(), [
@@ -135,7 +132,7 @@ class block_opencast_external extends external_api
 
         // Check if the maximum number of series is already reached.
         $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
-        if(!$params['seriesid'] && count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        if (!$params['seriesid'] && count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 
@@ -155,13 +152,12 @@ class block_opencast_external extends external_api
                 if ($field === 'courseid') {
                     continue;
                 }
-                if($field === 'subjects') {
+                if ($field === 'subjects') {
                     $metadata[] = array(
                         'id' => 'subject',
                         'value' => implode(',', $value)
                     );
-                }
-                else {
+                } else {
                     $metadata[] = array(
                         'id' => $field,
                         'value' => $value
@@ -174,7 +170,7 @@ class block_opencast_external extends external_api
                 return json_encode($apibridge->create_course_series($course->id, $metadata, $USER->id));
             } else {
                 $result = $apibridge->update_series_metadata($params['seriesid'], $metadata);
-                if(!$result) {
+                if (!$result) {
                     throw new moodle_exception('metadataseriesupdatefailed', 'block_opencast');
                 }
                 return $result;
@@ -192,8 +188,7 @@ class block_opencast_external extends external_api
      *
      * @return string Series titles
      */
-    public static function get_series_titles(int $contextid, int $ocinstanceid, string $series)
-    {
+    public static function get_series_titles(int $contextid, int $ocinstanceid, string $series) {
         $params = self::validate_parameters(self::get_series_titles_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
@@ -225,8 +220,7 @@ class block_opencast_external extends external_api
      *
      * @return bool True if successful
      */
-    public static function import_series(int $contextid, int $ocinstanceid, string $series)
-    {
+    public static function import_series(int $contextid, int $ocinstanceid, string $series) {
         global $USER, $DB;
         $params = self::validate_parameters(self::import_series_parameters(), [
             'contextid' => $contextid,
@@ -242,15 +236,15 @@ class block_opencast_external extends external_api
 
         // Check if the maximum number of series is already reached.
         $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
-        if(count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 
         // Perform ACL change.
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
-        $result= $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
+        $result = $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
 
-        if($result->error){
+        if ($result->error) {
             throw new moodle_exception('importfailed', 'block_opencast');
         }
 
@@ -270,8 +264,7 @@ class block_opencast_external extends external_api
      *
      * @return bool True if successful
      */
-    public static function unlink_series(int $contextid, int $ocinstanceid, string $series)
-    {
+    public static function unlink_series(int $contextid, int $ocinstanceid, string $series) {
         global $USER;
         $params = self::validate_parameters(self::unlink_series_parameters(), [
             'contextid' => $contextid,
@@ -290,11 +283,15 @@ class block_opencast_external extends external_api
             'series' => $params['seriesid']), true);
 
         if ($mapping) {
-            if($mapping->get('isdefault')) {
-                throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
+            if ($mapping->get('isdefault')) {
+                # Although it shouldn't happen, there might be multiple default series (see Issue-232)
+                # Allow deletion if there is another default series
+                if (seriesmapping::count_records(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'isdefault' => true)) === 1) {
+                    throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
+                }
             }
 
-            if(!$mapping->delete()) {
+            if (!$mapping->delete()) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
         }
@@ -310,8 +307,7 @@ class block_opencast_external extends external_api
      *
      * @return bool True if successful
      */
-    public static function set_default_series(int $contextid, int $ocinstanceid, string $series)
-    {
+    public static function set_default_series(int $contextid, int $ocinstanceid, string $series) {
         $params = self::validate_parameters(self::set_default_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
@@ -324,7 +320,7 @@ class block_opencast_external extends external_api
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'isdefault' => true));
+        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'isdefault' => true));
 
         // Series is already set as default.
         if ($olddefaultseries->get('series') == $params['seriesid']) {
@@ -332,7 +328,7 @@ class block_opencast_external extends external_api
         }
 
         // Set new series as default.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],'courseid' => $course->id, 'series' => $params['seriesid']), true);
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'series' => $params['seriesid']), true);
 
         if ($mapping) {
             $mapping->set('isdefault', true);
@@ -356,8 +352,7 @@ class block_opencast_external extends external_api
      *
      * @return external_description
      */
-    public static function submit_series_form_returns()
-    {
+    public static function submit_series_form_returns() {
         return new external_value(PARAM_RAW, 'Json series data');
     }
 
@@ -366,8 +361,7 @@ class block_opencast_external extends external_api
      *
      * @return external_description
      */
-    public static function get_series_titles_returns()
-    {
+    public static function get_series_titles_returns() {
         return new external_value(PARAM_RAW, 'json array for the series');
     }
 
@@ -376,8 +370,7 @@ class block_opencast_external extends external_api
      *
      * @return external_description
      */
-    public static function import_series_returns()
-    {
+    public static function import_series_returns() {
         return new external_value(PARAM_RAW, 'Json series data');
     }
 
@@ -386,8 +379,7 @@ class block_opencast_external extends external_api
      *
      * @return external_description
      */
-    public static function unlink_series_returns()
-    {
+    public static function unlink_series_returns() {
         return new external_value(PARAM_BOOL, 'True if successful');
     }
 
@@ -396,8 +388,7 @@ class block_opencast_external extends external_api
      *
      * @return external_description
      */
-    public static function set_default_series_returns()
-    {
+    public static function set_default_series_returns() {
         return new external_value(PARAM_BOOL, 'True if successful');
     }
 }
