@@ -415,6 +415,42 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('lticonsumersecret', 'block_opencast'),
                     get_string('lticonsumersecret_desc', 'block_opencast'), ""));
 
+            // Opencast Editor Integration in additional feature settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/opencast_videoeditor_' . $instance->id,
+                    get_string('opencasteditorintegration', 'block_opencast'),
+                    ''));
+
+            // The Generall Integration Permission.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/enable_opencast_editor_link_' . $instance->id,
+                    get_string('enableopencasteditorlink', 'block_opencast'),
+                    get_string('enableopencasteditorlink_desc', 'block_opencast'), 0));
+
+            // The External base url to call editor (if any). The opencast instance URL will be used if empty.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/editorbaseurl_' . $instance->id,
+                    get_string('editorbaseurl', 'block_opencast'),
+                    get_string('editorbaseurl_desc', 'block_opencast'), ""));
+            
+            // The Editor endpoint url. It defines where to look for the editor in base url.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/editorendpointurl_' . $instance->id,
+                    get_string('editorendpointurl', 'block_opencast'),
+                    get_string('editorendpointurl_desc', 'block_opencast'), "/editor-ui/index.html?mediaPackageId="));
+            
+            // LTI Consumer Key for the editor alone.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/editorlticonsumerkey_' . $instance->id,
+                    get_string('editorlticonsumerkey', 'block_opencast'),
+                    get_string('editorlticonsumerkey_desc', 'block_opencast'), ""));
+
+            // LTI Consumer Secret for the editor alone.
+            $additionalsettings->add(
+                new admin_setting_configpasswordunmask('block_opencast/editorlticonsumersecret_' . $instance->id,
+                    get_string('editorlticonsumersecret', 'block_opencast'),
+                    get_string('editorlticonsumersecret_desc', 'block_opencast'), ""));
+            
             // Notifications in additional features settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/notifications_' . $instance->id,

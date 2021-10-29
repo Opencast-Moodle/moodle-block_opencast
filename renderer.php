@@ -637,7 +637,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link($url, $icon);
     }
 
-    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext) {
+    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext, $useeditor) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -651,6 +651,16 @@ class block_opencast_renderer extends plugin_renderer_base
                     array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
                 new pix_icon('t/editstring', get_string('updatemetadata_short', 'block_opencast')),
                 get_string('updatemetadata_short', 'block_opencast')
+            ));
+        }
+
+        if ($useeditor) {
+            $actionmenu->add(new action_menu_link_secondary(
+                new \moodle_url('/blocks/opencast/videoeditor.php',
+                    array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
+                new pix_icon('e/cut', get_string('ocstateneedscutting', 'block_opencast')),
+                get_string('videoeditor_short', 'block_opencast'),
+                ['target' => '_blank']
             ));
         }
 
