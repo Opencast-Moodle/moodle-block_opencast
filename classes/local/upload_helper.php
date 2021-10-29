@@ -501,14 +501,15 @@ class upload_helper
                     // Check, whether this file was uploaded any time before.
                     $params = array(
                         'contenthash_presenter' => $job->contenthash_presenter,
-                        'contenthash_presentation' => $job->contenthash_presentation
+                        'contenthash_presentation' => $job->contenthash_presentation,
+                        'ocinstanceid' => $job->ocinstanceid
                     );
 
                     // Search for files already uploaded to opencast.
                     $sql = "SELECT opencasteventid " .
                         "FROM {block_opencast_uploadjob} " .
-                        "WHERE contenthash_presenter = :contenthash_presenter " .
-                        "OR contenthash_presentation = :contenthash_presentation " .
+                        "WHERE ocinstanceid = :ocinstanceid AND (contenthash_presenter = :contenthash_presenter " .
+                        "OR contenthash_presentation = :contenthash_presentation) " .
                         "GROUP BY opencasteventid ";
 
                     $eventids = $DB->get_records_sql($sql, $params);
