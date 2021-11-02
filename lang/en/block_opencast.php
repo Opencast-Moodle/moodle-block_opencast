@@ -645,5 +645,21 @@ $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';
 
+// Opencast Editor Integration strings.
+$string['videoeditor_short'] = 'Video Editor';
+$string['videoeditorinvalidconfig'] = 'Currently, it is not possible to use Opencast Editor in order to edit the event.';
+$string['opencasteditorintegration'] = 'Opencast Editor integration';
+$string['enableopencasteditorlink'] = 'Show the link to opencast Editor in action menu';
+$string['enableopencasteditorlink_desc'] = 'This option renders a button to opencast editor in the block content and the block overview.
+ The following settings as well lti credentials have to be configured as well.';
+$string['editorbaseurl'] = 'Opencast Editor Base URL';
+$string['editorbaseurl_desc'] = 'The base URL to be used to call the Opencast Editor, the base url of the opencast instance is used if empty.';
+$string['editorendpointurl'] = 'Opencast Editor Endpoint';
+$string['editorendpointurl_desc'] = 'The editor endpoint to access the editor. The mediapackage ID will be added at the end of the url.';
+$string['editorlticonsumerkey'] = 'Opencast Editor Consumer key';
+$string['editorlticonsumerkey_desc'] = 'LTI Consumer key for the opencast editor integration.';
+$string['editorlticonsumersecret'] = 'Opencast Editor Consumer secret';
+$string['editorlticonsumersecret_desc'] = 'LTI Consumer secret for the opencast editor integration.';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
