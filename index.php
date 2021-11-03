@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
 use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
 
-global $PAGE, $OUTPUT, $CFG, $DB;
+global $PAGE, $OUTPUT, $CFG, $DB, $USER;
 
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
@@ -222,10 +222,24 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
     // If Opencast Studio is enabled, show "Record video" button.
     if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
-        $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-        $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-            null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
-        echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+        // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
+        if(empty(get_config('block_opencast', 'lticonsumerkey_'. $ocinstanceid))) {
+            $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+            if (strpos($endpoint, 'http') !== 0) {
+                $endpoint = 'http://' . $endpoint;
+            }
+
+            $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+            $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
+                null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+            echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+        }
+        else {
+            $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+            $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
+                null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+            echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+        }
     }
 
     // If there are upload jobs scheduled, show the upload queue table.
