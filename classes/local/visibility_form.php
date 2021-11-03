@@ -112,7 +112,7 @@ class visibility_form extends \moodleform
             $select->setMultiple(true);
 
             $selectedgroups = groupaccess::get_record(array('opencasteventid' => $eventid, 'ocinstanceid' => $ocinstanceid));
-            if ($selectedgroups && $groups = $selectedgroups->get('groups')) {
+            if ($selectedgroups && $groups = $selectedgroups->get('moodlegroups')) {
                 $groupsarray = explode(',', $groups);
                 $select->setSelected($groupsarray);
             }

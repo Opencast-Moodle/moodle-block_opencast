@@ -669,5 +669,17 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021091200, 'opencast');
     }
 
+    if ($oldversion < 2021110300) {
+        $table = new xmldb_table('block_opencast_groupaccess');
+
+        $field = new xmldb_field('groups', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'moodlegroups');
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021110300, 'opencast');
+    }
+
     return true;
 }

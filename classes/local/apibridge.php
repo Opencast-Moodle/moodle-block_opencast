@@ -426,14 +426,14 @@ class apibridge
                 if (empty($groups)) {
                     $groupaccess->delete();
                 } else {
-                    $groupaccess->set('groups', implode(',', $groups));
+                    $groupaccess->set('moodlegroups', implode(',', $groups));
                     $groupaccess->update();
                 }
             } else {
                 $groupaccess = new groupaccess();
                 $groupaccess->set('ocinstanceid', $this->ocinstanceid);
                 $groupaccess->set('opencasteventid', $eventid);
-                $groupaccess->set('groups', implode(',', $groups));
+                $groupaccess->set('moodlegroups', implode(',', $groups));
                 $groupaccess->create();
             }
         } catch (\moodle_exception $e) {
@@ -1103,7 +1103,7 @@ class apibridge
      */
     public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
         $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
-        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('groups')) : array();
+        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('moodlegroups')) : array();
 
         $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
             block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
@@ -1304,7 +1304,7 @@ class apibridge
         $event->set_json_acl($jsonacl);
 
         $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
-        $groupsarray = $groups ? explode(',', $groups->get('groups')) : array();
+        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : array();
 
         $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::VISIBLE);
         $groupacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::GROUP, $groupsarray);

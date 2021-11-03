@@ -54,7 +54,7 @@ class groupaccess extends \core\persistent
             'opencasteventid' => array(
                 'type' => PARAM_ALPHANUMEXT,
             ),
-            'groups' => array(
+            'moodlegroups' => array(
                 'type' => PARAM_SEQUENCE,
             ),
         );
