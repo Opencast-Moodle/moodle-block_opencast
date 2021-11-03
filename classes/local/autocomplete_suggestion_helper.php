@@ -45,16 +45,17 @@ class autocomplete_suggestion_helper
         // We use array_unique to make sure that there is no duplication.
         // We use array_filter to make sure there is no empty elements.
         // We use array_merge to merge all arrays together.
-        return 
-            array_unique(
-                array_filter(
-                    array_merge(
-                        self::get_suggestions_from_course_teachers(),
-                        self::get_suggestions_from_existing_uploadjobs(),
-                        self::get_suggestions_from_opencast_course_videos($ocinstanceid)
-                    )
-                ) 
-            );
+        $suggestions = array_unique(
+            array_filter(
+                array_merge(
+                    self::get_suggestions_from_course_teachers(),
+                    self::get_suggestions_from_existing_uploadjobs(),
+                    self::get_suggestions_from_opencast_course_videos($ocinstanceid)
+                )
+            )
+        );
+
+        return array_combine($suggestions, $suggestions);
     }
 
     /**
