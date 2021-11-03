@@ -421,7 +421,7 @@ class apibridge
      */
     private function store_group_access($eventid, $groups) {
         try {
-            $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid));
+            $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid, 'ocinstanceid' => $this->ocinstanceid));
             if ($groupaccess) {
                 if (empty($groups)) {
                     $groupaccess->delete();
@@ -431,6 +431,7 @@ class apibridge
                 }
             } else {
                 $groupaccess = new groupaccess();
+                $groupaccess->set('ocinstanceid', $this->ocinstanceid);
                 $groupaccess->set('opencasteventid', $eventid);
                 $groupaccess->set('groups', implode(',', $groups));
                 $groupaccess->create();
@@ -1101,7 +1102,7 @@ class apibridge
      * @return string identifier of the notification string to be presented to the user.
      */
     public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
-        $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
         $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('groups')) : array();
 
         $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
@@ -1302,7 +1303,7 @@ class apibridge
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
-        $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier));
+        $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
         $groupsarray = $groups ? explode(',', $groups->get('groups')) : array();
 
         $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::VISIBLE);

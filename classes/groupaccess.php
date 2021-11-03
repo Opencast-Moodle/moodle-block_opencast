@@ -48,6 +48,9 @@ class groupaccess extends \core\persistent
             'id' => array(
                 'type' => PARAM_INT,
             ),
+            'ocinstanceid' => array(
+                'type' => PARAM_INT,
+            ),
             'opencasteventid' => array(
                 'type' => PARAM_ALPHANUMEXT,
             ),

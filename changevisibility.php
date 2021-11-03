@@ -58,7 +58,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 $apibridge = apibridge::get_instance($ocinstanceid);
 $visibility = $apibridge->is_event_visible($identifier, $courseid);
 if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
-    $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier));
+    $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier, 'ocinstanceid' => $ocinstanceid));
     if ($groups) {
         $visibility = \block_opencast_renderer::GROUP;
     } else {
