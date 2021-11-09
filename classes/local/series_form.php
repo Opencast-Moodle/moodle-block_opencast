@@ -45,8 +45,7 @@ class series_form extends \moodleform
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $USER;
         $mform = $this->_form;
 
@@ -136,8 +135,7 @@ class series_form extends \moodleform
      * @return string
      * @throws \coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null)
-    {
+    protected function try_get_string($identifier, $component = '', $a = null) {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -151,7 +149,7 @@ class series_form extends \moodleform
      * @return string|array $value An array or string derived from metadata
      */
     protected function extract_value($fieldname) {
-        if(array_key_exists('metadata', $this->_customdata)) {
+        if (array_key_exists('metadata', $this->_customdata)) {
             $metadata = $this->_customdata['metadata'];
 
             foreach ($metadata as $data) {

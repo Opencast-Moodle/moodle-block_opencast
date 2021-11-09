@@ -64,5 +64,4 @@ class file_system_filedir extends \file_system_filedir
         $filepath = $this->get_trash_fullpath_from_hash($contenthash);
         return file_exists($filepath);
     }
-
 }

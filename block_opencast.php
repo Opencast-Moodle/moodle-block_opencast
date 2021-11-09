@@ -65,7 +65,9 @@ class block_opencast extends block_base
         $renderer = $this->page->get_renderer('block_opencast');
 
         $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
-        $ocinstances = array_filter($ocinstances, function($oci) {return $oci->isvisible;});
+        $ocinstances = array_filter($ocinstances, function ($oci) {
+            return $oci->isvisible;
+        });
         $rendername = count($ocinstances) > 1;
 
         $cache = cache::make('block_opencast', 'videodata');
@@ -98,7 +100,8 @@ class block_opencast extends block_base
 
         foreach ($ocinstances as $instance) {
             if ($instance->isvisible) {
-                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id], $instance, $rendername);
+                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id],
+                    $instance, $rendername);
             }
         }
 

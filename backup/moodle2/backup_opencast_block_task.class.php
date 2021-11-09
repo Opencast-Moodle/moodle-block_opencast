@@ -38,14 +38,15 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_bac
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_opencast_block_task extends backup_block_task {
+class backup_opencast_block_task extends backup_block_task
+{
 
     /**
      * Add a setting to backup process, when course videos are available.
      */
     protected function define_my_settings() {
         $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
-        foreach($ocinstances as $ocinstance) {
+        foreach ($ocinstances as $ocinstance) {
             // Check whether this feature is enabled and working at all.
             if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
@@ -55,7 +56,7 @@ class backup_opencast_block_task extends backup_block_task {
 
                 $seriestobackup = $apibridge->get_course_series($courseid);
 
-                foreach($seriestobackup as $series) {
+                foreach ($seriestobackup as $series) {
                     $result = $apibridge->get_series_videos($series->series);
 
                     $videostobackup = [];
@@ -66,7 +67,8 @@ class backup_opencast_block_task extends backup_block_task {
                     }
 
                     if (count($videostobackup) > 0) {
-                        $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN, false);
+                        $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id,
+                            base_setting::IS_BOOLEAN, false);
                         $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
                         $this->add_setting($setting);
                         $this->plan->get_setting('blocks')->add_dependency($setting);
@@ -82,13 +84,14 @@ class backup_opencast_block_task extends backup_block_task {
      */
     protected function define_my_steps() {
         $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
-        foreach($ocinstances as $ocinstance) {
+        foreach ($ocinstances as $ocinstance) {
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 continue;
             }
 
             if ($this->get_setting_value('opencast_videos_include_' . $ocinstance->id)) {
-                $this->add_step(new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_'.$ocinstance->id.'.xml'));
+                $this->add_step(new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id,
+                    'opencast_' . $ocinstance->id . '.xml'));
             }
         }
     }

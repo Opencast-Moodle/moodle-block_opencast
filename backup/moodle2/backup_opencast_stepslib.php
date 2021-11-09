@@ -37,7 +37,8 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_opencast_block_structure_step extends backup_block_structure_step {
+class backup_opencast_block_structure_step extends backup_block_structure_step
+{
 
     protected function define_structure() {
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
@@ -50,9 +51,9 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $opencast->add_child($site);
 
         $apiurl = settings_api::get_apiurl($ocinstanceid);
-        $sitedata = (object) [
-                'ocinstanceid' => $ocinstanceid,
-                'apiurl' => $apiurl
+        $sitedata = (object)[
+            'ocinstanceid' => $ocinstanceid,
+            'apiurl' => $apiurl
         ];
         $site->set_source_array([$sitedata]);
 
@@ -71,7 +72,7 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $list = [];
         // Add course videos.
         foreach ($coursevideos as $video) {
-            $list[] = (object) ['eventid' => $video->identifier];
+            $list[] = (object)['eventid' => $video->identifier];
         }
 
         // Define sources.
@@ -79,20 +80,20 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
 
         // Import information.
         $import = new backup_nested_element('import', array(), array('sourcecourseid'));
-        $series_element = new backup_nested_element('series', array(), array('seriesid'));
-        $import->add_child($series_element);
+        $serieselement = new backup_nested_element('series', array(), array('seriesid'));
+        $import->add_child($serieselement);
         $opencast->add_child($import);
 
         // Get the stored seriesid for this course.
         $courseseries = $apibridge->get_course_series($courseid);
 
         $list = [];
-        foreach($courseseries as $series) {
-            $list[] = (object) ['seriesid' => $series->series];
+        foreach ($courseseries as $series) {
+            $list[] = (object)['seriesid' => $series->series];
         }
-        $series_element->set_source_array($list);
+        $serieselement->set_source_array($list);
 
-        $importdata = (object) [
+        $importdata = (object)[
             'sourcecourseid' => $courseid
         ];
 

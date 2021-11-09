@@ -27,7 +27,7 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 
 // Handle submitted parameters of the form.
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 $seriesid = required_param('seriesid', PARAM_ALPHANUMEXT);
 
@@ -36,7 +36,8 @@ $baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $co
 $PAGE->set_url($baseurl);
 
 // Remember URLs for redirecting.
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php',
+    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
 $redirecturlcancel = $redirecturloverview;
 
@@ -64,11 +65,12 @@ $moduleid = \block_opencast\local\ltimodulemanager::get_module_for_series($ocins
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
-            get_string('addlti_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+        get_string('addlti_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
 // Use Add LTI form.
-$addltiform = new \block_opencast\local\addlti_form(null, array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'seriesid' => $seriesid));
+$addltiform = new \block_opencast\local\addlti_form(null,
+    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'seriesid' => $seriesid));
 
 // Get API bridge instance.
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
@@ -107,7 +109,7 @@ if ($data = $addltiform->get_data()) {
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
     if (get_config('block_opencast', 'addltiavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
-            !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
+        !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 
         // Otherwise.
@@ -116,8 +118,8 @@ if ($data = $addltiform->get_data()) {
     }
 
     // Create the module.
-    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($ocinstanceid, $courseid, $data->title, $data->seriesid,
-            $sectionid, $introtext, $introformat, $availability);
+    $result = \block_opencast\local\ltimodulemanager::create_module_for_series($ocinstanceid, $courseid,
+        $data->title, $data->seriesid, $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.
     if ($result == true) {
@@ -125,26 +127,26 @@ if ($data = $addltiform->get_data()) {
         if ($submitbutton2) {
             // Redirect to course overview.
             redirect($redirecturlcourse,
-                    get_string('addlti_modulecreated', 'block_opencast', $data->title),
-                    null,
-                    \core\output\notification::NOTIFY_SUCCESS);
+                get_string('addlti_modulecreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_SUCCESS);
 
             // Form was submitted with first submit button.
         } else {
             // Redirect to Opencast videos overview page.
             redirect($redirecturloverview,
-                    get_string('addlti_modulecreated', 'block_opencast', $data->title),
-                    null,
-                    \core\output\notification::NOTIFY_SUCCESS);
+                get_string('addlti_modulecreated', 'block_opencast', $data->title),
+                null,
+                \core\output\notification::NOTIFY_SUCCESS);
         }
 
         // Otherwise.
     } else {
         // Redirect to Opencast videos overview page.
         redirect($redirecturloverview,
-                get_string('addlti_modulenotcreated', 'block_opencast', $data->title),
-                null,
-                \core\output\notification::NOTIFY_ERROR);
+            get_string('addlti_modulenotcreated', 'block_opencast', $data->title),
+            null,
+            \core\output\notification::NOTIFY_ERROR);
     }
 }
 

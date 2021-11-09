@@ -52,7 +52,7 @@ class addactivityepisode_form extends \moodleform
             array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title',
-            \block_opencast\local\activitymodulemanager::get_default_title_for_episode($ocinstanceid, $this->_customdata['episodeuuid']));
+            activitymodulemanager::get_default_title_for_episode($ocinstanceid, $this->_customdata['episodeuuid']));
         $mform->addRule('title',
             get_string('addactivityepisode_noemptytitle', 'block_opencast',
                 get_string('addactivityepisode_defaulttitle', 'block_opencast')),
@@ -65,24 +65,25 @@ class addactivityepisode_form extends \moodleform
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
             $mform->setDefault('intro',
                 array('text' =>
-                    \block_opencast\local\activitymodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
+                    activitymodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
                     'format' => FORMAT_HTML));
         }
 
         if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) == true) {
             // Get course sections.
-            $sectionmenu = \block_opencast\local\activitymodulemanager::get_course_sections($courseid);
+            $sectionmenu = activitymodulemanager::get_course_sections($courseid);
 
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addactivityepisode_formactivitysection', 'block_opencast'),
-                    \block_opencast\local\activitymodulemanager::get_course_sections($courseid));
+                    activitymodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
         }
 
-        if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
+        if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) == true &&
+            !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addactivityepisode_formactivityavailability', 'block_opencast'));
             \core_availability\frontend::include_all_javascript(get_course($courseid));

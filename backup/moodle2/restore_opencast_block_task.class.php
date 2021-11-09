@@ -92,12 +92,14 @@ class restore_opencast_block_task extends restore_block_task
                 continue;
             }
 
-            if (!$this->get_setting_value('opencast_videos_include_' . $ocinstance->id) && ($this->plan->get_mode() != backup::MODE_IMPORT)) {
+            if (!$this->get_setting_value('opencast_videos_include_' . $ocinstance->id) &&
+                ($this->plan->get_mode() != backup::MODE_IMPORT)) {
                 continue;
             }
 
             // Add the restore step to collect the events, that should have been restored.
-            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id, 'opencast_' . $ocinstance->id . '.xml'));
+            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id,
+                'opencast_' . $ocinstance->id . '.xml'));
         }
     }
 

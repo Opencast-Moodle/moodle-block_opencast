@@ -30,7 +30,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
     array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -85,8 +85,7 @@ if ($data = $updatemetadataform->get_data()) {
     $res = $opencast->update_event_metadata($identifier, $newmetadata);
     if ($res) {
         redirect($redirecturl, get_string('updatemetadatasaved', 'block_opencast'));
-    }
-    else {
+    } else {
         redirect($redirecturl, get_string('updatemetadatafailed', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
     }
 }

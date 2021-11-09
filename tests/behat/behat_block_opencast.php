@@ -46,14 +46,15 @@ class behat_block_opencast extends behat_base
     public function i_setup_the_opencast_test_api() {
         set_config('api_testable_responses', '[]', 'block_opencast');
 
-        $files = ['init_api_events.json', 'init_api_workflow_definitions.json', 'init_api_workflow_definitions_duplicate_event.json',
-            'api_events_filter_seriesimport.json', 'api_events_acl_secondvideo.json', 'api_series_acl.json', 'api_series_acl2.json',
+        $files = ['init_api_events.json', 'init_api_workflow_definitions.json',
+            'init_api_workflow_definitions_duplicate_event.json', 'api_events_filter_seriesimport.json',
+            'api_events_acl_secondvideo.json', 'api_series_acl.json', 'api_series_acl2.json',
             'api_workflow_definitions_all.json', 'api_series_three.json', 'api_events_filter_newseries.json'];
-        $api_testable = new api_testable();
+        $apitestable = new api_testable();
         foreach ($files as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
             $apicall = json_decode($apicall);
-            $api_testable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
+            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
         }
     }
 
@@ -75,20 +76,20 @@ class behat_block_opencast extends behat_base
             'api_series_metadata.json', 'api_series_two.json', 'api_events_with_publication.json',
             'api_series_filter.json', 'api_events_metadata.json', 'api_events_single_event.json',
             'api_events_nolimit.json'];
-        $api_testable = new api_testable();
+        $apitestable = new api_testable();
         foreach ($newdata as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
             $apicall = json_decode($apicall);
-            $api_testable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
+            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
         }
 
         // Add post request.
         $files = ['api_series_createseries.json', 'api_workflows_updatemetadata.json', 'api_workflows_startworkflow.json'];
-        $api_testable = new api_testable();
+        $apitestable = new api_testable();
         foreach ($files as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/post/" . $file);
             $apicall = json_decode($apicall);
-            $api_testable->add_json_response($apicall->resource, 'post', json_encode($apicall->response));
+            $apitestable->add_json_response($apicall->resource, 'post', json_encode($apicall->response));
         }
     }
 
@@ -107,11 +108,11 @@ class behat_block_opencast extends behat_base
         $mapping->create();
 
         $newdata = ['api_series_filter_two.json'];
-        $api_testable = new api_testable();
+        $apitestable = new api_testable();
         foreach ($newdata as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
             $apicall = json_decode($apicall);
-            $api_testable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
+            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
         }
     }
 }

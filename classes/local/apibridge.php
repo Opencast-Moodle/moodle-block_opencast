@@ -69,7 +69,7 @@ class apibridge
     public static function get_instance($ocinstanceid = null, $forcenewinstance = false) {
         static $apibridges = array();
 
-        if(!$ocinstanceid) {
+        if (!$ocinstanceid) {
             $ocinstanceid = settings_api::get_default_ocinstance()->id;
         }
 
@@ -128,7 +128,8 @@ class apibridge
         $result->videos = array();
         $result->error = 0;
 
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1'));
 
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
             return $result;
@@ -314,7 +315,7 @@ class apibridge
         $result->error = 0;
 
         if ($api->get_http_code() != 200) {
-            $result->error = True;
+            $result->error = true;
 
             return $result;
         }
@@ -340,7 +341,8 @@ class apibridge
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
+        $groupname = $this->replace_placeholders(get_config('block_opencast',
+            'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $api = api::get_instance($this->ocinstanceid);
@@ -370,7 +372,8 @@ class apibridge
      */
     protected function create_acl_group($courseid, $userid) {
         $params = [];
-        $params['name'] = $this->replace_placeholders(get_config('block_opencast', 'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
+        $params['name'] = $this->replace_placeholders(get_config('block_opencast',
+            'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $params['description'] = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $params['roles'] = 'ROLE_API_SERIES_VIEW,ROLE_API_EVENTS_VIEW';
         $params['members'] = '';
@@ -452,7 +455,8 @@ class apibridge
      */
     public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
         // Get series mapping.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1'));
 
         // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
@@ -646,7 +650,8 @@ class apibridge
      * @return bool  tells if the creation of the series was successful.
      */
     public function create_course_series($courseid, $metadatafields = null, $userid = null) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1'));
 
         $isdefault = $mapping ? false : true;
         $params = [];
@@ -737,7 +742,8 @@ class apibridge
      * @param int $userid
      */
     public function update_course_series($courseid, $seriesid, $userid) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1'));
 
         if (!$mapping) {
             $mapping = new seriesmapping();
@@ -810,7 +816,8 @@ class apibridge
      * @param int $courseid Course ID
      */
     public function unset_course_series($courseid) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1'));
 
         if ($mapping) {
             $mapping->delete();
@@ -1664,13 +1671,14 @@ class apibridge
      */
     public function can_edit_event_in_editor($video, $courseid) {
 
-        // We check if the basic editor integration configs are set, the video processing state is succeeded (to avoid process failure)
-        // and there is internal publication status (to avoid error 400 in editor).
+        // We check if the basic editor integration configs are set, the video processing state is succeeded
+        // (to avoid process failure) and there is internal publication status (to avoid error 400 in editor).
         if (get_config('block_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
-            !empty(get_config('block_opencast', 'editorlticonsumerkey_'. $this->ocinstanceid)) &&
-            !empty(get_config('block_opencast', 'editorlticonsumersecret_'. $this->ocinstanceid)) &&
+            !empty(get_config('block_opencast', 'editorlticonsumerkey_' . $this->ocinstanceid)) &&
+            !empty(get_config('block_opencast', 'editorlticonsumersecret_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED" &&
-            isset($video->publication_status) && is_array($video->publication_status) && in_array('internal', $video->publication_status)) {
+            isset($video->publication_status) && is_array($video->publication_status) &&
+            in_array('internal', $video->publication_status)) {
             $context = \context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
         }
@@ -1988,7 +1996,8 @@ class apibridge
      */
     private function map_imported_series_to_course($courseid, $seriesid) {
         // Get the current record.
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid), true);
+        $mapping = seriesmapping::get_record(array('courseid' => $courseid,
+            'series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid), true);
 
         // If the mapping record does not exists, we create one.
         if (!$mapping) {
@@ -1998,7 +2007,8 @@ class apibridge
             $mapping->set('series', $seriesid);
 
             // Try to check if there is any default series for this course.
-            $defaultcourseseries = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid, 'isdefault' => 1), true);
+            $defaultcourseseries = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+                'courseid' => $courseid, 'isdefault' => 1), true);
             // In case there is no default series for this course, this series will be the default.
             $isdefault = $defaultcourseseries ? 0 : 1;
 

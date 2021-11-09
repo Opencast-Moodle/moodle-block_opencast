@@ -276,7 +276,6 @@ class block_opencast_external extends external_api
         self::validate_context($context);
         require_capability('block/opencast:manageseriesforcourse', $context);
 
-
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
         $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
@@ -284,9 +283,10 @@ class block_opencast_external extends external_api
 
         if ($mapping) {
             if ($mapping->get('isdefault')) {
-                # Although it shouldn't happen, there might be multiple default series (see Issue-232)
-                # Allow deletion if there is another default series
-                if (seriesmapping::count_records(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'isdefault' => true)) === 1) {
+                // Although it shouldn't happen, there might be multiple default series (see Issue-232)
+                // Allow deletion if there is another default series.
+                if (seriesmapping::count_records(array('ocinstanceid' => $params['ocinstanceid'],
+                        'courseid' => $course->id, 'isdefault' => true)) === 1) {
                     throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
                 }
             }
@@ -320,7 +320,8 @@ class block_opencast_external extends external_api
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'isdefault' => true));
+        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],
+            'courseid' => $course->id, 'isdefault' => true));
 
         // Series is already set as default.
         if ($olddefaultseries->get('series') == $params['seriesid']) {
@@ -328,7 +329,8 @@ class block_opencast_external extends external_api
         }
 
         // Set new series as default.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id, 'series' => $params['seriesid']), true);
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],
+            'courseid' => $course->id, 'series' => $params['seriesid']), true);
 
         if ($mapping) {
             $mapping->set('isdefault', true);

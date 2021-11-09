@@ -51,7 +51,7 @@ class addltiepisode_form extends \moodleform
         $mform->addElement('text', 'title', get_string('addltiepisode_formltititle', 'block_opencast'), array('size' => '40'));
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title',
-            \block_opencast\local\ltimodulemanager::get_default_title_for_episode($ocinstanceid, $this->_customdata['episodeuuid']));
+            ltimodulemanager::get_default_title_for_episode($ocinstanceid, $this->_customdata['episodeuuid']));
         $mform->addRule('title',
             get_string('addltiepisode_noemptytitle', 'block_opencast',
                 get_string('addltiepisode_defaulttitle', 'block_opencast')),
@@ -64,24 +64,25 @@ class addltiepisode_form extends \moodleform
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
             $mform->setDefault('intro',
                 array('text' =>
-                    \block_opencast\local\ltimodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
+                    ltimodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
                     'format' => FORMAT_HTML));
         }
 
         if (get_config('block_opencast', 'addltiepisodesection_' . $ocinstanceid) == true) {
             // Get course sections.
-            $sectionmenu = \block_opencast\local\ltimodulemanager::get_course_sections($courseid);
+            $sectionmenu = ltimodulemanager::get_course_sections($courseid);
 
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addltiepisode_formltisection', 'block_opencast'),
-                    \block_opencast\local\ltimodulemanager::get_course_sections($courseid));
+                    ltimodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
         }
 
-        if (get_config('block_opencast', 'addltiepisodeavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
+        if (get_config('block_opencast', 'addltiepisodeavailability_' . $ocinstanceid) == true &&
+            !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addltiepisode_formltiavailability', 'block_opencast'));
             \core_availability\frontend::include_all_javascript(get_course($courseid));

@@ -63,7 +63,8 @@ class upload_failed extends \core\event\base
      */
     public function get_description() {
         return "The upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) " .
-            "to opencast instance {$this->data['ocinstanceid']} failed {$this->data['other']['countfailed']} times, Reason: {$this->data['other']['errormessage']}";
+            "to opencast instance {$this->data['ocinstanceid']} failed {$this->data['other']['countfailed']} times, " .
+            "Reason: {$this->data['other']['errormessage']}";
     }
 
     /**
@@ -72,7 +73,8 @@ class upload_failed extends \core\event\base
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['ocinstanceid']));
+        return new \moodle_url('/blocks/opencast/index.php',
+            array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['ocinstanceid']));
     }
 
 }

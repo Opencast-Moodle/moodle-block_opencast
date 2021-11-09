@@ -59,14 +59,13 @@ class importvideos_step3_form_acl extends \moodleform
         $mform->setType('sourcecourseid', PARAM_INT);
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);
-        
+
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($this->_customdata['ocinstanceid']);
 
-        if($this->_customdata['series']) {
+        if ($this->_customdata['series']) {
             $seriesobject = $apibridge->get_series_by_identifier($this->_customdata['series']);
-        }
-        else {
+        } else {
             $seriesobject = $apibridge->get_default_course_series($this->_customdata['sourcecourseid']);
         }
 
@@ -99,7 +98,7 @@ class importvideos_step3_form_acl extends \moodleform
         // Horizontal line.
         $mform->addElement('html', '<hr>');
 
-        // Summary item: Series
+        // Summary item: Series.
         $seriesentry = $renderer->series_menu_entry($seriesobject);
         $mform->addElement('static', 'summaryseries',
             get_string('importvideos_wizard_seriesimported', 'block_opencast'),

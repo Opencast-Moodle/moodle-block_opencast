@@ -28,12 +28,14 @@ global $PAGE, $OUTPUT, $CFG;
 $episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php',
+    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturloverview = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturloverview = new moodle_url('/blocks/opencast/index.php',
+    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
 
 require_login($courseid, false);
@@ -87,7 +89,8 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) != true || !isset($data->section) || !$data->section) {
+    if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) != true ||
+        !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.
@@ -96,7 +99,8 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
+    if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) != true ||
+        empty($CFG->enableavailability) ||
         !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 
@@ -106,8 +110,8 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // Create the module.
-    $result = \block_opencast\local\activitymodulemanager::create_module_for_episode($courseid, $ocinstanceid, $data->title, $episodeuuid,
-        $sectionid, $introtext, $introformat, $availability);
+    $result = \block_opencast\local\activitymodulemanager::create_module_for_episode($courseid, $ocinstanceid,
+        $data->title, $episodeuuid, $sectionid, $introtext, $introformat, $availability);
 
     // Check if the module was created successfully.
     if ($result == true) {

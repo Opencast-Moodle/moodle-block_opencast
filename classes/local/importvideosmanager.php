@@ -75,7 +75,7 @@ class importvideosmanager
         }
 
         // Get the import mode.
-        $importmode = get_config('block_opencast', 'importmode_'.$ocinstanceid);
+        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
 
         if (empty($importmode)) {
             // Inform the caller.
@@ -184,7 +184,7 @@ class importvideosmanager
      */
     public static function handle_series_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleseriesenabled_'.$ocinstanceid);
+        $config = get_config('block_opencast', 'importvideoshandleseriesenabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -224,7 +224,7 @@ class importvideosmanager
      */
     public static function handle_episode_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled_'.$ocinstanceid);
+        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -364,9 +364,9 @@ class importvideosmanager
         $series = $apibridge->get_course_series($sourcecourseid);
         $serieswithnames = array();
 
-        foreach($series as $s) {
-           $ocseries =  $apibridge->get_series_by_identifier($s->series);
-           $serieswithnames[$s->series] = $ocseries->title;
+        foreach ($series as $s) {
+            $ocseries = $apibridge->get_series_by_identifier($s->series);
+            $serieswithnames[$s->series] = $ocseries->title;
         }
 
         return $serieswithnames;
@@ -382,7 +382,8 @@ class importvideosmanager
      *
      * @return bool
      */
-    public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid, $coursevideos, $modulecleanup = false) {
+    public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid,
+                                            $coursevideos, $modulecleanup = false) {
         global $USER;
 
         // If the user is not allowed to import from the source course at all, return.
@@ -437,11 +438,11 @@ class importvideosmanager
             // If there are existing modules to be cleaned up.
             if ($modulecleanup == true && count($episodemodules) > 0) {
                 // Create duplication task for this event.
-                $ret = \block_opencast\local\event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
+                $ret = event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
                     true, $episodemodules);
             } else {
                 // Create duplication task for this event.
-                $ret = \block_opencast\local\event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
+                $ret = event::create_duplication_task($ocinstanceid, $targetcourseid, $targetseriesid, $identifier,
                     false, null);
             }
 
@@ -458,7 +459,8 @@ class importvideosmanager
     }
 
     /**
-     * Helperfunction to get the list of course videos which are stored in the given source course to be shown as summary in ACL change mode.
+     * Helperfunction to get the list of course videos which are stored in the given source course
+     * to be shown as summary in ACL change mode.
      *
      * @param int $sourcecourseid The source course id.
      *
@@ -537,11 +539,13 @@ class importvideosmanager
                 $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesfailed', 'block_opencast');
                 $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
             } else if (!$result->seriesmapped) {
-                // 2. When there is error with mapping series to the course correctly. It is very unlikely to happen but it is important if it does.
+                // 2. When there is error with mapping series to the course correctly.
+                // It is very unlikely to happen but it is important if it does.
                 $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesmappingfailed', 'block_opencast');
                 $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
             } else if (count($result->eventsaclchange->failed) > 1) {
-                // 3. Error might happen during events ACL changes, but it should not be as important as other errors, only a notification would be enough.
+                // 3. Error might happen during events ACL changes, but it should not be as important as other errors,
+                // only a notification would be enough.
                 // If all videos have failed, we notify user as a warning.
                 if (count($result->eventsaclchange->failed) == $result->eventsaclchange->total) {
                     $aclchangeresult->message = get_string('importvideos_importjobaclchangealleventsfailed', 'block_opencast');

@@ -31,9 +31,10 @@ global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/changevisibility.php', array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/changevisibility.php',
+    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -47,7 +48,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('changevisibility', 'block_opencast'), $baseurl);
 
 // Check if the ACL control feature is enabled.
-if (get_config('block_opencast', 'aclcontrolafter_'. $ocinstanceid) != true) {
+if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
     throw new moodle_exception('ACL control feature not enabled', 'block_opencast', $redirecturl);
 }
 
@@ -72,7 +73,7 @@ $changevisibilityform = new \block_opencast\local\visibility_form(null, array('c
 // Check if video exists.
 $courseseries = $apibridge->get_course_series($courseid);
 $video = null;
-foreach($courseseries as $series) {
+foreach ($courseseries as $series) {
     $videos = $apibridge->get_series_videos($series->series);
     foreach ($videos->videos as $v) {
         if ($v->identifier === $identifier) {
@@ -80,7 +81,7 @@ foreach($courseseries as $series) {
             break;
         }
     }
-    if($video) {
+    if ($video) {
         break;
     }
 }

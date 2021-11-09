@@ -57,7 +57,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
             }
 
             // Get all workflows which are scheduled to be handled.
-            $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified FROM {block_opencast_ltiepisode_cu} WHERE ocinstanceid = :ocinstanceid';
+            $workflowsql = 'SELECT DISTINCT ocworkflowid, queuecount, timecreated, timemodified ' .
+                'FROM {block_opencast_ltiepisode_cu} WHERE ocinstanceid = :ocinstanceid';
             $workflows = $DB->get_records_sql($workflowsql, array('ocinstanceid' => $ocinstance->id));
 
             // If there aren't any jobs, we are done already.
@@ -93,7 +94,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                     // course module update and this job should be deleted.
                     if ($workflow->timecreated + (5 * DAYSECS) < time()) {
                         // Remove the cleanup job.
-                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        $DB->delete_records('block_opencast_ltiepisode_cu',
+                            array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
                         mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
                             ' were removed as we have waited for 5 days without success to get the duplicated episode ID from OC.');
                         // TODO: Send a notification to the admin in this case.
@@ -109,16 +111,19 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                     // (See function get_duplicated_episodeid() in apibridge for details when this can happen).
                     if ($episodeid === false) {
                         // Remove the cleanup job.
-                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        $DB->delete_records('block_opencast_ltiepisode_cu',
+                            array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
                         mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' ' .
-                            'were removed as the stored OC workflow does not exist or does and will not hold a duplicated episode ID.');
+                            'were removed as the stored OC workflow does not exist or does and will ' .
+                            'not hold a duplicated episode ID.');
                         continue;
                     }
 
                     // If the OC workflow exists but if there isn't an episode ID (yet).
                     if ($episodeid === '') {
                         // Postpone the cleanup job.
-                        $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id);
+                        $params = array('increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid,
+                            'ocinstanceid' => $ocinstance->id);
                         $DB->execute('UPDATE {block_opencast_ltiepisode_cu} ' .
                             'SET queuecount = queuecount + :increment, timemodified = :time ' .
                             'WHERE ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',
@@ -129,7 +134,8 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                     }
 
                     // Get all course modules which relate to the given workflow.
-                    $coursemodules = $DB->get_fieldset_select('block_opencast_ltiepisode_cu', 'cmid', 'ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',
+                    $coursemodules = $DB->get_fieldset_select('block_opencast_ltiepisode_cu', 'cmid',
+                        'ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',
                         array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
 
                     // Get the course where these course modules are located.
@@ -139,12 +145,14 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                         array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id), IGNORE_MULTIPLE);
 
                     // Let the LTI Module manager cleanup these episodes.
-                    $cleanupresult = ltimodulemanager::cleanup_episode_modules($ocinstance->id, $courseid, $coursemodules, $episodeid);
+                    $cleanupresult = ltimodulemanager::cleanup_episode_modules($ocinstance->id,
+                        $courseid, $coursemodules, $episodeid);
 
                     // If something with the cleanup failed.
                     if ($cleanupresult != true) {
                         // Remove the cleanup job.
-                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        $DB->delete_records('block_opencast_ltiepisode_cu',
+                            array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
                         mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid .
                             ' failed during the update of the episode activities and were removed. There won\'t be a retry.');
                         // TODO: Send a notification to the admin in this case.
@@ -153,14 +161,16 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                         // Otherwise.
                     } else {
                         // Remove the cleanup job.
-                        $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                        $DB->delete_records('block_opencast_ltiepisode_cu',
+                            array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
                         mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' finished successfully.');
                         continue;
                     }
                 } catch (\moodle_exception $e) {
                     mtrace('  Cleanup job(s) failed with an exception: ' . $e->getMessage());
                     // Remove the cleanup job.
-                    $DB->delete_records('block_opencast_ltiepisode_cu', array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
+                    $DB->delete_records('block_opencast_ltiepisode_cu',
+                        array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id));
                     mtrace('  Cleanup job(s) were removed. There won\'t be a retry.');
                     // TODO: Send a notification to the admin in this case.
                     continue;

@@ -121,13 +121,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $metadatadefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
-                '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
+                '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
+                '"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
                 '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
                 '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
                 '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
-                '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},' .
-                '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+                '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",' .
+                '\"eng\":\"English\",\"deu\":\"German\"}"},' .
+                '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":' .
+                '"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
@@ -137,13 +140,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null},' .
-                '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
+                '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
+                '"{\"rows\":\"3\",\"cols\":\"19\"}"},' .
                 '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
                 '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
                 '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
-                '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}"},' .
-                '{"name":"rightsHolder","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+                '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",' .
+                '\"eng\":\"English\",\"deu\":\"German\"}"},' .
+                '{"name":"rightsHolder","datatype":"text","required":1,"readonly":0,"param_json":' .
+                '"{\"style\":\"min-width: 27ch;\"}"},' .
                 '{"name":"license","datatype":"select","required":1,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}"},' .
@@ -303,7 +309,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             );
 
             $generalsettings->add($rolessetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' . $instance->id, 'rolestable_' . $instance->id,
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' .
+                $instance->id, 'rolestable_' . $instance->id,
                 get_string('addrole', 'block_opencast')));
 
             $generalsettings->add(
@@ -312,7 +319,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $generalsettings->add($metadatasetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' . $instance->id, 'metadatatable_' . $instance->id,
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' .
+                $instance->id, 'metadatatable_' . $instance->id,
                 get_string('addcatalog', 'block_opencast')));
 
             $generalsettings->add(
@@ -321,7 +329,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $generalsettings->add($metadataseriessetting);
-            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable_' . $instance->id, 'metadataseriestable_' . $instance->id,
+            $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadataseriestable_' .
+                $instance->id, 'metadataseriestable_' . $instance->id,
                 get_string('addcatalog', 'block_opencast')));
 
             // Settings page: Appearance settings.
@@ -432,13 +441,13 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configtext('block_opencast/editorbaseurl_' . $instance->id,
                     get_string('editorbaseurl', 'block_opencast'),
                     get_string('editorbaseurl_desc', 'block_opencast'), ""));
-            
+
             // The Editor endpoint url. It defines where to look for the editor in base url.
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/editorendpointurl_' . $instance->id,
                     get_string('editorendpointurl', 'block_opencast'),
                     get_string('editorendpointurl_desc', 'block_opencast'), "/editor-ui/index.html?mediaPackageId="));
-            
+
             // LTI Consumer Key for the editor alone.
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/editorlticonsumerkey_' . $instance->id,
@@ -450,7 +459,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configpasswordunmask('block_opencast/editorlticonsumersecret_' . $instance->id,
                     get_string('editorlticonsumersecret', 'block_opencast'),
                     get_string('editorlticonsumersecret_desc', 'block_opencast'), ""));
-            
+
             // Notifications in additional features settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/notifications_' . $instance->id,
@@ -468,7 +477,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('notificationeventstatusteachers_desc', 'block_opencast'), 0));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $additionalsettings->hide_if('block_opencast/eventstatusnotifyteachers_' . $instance->id,
-                        'block_opencast/eventstatusnotificationenabled_' . $instance->id, 'notchecked');
+                    'block_opencast/eventstatusnotificationenabled_' . $instance->id, 'notchecked');
             }
 
             $additionalsettings->add(

@@ -18,7 +18,8 @@ defined('MOODLE_INTERNAL') || die();
 
 use tool_opencast\seriesmapping;
 
-class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
+class block_opencast_apibridge_testable extends \block_opencast\local\apibridge
+{
 
     /** @var array register for possible function results. */
     private $register = [];
@@ -148,11 +149,9 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $video->location = '';
             $video->publication_status = array();
             $result->videos = [$video];
-        }
-        else {
+        } else {
             $result->videos = json_decode($value);
         }
-
 
         return $result;
     }
@@ -166,7 +165,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         $result->error = 0;
 
         $series = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => 1));
-        if($series) {
+        if ($series) {
             $video = new stdClass();
             $video->identifier = '1111-2222-3333-4444';
             $video->title = 'MyTitle';
@@ -204,8 +203,8 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
 
         // Simulate new series.
         if ($identifier = $this->get_testdata('create_course_series', 'newcourse')) {
-            $series = (object) [
-                    'identifier' => $identifier
+            $series = (object)[
+                'identifier' => $identifier
             ];
         }
 
@@ -257,7 +256,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
 
         $result = null;
         if ($value = $this->get_testdata('get_default_course_series', $courseid)) {
-            return (object) ['identifier' => $value];
+            return (object)['identifier' => $value];
         }
 
         return $result;

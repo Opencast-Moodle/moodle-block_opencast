@@ -73,7 +73,7 @@ class ltimodulemanager
      */
     public static function get_preconfigured_tool_for_series($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltipreconfiguredtool_'.$ocinstanceid);
+        $toolid = get_config('block_opencast', 'addltipreconfiguredtool_' . $ocinstanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -99,7 +99,7 @@ class ltimodulemanager
      */
     public static function get_preconfigured_tool_for_episode($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool_'.$ocinstanceid);
+        $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -125,7 +125,7 @@ class ltimodulemanager
      */
     public static function is_enabled_and_working_for_series($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'addltienabled_'.$ocinstanceid);
+        $config = get_config('block_opencast', 'addltienabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -298,8 +298,9 @@ class ltimodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_episode($ocinstanceid, $courseid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
-                                                     $introformat = FORMAT_HTML, $availability = null) {
+    public static function create_module_for_episode($ocinstanceid, $courseid, $title, $episodeuuid, $sectionid = 0,
+                                                     $introtext = '', $introformat = FORMAT_HTML,
+                                                     $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -476,8 +477,8 @@ class ltimodulemanager
         // If there is more than one module, the list will be ordered by the time when the module was added to the course.
         // The oldest module is probably the module which should be kept when the modules are cleaned up later,
         // the newer ones will probably be from additional course content imports.
-        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
-            'JOIN {course_modules} AS cm ' .
+        $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
+            'JOIN {course_modules} cm ' .
             'ON l.id = cm.instance ' .
             'WHERE l.typeid = :toolid ' .
             'AND cm.course = :course ' .
@@ -523,7 +524,8 @@ class ltimodulemanager
         }
 
         // Get the existing series modules in the course.
-        $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid);
+        $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($ocinstanceid,
+            $modulecourseid, $referencedcourseid);
 
         // If there aren't any modules in the course to be cleaned up, return.
         if (count($referencedseriesmodules) < 1) {
@@ -645,7 +647,8 @@ class ltimodulemanager
             // This a big overhead over checking the existence only here when it is really needed.
             if ($cm == false || $cm->deletioninprogress == 1) {
                 // Clear the entry from the block_opencast_ltimodule table.
-                $DB->delete_records('block_opencast_ltiepisode', array('episodeuuid' => $episodeuuid, 'ocinstanceid' => $ocinstanceid));
+                $DB->delete_records('block_opencast_ltiepisode',
+                    array('episodeuuid' => $episodeuuid, 'ocinstanceid' => $ocinstanceid));
 
                 // Inform the caller.
                 return false;
@@ -715,7 +718,8 @@ class ltimodulemanager
             }
 
             // Check each episode individually.
-            $episodemodules = self::get_modules_for_episode_linking_to_other_course($ocinstanceid, $modulecourseid, $video->identifier);
+            $episodemodules = self::get_modules_for_episode_linking_to_other_course($ocinstanceid,
+                $modulecourseid, $video->identifier);
 
             // And add the result to the array of modules.
             $modules += $episodemodules;
@@ -747,8 +751,8 @@ class ltimodulemanager
         $modules = array();
 
         // Get the LTI episode module(s) which point to the episode.
-        $sql = 'SELECT cm.id AS cmid FROM {lti} AS l ' .
-            'JOIN {course_modules} AS cm ' .
+        $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
+            'JOIN {course_modules} cm ' .
             'ON l.id = cm.instance ' .
             'WHERE l.typeid = :toolid ' .
             'AND cm.course = :course ' .
@@ -861,7 +865,7 @@ class ltimodulemanager
      */
     public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addltidefaulttitle_'. $ocinstanceid);
+        $defaulttitle = get_config('block_opencast', 'addltidefaulttitle_' . $ocinstanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {

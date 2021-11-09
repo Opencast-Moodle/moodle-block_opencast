@@ -56,7 +56,7 @@ class activitymodulemanager
      * @return boolean
      */
     public static function is_enabled_and_working_for_episodes($ocinstanceid) {
-        return get_config('block_opencast', 'addactivityepisodeenabled_'.$ocinstanceid) != false &&
+        return get_config('block_opencast', 'addactivityepisodeenabled_' . $ocinstanceid) != false &&
             \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
@@ -125,8 +125,8 @@ class activitymodulemanager
      *
      * @return boolean
      */
-    public static function create_module_for_episode($courseid, $ocinstanceid, $title, $episodeuuid, $sectionid = 0, $introtext = '',
-                                                     $introformat = FORMAT_HTML, $availability = null) {
+    public static function create_module_for_episode($courseid, $ocinstanceid, $title, $episodeuuid, $sectionid = 0,
+                                                     $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -154,8 +154,8 @@ class activitymodulemanager
         }
 
         // Create an Opencast Activity modinfo object.
-        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $episodeuuid, opencasttype::EPISODE,
-            $introtext, $introformat, $availability);
+        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $episodeuuid,
+            opencasttype::EPISODE, $introtext, $introformat, $availability);
 
         // Add the Opencast Activity episode module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
@@ -226,11 +226,10 @@ class activitymodulemanager
         global $DB;
 
         // Get the Opencast Activity series module id.
-        if(get_config('mod_opencast', 'version') >= 2021091200) {
+        if (get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
-        }
-        else {
+        } else {
             // Ensure backwards compatibility since ocinstanceid does not exist before.
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'type' => opencasttype::SERIES, 'opencastid' => $seriesid), IGNORE_MULTIPLE);
@@ -267,11 +266,10 @@ class activitymodulemanager
         global $DB;
 
         // Get the Opencast Activity series module id.
-        if(get_config('mod_opencast', 'version') >= 2021091200) {
+        if (get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
-        }
-        else {
+        } else {
             $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
                 'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE), IGNORE_MULTIPLE);
         }
@@ -303,7 +301,7 @@ class activitymodulemanager
      */
     public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_'.$ocinstanceid);
+        $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_' . $ocinstanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {

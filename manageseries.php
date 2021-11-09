@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $coursecontext = context_course::instance($courseid);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
@@ -48,10 +48,9 @@ require_login($courseid, false);
 
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
-if(settings_api::num_ocinstances() > 1) {
+if (settings_api::num_ocinstances() > 1) {
     $PAGE->set_heading(get_string('pluginname', 'block_opencast') . ': ' . settings_api::get_ocinstance($ocinstanceid)->name);
-}
-else {
+} else {
     $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 }
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);

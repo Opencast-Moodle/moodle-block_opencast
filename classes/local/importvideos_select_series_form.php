@@ -77,8 +77,8 @@ class importvideos_select_series_form extends \moodleform
             $radioarray[] = $mform->createElement('radio', 'series', '', $title, $id, array());
         }
         $mform->addGroup($radioarray, 'series',
-            get_string('importvideos_wizard_availableseries', 'block_opencast', get_course($this->_customdata['sourcecourseid'])->fullname),
-            array('<br>'), false);
+            get_string('importvideos_wizard_availableseries', 'block_opencast',
+                get_course($this->_customdata['sourcecourseid'])->fullname), array('<br>'), false);
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlecontinue', 'block_opencast'));

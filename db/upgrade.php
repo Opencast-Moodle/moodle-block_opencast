@@ -583,20 +583,22 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
 
         // Check if settings were upgraded without upgrading the plugin.
-        if($DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
-            $DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name'=>'roles_1'))) {
+        if ($DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
+            $DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles_1'))) {
             // Remove already upgraded settings and only keep old ones.
-            $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name != 'version' AND name not in " . $fieldsjoined);
+            $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name != 'version' " .
+                "AND name not in " . $fieldsjoined);
         }
 
         // Update configs to use default tenant (id=1).
-        $DB->execute("UPDATE {config_plugins} SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' AND name in " . $fieldsjoined);
+        $DB->execute("UPDATE {config_plugins} SET name=CONCAT(name,'_1') WHERE plugin='block_opencast' " .
+            "AND name in " . $fieldsjoined);
 
-        $dbtables = ['block_opencast_uploadjob', 'block_opencast_deletejob', 'block_opencast_groupaccess', 'block_opencast_ltimodule',
-            'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu'];
+        $dbtables = ['block_opencast_uploadjob', 'block_opencast_deletejob', 'block_opencast_groupaccess',
+            'block_opencast_ltimodule', 'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu'];
 
         foreach ($dbtables as $dbtable) {
-            // Add new opencast instance field
+            // Add new opencast instance field.
             $table = new xmldb_table($dbtable);
             $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10');
 
@@ -615,7 +617,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021073101) {
-        if(    get_config('tool_opencast', 'version') < 2021091200) {
+        if (get_config('tool_opencast', 'version') < 2021091200) {
             // Required version is not fulfilled. Extra check needed because moodle does not do it sufficiently.
             throw new moodle_exception('tool_requirement_not_fulfilled', 'block_opencast');
         }
@@ -628,7 +630,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
 
-            $DB->execute("UPDATE {block_opencast_ltimodule} SET seriesid=(SELECT ts.series FROM {tool_opencast_series} as ts WHERE ts.isdefault=1 AND ts.courseid={block_opencast_ltimodule}.courseid AND ts.ocinstanceid={block_opencast_ltimodule}.ocinstanceid)");
+            $DB->execute("UPDATE {block_opencast_ltimodule} SET seriesid=(SELECT ts.series " .
+                "FROM {tool_opencast_series} ts WHERE ts.isdefault=1 AND " .
+                "ts.courseid={block_opencast_ltimodule}.courseid AND " .
+                "ts.ocinstanceid={block_opencast_ltimodule}.ocinstanceid)");
 
             $dbman->change_field_notnull($table, $field);
         }

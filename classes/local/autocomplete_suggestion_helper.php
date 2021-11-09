@@ -106,9 +106,9 @@ class autocomplete_suggestion_helper
 
         // Prepare the select sql with join.
         $sql = "SELECT uj.id, uj.userid, md.metadata FROM {block_opencast_uploadjob} uj "
-            ."JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid "
-            ."WHERE uj.courseid = :courseid";
-        
+            . "JOIN {block_opencast_metadata} md ON uj.id = md.uploadjobid "
+            . "WHERE uj.courseid = :courseid";
+
         $params = [];
         $params['courseid'] = $COURSE->id;
 
@@ -140,7 +140,7 @@ class autocomplete_suggestion_helper
             $metadata = json_decode($record->metadata);
 
             // Check and return the creator field from stored metadada catalog.
-            $creatorarray = array_filter($metadata, function($v, $k) {
+            $creatorarray = array_filter($metadata, function ($v, $k) {
                 return $v->id == 'creator';
             }, ARRAY_FILTER_USE_BOTH);
 
@@ -154,7 +154,7 @@ class autocomplete_suggestion_helper
             }
 
             // Check and return the contributor field from stored metadada catalog.
-            $contributorarray = array_filter($metadata, function($v, $k) {
+            $contributorarray = array_filter($metadata, function ($v, $k) {
                 return $v->id == 'contributor';
             }, ARRAY_FILTER_USE_BOTH);
 

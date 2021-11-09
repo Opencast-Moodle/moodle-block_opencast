@@ -48,5 +48,4 @@ class backup_block_opencast_setting extends backup_setting {
         parent::__construct($name, $vtype, $value, $visibility, $status);
         $this->uisetting = new backup_setting_ui_checkbox($this, $name, null, ['class' => 'block-opencast-include']);
     }
-
 }

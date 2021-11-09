@@ -138,7 +138,8 @@ class process_duplicate_event extends \core\task\adhoc_task
                 $now = time(); // This is fetched before the loop to ensure that all records for this workflow get the same time.
                 foreach ($data->episodemodules as $coursemoduleid => $oldepisodeid) {
                     // Just proceed if the record does not already exist for some reason.
-                    if (!$DB->record_exists('block_opencast_ltiepisode_cu', array('cmid' => $coursemoduleid, 'ocinstanceid' => $data->ocinstanceid))) {
+                    if (!$DB->record_exists('block_opencast_ltiepisode_cu',
+                        array('cmid' => $coursemoduleid, 'ocinstanceid' => $data->ocinstanceid))) {
                         $record = new \stdClass();
                         $record->courseid = $course->id;
                         $record->cmid = $coursemoduleid;

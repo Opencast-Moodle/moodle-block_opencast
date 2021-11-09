@@ -62,7 +62,8 @@ class upload_succeeded extends \core\event\base
      * @return string
      */
     public function get_description() {
-        return "the upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) to opencast instance {$this->data['other']['ocinstanceid']} was successful.";
+        return "the upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) " .
+            "to opencast instance {$this->data['other']['ocinstanceid']} was successful.";
     }
 
     /**
@@ -71,7 +72,8 @@ class upload_succeeded extends \core\event\base
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/opencast/index.php', array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['other']['ocinstanceid']));
+        return new \moodle_url('/blocks/opencast/index.php',
+            array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['other']['ocinstanceid']));
     }
 
 }

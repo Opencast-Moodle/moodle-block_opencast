@@ -62,7 +62,7 @@ class visibility_form extends \moodleform
 
         $mform->addElement('hidden', 'identifier', $eventid);
         $mform->setType('identifier', PARAM_INT);
-        
+
         $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
         $mform->setType('ocinstanceid', PARAM_INT);
 

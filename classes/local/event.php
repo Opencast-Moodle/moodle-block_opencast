@@ -282,7 +282,8 @@ class event
      * @param array|null $episodemodules (optional) The array of episode modules to be cleaned up.
      * @return mixed false if task could not be created, id of inserted task otherwise.
      */
-    public static function create_duplication_task($ocinstanceid, $courseid, $seriesid, $eventid, $modulecleanup = false, $episodemodules = null) {
+    public static function create_duplication_task($ocinstanceid, $courseid, $seriesid,
+                                                   $eventid, $modulecleanup = false, $episodemodules = null) {
 
         $task = new \block_opencast\task\process_duplicate_event();
 

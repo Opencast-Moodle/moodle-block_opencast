@@ -33,7 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_deletionmanager extends \file_system_filedir {
+class file_deletionmanager extends \file_system_filedir
+{
 
     /**
      * Delete all the users draft file entries that belongs to a videofile within
@@ -59,10 +60,10 @@ class file_deletionmanager extends \file_system_filedir {
 
         // Get draft entries belonging to stored file.
         $sql = "SELECT f.* " .
-                "FROM {files} f ".
-                "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid ".
-                "WHERE f.contenthash = :contenthash AND f.component = :component ".
-                "AND f.filearea = :filearea AND f.filename <> :filename";
+            "FROM {files} f " .
+            "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid " .
+            "WHERE f.contenthash = :contenthash AND f.component = :component " .
+            "AND f.filearea = :filearea AND f.filename <> :filename";
 
         if (!empty($itemid)) {
             $params['itemid'] = $itemid;
@@ -103,9 +104,9 @@ class file_deletionmanager extends \file_system_filedir {
 
         // Get dot entries belonging to stored file.
         $sql = "SELECT f.* " .
-            "FROM {files} f ".
-            "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid ".
-            "WHERE f.contenthash = :contenthash AND f.component = :component ".
+            "FROM {files} f " .
+            "JOIN {block_opencast_draftitemid} d ON f.itemid = d.itemid AND d.contextid = :contextid " .
+            "WHERE f.contenthash = :contenthash AND f.component = :component " .
             "AND f.filearea = :filearea AND f.filename = :filename AND f.itemid = :itemid ";
 
         if (!$dotfiles = $DB->get_records_sql($sql, $params)) {
@@ -146,7 +147,7 @@ class file_deletionmanager extends \file_system_filedir {
         }
 
         // Insert the data.
-        $record = (object) [
+        $record = (object)[
             'contextid' => $coursecontextid,
             'itemid' => $itemid,
             'timecreated' => time()
@@ -191,5 +192,4 @@ class file_deletionmanager extends \file_system_filedir {
 
         $filedir->delete_file_from_trashdir($storedfile->get_contenthash());
     }
-
 }

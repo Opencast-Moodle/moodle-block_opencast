@@ -112,11 +112,13 @@ class block_opencast_renderer extends plugin_renderer_base
                 $text = get_string('addactivity_viewbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('play', $text, 'block_opencast');
             } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
-                $url = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
+                $url = new moodle_url('/blocks/opencast/addactivity.php',
+                    array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addactivitylink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            $addactivitylink = \html_writer::link($url, $icon,
+                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
         };
 
         if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
@@ -128,33 +130,36 @@ class block_opencast_renderer extends plugin_renderer_base
                 $text = get_string('addlti_viewbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('play', $text, 'block_opencast');
             } else if (has_capability('block/opencast:addlti', $coursecontext)) {
-                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid, 'seriesid' => $seriesid));
+                $url = new moodle_url('/blocks/opencast/addlti.php',
+                    array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
                 $text = get_string('addlti_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addltilink = \html_writer::link($url, $icon, array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            $addltilink = \html_writer::link($url, $icon,
+                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
         }
 
         $courses = \tool_opencast\seriesmapping::get_records(array('series' => $seriesid, 'ocinstanceid' => $ocinstanceid));
 
-        if(count($courses) > 1) {
+        if (count($courses) > 1) {
             $tooltip = '';
-            foreach($courses as $course) {
+            foreach ($courses as $course) {
                 try {
                     $c = get_course($course->get('courseid'));
                     if ($tooltip) {
                         $tooltip .= '<br>';
                     }
                     $tooltip .= $c->fullname;
-                }catch (dml_exception $e) {
+                } catch (dml_exception $e) {
                     continue;
                 }
             }
 
             $usedin = \html_writer::tag('span', get_string('series_used', 'block_opencast', count($courses)),
-                array("class" => "badge badge-secondary mb-4", "data-toggle" => 'tooltip' ,'data-placement' => 'top', 'title' => $tooltip,
-                    'data-html' => 'true'));
-            return $this->heading($seriesname, 4, array('mt-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink . '<br>' . $usedin;
+                array("class" => "badge badge-secondary mb-4", "data-toggle" => 'tooltip', 'data-placement' => 'top',
+                    'title' => $tooltip, 'data-html' => 'true'));
+            return $this->heading($seriesname, 4, array('mt-4 d-inline-block')) . ' ' .
+                $addactivitylink . ' ' . $addltilink . '<br>' . $usedin;
         }
 
         return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink;
@@ -172,7 +177,8 @@ class block_opencast_renderer extends plugin_renderer_base
                 $url = new moodle_url('/mod/opencast/view.php', array('id' => $moduleid));
                 $text = get_string('addactivity_viewbuttontitle', 'block_opencast');
             } else if (has_capability('block/opencast:addactivity', $coursecontext)) {
-                $url = new moodle_url('/blocks/opencast/addactivity.php', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
+                $url = new moodle_url('/blocks/opencast/addactivity.php',
+                    array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
             }
             $activitybutton = $this->single_button($url, $text, 'get');
@@ -186,7 +192,8 @@ class block_opencast_renderer extends plugin_renderer_base
                 $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
                 $text = get_string('addlti_viewbuttontitle', 'block_opencast');
             } else if (has_capability('block/opencast:addlti', $coursecontext)) {
-                $url = new moodle_url('/blocks/opencast/addlti.php', array('ocinstanceid' => $ocinstanceid,'courseid' => $courseid, 'seriesid' => $seriesid));
+                $url = new moodle_url('/blocks/opencast/addlti.php',
+                    array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid, 'seriesid' => $seriesid));
                 $text = get_string('addlti_addbuttontitle', 'block_opencast');
             }
             $ltibutton = $this->single_button($url, $text, 'get');
@@ -237,17 +244,19 @@ class block_opencast_renderer extends plugin_renderer_base
 
         $coursecontext = context_course::instance($courseid);
 
-        if($rendername) {
+        if ($rendername) {
             $html .= $this->output->heading($ocinstance->name);
         }
 
         if (has_capability('block/opencast:addvideo', $coursecontext)) {
-            $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
+            $addvideourl = new moodle_url('/blocks/opencast/addvideo.php',
+                array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
             if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
-                $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
+                $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
+                    array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
                 $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
                     null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
                 $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
@@ -362,10 +371,10 @@ class block_opencast_renderer extends plugin_renderer_base
                         $startdate = $ms->value;
                     } else if ($ms->id == 'startTime') {
                         $starttime = $ms->value;
-                    } else if($ms->id == 'isPartOf') {
+                    } else if ($ms->id == 'isPartOf') {
                         $apibridge = apibridge::get_instance($ocinstanceid);
                         $ocseries = $apibridge->get_series_by_identifier($ms->value);
-                        if($ocseries) {
+                        if ($ocseries) {
                             $series = $ocseries->title;
                         }
                     }
@@ -557,7 +566,8 @@ class block_opencast_renderer extends plugin_renderer_base
      * @return string
      */
     public function render_add_lti_episode_icon($ocinstanceid, $courseid, $episodeuuid) {
-        $url = new \moodle_url('/blocks/opencast/addltiepisode.php', array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+        $url = new \moodle_url('/blocks/opencast/addltiepisode.php',
+            array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
         $text = get_string('addltiepisode_addicontitle', 'block_opencast');
 
         $icon = $this->output->pix_icon('share', $text, 'block_opencast');
@@ -637,7 +647,8 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link($url, $icon);
     }
 
-    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata, $startworkflows, $coursecontext, $useeditor) {
+    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier,
+                                          $updatemetadata, $startworkflows, $coursecontext, $useeditor) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -792,7 +803,8 @@ class block_opencast_renderer extends plugin_renderer_base
                     $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
                     $actionmenu->add(new action_menu_link_secondary(
                         new \moodle_url('/blocks/opencast/downloadvideo.php',
-                            array('video_identifier' => $video->identifier, 'courseid' => $courseid, 'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid)),
+                            array('video_identifier' => $video->identifier, 'courseid' => $courseid,
+                                'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid)),
                         null,
                         $name
                     ));
@@ -808,8 +820,7 @@ class block_opencast_renderer extends plugin_renderer_base
         return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
     }
 
-    public function render_manage_series_table($ocinstanceid, $courseid)
-    {
+    public function render_manage_series_table($ocinstanceid, $courseid) {
         global $DB;
         $series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
         // Transform isdefault to int.
@@ -822,6 +833,6 @@ class block_opencast_renderer extends plugin_renderer_base
         $context->addseriesallowed = count($series) < get_config('block_opencast', 'maxseries_' . $ocinstanceid);
         $context->numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
 
-        return  $this->render_from_template('block_opencast/series_table', $context);
+        return $this->render_from_template('block_opencast/series_table', $context);
     }
 }

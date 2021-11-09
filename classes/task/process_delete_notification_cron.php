@@ -69,7 +69,8 @@ class process_delete_notification_cron extends \core\task\scheduled_task
             $timeformatstring = '+' . $deleteindays . ' day' . (($deleteindays > 1) ? 's' : '');
 
             // Get all waiting notification jobs.
-            $allnotificationjobs = $DB->get_records('block_opencast_notifications', array('ocinstanceid' => $ocinstance->id), 'timecreated DESC');
+            $allnotificationjobs = $DB->get_records('block_opencast_notifications',
+                array('ocinstanceid' => $ocinstance->id), 'timecreated DESC');
 
             if (!$allnotificationjobs) {
                 mtrace('...no jobs to proceed');
@@ -89,7 +90,8 @@ class process_delete_notification_cron extends \core\task\scheduled_task
 
                     // Check if the job deadline time is up.
                     if (time() > $expirytime) {
-                        $DB->delete_records("block_opencast_notifications", array('id' => $job->id, 'ocinstanceid' => $ocinstance->id));
+                        $DB->delete_records("block_opencast_notifications",
+                            array('id' => $job->id, 'ocinstanceid' => $ocinstance->id));
                         mtrace('job ' . $job->id . ' deleted.');
                     }
                 } catch (\moodle_exception $e) {

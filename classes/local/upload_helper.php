@@ -120,7 +120,8 @@ class upload_helper
                 "LEFT JOIN {local_chunkupload_files} cu2 ON uj.chunkupload_presentation = cu2.id";
         }
 
-        $where = " WHERE uj.status < :status AND uj.courseid = :courseid AND uj.ocinstanceid = :ocinstanceid ORDER BY uj.timecreated DESC";
+        $where = " WHERE uj.status < :status AND uj.courseid = :courseid AND uj.ocinstanceid = :ocinstanceid " .
+            "ORDER BY uj.timecreated DESC";
 
         $sql = $select . $from . $where;
 
@@ -351,7 +352,8 @@ class upload_helper
         $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled) {
             // Add the uploaded video for the event status notification job.
-            eventstatus_notification_helper::save_notification_jobs($job->ocinstanceid, $eventidentifier, $job->courseid, $job->userid);
+            eventstatus_notification_helper::save_notification_jobs($job->ocinstanceid,
+                $eventidentifier, $job->courseid, $job->userid);
         }
     }
 
@@ -587,14 +589,15 @@ class upload_helper
 
                 // Ensure the assignment of a course series.
                 $assignedseries = $event->is_part_of;
-                $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
+                $courseseries = $DB->get_records('tool_opencast_series',
+                    array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
 
-                if(!array_search($assignedseries, array_column($courseseries, 'series'))) {
+                if (!array_search($assignedseries, array_column($courseseries, 'series'))) {
                     // Try to assign series again.
                     $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
 
-                    if(!array_search($mtseries, array_column($courseseries, 'series'))) {
-                        $mtseries =  $apibridge->get_default_course_series($job->courseid)->identifier;
+                    if (!array_search($mtseries, array_column($courseseries, 'series'))) {
+                        $mtseries = $apibridge->get_default_course_series($job->courseid)->identifier;
                     }
 
                     if (!$apibridge->assign_series($event->identifier, $mtseries)) {

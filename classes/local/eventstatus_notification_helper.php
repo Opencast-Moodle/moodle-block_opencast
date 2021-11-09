@@ -85,7 +85,7 @@ class eventstatus_notification_helper
     /**
      * Processes the notification job.
      * It gets the current event process status from Opencast, and then notifies corresponding users.
-     * If the SUCCEEDED or FAILED Status is recognized the job will be deleted from the list after being notified. 
+     * If the SUCCEEDED or FAILED Status is recognized the job will be deleted from the list after being notified.
      *
      * @param object $job represents the notification job.
      *
@@ -98,16 +98,17 @@ class eventstatus_notification_helper
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_'.$ocinstanceid);
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $ocinstanceid);
 
-        // If the job status is FAILED or SUCCEEDED and it has already been notified or the config is not enabled, we remove the job because it is completed.
+        // If the job status is FAILED or SUCCEEDED and it has already been notified or the config is not enabled,
+        // we remove the job because it is completed.
         if (($job->status == 'FAILED' || $job->status == 'SUCCEEDED') && ($job->notified == 1 || !$notificationenabled)) {
             $DB->delete_records("block_opencast_notifications", array('id' => $job->id));
             mtrace('job ' . $job->id . ' completed and deleted.');
             return;
         }
 
-        // Get the video status from Opencast
+        // Get the video status from Opencast.
         $eventobject = $apibridge->get_opencast_video($job->opencasteventid);
         $video = $eventobject->video;
 
@@ -120,17 +121,17 @@ class eventstatus_notification_helper
         // If there is a new status in Opencast, we update the job status and prepare to send notification.
         if ($job->status != $video->processing_state) {
             $job->status = $video->processing_state;
-            // notified flag prevents the system from sending several notifications.
+            // Notified flag prevents the system from sending several notifications.
             $job->notified = 0;
         }
 
-        // If we reach here and the job is already notified, means that there was no changes to the status but the job is still pending.
+        // If the job is already notified, there was no changes to the status but the job is still pending.
         // We consider FAILED or SUCCEEDED status as a breakpoint.
         if ($job->notified) {
             mtrace('job ' . $job->id . ' is pending: nothing to notify yet.');
             return;
         }
-        
+
         // If the config is enabled and the job is not already notified.
         if ($notificationenabled && $job->notified == 0) {
             $this->notify_users($job, $video);
@@ -147,7 +148,7 @@ class eventstatus_notification_helper
      * Notify users about the event process status.
      * Preparing the userlists by checking agains admin setting.
      * Preparting the message status text.
-     * Send notification using notification class. 
+     * Send notification using notification class.
      *
      * @param object $job represents the notification job.
      * @param object $video the video object retrieved from Opencast.

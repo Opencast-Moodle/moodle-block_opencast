@@ -227,12 +227,10 @@ class renderer extends \core_backup_renderer
      * @param array $arrayvideoentrystrings to use as list elements
      * @return string
      */
-    public function course_videos_list_entry($arrayvideoentrystrings)
-    {
+    public function course_videos_list_entry($arrayvideoentrystrings) {
         // Add the video list.
         $entrystring = '';
 
-        // Return if empty.
         if (count($arrayvideoentrystrings) == 0) {
             return $entrystring;
         }

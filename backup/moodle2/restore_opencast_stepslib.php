@@ -35,7 +35,8 @@ use block_opencast\local\notifications;
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_opencast_block_structure_step extends restore_structure_step {
+class restore_opencast_block_structure_step extends restore_structure_step
+{
 
     private $backupeventids = [];
     private $missingeventids = [];
@@ -62,7 +63,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // Get apibridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get the import mode to decide the way of importing opencast videos
+        // Get the import mode to decide the way of importing opencast videos.
         $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
         $this->importmode = $importmode;
 
@@ -97,7 +98,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @return void
      */
     public function process_event($data) {
-        $data = (object) $data;
+        $data = (object)$data;
 
         // Collect eventids for notification.
         $this->backupeventids[] = $data->eventid;
@@ -122,7 +123,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
     public function process_series($data) {
         global $USER;
 
-        $data = (object) $data;
+        $data = (object)$data;
 
         // Check, target series.
         $courseid = $this->get_courseid();
@@ -132,7 +133,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
 
         // Exit when there is no original series, no course course id and the original seriesid is not valid.
         // Also exit when the course by any chance wanted to restore itself.
-        if (!$data->seriesid && !$data->sourcecourseid && $apibridge->ensure_series_is_valid($data->seriesid) && $courseid == $data->sourcecourseid) {
+        if (!$data->seriesid && !$data->sourcecourseid &&
+            $apibridge->ensure_series_is_valid($data->seriesid) && $courseid == $data->sourcecourseid) {
             return;
         }
 
@@ -151,11 +153,11 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      */
     public function process_import($data) {
 
-        $data = (object) $data;
+        $data = (object)$data;
 
         // Collect sourcecourseid for notifications.
         $this->sourcecourseid = $data->sourcecourseid;
-     }
+    }
 
 
     /**
@@ -196,7 +198,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                 return;
             }
             // The ACL change import process is not successful.
-            foreach($this->aclchanged as $aclchange) {
+            foreach ($this->aclchanged as $aclchange) {
                 if ($aclchange->error == 1) {
                     if (!$aclchange->seriesaclchange) {
                         notifications::notify_failed_series_acl_change($courseid, $this->sourcecourseid, $aclchange->seriesid);
@@ -204,12 +206,13 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                     }
 
                     if (!$aclchange->eventsaclchange && count($aclchange->eventsaclchange->failed) > 0) {
-                        notifications::notify_failed_events_acl_change($courseid, $this->sourcecourseid, $aclchange->eventsaclchange->failed);
+                        notifications::notify_failed_events_acl_change($courseid, $this->sourcecourseid,
+                            $aclchange->eventsaclchange->failed);
                         return;
                     }
 
                     if (!$aclchange->seriesmapped) {
-                        notifications::notify_failed_series_mapping($courseid, $this->sourcecourseid,$aclchange->seriesid);
+                        notifications::notify_failed_series_mapping($courseid, $this->sourcecourseid, $aclchange->seriesid);
                     }
                 }
             }

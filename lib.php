@@ -32,8 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return array
  */
-function block_opencast_get_fontawesome_icon_map()
-{
+function block_opencast_get_fontawesome_icon_map() {
     return [
         'block_opencast:share' => 'fa-share-square',
         'block_opencast:play' => 'fa-play-circle'
@@ -43,8 +42,7 @@ function block_opencast_get_fontawesome_icon_map()
 /**
  * Serve the create series form as a fragment.
  */
-function block_opencast_output_fragment_series_form($args)
-{
+function block_opencast_output_fragment_series_form($args) {
     global $CFG;
 
     $args = (object)$args;
@@ -54,8 +52,8 @@ function block_opencast_output_fragment_series_form($args)
     $formdata = [];
     if (!empty($args->jsonformdata)) {
         parse_str($args->jsonformdata, $formdata);
-        foreach($formdata as $field => $value) {
-            if($value === "_qf__force_multiselect_submisstion") {
+        foreach ($formdata as $field => $value) {
+            if ($value === "_qf__force_multiselect_submisstion") {
                 $formdata[$field] = '';
             }
         }
@@ -65,7 +63,7 @@ function block_opencast_output_fragment_series_form($args)
 
     require_capability('block/opencast:createseriesforcourse', $context);
 
-    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_'. $args->ocinstanceid));
+    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $args->ocinstanceid));
 
     if ($formdata) {
         $mform = new series_form(null, array('courseid' => $course->id,
@@ -78,7 +76,8 @@ function block_opencast_output_fragment_series_form($args)
         $mform = new series_form(null, array('courseid' => $course->id, 'metadata' => $ocseries,
             'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
     } else {
-        $mform = new series_form(null, array('courseid' => $course->id, 'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
+        $mform = new series_form(null, array('courseid' => $course->id,
+            'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
     }
 
     ob_start();

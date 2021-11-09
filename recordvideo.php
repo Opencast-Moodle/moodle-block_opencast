@@ -31,7 +31,7 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id,PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
@@ -86,11 +86,11 @@ function block_opencast_create_lti_parameters($ocinstanceid, $endpoint, $seriesi
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.
-    $consumerkey = get_config('block_opencast', 'lticonsumerkey_'. $ocinstanceid);
+    $consumerkey = get_config('block_opencast', 'lticonsumerkey_' . $ocinstanceid);
     $consumersecret = get_config('block_opencast', 'lticonsumersecret_' . $ocinstanceid);
 
-    $helper = new oauth_helper(array('oauth_consumer_key'    => $consumerkey,
-                                    'oauth_consumer_secret' => $consumersecret));
+    $helper = new oauth_helper(array('oauth_consumer_key' => $consumerkey,
+        'oauth_consumer_secret' => $consumersecret));
 
     // Set all necessary parameters.
     $params = array();
