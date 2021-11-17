@@ -111,7 +111,7 @@ if ($data = $addactivityform->get_data()) {
 
     // Create the module.
     $result = \block_opencast\local\activitymodulemanager::create_module_for_episode($courseid, $ocinstanceid,
-        $data->title, $episodeuuid, $sectionid, $introtext, $introformat, $availability);
+        $data->title, $episodeuuid, $sectionid, $introtext, $introformat, $availability, $data->allowdownload);
 
     // Check if the module was created successfully.
     if ($result == true) {

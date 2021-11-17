@@ -74,7 +74,7 @@ class activitymodulemanager
      * @return boolean
      */
     public static function create_module_for_series($courseid, $ocinstanceid, $title, $seriesid, $sectionid = 0, $introtext = '',
-                                                    $introformat = FORMAT_HTML, $availability = null) {
+                                                    $introformat = FORMAT_HTML, $availability = null, $allowdownload = false) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -103,7 +103,7 @@ class activitymodulemanager
 
         // Create an LTI modinfo object.
         $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $seriesid, opencasttype::SERIES,
-            $introtext, $introformat, $availability);
+            $introtext, $introformat, $availability, $allowdownload);
 
         // Add the Opencast Activity series module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
@@ -126,7 +126,8 @@ class activitymodulemanager
      * @return boolean
      */
     public static function create_module_for_episode($courseid, $ocinstanceid, $title, $episodeuuid, $sectionid = 0,
-                                                     $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
+                                                     $introtext = '', $introformat = FORMAT_HTML, $availability = null,
+                                                     $allowdownload = false) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -155,7 +156,7 @@ class activitymodulemanager
 
         // Create an Opencast Activity modinfo object.
         $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $episodeuuid,
-            opencasttype::EPISODE, $introtext, $introformat, $availability);
+            opencasttype::EPISODE, $introtext, $introformat, $availability, $allowdownload);
 
         // Add the Opencast Activity episode module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
@@ -179,7 +180,8 @@ class activitymodulemanager
      * @return object
      */
     public static function build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $opencastid, $type,
-                                                  $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
+                                                  $introtext = '', $introformat = FORMAT_HTML, $availability = null,
+                                                  $allowdownload = false) {
         global $CFG;
 
         // Create standard class object.
@@ -190,6 +192,7 @@ class activitymodulemanager
         $moduleinfo->module = $pluginid;
 
         $moduleinfo->name = $title;
+        $moduleinfo->allowdownload = $allowdownload;
         $moduleinfo->intro = $introtext;
         $moduleinfo->introformat = $introformat;
         if ($moduleinfo->intro != '') {

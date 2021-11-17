@@ -57,6 +57,16 @@ class addactivity_form extends \moodleform
             get_string('addactivity_noemptytitle', 'block_opencast', get_string('addactivity_defaulttitle', 'block_opencast')),
             'required');
 
+        if (get_config('mod_opencast', 'global_download_' . $ocinstanceid)) {
+            $mform->addElement('hidden', 'allowdownload');
+            $mform->setType('allowdownload', PARAM_INT);
+            $mform->setDefault('allowdownload', '1');
+        } else {
+            $mform->addElement('advcheckbox', 'allowdownload', get_string('allowdownload', 'mod_opencast'));
+            $mform->setType('allowdownload', PARAM_INT);
+            $mform->setDefault('allowdownload', '0');
+        }
+
         if (get_config('block_opencast', 'addactivityintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivity_formactivityintro', 'block_opencast'),
                 array('rows' => 5),

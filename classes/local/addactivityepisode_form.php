@@ -58,6 +58,16 @@ class addactivityepisode_form extends \moodleform
                 get_string('addactivityepisode_defaulttitle', 'block_opencast')),
             'required');
 
+        if (get_config('mod_opencast', 'global_download_' . $ocinstanceid)) {
+            $mform->addElement('hidden', 'allowdownload');
+            $mform->setType('allowdownload', PARAM_INT);
+            $mform->setDefault('allowdownload', '1');
+        } else {
+            $mform->addElement('advcheckbox', 'allowdownload', get_string('allowdownload', 'mod_opencast'));
+            $mform->setType('allowdownload', PARAM_INT);
+            $mform->setDefault('allowdownload', '0');
+        }
+
         if (get_config('block_opencast', 'addactivityepisodeintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivityepisode_formactivityintro', 'block_opencast'),
                 array('rows' => 5),
