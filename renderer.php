@@ -239,7 +239,7 @@ class block_opencast_renderer extends plugin_renderer_base
      * @param object $videodata data as a result from api query against opencast.
      */
     public function render_block_content($courseid, $videodata, $ocinstance, $rendername) {
-
+        global $USER;
         $html = '';
 
         $coursecontext = context_course::instance($courseid);
@@ -255,11 +255,30 @@ class block_opencast_renderer extends plugin_renderer_base
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
             if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
-                $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
-                    array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
-                $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-                    null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
-                $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
+                // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
+                if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstance->id))) {
+                    if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
+                        $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstance->id);
+                    } else {
+                        $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id);
+                    }
+
+                    if (strpos($endpoint, 'http') !== 0) {
+                        $endpoint = 'http://' . $endpoint;
+                    }
+
+                    $apibridge = apibridge::get_instance($ocinstance->id);
+                    $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+                    $recordvideobutton = $this->output->action_link($url, get_string('recordvideo', 'block_opencast'),
+                        null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                    $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
+                } else {
+                    $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
+                        array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
+                    $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
+                        null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                    $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
+                }
             }
         }
 

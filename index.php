@@ -222,7 +222,12 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
     if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
         if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
-            $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+            if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
+                $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+            } else {
+                $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
+            }
+
             if (strpos($endpoint, 'http') !== 0) {
                 $endpoint = 'http://' . $endpoint;
             }

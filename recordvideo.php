@@ -48,7 +48,11 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
+    $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+} else {
+    $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
+}
 
 if (strpos($endpoint, 'http') !== 0) {
     $endpoint = 'http://' . $endpoint;

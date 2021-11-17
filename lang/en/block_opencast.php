@@ -258,6 +258,7 @@ $string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possib
 $string['enableopencaststudiolink'] = 'Show the link to opencast studio';
 $string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview.
 Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
+$string['opencaststudiobaseurl'] = 'Opencast Studio Base URL';
 $string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
     Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
