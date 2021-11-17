@@ -64,7 +64,7 @@ class addactivity_form extends \moodleform
         } else {
             $mform->addElement('advcheckbox', 'allowdownload', get_string('allowdownload', 'mod_opencast'));
             $mform->setType('allowdownload', PARAM_INT);
-            $mform->setDefault('allowdownload', '0');
+            $mform->setDefault('allowdownload', get_config('mod_opencast', 'download_default_' . $ocinstanceid));
         }
 
         if (get_config('block_opencast', 'addactivityintro_' . $ocinstanceid) == true) {
