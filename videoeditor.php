@@ -69,6 +69,10 @@ if (strpos($editorbaseurl, 'http') !== 0) {
     $editorbaseurl = 'http://' . $editorbaseurl;
 }
 
+if (empty(get_config('block_opencast', 'editorlticonsumerkey_' . $ocinstanceid))) {
+    redirect($editorbaseurl . $editorendpoint);
+}
+
 $ltiendpoint = rtrim($editorbaseurl, '/') . '/lti';
 
 $opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
@@ -106,11 +110,11 @@ function block_opencast_create_editor_lti_parameters($ocinstanceid, $endpoint, $
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.
-    $consumerkey = get_config('block_opencast', 'editorlticonsumerkey_'. $ocinstanceid);
+    $consumerkey = get_config('block_opencast', 'editorlticonsumerkey_' . $ocinstanceid);
     $consumersecret = get_config('block_opencast', 'editorlticonsumersecret_' . $ocinstanceid);
 
-    $helper = new oauth_helper(array('oauth_consumer_key'    => $consumerkey,
-                                    'oauth_consumer_secret' => $consumersecret));
+    $helper = new oauth_helper(array('oauth_consumer_key' => $consumerkey,
+        'oauth_consumer_secret' => $consumersecret));
 
     // Set all necessary parameters.
     $params = array();

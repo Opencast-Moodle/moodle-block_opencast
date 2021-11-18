@@ -416,7 +416,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/opencast_studio_baseurl_' . $instance->id,
-                    get_string('opencaststudiobaseurl', 'block_opencast'),'', ''));
+                    get_string('opencaststudiobaseurl', 'block_opencast'),
+                    get_string('opencaststudiobaseurl_desc', 'block_opencast'), ''));
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/lticonsumerkey_' . $instance->id,
