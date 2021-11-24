@@ -27,8 +27,7 @@ $capabilities = array(
     'block/opencast:myaddinstance' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(),
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+        'archetypes' => array()
     ),
     'block/opencast:addinstance' => array(
         'riskbitmask' => RISK_SPAM,
