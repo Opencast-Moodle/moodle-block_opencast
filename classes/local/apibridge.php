@@ -128,55 +128,61 @@ class apibridge
         $result->videos = array();
         $result->error = 0;
 
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'courseid' => $courseid, 'isdefault' => '1'));
+        $series = $this->get_course_series($courseid);
 
-        if (!$mapping || !($seriesid = $mapping->get('series'))) {
+        if (count($series) == 0) {
             return $result;
         }
 
-        $seriesfilter = "series:" . $seriesid;
+        $allvideos = [];
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode($seriesfilter);
+        foreach ($series as $s) {
+            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode("series:" . $s->series);
 
-        if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
-            // Try to fetch one more to decide whether display "more link" is necessary.
-            $query .= '&limit=' . (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) + 1);
+            if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
+                // Try to fetch one more to decide whether display "more link" is necessary.
+                $query .= '&limit=' . (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) + 1);
+            }
+
+            $url = '/api/events?' . $query;
+            $withroles = array();
+            $api = api::get_instance($this->ocinstanceid);
+            $videos = $api->oc_get($url, $withroles);
+
+            if ($api->get_http_code() === 0) {
+                throw new opencast_connection_exception('connection_failure', 'block_opencast');
+            } else if ($api->get_http_code() != 200) {
+                throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+            }
+
+            if ($videos = json_decode($videos)) {
+                $allvideos = array_merge($allvideos, $videos);
+            }
         }
 
-        $url = '/api/events?' . $query;
-
-        $withroles = array();
-
-        $api = api::get_instance($this->ocinstanceid);
-
-        $videos = $api->oc_get($url, $withroles);
-
-        if ($api->get_http_code() === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($api->get_http_code() != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
-        }
-
-        if (!$videos = json_decode($videos)) {
+        if (!$allvideos) {
             return $result;
         }
 
-        $result->count = count($videos);
+        usort($allvideos, function ($a, $b) {
+            return $a->start < $b->start;
+        });
+
+        $result->count = count($allvideos);
         $result->more = ($result->count > get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
 
         // If we have received more than limit count of videos remove one.
         if ($result->more) {
-            array_pop($videos);
+            $allvideos = array_slice($allvideos, 0, get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
         }
 
         if ($result->error == 0) {
-            foreach ($videos as $video) {
+            foreach ($allvideos as $video) {
                 $this->extend_video_status($video);
             }
         }
 
-        $result->videos = $videos;
+        $result->videos = $allvideos;
 
         return $result;
     }
