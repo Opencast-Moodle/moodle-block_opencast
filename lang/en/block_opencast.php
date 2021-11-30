@@ -414,6 +414,8 @@ $string['importvideos_wizardstep4coursevideosnone'] = 'There wasn\'t any video s
 $string['importvideos_wizardstep4sourcecoursenone'] = 'There wasn\'t any source course selected for import.';
 $string['importvideos_wizardstepbuttontitlecontinue'] = 'Continue';
 $string['importvideos_wizardstepbuttontitlerunimport'] = 'Import videos and return to overview';
+$string['ingestupload'] = 'Ingest upload';
+$string['ingestupload_desc'] = 'Use the Opencast ingest service for uploading videos.';
 $string['invalidacldata'] = 'Invalid acl data';
 
 $string['language'] = 'Language';

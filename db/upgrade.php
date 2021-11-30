@@ -686,5 +686,20 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021110300, 'opencast');
     }
 
+    if ($oldversion < 2021113000) {
+
+        // Define field mediapackage to be added to block_opencast_uploadjob.
+        $table = new xmldb_table('block_opencast_uploadjob');
+        $field = new xmldb_field('mediapackage', XMLDB_TYPE_TEXT, null, null, null, null, null, 'chunkupload_presentation');
+
+        // Conditionally launch add field mediapackage.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2021113000, 'opencast');
+    }
+
     return true;
 }

@@ -112,6 +112,19 @@ class apibridge
         return true;
     }
 
+    public function ingest_create_media_package() {
+        $api = api::get_instance($this->ocinstanceid);
+        $mediaPackage = $api->oc_get('/ingest/createMediaPackage');
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $mediaPackage;
+    }
+
     /**
      * Get videos to show in block. Items are limited and ready to use by renderer.
      * Note that we try to receive one item more than configurated to decide whether
