@@ -2,202 +2,309 @@
 
 namespace block_opencast\local;
 
+use block_opencast\opencast_connection_exception;
 use block_opencast\opencast_state_exception;
+use local_chunkupload\local\chunkupload_file;
+use tool_opencast\local\PolyfillCURLStringFile;
 
 class ingest_uploader
 {
-    const STATUS_INGEST_CREATING_MEDIA_PACKAGE = 121;
+    const STATUS_INGEST_CREATING_MEDIA_PACKAGE = 221;
 
-    const STATUS_INGEST_ADDING_EPISODE_CATALOG = 122;
+    const STATUS_INGEST_ADDING_EPISODE_CATALOG = 222;
 
-    const STATUS_INGEST_ADDING_FIRST_TRACK = 123;
+    const STATUS_INGEST_ADDING_FIRST_TRACK = 223;
 
-    const STATUS_INGEST_ADDING_SECOND_TRACK = 124;
+    const STATUS_INGEST_ADDING_SECOND_TRACK = 224;
 
-    const STATUS_INGEST_ADDING_ACL_ATTACHMENT = 121;
+    const STATUS_INGEST_ADDING_ACL_ATTACHMENT = 225;
 
-    const STATUS_INGEST_INGESTING = 121;
+    const STATUS_INGEST_INGESTING = 226;
 
-    # todo what about create group?!
-
-    protected function process_upload_job($job) {
+    public static function create_event($job) {
         global $DB;
-        $stepsuccessful = false;
         $apibridge = apibridge::get_instance($job->ocinstanceid);
 
         switch ($job->status) {
-            case upload_helper::STATUS_READY_TO_UPLOAD:
-                $this->update_status_with_mediapackage($job, self::STATUS_INGEST_CREATING_MEDIA_PACKAGE, true, true);
             case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE:
-
                 try {
                     $mediapackage = $apibridge->ingest_create_media_package();
-                    // TODO check mediapackage ?
-                    $stepsuccessful = true;
                     mtrace('... media package created');
                     // Move on to next status.
-                    $this->update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_EPISODE_CATALOG, true, false, false, $mediapackage);
-                } catch (opencast_state_exception $e) {
+                    self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_EPISODE_CATALOG, true, false, false, $mediapackage);
+                } catch (opencast_connection_exception $e) {
                     mtrace('... failed to create media package');
+                    mtrace($e->getMessage());
+                    break;
                 }
-                break;
-
             case self::STATUS_INGEST_ADDING_EPISODE_CATALOG:
                 try {
+                    upload_helper::ensure_series_metadata($job, $apibridge);
+                    $episodexml = self::create_episode_xml($job);
 
-
-                    // Check if series exists.
-                    $metadata = json_decode($job->metadata);
-                    $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
-                    $series = null;
-
-                    if ($mtseries !== false) {
-                        $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
-                    }
-
-                    if (!$series) {
-                        $series = $apibridge->ensure_course_series_exists($job->courseid, $job->userid);
-                    }
-
-                    if ($series) {
-                        $stepsuccessful = true;
-                        mtrace('... series exists');
-                        // Move on to next status.
-                        $this->update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_FIRST_TRACK, true, false, false, $mediapackage);
-                    }
-                } catch (opencast_state_exception $e) {
-                    mtrace('... series creation still in progress');
-                }
-                break;
-
-            case self::STATUS_CREATING_EVENT:
-
-                $eventids = array();
-
-                if ($job->opencasteventid) {
-                    array_push($eventids, $job->opencasteventid);
-                } else if (get_config('block_opencast', 'reuseexistingupload_' . $job->ocinstanceid)) {
-                    // Check, whether this file was uploaded any time before.
-                    $params = array(
-                        'contenthash_presenter' => $job->contenthash_presenter,
-                        'contenthash_presentation' => $job->contenthash_presentation,
-                        'ocinstanceid' => $job->ocinstanceid
-                    );
-
-                    // Search for files already uploaded to opencast.
-                    $sql = "SELECT opencasteventid " .
-                        "FROM {block_opencast_uploadjob} " .
-                        "WHERE ocinstanceid = :ocinstanceid AND (contenthash_presenter = :contenthash_presenter " .
-                        "OR contenthash_presentation = :contenthash_presentation) " .
-                        "GROUP BY opencasteventid ";
-
-                    $eventids = $DB->get_records_sql($sql, $params);
-                    if ($eventids) {
-                        $eventids = array_keys($eventids);
-                        mtrace('... applying reuse of existing upload');
-                    }
-                }
-
-                $metadata = json_decode($job->metadata);
-                $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
-                $series = null;
-                if ($mtseries !== false) {
-                    $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
-                }
-
-                if (!$series) {
-                    $series = $apibridge->get_default_course_series($job->courseid);
-
-                    // Set series metadata.
-                    if ($mtseries !== false) {
-                        $metadata[$mtseries]->value = $series->identifier;
+                    if (version_compare(phpversion(), '8', '>=')) {
+                        $file = new \CURLStringFile($episodexml, 'dublincore-episode.xml', 'text/xml',);
                     } else {
-                        $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
-                        $job->metadata = json_encode($metadata);
+                        $file = new PolyfillCURLStringFile($episodexml, 'dublincore-episode.xml', 'text/xml',);
                     }
-                }
-                $event = $apibridge->ensure_event_exists($job, $eventids);
 
-                // Check result.
-                if (!isset($event->identifier)) {
-                    throw new \moodle_exception('missingevent', 'block_opencast');
-                } else {
-                    mtrace('... video uploaded');
-                    $this->update_status($job, self::STATUS_UPLOADED);
-                    $stepsuccessful = true;
+                    $mediapackage = $apibridge->ingest_add_catalog($job->mediapackage, 'dublincore/episode', $file);
+                    mtrace('... added episode metadata');
+                    // Move on to next status.
+                    self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_FIRST_TRACK, true, false, false, $mediapackage);
 
-                    // Update eventid.
-                    $job->opencasteventid = $event->identifier;
-                    $DB->update_record('block_opencast_uploadjob', $job);
-                }
-                break;
-
-            case self::STATUS_UPLOADED:
-
-                // Continue with post-upload tasks.
-
-                // Verify the upload.
-                if (!$job->opencasteventid) {
-                    throw new \moodle_exception('missingeventidentifier', 'block_opencast');
-                }
-
-                if (!($event = $apibridge->get_already_existing_event(array($job->opencasteventid)))) {
-                    mtrace('... event does not exist');
+                } catch (opencast_connection_exception $e) {
+                    mtrace('... failed to add episode metadata');
+                    mtrace($e->getMessage());
                     break;
                 }
 
-                // Mark the job as uploaded.
-                $job->opencasteventid = $event->identifier;
+            case self::STATUS_INGEST_ADDING_FIRST_TRACK:
 
-                // For a new event do acl and series are already set, event will be processed
-                // in opencast, so it is not possible to modify event at this state.
-                if (isset($event->newlycreated) && $event->newlycreated) {
+                $validstoredfile = true;
+                $presenter = null;
+                if ($job->presenter_fileid) {
+                    $fs = get_file_storage();
+                    $presenter = $fs->get_file_by_id($job->presenter_fileid);
+                    if (!$presenter) {
+                        $validstoredfile = false;
+                    }
+                }
+
+                if ($job->chunkupload_presenter) {
+                    if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
+                        throw new \moodle_exception("local_chunkupload is not installed. This should never happen.");
+                    }
+                    $presenter = new chunkupload_file($job->chunkupload_presenter);
+                    if (!$presenter) {
+                        $validstoredfile = false;
+                    }
+                }
+
+                if ($validstoredfile && !$presenter) {
+                    // No file to upload.
+                    mtrace('... no presenter to upload');
+                    self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_SECOND_TRACK, true, false, false, $job->mediapackage);
+                } else if (!$validstoredfile) {
+                    $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+                    throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
+                } else {
+                    try {
+                        $mediapackage = $apibridge->ingest_add_track($job->mediapackage, 'presenter/source', $presenter);
+                        mtrace('... presenter uploaded');
+                        self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_SECOND_TRACK, true, false, false, $mediapackage);
+
+                    } catch (opencast_connection_exception $e) {
+                        mtrace('... failed upload presenter');
+                        mtrace($e->getMessage());
+                        break;
+                    }
+                }
+
+            case self::STATUS_INGEST_ADDING_SECOND_TRACK:
+
+                $validstoredfile = true;
+                $presentation = null;
+                if ($job->presentation_fileid) {
+                    $fs = get_file_storage();
+                    $presentation = $fs->get_file_by_id($job->presentation_fileid);
+                    if (!$presentation) {
+                        $validstoredfile = false;
+                    }
+                }
+
+                if ($job->chunkupload_presentation) {
+                    if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
+                        throw new \moodle_exception("local_chunkupload is not installed. This should never happen.");
+                    }
+                    $presentation = new chunkupload_file($job->chunkupload_presentation);
+                    if (!$presentation) {
+                        $validstoredfile = false;
+                    }
+                }
+
+                if ($validstoredfile && !$presentation) {
+                    // No file to upload.
+                    mtrace('... no presentation to upload');
+                    self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_ACL_ATTACHMENT, true, false, false, $job->mediapackage);
+                } else if (!$validstoredfile) {
+                    $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+                    throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
+                } else {
+                    try {
+                        $mediapackage = $apibridge->ingest_add_track($job->mediapackage, 'presentation/source', $presentation);
+                        mtrace('... presentation uploaded');
+                        self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_ACL_ATTACHMENT, true, false, false, $mediapackage);
+
+                    } catch (opencast_connection_exception $e) {
+                        mtrace('... failed upload presentation');
+                        mtrace($e->getMessage());
+                        break;
+                    }
+                }
+
+            case self::STATUS_INGEST_ADDING_ACL_ATTACHMENT:
+                try {
+
+                    $aclxml = self::create_acl_xml($apibridge->getroles(), $job);
+
+                    if (version_compare(phpversion(), '8', '>=')) {
+                        $file = new \CURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml',);
+                    } else {
+                        $file = new PolyfillCURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml',);
+                    }
+
+                    $mediapackage = $apibridge->ingest_add_attachment($job->mediapackage, 'ecurity/xacml+episode', $file);
+                    mtrace('... added acl');
+                    // Move on to next status.
+                    self::update_status_with_mediapackage($job, self::STATUS_INGEST_INGESTING, true, false, false, $mediapackage);
+
+                } catch (opencast_connection_exception $e) {
+                    mtrace('... failed to add acl');
+                    mtrace($e->getMessage());
+                    break;
+                }
+            case self::STATUS_INGEST_INGESTING:
+                try {
+                    $workflow = $apibridge->ingest($job->mediapackage);
+                    mtrace('... video uploaded');
+                    // Move on to next status.
+                    self::update_status_with_mediapackage($job, upload_helper::STATUS_UPLOADED);
+
+                    $parser = xml_parser_create();
+                    xml_parse_into_struct($parser, $workflow, $values);
+                    xml_parser_free($parser);
+
+                    $event = new \stdClass();
+                    $event->identifier = $values[array_search('MP:MEDIAPACKAGE', array_column($values, 'tag'))]['attributes']['ID'];
+
                     return $event;
+                } catch (opencast_connection_exception $e) {
+                    mtrace('... failed to add acl');
+                    mtrace($e->getMessage());
+                    break;
+                }
+        }
+        return false;
+    }
+
+    protected static function create_episode_xml($job) {
+
+        $dom = new \DOMDocument('1.0', 'utf-8');
+
+        $root = $dom->createElement('dublincore');
+        $root->setAttributeNode(new \DOMAttr('xmlns', 'http://www.opencastproject.org/xsd/1.0/dublincore/'));
+        $root->setAttributeNode(new \DOMAttr('xmlns:dcterms', 'http://purl.org/dc/terms/'));
+        $root->setAttributeNode(new \DOMAttr('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'));
+        $dom->appendChild($root);
+
+        $startDate = null;
+        $startTime = null;
+
+        foreach (json_decode($job->metadata) as $metadata) {
+            if ($metadata->id === 'startDate') {
+                $startDate = $metadata->value;
+                continue;
+            } else if ($metadata->id === 'startTime') {
+                $startTime = $metadata->value;
+                continue;
+            } else {
+                if ($metadata->id === 'subjects') {
+                    $metadata->id = 'subject';
+                } else if ($metadata->id === 'location') {
+                    $metadata->id = 'spatial';
                 }
 
-                if (boolval(get_config('block_opencast', 'group_creation_' . $job->ocinstanceid))) {
-                    // Ensure the assignment of a suitable role.
-                    if (!$apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
-                        mtrace('... group not yet assigned.');
-                        break;
-                    }
-                    mtrace('... group assigned');
+                if (is_array($metadata->value)) {
+                    $el = $dom->createElement('dcterms:' . $metadata->id, implode(',', $metadata->value));
+                } else {
+                    $el = $dom->createElement('dcterms:' . $metadata->id, $metadata->value);
                 }
-
-                // Ensure the assignment of a course series.
-                $assignedseries = $event->is_part_of;
-                $courseseries = $DB->get_records('tool_opencast_series',
-                    array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
-
-                if (!array_search($assignedseries, array_column($courseseries, 'series'))) {
-                    // Try to assign series again.
-                    $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
-
-                    if (!array_search($mtseries, array_column($courseseries, 'series'))) {
-                        $mtseries = $apibridge->get_default_course_series($job->courseid)->identifier;
-                    }
-
-                    if (!$apibridge->assign_series($event->identifier, $mtseries)) {
-                        mtrace('... series not yet assigned.');
-                        break;
-                    }
-                }
-
-                mtrace('... series assigned');
-
-                // If a event was created, the upload is finished and the event can be returned.
-                return $event;
+            }
+            $root->appendChild($el);
         }
 
-        // If the current step (creation of group or series) was successful, the function process_upload_job can be
-        // called recursively to continue with the next bit of work.
-        if ($stepsuccessful) {
-            return $this->process_upload_job($job);
-        } else {
-            // Otherwise, false is returned, which causes to cronjob to try again later.
-            return false;
+        if ($startDate && $startTime) {
+            $date = new \DateTime($startDate . ' ' . $startTime);
+            $start_end_string_iso = $date->format('Y-m-d\TH:i:s.u\Z');
+            $el = $dom->createElement('dcterms:temporal', 'start=' . $start_end_string_iso . '; ' . 'end=' . $start_end_string_iso . '; scheme=W3C-DTF;');
+            $el->setAttributeNode(new \DOMAttr('xsi:type', 'dcterms:Period'));
+            $root->appendChild($el);
         }
 
+        $el = $dom->createElement('dcterms:created', (new \DateTime('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s.u\Z'));
+        $root->appendChild($el);
+
+        return $dom->saveXml();
+    }
+
+    protected static function create_acl_xml($roles, $job) {
+
+
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $root = $dom->createElement('Policy');
+        $root->setAttributeNode(new \DOMAttr('PolicyId', 'mediapackage-1'));
+        $root->setAttributeNode(new \DOMAttr('Version', '2.0'));
+        $root->setAttributeNode(new \DOMAttr('RuleCombiningAlgId', 'urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides'));
+        $root->setAttributeNode(new \DOMAttr('xmlns', 'urn:oasis:names:tc:xacml:2.0:policy:schema:os'));
+        $dom->appendChild($root);
+
+        foreach ($roles as $role) {
+            foreach ($role->actions as $roleaction) {
+                $rolename = apibridge::replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0];
+
+                $el = $dom->createElement('RULE');
+                $el->setAttributeNode(new \DOMAttr('RuleId', $rolename . '_' . $roleaction . '_PERMIT'));
+                $el->setAttributeNode(new \DOMAttr('Effect', 'Permit'));
+                $root->appendChild($el);
+
+                $target = $dom->createElement('Target');
+                $el->appendChild($target);
+
+                $actions = $dom->createElement('Actions');
+                $target->appendChild($actions);
+
+                $action = $dom->createElement('Action');
+                $actions->appendChild($action);
+
+                $actionmatch = $dom->createElement('ActionMatch');
+                $actionmatch->setAttributeNode(new \DOMAttr('MatchId', 'urn:oasis:names:tc:xacml:1.0:function:string-equal'));
+                $action->appendChild($actionmatch);
+
+                $attributevalue = $dom->createElement('AttributeValue', $roleaction);
+                $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+                $actionmatch->appendChild($attributevalue);
+
+                $actionattributedesignator = $dom->createElement('ActionAttributeDesignator');
+                $actionattributedesignator->setAttributeNode(new \DOMAttr('AttributeId', 'urn:oasis:names:tc:xacml:1.0:action:action-id'));
+                $actionattributedesignator->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+                $actionmatch->appendChild($actionattributedesignator);
+
+                $condition = $dom->createElement('Condition');
+                $el->appendChild($condition);
+
+                $apply = $dom->createElement('Apply');
+                $apply->setAttributeNode(new \DOMAttr('FunctionId', 'urn:oasis:names:tc:xacml:1.0:function:string-is-in'));
+                $condition->appendChild($apply);
+
+                $attributevalue = $dom->createElement('AttributeValue', $rolename);
+                $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+                $apply->appendChild($attributevalue);
+
+                $subjectattributedesignator = $dom->createElement('SubjectAttributeDesignator');
+                $subjectattributedesignator->setAttributeNode(new \DOMAttr('AttributeId', 'urn:oasis:names:tc:xacml:2.0:subject:role'));
+                $subjectattributedesignator->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+                $apply->appendChild($subjectattributedesignator);
+            }
+        }
+
+        // Add deny rule.
+        $el = $dom->createElement('RULE');
+        $el->setAttributeNode(new \DOMAttr('RuleId', 'DenyRule'));
+        $el->setAttributeNode(new \DOMAttr('Effect', 'Deny'));
+        $root->appendChild($el);
+
+        return $dom->saveXml();
     }
 
     public static function update_status_with_mediapackage(&$job, $status, $setmodified = true, $setstarted = false, $setsucceeded = false, $mediapackage = null) {
@@ -220,4 +327,6 @@ class ingest_uploader
 
         $DB->update_record('block_opencast_uploadjob', $job);
     }
+
+    // TODO randomize ingest endpoint
 }

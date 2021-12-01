@@ -415,7 +415,7 @@ $string['importvideos_wizardstep4sourcecoursenone'] = 'There wasn\'t any source 
 $string['importvideos_wizardstepbuttontitlecontinue'] = 'Continue';
 $string['importvideos_wizardstepbuttontitlerunimport'] = 'Import videos and return to overview';
 $string['ingestupload'] = 'Ingest upload';
-$string['ingestupload_desc'] = 'Use the Opencast ingest service for uploading videos.';
+$string['ingestuploaddesc'] = 'Use the Opencast ingest service for uploading videos.';
 $string['invalidacldata'] = 'Invalid acl data';
 
 $string['language'] = 'Language';
@@ -463,6 +463,7 @@ $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
 
 $string['noconnectedseries'] = 'No series is defined yet.';
+$string['no_ingest_services'] = 'No available ingest nodes found.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';
 $string['notpublished'] = 'Not published';

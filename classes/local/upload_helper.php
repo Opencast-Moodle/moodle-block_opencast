@@ -494,6 +494,11 @@ class upload_helper
                 break;
 
             case self::STATUS_CREATING_EVENT:
+                if (get_config('block_opencast', 'ingestupload_' . $job->ocinstanceid)) {
+                    $this->update_status($job, ingest_uploader::STATUS_INGEST_CREATING_MEDIA_PACKAGE);
+                    $stepsuccessful = true;
+                    break;
+                }
 
                 $eventids = array();
 
@@ -521,24 +526,8 @@ class upload_helper
                     }
                 }
 
-                $metadata = json_decode($job->metadata);
-                $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
-                $series = null;
-                if ($mtseries !== false) {
-                    $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
-                }
+                self::ensure_series_metadata($job, $apibridge);
 
-                if (!$series) {
-                    $series = $apibridge->get_default_course_series($job->courseid);
-
-                    // Set series metadata.
-                    if ($mtseries !== false) {
-                        $metadata[$mtseries]->value = $series->identifier;
-                    } else {
-                        $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
-                        $job->metadata = json_encode($metadata);
-                    }
-                }
                 $event = $apibridge->ensure_event_exists($job, $eventids);
 
                 // Check result.
@@ -550,6 +539,20 @@ class upload_helper
                     $stepsuccessful = true;
 
                     // Update eventid.
+                    $job->opencasteventid = $event->identifier;
+                    $DB->update_record('block_opencast_uploadjob', $job);
+                }
+                break;
+
+            case ingest_uploader::STATUS_INGEST_CREATING_MEDIA_PACKAGE:
+            case ingest_uploader::STATUS_INGEST_ADDING_EPISODE_CATALOG:
+            case ingest_uploader::STATUS_INGEST_ADDING_FIRST_TRACK:
+            case ingest_uploader::STATUS_INGEST_ADDING_SECOND_TRACK:
+            case ingest_uploader::STATUS_INGEST_ADDING_ACL_ATTACHMENT:
+            case ingest_uploader::STATUS_INGEST_INGESTING:
+                $event = ingest_uploader::create_event($job);
+                if ($event) {
+                    $stepsuccessful = true;
                     $job->opencasteventid = $event->identifier;
                     $DB->update_record('block_opencast_uploadjob', $job);
                 }
@@ -653,7 +656,9 @@ class upload_helper
                     if ($joboptions) {
                         $job = (object)array_merge((array)$job, (array)$joboptions);
                     }
+
                     $event = $this->process_upload_job($job);
+
                     if ($event) {
                         $this->upload_succeeded($job, $event->identifier);
                     } else {
@@ -706,5 +711,26 @@ class upload_helper
     public static function get_opencast_metadata_catalog($ocinstanceid) {
         $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
         return $metadatacatalog;
+    }
+
+    public static function ensure_series_metadata($job, $apibridge) {
+        $metadata = json_decode($job->metadata);
+        $mtseries = array_search('isPartOf', array_column($metadata, 'id'));
+        $series = null;
+        if ($mtseries !== false) {
+            $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
+        }
+
+        if (!$series) {
+            $series = $apibridge->get_default_course_series($job->courseid);
+
+            // Set series metadata.
+            if ($mtseries !== false) {
+                $metadata[$mtseries]->value = $series->identifier;
+            } else {
+                $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
+            }
+            $job->metadata = json_encode($metadata);
+        }
     }
 }
