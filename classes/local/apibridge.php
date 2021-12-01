@@ -143,7 +143,7 @@ class apibridge
 
     public function ingest_create_media_package() {
         $api = $this->get_ingest_api();
-        $mediaPackage = $api->oc_get('/createMediaPackage');
+        $mediapackage = $api->oc_get('/createMediaPackage');
 
         if ($api->get_http_code() === 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
@@ -151,12 +151,12 @@ class apibridge
             throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
 
-        return $mediaPackage;
+        return $mediapackage;
     }
 
     public function ingest_add_catalog($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
-        $mediaPackage = $api->oc_post('/addCatalog', array(
+        $newmediapackage = $api->oc_post('/addCatalog', array(
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
@@ -167,12 +167,12 @@ class apibridge
             throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
 
-        return $mediaPackage;
+        return $newmediapackage;
     }
 
     public function ingest_add_track($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
-        $mediaPackage = $api->oc_post('/addTrack', array(
+        $newmediapackage = $api->oc_post('/addTrack', array(
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
@@ -183,12 +183,12 @@ class apibridge
             throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
 
-        return $mediaPackage;
+        return $newmediapackage;
     }
 
     public function ingest_add_attachment($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
-        $mediaPackage = $api->oc_post('/addAttachment', array(
+        $newmediapackage = $api->oc_post('/addAttachment', array(
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
@@ -199,7 +199,7 @@ class apibridge
             throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
 
-        return $mediaPackage;
+        return $newmediapackage;
     }
 
     public function ingest($mediapackage) {
@@ -241,7 +241,8 @@ class apibridge
         $allvideos = [];
 
         foreach ($series as $s) {
-            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode("series:" . $s->series);
+            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' .
+                urlencode("series:" . $s->series);
 
             if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
                 // Try to fetch one more to decide whether display "more link" is necessary.
