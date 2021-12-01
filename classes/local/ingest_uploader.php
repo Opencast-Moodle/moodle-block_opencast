@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Uploads videos via ingest nodes.
+ * @package    block_opencast
+ * @copyright  2021 Tamara Gunkel WWU
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace block_opencast\local;
 
 use block_opencast\opencast_connection_exception;
@@ -21,20 +28,39 @@ use block_opencast\opencast_state_exception;
 use local_chunkupload\local\chunkupload_file;
 use tool_opencast\local\PolyfillCURLStringFile;
 
+/**
+ * Uploads videos via ingest nodes.
+ * @package    block_opencast
+ * @copyright  2021 Tamara Gunkel WWU
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class ingest_uploader
 {
+    /** @var int Media package is created */
     const STATUS_INGEST_CREATING_MEDIA_PACKAGE = 221;
 
+    /** @var int Episode metadata is added */
     const STATUS_INGEST_ADDING_EPISODE_CATALOG = 222;
 
+    /** @var int First track (presenter) is added */
     const STATUS_INGEST_ADDING_FIRST_TRACK = 223;
 
+    /** @var int Second track (presentation) is added */
     const STATUS_INGEST_ADDING_SECOND_TRACK = 224;
 
+    /** @var int ACL metadata is added */
     const STATUS_INGEST_ADDING_ACL_ATTACHMENT = 225;
 
+    /** @var int Video (final media package) is ingested */
     const STATUS_INGEST_INGESTING = 226;
 
+    /**
+     * Processes the different steps of creating an event via ingest nodes.
+     * @param object $job Represents the upload job.
+     * @return false|\stdClass
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
     public static function create_event($job) {
         global $DB;
         $apibridge = apibridge::get_instance($job->ocinstanceid);
@@ -174,7 +200,7 @@ class ingest_uploader
                         $file = new PolyfillCURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml');
                     }
 
-                    $mediapackage = $apibridge->ingest_add_attachment($job->mediapackage, 'ecurity/xacml+episode', $file);
+                    $mediapackage = $apibridge->ingest_add_attachment($job->mediapackage, 'security/xacml+episode', $file);
                     mtrace('... added acl');
                     // Move on to next status.
                     self::update_status_with_mediapackage($job, self::STATUS_INGEST_INGESTING,
@@ -210,6 +236,12 @@ class ingest_uploader
         return false;
     }
 
+    /**
+     * Transforms the episode metadata to the dublincore/episode xml format.
+     * @param object $job
+     * @return false|string
+     * @throws \Exception
+     */
     protected static function create_episode_xml($job) {
 
         $dom = new \DOMDocument('1.0', 'utf-8');
@@ -262,6 +294,14 @@ class ingest_uploader
         return $dom->saveXml();
     }
 
+    /**
+     * Transforms the ACL to the security/xacml+episode xml format.
+     * @param array $roles
+     * @param object $job
+     * @return false|string
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     protected static function create_acl_xml($roles, $job) {
         $dom = new \DOMDocument('1.0', 'utf-8');
         $root = $dom->createElement('Policy');
@@ -335,6 +375,16 @@ class ingest_uploader
         return $dom->saveXml();
     }
 
+    /**
+     * Update the status of the upload job.
+     * @param object $job
+     * @param int $status
+     * @param bool $setmodified
+     * @param false $setstarted
+     * @param false $setsucceeded
+     * @param null $mediapackage
+     * @throws \dml_exception
+     */
     public static function update_status_with_mediapackage(&$job, $status, $setmodified = true, $setstarted = false,
                                                            $setsucceeded = false, $mediapackage = null) {
         global $DB;

@@ -112,6 +112,14 @@ class apibridge
         return true;
     }
 
+    /**
+     * Sets up an api object with an ingest node as endpoint.
+     *
+     * @return api
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     private function get_ingest_api() {
         $api = api::get_instance($this->ocinstanceid);
         $services = $api->oc_get('/services/services.json?serviceType=org.opencastproject.ingest');
@@ -141,6 +149,14 @@ class apibridge
         return $api;
     }
 
+    /**
+     * Create a new media package via an ingest node.
+     *
+     * @return string Newly created mediapackage
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     public function ingest_create_media_package() {
         $api = $this->get_ingest_api();
         $mediapackage = $api->oc_get('/createMediaPackage');
@@ -154,6 +170,16 @@ class apibridge
         return $mediapackage;
     }
 
+    /**
+     * Add a catalog via an ingest node.
+     * @param string $mediapackage Mediapackage to which the catalog is added
+     * @param string $flavor Flavor of catalog
+     * @param object $file Catalog as file
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     public function ingest_add_catalog($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
         $newmediapackage = $api->oc_post('/addCatalog', array(
@@ -170,6 +196,16 @@ class apibridge
         return $newmediapackage;
     }
 
+    /**
+     * Add a track via an ingest node.
+     * @param string $mediapackage Mediapackage to which the track is added
+     * @param string $flavor Flavor of track
+     * @param object $file Track
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     public function ingest_add_track($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
         $newmediapackage = $api->oc_post('/addTrack', array(
@@ -186,6 +222,16 @@ class apibridge
         return $newmediapackage;
     }
 
+    /**
+     * Adds an attachment via an ingest node.
+     * @param string $mediapackage Mediapackage to which the attachment is added
+     * @param string $flavor Flavor of attachment
+     * @param object $file Attachment
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     public function ingest_add_attachment($mediapackage, $flavor, $file) {
         $api = $this->get_ingest_api();
         $newmediapackage = $api->oc_post('/addAttachment', array(
@@ -202,6 +248,14 @@ class apibridge
         return $newmediapackage;
     }
 
+    /**
+     * Ingests a mediapackage.
+     * @param string $mediapackage Mediapackage
+     * @return string Workflow instance that was started
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
     public function ingest($mediapackage) {
         $api = $this->get_ingest_api();
         $workflow = $api->oc_post('/ingest/' . get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid), array(
