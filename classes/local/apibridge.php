@@ -1705,7 +1705,7 @@ class apibridge
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('engage-player', $video->publication_status)) {
             $context = \context_course::instance($courseid);
-            // Only enrolled users or admin are able to use this feature. 
+            // Only enrolled users or admin are able to use this feature.
             return (is_enrolled($context) || is_siteadmin($USER->id));
         }
 
@@ -2076,7 +2076,7 @@ class apibridge
 
         // If a single service is passed.
         if (!empty($services) && $findsingleservice) {
-            // Get the index of the service. 
+            // Get the index of the service.
             $serviceindex = array_search('/' . $findsingleservice, array_column($services, 'path'));
             // Extract and return the service array, if exists.
             return (isset($services[$serviceindex])) ? $services[$serviceindex] : null;
@@ -2088,7 +2088,7 @@ class apibridge
 
     /**
      * Create and return customized tool_opencast api instance.
-     * 
+     *
      * @param array $customconfigs the configs to created new api instance.
      * @return tool_opencast\local\api
      */
@@ -2125,7 +2125,7 @@ class apibridge
         if (!array_key_exists('apitimeout', $customconfigs)) {
             $customconfigs['apitimeout'] = $apitimeout;
         }
-        
+
         // Get customized API instance.
         $api = api::get_instance(null, [], $customconfigs);
 

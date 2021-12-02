@@ -464,7 +464,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configpasswordunmask('block_opencast/editorlticonsumersecret_' . $instance->id,
                     get_string('editorlticonsumersecret', 'block_opencast'),
                     get_string('editorlticonsumersecret_desc', 'block_opencast'), ""));
-            
+
             // Opencast Video Player in additional feature settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/opencast_access_video_file_' . $instance->id,

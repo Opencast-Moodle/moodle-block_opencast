@@ -60,7 +60,10 @@ $video = $apibridge->get_opencast_video($identifier);
 
 // Check if the access to the video static file is possible.
 if (!$apibridge->can_access_video_static_file($video->video, $courseid)) {
-    redirect($redirecturl, get_string('staticvideofileinvalidconfig', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl,
+        get_string('staticvideofileinvalidconfig', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
 }
 
 // Get the search service from the opencast instance.
@@ -68,7 +71,10 @@ $searchservice = $apibridge->get_services('search');
 
 // Check if the search service is available.
 if (!$searchservice) {
-    redirect($redirecturl, get_string('staticvideofilenosearchservice', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl,
+        get_string('staticvideofilenosearchservice', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
 }
 
 // Create custom configs to get a custom instance from tool_opencast\local\api.
@@ -87,7 +93,10 @@ $searchresult = json_decode($searchapiinstance->oc_get($url), true);
 
 // Check if the search call is successful, if not show an error message.
 if ($searchapiinstance->get_http_code() != 200) {
-    redirect($redirecturl, get_string('staticvideofilefailedtogetvideodata', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl,
+        get_string('staticvideofilefailedtogetvideodata', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
 }
 
 // Extract the tracks from mediapackage.
@@ -97,7 +106,10 @@ $tracks = (isset($searchresult['search-results']['result']) ?
 
 // Check if there is any video track.
 if (empty($tracks)) {
-    redirect($redirecturl, get_string('staticvideofilenovideotrack', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl,
+        get_string('staticvideofilenovideotrack', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
 }
 
 $videotracks = [];
