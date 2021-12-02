@@ -1691,6 +1691,28 @@ class apibridge
     }
 
     /**
+     * The allowance of accessing the video static file.
+     * @param object $video Opencast video
+     * @param int $courseid Course id
+     * @return bool the permission.
+     */
+    public function can_access_video_static_file($video, $courseid) {
+        global $USER;
+        // We check if the related config is enabled, the video processing state is succeeded
+        // and engage-player exists in publication status.
+        if (get_config('block_opencast', 'enable_opencast_access_video_file_link_' . $this->ocinstanceid) &&
+            isset($video->processing_state) && $video->processing_state == "SUCCEEDED" &&
+            isset($video->publication_status) && is_array($video->publication_status) &&
+            in_array('engage-player', $video->publication_status)) {
+            $context = \context_course::instance($courseid);
+            // Only enrolled users or admin are able to use this feature. 
+            return (is_enrolled($context) || is_siteadmin($USER->id));
+        }
+
+        return false;
+    }
+
+    /**
      * Get the event's metadata of the specified type
      * @param string $eventidentifier Event id
      * @param string $query Api query additions
@@ -2021,5 +2043,93 @@ class apibridge
         }
 
         return $mapping->to_record();
+    }
+
+    /**
+     * Get the services from the opencast instance.
+     *
+     * @param string $findsingleservice single service name defined as "path" in services object.
+     * @return array|object list of services, or songle service object if requested.
+     */
+    public function get_services($findsingleservice = null) {
+        // Initialize empty services array.
+        $services = [];
+
+        // Get API.
+        $api = api::get_instance($this->ocinstanceid);
+
+        // Build API request.
+        $resource = '/services/services.json';
+
+        // Run API request.
+        $result = json_decode($api->oc_get($resource));
+
+        // If could not get services, return.
+        if ($api->get_http_code() != 200) {
+            return false;
+        }
+
+        // If the result has the services.
+        if ($result && $result->services && $result->services->service) {
+            $services = $result->services->service;
+        }
+
+        // If a single service is passed.
+        if (!empty($services) && $findsingleservice) {
+            // Get the index of the service. 
+            $serviceindex = array_search('/' . $findsingleservice, array_column($services, 'path'));
+            // Extract and return the service array, if exists.
+            return (isset($services[$serviceindex])) ? $services[$serviceindex] : null;
+        }
+
+        // Return the services array.
+        return $services;
+    }
+
+    /**
+     * Create and return customized tool_opencast api instance.
+     * 
+     * @param array $customconfigs the configs to created new api instance.
+     * @return tool_opencast\local\api
+     */
+    public function get_customized_api_instance($customconfigs = []) {
+
+        // Get the default instance configs of tool_opencast.
+        $apiurl = get_config('tool_opencast', 'apiurl');
+        $apiusername = get_config('tool_opencast', 'apiusername');
+        $apipassword = get_config('tool_opencast', 'apipassword');
+        $apitimeout = get_config('tool_opencast', 'apitimeout');
+
+        // Check if the current instance does not match the default.
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            // Get and replace the current instance configs from tool_opencast.
+            $apiurl = get_config('tool_opencast', 'apiurl_' . $this->ocinstanceid);
+            $apiusername = get_config('tool_opencast', 'apiusername_' . $this->ocinstanceid);
+            $apipassword = get_config('tool_opencast', 'apipassword_' . $this->ocinstanceid);
+            $apitimeout = get_config('tool_opencast', 'apitimeout_' . $this->ocinstanceid);
+        }
+
+        // Replace the apiurl in customconfigs.
+        if (!array_key_exists('apiurl', $customconfigs)) {
+            $customconfigs['apiurl'] = $apiurl;
+        }
+        // Replace the apiusername in customconfigs.
+        if (!array_key_exists('apiusername', $customconfigs)) {
+            $customconfigs['apiusername'] = $apiusername;
+        }
+        // Replace the apipassword in customconfigs.
+        if (!array_key_exists('apipassword', $customconfigs)) {
+            $customconfigs['apipassword'] = $apipassword;
+        }
+        // Replace the apitimeout in customconfigs.
+        if (!array_key_exists('apitimeout', $customconfigs)) {
+            $customconfigs['apitimeout'] = $apitimeout;
+        }
+        
+        // Get customized API instance.
+        $api = api::get_instance(null, [], $customconfigs);
+
+        // Return the customized API instance.
+        return $api;
     }
 }

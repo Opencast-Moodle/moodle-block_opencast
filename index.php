@@ -421,6 +421,11 @@ foreach ($seriesvideodata as $series => $videodata) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);
                 }
 
+                // Check the capability to provide the button to access the video.
+                if ($opencast->can_access_video_static_file($video, $courseid)) {
+                    $actions .= $renderer->render_video_link_icon($ocinstanceid, $courseid, $video->identifier);
+                }
+
                 if ($opencast->can_delete_event_assignment($video, $courseid)) {
                     $actions .= $renderer->render_delete_event_icon($ocinstanceid, $courseid, $video->identifier);
                 }

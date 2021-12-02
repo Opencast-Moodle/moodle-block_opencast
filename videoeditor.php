@@ -15,16 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Redirects users to Opencast Studio for recording videos.
+ * Redirects users to Opencast Editor.
  * @package    block_opencast
- * @copyright  2020 Farbod Zamani Boroujeni - ELAN e.V.
+ * @copyright  2021 Farbod Zamani Boroujeni - ELAN e.V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
-
-use block_opencast\local\upload_helper;
 
 global $PAGE, $OUTPUT, $CFG, $USER;
 

@@ -464,6 +464,30 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configpasswordunmask('block_opencast/editorlticonsumersecret_' . $instance->id,
                     get_string('editorlticonsumersecret', 'block_opencast'),
                     get_string('editorlticonsumersecret_desc', 'block_opencast'), ""));
+            
+            // Opencast Video Player in additional feature settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/opencast_access_video_file_' . $instance->id,
+                    get_string('opencaststaticvideofilelink', 'block_opencast'),
+                    ''));
+
+            // The Generall player Permission.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/enable_opencast_access_video_file_link_' . $instance->id,
+                    get_string('enableopencaststaticvideofilelink', 'block_opencast'),
+                    get_string('enableopencaststaticvideofilelink_desc', 'block_opencast'), 0));
+
+            // LTI Consumer Key for the video player.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/staticvideofilelticonsumerkey_' . $instance->id,
+                    get_string('staticvideofilelticonsumerkey', 'block_opencast'),
+                    get_string('staticvideofilelticonsumerkey_desc', 'block_opencast'), ""));
+
+            // LTI Consumer Secret for the video player.
+            $additionalsettings->add(
+                new admin_setting_configpasswordunmask('block_opencast/staticvideofilelticonsumersecret_' . $instance->id,
+                    get_string('staticvideofilelticonsumersecret', 'block_opencast'),
+                    get_string('staticvideofilelticonsumersecret_desc', 'block_opencast'), ""));
 
             // Notifications in additional features settings.
             $additionalsettings->add(
