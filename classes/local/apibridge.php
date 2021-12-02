@@ -137,7 +137,8 @@ class apibridge
         $allvideos = [];
 
         foreach ($series as $s) {
-            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode("series:" . $s->series);
+            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' .
+                urlencode("series:" . $s->series);
 
             if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
                 // Try to fetch one more to decide whether display "more link" is necessary.
