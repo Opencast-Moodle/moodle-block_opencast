@@ -48,6 +48,7 @@ class behat_block_opencast extends behat_base
 
         $files = ['init_api_events.json', 'init_api_workflow_definitions.json',
             'init_api_workflow_definitions_duplicate_event.json', 'api_events_filter_seriesimport.json',
+            'api_events_filter_seriesimport_overview.json',
             'api_events_acl_secondvideo.json', 'api_series_acl.json', 'api_series_acl2.json',
             'api_workflow_definitions_all.json', 'api_series_three.json', 'api_events_filter_newseries.json'];
         $apitestable = new api_testable();
