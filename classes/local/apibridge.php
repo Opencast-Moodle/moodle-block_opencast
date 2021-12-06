@@ -113,6 +113,164 @@ class apibridge
     }
 
     /**
+     * Sets up an api object with an ingest node as endpoint.
+     *
+     * @return api
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    private function get_ingest_api() {
+        $api = api::get_instance($this->ocinstanceid);
+        $services = $api->oc_get('/services/services.json?serviceType=org.opencastproject.ingest');
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        $services = json_decode($services)->services;
+        if (empty($services)) {
+            throw new \moodle_exception('no_ingest_services', 'block_opencast');
+        }
+        $services = $services->service;
+
+        if (is_array($services)) {
+            // Choose random ingest service.
+            $service = $services[array_rand($services)];
+
+        } else {
+            // There is only one.
+            $service = $services;
+        }
+        $api->set_baseurl($service->host . $service->path);
+
+        return $api;
+    }
+
+    /**
+     * Create a new media package via an ingest node.
+     *
+     * @return string Newly created mediapackage
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function ingest_create_media_package() {
+        $api = $this->get_ingest_api();
+        $mediapackage = $api->oc_get('/createMediaPackage');
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $mediapackage;
+    }
+
+    /**
+     * Add a catalog via an ingest node.
+     * @param string $mediapackage Mediapackage to which the catalog is added
+     * @param string $flavor Flavor of catalog
+     * @param object $file Catalog as file
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function ingest_add_catalog($mediapackage, $flavor, $file) {
+        $api = $this->get_ingest_api();
+        $newmediapackage = $api->oc_post('/addCatalog', array(
+            'mediaPackage' => $mediapackage,
+            'flavor' => $flavor,
+            'Body' => $file));
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $newmediapackage;
+    }
+
+    /**
+     * Add a track via an ingest node.
+     * @param string $mediapackage Mediapackage to which the track is added
+     * @param string $flavor Flavor of track
+     * @param object $file Track
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function ingest_add_track($mediapackage, $flavor, $file) {
+        $api = $this->get_ingest_api();
+        $newmediapackage = $api->oc_post('/addTrack', array(
+            'mediaPackage' => $mediapackage,
+            'flavor' => $flavor,
+            'Body' => $file));
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $newmediapackage;
+    }
+
+    /**
+     * Adds an attachment via an ingest node.
+     * @param string $mediapackage Mediapackage to which the attachment is added
+     * @param string $flavor Flavor of attachment
+     * @param object $file Attachment
+     * @return string
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function ingest_add_attachment($mediapackage, $flavor, $file) {
+        $api = $this->get_ingest_api();
+        $newmediapackage = $api->oc_post('/addAttachment', array(
+            'mediaPackage' => $mediapackage,
+            'flavor' => $flavor,
+            'Body' => $file));
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $newmediapackage;
+    }
+
+    /**
+     * Ingests a mediapackage.
+     * @param string $mediapackage Mediapackage
+     * @return string Workflow instance that was started
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function ingest($mediapackage) {
+        $api = $this->get_ingest_api();
+        $workflow = $api->oc_post('/ingest/' . get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid), array(
+            'mediaPackage' => $mediapackage));
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $workflow;
+    }
+
+    /**
      * Get videos to show in block. Items are limited and ready to use by renderer.
      * Note that we try to receive one item more than configurated to decide whether
      * to display a "more videos" link.
@@ -137,7 +295,8 @@ class apibridge
         $allvideos = [];
 
         foreach ($series as $s) {
-            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' . urlencode("series:" . $s->series);
+            $query = 'sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=' .
+                urlencode("series:" . $s->series);
 
             if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
                 // Try to fetch one more to decide whether display "more link" is necessary.
@@ -588,7 +747,7 @@ class apibridge
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    private function replace_placeholders($name, $courseid, $groups = null, $userid = null) {
+    public static function replace_placeholders($name, $courseid, $groups = null, $userid = null) {
         global $DB;
 
         $coursename = get_course($courseid)->fullname;
@@ -645,7 +804,7 @@ class apibridge
      */
     public function get_default_seriestitle($courseid, $userid) {
         $title = get_config('block_opencast', 'series_name_' . $this->ocinstanceid);
-        return $this->replace_placeholders($title, $courseid, null, $userid)[0];
+        return self::replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
     /**
@@ -782,7 +941,7 @@ class apibridge
                 // Add new user as well.
                 foreach ($role->actions as $action) {
                     $acl[] = (object)array('allow' => true,
-                        'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
+                        'role' => self::replace_placeholders($role->rolename, $courseid, null, $userid)[0],
                         'action' => $action);
                 }
 
@@ -795,7 +954,7 @@ class apibridge
                     }
 
                     $acl[] = (object)array('allow' => true,
-                        'role' => $this->replace_placeholders($role->rolename, $courseid)[0],
+                        'role' => self::replace_placeholders($role->rolename, $courseid)[0],
                         'action' => $action);
                 }
             }
@@ -891,7 +1050,7 @@ class apibridge
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, $this->replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0]);
+                $event->add_acl(true, $action, self::replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0]);
             }
         }
         // Applying the media types to the event.
@@ -1019,7 +1178,7 @@ class apibridge
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                foreach ($this->replace_placeholders($role->rolename, $courseid, $eventidentifier, $userid) as $acl) {
+                foreach (self::replace_placeholders($role->rolename, $courseid, $eventidentifier, $userid) as $acl) {
                     $event->add_acl(true, $action, $acl);
                 }
             }
@@ -1267,7 +1426,7 @@ class apibridge
             case block_opencast_renderer::VISIBLE:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        $rolenameformatted = $this->replace_placeholders($role->rolename, $courseid)[0];
+                        $rolenameformatted = self::replace_placeholders($role->rolename, $courseid)[0];
                         // Might return null if USERNAME cannot be replaced.
                         if ($rolenameformatted) {
                             $result [] = (object)array(
@@ -1284,7 +1443,7 @@ class apibridge
             case block_opencast_renderer::GROUP:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        foreach ($this->replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
+                        foreach (self::replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
                             if ($rule) {
                                 $result [] = (object)array(
                                     'allow' => true,
@@ -1941,7 +2100,7 @@ class apibridge
             foreach ($role->actions as $action) {
                 // Define role object.
                 $roleobject = (object)array('allow' => true,
-                    'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0],
+                    'role' => self::replace_placeholders($role->rolename, $courseid, null, $userid)[0],
                     'action' => $action);
 
                 // Check if the role object already exists in the acl list.

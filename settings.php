@@ -217,11 +217,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 0
             ));
 
+            $generalsettings->add(new admin_setting_configcheckbox('block_opencast/ingestupload_' . $instance->id,
+                get_string('ingestupload', 'block_opencast'),
+                get_string('ingestuploaddesc', 'block_opencast'),
+                0
+            ));
+
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/reuseexistingupload_' . $instance->id,
                 get_string('reuseexistingupload', 'block_opencast'),
                 get_string('reuseexistinguploaddesc', 'block_opencast'),
                 0
             ));
+
+            $generalsettings->hide_if('block_opencast/reuseexistingupload_' . $instance->id,
+                'block_opencast/ingestupload_' . $instance->id, 'checked');
 
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/allowunassign_' . $instance->id,
                 get_string('allowunassign', 'block_opencast'),

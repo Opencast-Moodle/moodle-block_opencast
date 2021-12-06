@@ -1,0 +1,33 @@
+{
+  "resource": "/api/events?sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=series%3A1111-1111-1111-1111-1111&limit=6",
+  "response": [
+    {
+      "identifier": "bbbb-bbbb-bbbb-bbbb",
+      "creator": "",
+      "presenter": [],
+      "created": "2021-08-11T09:32:00Z",
+      "is_part_of": "1111-1111-1111-1111-1111",
+      "subjects": [],
+      "start": "2021-08-11T09:32:00Z",
+      "description": "",
+      "language": "",
+      "source": "",
+      "title": "My video",
+      "processing_state": "SUCCEEDED",
+      "duration": 0,
+      "license": "",
+      "archive_version": 4,
+      "contributor": [],
+      "series": "Another series",
+      "has_previews": false,
+      "location": "",
+      "rightsholder": "",
+      "publication_status": [
+        "engage-player",
+        "api",
+        "annotation"
+      ],
+      "status": "EVENTS.EVENTS.STATUS.PROCESSED"
+    }
+  ]
+}
