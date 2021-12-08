@@ -88,6 +88,14 @@ class updatemetadata_form extends \moodleform
 
         }
 
+        // Adding Start Date element to the update form.
+        $startdate = $this->extract_value('startDate');
+        $starttime = $this->extract_value('startTime');
+        $sd = new \DateTime("$startdate $starttime", new \DateTimeZone("UTC"));
+        $sd->setTimezone(\core_date::get_user_timezone_object());
+        $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
+        $mform->setDefault('startDate', date('U', $sd->getTimestamp()));
+
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
         $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
