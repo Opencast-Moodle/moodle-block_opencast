@@ -666,5 +666,15 @@ $string['editorlticonsumerkey_desc'] = 'LTI Consumer key for the opencast editor
 $string['editorlticonsumersecret'] = 'Opencast Editor Consumer secret';
 $string['editorlticonsumersecret_desc'] = 'LTI Consumer secret for the opencast editor integration.';
 
+// Strings fot new opencast studio settings.
+$string['opencaststudionewtab'] = 'Redirect to Studio in a new tab';
+$string['opencaststudionewtab_desc'] = 'When enabled, studio opens in a new tab.';
+$string['enableopencaststudioreturnbtn'] = 'Show a redirect back button in Studio';
+$string['enableopencaststudioreturnbtn_desc'] = 'When enabled, Studio then renders an additional button "Exit and go back" after up- or downloading the recording.';
+$string['opencaststudioreturnurl'] = 'Custom Studio return endpoint URL';
+$string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects back to the same Moodle opencast block overview where the request comes from. A custom endpoint URL will then be passed to Studio as return url when configured, in this case, admin is able to use 2 placeholders including [OCINSTANCEID] and [COURSEID]. Please NOTE: the URL must be relative to wwwroot.';
+$string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
+$string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

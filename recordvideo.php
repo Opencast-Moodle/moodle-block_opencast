@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/lib/oauthlib.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG, $USER;
+global $PAGE, $OUTPUT, $CFG, $USER, $SITE;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -48,9 +48,9 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
-    $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
-} else {
+$endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+
+if (!empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
     $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
 }
 
@@ -65,8 +65,59 @@ $api = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 // Get series ID, create a new one if necessary.
 $seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
 
+// Create lti customtool to redirect to Studio.
+$customtoolparams = [];
+// Check if Studio return button is enabled.
+if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanceid)) {
+    // Initializing default label for studio return button.
+    $studioreturnbtnlabel = $SITE->fullname;
+    // Check if custom label is configured.
+    if (!empty(get_config('block_opencast', 'opencast_studio_return_btn_label_' . $ocinstanceid))) {
+        $studioreturnbtnlabel = get_config('block_opencast', 'opencast_studio_return_btn_label_' . $ocinstanceid);
+    }
+
+    // Initializing default studio return url.
+    $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
+        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    // Check if custom return url is configured.
+    if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid))) {
+        // Prepare the custom url.
+        $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid);
+        // Slipt it into parts, to extract endpoint and query strings.
+        $customreturnurlarray = explode('?', $customreturnurl);
+        $customurl = $customreturnurlarray[0];
+        $customquerystring = count($customreturnurlarray) > 1 ? $customreturnurlarray[1] : null;
+
+        $customurldata = [];
+        // If there is any query string.
+        if (!empty($customquerystring)) {
+            // Split them.
+            $customquerystringdata = explode('&', $customquerystring);
+            // Put them into loop to replace the placeholders and add them into the customurldata array.
+            foreach ($customquerystringdata as $data) {
+                $datastring = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $data);
+                $dataarray = explode('=', $datastring);
+                if (count($dataarray) == 2) {
+                    $customurldata[$dataarray[0]] = $dataarray[1];
+                }
+            }
+        }
+
+        if (!empty($customurl)) {
+            $studioreturnurl = new moodle_url($customurl, $customurldata);
+        }
+    }
+
+    // Appending studio return data, only when there is a url.
+    if (!empty($studioreturnurl)) {
+        $customtoolparams[] = 'return.label=' . urlencode($studioreturnbtnlabel);
+        $customtoolparams[] = 'return.target=' . urlencode($studioreturnurl->out());
+    }
+}
+$customtoolparams[] = 'upload.seriesId=' . $seriesid;
+$customtool = '/studio?' . implode('&', $customtoolparams);
 // Create parameters.
-$params = block_opencast_create_lti_parameters($ocinstanceid, $ltiendpoint, $seriesid);
+$params = block_opencast_create_studio_lti_parameters($ocinstanceid, $ltiendpoint, $customtool);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
@@ -78,7 +129,7 @@ $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
 echo $OUTPUT->footer();
 
 /**
- * Create necessary lti parameters.
+ * Create necessary lti parameters for studio.
  * @param string $endpoint of the opencast instance.
  * @param string $seriesid id of the series, to which recordings should be uploaded.
  *
@@ -86,7 +137,7 @@ echo $OUTPUT->footer();
  * @throws dml_exception
  * @throws moodle_exception
  */
-function block_opencast_create_lti_parameters($ocinstanceid, $endpoint, $seriesid) {
+function block_opencast_create_studio_lti_parameters($ocinstanceid, $endpoint, $customtool) {
     global $CFG, $COURSE, $USER;
 
     // Get consumerkey and consumersecret.
@@ -118,7 +169,7 @@ function block_opencast_create_lti_parameters($ocinstanceid, $endpoint, $seriesi
     $params['lti_message_type'] = 'basic-lti-launch-request';
     $urlparts = parse_url($CFG->wwwroot);
     $params['tool_consumer_instance_guid'] = $urlparts['host'];
-    $params['custom_tool'] = '/studio?upload.seriesId=' . $seriesid;
+    $params['custom_tool'] = $customtool;
 
     // User data.
     $params['user_id'] = $USER->id;
