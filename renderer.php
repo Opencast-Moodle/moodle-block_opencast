@@ -233,6 +233,32 @@ class block_opencast_renderer extends plugin_renderer_base
 
     }
 
+    public function create_series_courses_tables($id, $headers, $columns, $baseurl) {
+        $table = new block_opencast\local\flexible_table($id);
+        $table->set_attribute('cellspacing', '0');
+        $table->set_attribute('cellpadding', '3');
+        $table->set_attribute('class', 'generaltable');
+        $table->set_attribute('id', $id);
+        $table->headers = $headers;
+        $table->define_columns($columns);
+        $table->define_baseurl($baseurl);
+
+        $table->sortable(true, 'course', SORT_DESC);
+
+        $table->pageable(true);
+        $table->is_downloadable(false);
+
+        $table->set_control_variables(
+            array(
+                TABLE_VAR_SORT => 'tsort',
+                TABLE_VAR_PAGE => 'page'
+            )
+        );
+
+        $table->setup();
+        return $table;
+    }
+
     /**
      * Render the whole block content.
      *
@@ -853,5 +879,14 @@ class block_opencast_renderer extends plugin_renderer_base
         $context->numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
 
         return $this->render_from_template('block_opencast/series_table', $context);
+    }
+
+    public function render_series_course_overview($id, $cards) {
+        $context = new stdClass();
+        $context->accordionid = $id;
+        $context->cards = $cards;
+
+        return $this->render_from_template('block_opencast/accordion', $context);
+
     }
 }
