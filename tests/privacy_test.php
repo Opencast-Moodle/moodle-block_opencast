@@ -37,7 +37,7 @@ use \block_opencast\privacy\provider;
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_privacy_test extends \core_privacy\tests\provider_testcase
+class privacy_test extends \core_privacy\tests\provider_testcase
 {
 
     /**

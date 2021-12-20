@@ -34,7 +34,7 @@ global $CFG;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_upload_test extends advanced_testcase {
+class upload_test extends advanced_testcase {
 
     private $apiurl = 'http://localhost:8080';
     private $apiusername = 'admin';

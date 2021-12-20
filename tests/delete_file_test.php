@@ -36,7 +36,7 @@ use block_opencast\local\file_deletionmanager;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_delete_file_test extends advanced_testcase {
+class delete_file_test extends advanced_testcase {
 
     /**
      * Test how trash deletion works.

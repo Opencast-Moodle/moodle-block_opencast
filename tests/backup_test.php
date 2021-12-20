@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_backup_test extends advanced_testcase
+class backup_test extends advanced_testcase
 {
 
     /** var string apiurl for the testcase, must NOT be a real server! */
