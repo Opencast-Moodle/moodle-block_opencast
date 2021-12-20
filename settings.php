@@ -427,7 +427,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/open_studio_in_new_tab_' . $instance->id,
                     get_string('opencaststudionewtab', 'block_opencast'),
-                    get_string('opencaststudionewtab_desc', 'block_opencast'), 0));
+                    get_string('opencaststudionewtab_desc', 'block_opencast'), 1));
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/opencast_studio_baseurl_' . $instance->id,
