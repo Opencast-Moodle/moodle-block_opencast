@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use advanced_testcase;
 use block_opencast\local\file_deletionmanager;
 
 /**

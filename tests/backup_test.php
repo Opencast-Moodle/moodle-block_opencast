@@ -24,6 +24,7 @@
 namespace block_opencast;
 defined('MOODLE_INTERNAL') || die();
 
+use advanced_testcase;
 use tool_opencast\seriesmapping;
 
 global $CFG;
