@@ -23,6 +23,7 @@
  */
 namespace block_opencast;
 use advanced_testcase;
+use context_course;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -53,8 +54,8 @@ class upload_test extends advanced_testcase {
 
     /**
      * Uploads a file to the opencast server and checks if it was transmitted.
-     * @throws coding_exception
-     * @throws dml_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_upload() {
         global $CFG, $DB;

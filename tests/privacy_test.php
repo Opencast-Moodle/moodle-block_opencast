@@ -25,6 +25,7 @@
 namespace block_opencast;
 defined('MOODLE_INTERNAL') || die();
 
+use context_course;
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\writer;
 use \core_privacy\local\request\approved_contextlist;

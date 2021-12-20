@@ -25,6 +25,12 @@ namespace block_opencast;
 defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
+use backup;
+use backup_controller;
+use block_opencast_apibridge_testable;
+use context_course;
+use restore_controller;
+use restore_dbops;
 use tool_opencast\seriesmapping;
 
 global $CFG;
