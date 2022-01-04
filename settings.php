@@ -217,11 +217,20 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 0
             ));
 
+            $generalsettings->add(new admin_setting_configcheckbox('block_opencast/ingestupload_' . $instance->id,
+                get_string('ingestupload', 'block_opencast'),
+                get_string('ingestuploaddesc', 'block_opencast'),
+                0
+            ));
+
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/reuseexistingupload_' . $instance->id,
                 get_string('reuseexistingupload', 'block_opencast'),
                 get_string('reuseexistinguploaddesc', 'block_opencast'),
                 0
             ));
+
+            $generalsettings->hide_if('block_opencast/reuseexistingupload_' . $instance->id,
+                'block_opencast/ingestupload_' . $instance->id, 'checked');
 
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/allowunassign_' . $instance->id,
                 get_string('allowunassign', 'block_opencast'),
@@ -414,6 +423,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('enableopencaststudiolink', 'block_opencast'),
                     get_string('enableopencaststudiolink_desc', 'block_opencast'), 0));
 
+            // New tab config for Studio.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/open_studio_in_new_tab_' . $instance->id,
+                    get_string('opencaststudionewtab', 'block_opencast'),
+                    get_string('opencaststudionewtab_desc', 'block_opencast'), 1));
+
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/opencast_studio_baseurl_' . $instance->id,
                     get_string('opencaststudiobaseurl', 'block_opencast'),
@@ -428,6 +443,24 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret_' . $instance->id,
                     get_string('lticonsumersecret', 'block_opencast'),
                     get_string('lticonsumersecret_desc', 'block_opencast'), ""));
+
+            // Studio redirect button settings.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/show_opencast_studio_return_btn_' . $instance->id,
+                    get_string('enableopencaststudioreturnbtn', 'block_opencast'),
+                    get_string('enableopencaststudioreturnbtn_desc', 'block_opencast'), 0));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/opencast_studio_return_btn_label_' . $instance->id,
+                    get_string('opencaststudioreturnbtnlabel', 'block_opencast'),
+                    get_string('opencaststudioreturnbtnlabel_desc', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/opencast_studio_return_url_' . $instance->id,
+                    get_string('opencaststudioreturnurl', 'block_opencast'),
+                    get_string('opencaststudioreturnurl_desc', 'block_opencast'),
+                    '/blocks/opencast/index.php?courseid=[COURSEID]&ocinstanceid=[OCINSTANCEID]'));
 
             // Opencast Editor Integration in additional feature settings.
             $additionalsettings->add(

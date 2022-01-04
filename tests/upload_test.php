@@ -21,6 +21,10 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace block_opencast;
+use advanced_testcase;
+use context_course;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -33,7 +37,7 @@ global $CFG;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_upload_testcase extends advanced_testcase {
+class upload_test extends advanced_testcase {
 
     private $apiurl = 'http://localhost:8080';
     private $apiusername = 'admin';
@@ -50,8 +54,8 @@ class block_opencast_upload_testcase extends advanced_testcase {
 
     /**
      * Uploads a file to the opencast server and checks if it was transmitted.
-     * @throws coding_exception
-     * @throws dml_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function test_upload() {
         global $CFG, $DB;

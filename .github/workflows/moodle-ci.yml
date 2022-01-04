@@ -195,9 +195,6 @@ jobs:
         moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['9.3']
-        include:
-          - {php: '7.4', moodle-branch: 'master', database: 'mariadb', opencast: '9.3'}
-          - {php: '7.4', moodle-branch: 'master', database: 'pgsql', opencast: '9.3'}
 
     steps:
       - name: Start MariaDB
@@ -275,4 +272,4 @@ jobs:
 
       - name: Behat features
         if: ${{ always() }}
-        run: moodle-plugin-ci behat --profile chrome
+        run: moodle-plugin-ci behat
