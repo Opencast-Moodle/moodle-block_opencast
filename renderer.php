@@ -281,6 +281,12 @@ class block_opencast_renderer extends plugin_renderer_base
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
             if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
+                // Initialize the link target to open in the same tab.
+                $target = '_self';
+                // Check for the admin config to set the link target.
+                if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstance->id)) {
+                    $target = '_blank';
+                }
                 // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
                 if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstance->id))) {
                     if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
@@ -296,13 +302,13 @@ class block_opencast_renderer extends plugin_renderer_base
                     $apibridge = apibridge::get_instance($ocinstance->id);
                     $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
                     $recordvideobutton = $this->output->action_link($url, get_string('recordvideo', 'block_opencast'),
-                        null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                        null, array('class' => 'btn btn-secondary', 'target' => $target));
                     $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
                 } else {
                     $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
                         array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
                     $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-                        null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                        null, array('class' => 'btn btn-secondary', 'target' => $target));
                     $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
                 }
             }

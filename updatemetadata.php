@@ -67,18 +67,21 @@ if ($data = $updatemetadataform->get_data()) {
     $metadataids = array_column($metadata, 'id');
     foreach ($metadataids as $key) {
         if (isset($data->$key)) {
-            $contentobj = [
-                'id' => $key,
-                'value' => $key == 'startDate' ? date('Y-m-d', $data->startDate) : $data->$key
-            ];
-            $newmetadata[] = $contentobj;
+            $sd = null;
             if ($key == 'startDate') {
+                $sd = new DateTime("now", new DateTimeZone("UTC"));
+                $sd->setTimestamp($data->startDate);
                 $starttime = [
                     'id' => 'startTime',
-                    'value' => date('H:i:sz', $data->startDate)
+                    'value' => $sd->format('H:i:s') . 'Z'
                 ];
                 $newmetadata[] = $starttime;
             }
+            $contentobj = [
+                'id' => $key,
+                'value' => ($key == 'startDate' && !empty($sd)) ? $sd->format('Y-m-d') : $data->$key
+            ];
+            $newmetadata[] = $contentobj;
         }
     }
     $msg = '';

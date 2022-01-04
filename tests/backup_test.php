@@ -21,8 +21,16 @@
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace block_opencast;
 defined('MOODLE_INTERNAL') || die();
 
+use advanced_testcase;
+use backup;
+use backup_controller;
+use block_opencast_apibridge_testable;
+use context_course;
+use restore_controller;
+use restore_dbops;
 use tool_opencast\seriesmapping;
 
 global $CFG;
@@ -39,7 +47,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_backup_testcase extends advanced_testcase
+class backup_test extends advanced_testcase
 {
 
     /** var string apiurl for the testcase, must NOT be a real server! */
