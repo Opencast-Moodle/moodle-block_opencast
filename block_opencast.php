@@ -34,7 +34,7 @@ class block_opencast extends block_base
     }
 
     public function applicable_formats() {
-        return array('course' => true, 'course-editsection' => false);
+        return array('course' => true, 'course-editsection' => false, 'my' => true);
     }
 
     public function instance_allow_multiple() {
@@ -48,6 +48,8 @@ class block_opencast extends block_base
     public function get_content() {
         global $COURSE;
 
+        # todo get different content if on dashboard
+
         if ($this->content !== null) {
             return $this->content;
         }
@@ -56,13 +58,11 @@ class block_opencast extends block_base
         $this->content->text = '';
         $this->content->footer = '';
 
-        $coursecontext = context_course::instance($COURSE->id);
-
-        if (!has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+        if (empty($this->instance->parentcontextid)) {
             return $this->content;
         }
 
-        $renderer = $this->page->get_renderer('block_opencast');
+        $parentcontext = context::instance_by_id($this->instance->parentcontextid);
 
         $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
         $ocinstances = array_filter($ocinstances, function ($oci) {
@@ -70,38 +70,54 @@ class block_opencast extends block_base
         });
         $rendername = count($ocinstances) > 1;
 
-        $cache = cache::make('block_opencast', 'videodata');
-        if ($result = $cache->get($COURSE->id)) {
-            if ($result->timevalid > time()) {
-                // If cache for course is set and still valid.
-                $videos = $result->videos;
-            }
-        }
-
-        if (!isset($videos)) {
-            $videos = array();
-
+        if ($parentcontext->contextlevel === CONTEXT_USER) {
             foreach ($ocinstances as $instance) {
-                try {
-                    if ($instance->isvisible) {
-                        $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
-                        $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
-                    }
-                } catch (opencast_connection_exception $e) {
-                    $videos[$instance->id] = new stdClass();
-                    $videos[$instance->id]->error = $e->getMessage();
+                $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                    array('ocinstanceid' => $instance->id)), $instance->name . ' overview') . '<br>'; // TODO string
+            }
+        } else {
+
+            $coursecontext = context_course::instance($COURSE->id);
+
+            if (!has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+                return $this->content;
+            }
+
+            $renderer = $this->page->get_renderer('block_opencast');
+
+            $cache = cache::make('block_opencast', 'videodata');
+            if ($result = $cache->get($COURSE->id)) {
+                if ($result->timevalid > time()) {
+                    // If cache for course is set and still valid.
+                    $videos = $result->videos;
                 }
             }
-            $cacheobj = new stdClass();
-            $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
-            $cacheobj->videos = $videos;
-            $cache->set($COURSE->id, $cacheobj);
-        }
 
-        foreach ($ocinstances as $instance) {
-            if ($instance->isvisible) {
-                $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id],
-                    $instance, $rendername);
+            if (!isset($videos)) {
+                $videos = array();
+
+                foreach ($ocinstances as $instance) {
+                    try {
+                        if ($instance->isvisible) {
+                            $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
+                            $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
+                        }
+                    } catch (opencast_connection_exception $e) {
+                        $videos[$instance->id] = new stdClass();
+                        $videos[$instance->id]->error = $e->getMessage();
+                    }
+                }
+                $cacheobj = new stdClass();
+                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
+                $cacheobj->videos = $videos;
+                $cache->set($COURSE->id, $cacheobj);
+            }
+
+            foreach ($ocinstances as $instance) {
+                if ($instance->isvisible) {
+                    $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id],
+                        $instance, $rendername);
+                }
             }
         }
 

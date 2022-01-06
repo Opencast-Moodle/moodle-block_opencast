@@ -25,6 +25,7 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\apibridge;
+use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
 
 
@@ -34,8 +35,10 @@ global $PAGE, $OUTPUT, $CFG, $DB, $USER;
 
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
+$usercontext = context_user::instance($USER->id); // todo No clue if user context is correct.
 $baseurl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
+$PAGE->set_context($usercontext);
 
 require_login();
 
@@ -63,7 +66,7 @@ echo $OUTPUT->header();
 $renderer = $PAGE->get_renderer('block_opencast');
 
 
-echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
+echo $OUTPUT->heading('My Opencast Series'); //todo string
 
 // TODO handle opencast connection error. Break as soon as first error occurs.
 
@@ -73,49 +76,80 @@ foreach ($courses as $course) {
     $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $course->id, 'ocinstanceid' => $ocinstanceid));
 
     foreach ($courseseries as $series) {
-        if (!array_key_exists($series->series, $myseries)) {
-            $myseries[$series->series] = array('courses' => array(), 'activities' => array());
-        }
-
-        if (!in_array($course->id, $myseries[$series->series]['courses'])) {
-            $myseries[$series->series]['courses'][] = $course->id;
-        }
+        $myseries[] = $series->series;
     }
 }
 
-$cards = array();
-$idx = 0;
-foreach ($myseries as $seriesid => $info) {
+// Build course table.
+$columns = array('series', 'linked', 'activities', 'videos');
+$headers = array('Series', 'Linked in block', 'Embedded as activity', 'View videos'); // TODO strings
+$table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $baseurl);
+$sortcolumns = $table->get_sort_columns();
+
+foreach ($myseries as $seriesid) {
+    $row = array();
+
     // Try to retrieve name from opencast.
     $ocseries = $apibridge->get_series_by_identifier($seriesid);
     if ($ocseries) {
-        $heading = $ocseries->title;
+        $row[] = $ocseries->title;
     } else {
         // If that fails use id.
-        $heading = $seriesid;
+        $row[] = $seriesid;
     }
 
-    // Build course table.
-    $columns = array('course', 'linked', 'activities');
-    $headers = array('course', 'linked', 'activities');
-    $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $baseurl);
-    $sortcolumns = $table->get_sort_columns();
+    # todo on index block show number of series and videos (in block on myoverview page)
 
-    foreach ($info['courses'] as $course) {
-        $row = array();
-        $row['course'] = 'Course title';
-        $row['linked'] = 'true';
-        $row['activities'] = 'true';
-        $table->add_data($row);
+    $blocklinks = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid));
+    $blocklinks = array_column($blocklinks, 'courseid');
+    $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+        'opencastid' => $seriesid, 'type' => opencasttype::SERIES)); // TODO check if mod installed
+    $activitylinks = array_column($activitylinks, 'course');
+    $courses = array_unique(array_merge($blocklinks, $activitylinks));
+
+    // TODO delete entry in tool_series if course is deleted
+
+    // TODO mod opencast error without block instance
+    // TODO entries are not deleted from mod opencast table when activities are deleted
+
+    // TODO check this coures loop if depended on block linked
+
+    $rowblocks = [];
+    $rowactivities = [];
+
+    foreach ($courses as $course) {
+        try {
+            $mc = get_course($course);
+        } catch (dml_missing_record_exception $ex) {
+            continue;
+        }
+
+        if (in_array($course, $blocklinks)) {
+            $rowblocks[] = html_writer::link(new moodle_url('/blocks/opencast/index.php',
+                array('ocinstanceid' => $ocinstanceid, 'courseid' => $mc->id)),
+                $mc->fullname, array('target' => '_blank'));
+        }
+
+        if (in_array($course, $activitylinks)) {
+            // Get activity.
+            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $mc->id, $seriesid);
+
+            $rowactivities[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
+                $mc->fullname, array('target' => '_blank'));
+        }
     }
 
-    $table->finish_html();
-
-    $cards[] = array('id' => $idx, 'heading' => $heading, 'text' => 'more test');
-    $idx++;
+    $row[] = join("<br>", $rowblocks);
+    $row[] = join("<br>", $rowactivities);
+    $row[] = html_writer::link(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid)),
+        'Videos'); // TODO icon, string
+    $table->add_data($row);
 }
 
-echo $renderer->render_series_course_overview('seriesaccordion', $cards);
+$table->finish_html();
+
+
+# echo $renderer->render_series_course_overview('seriesaccordion', $cards);
 
 if ($opencasterror) {
     \core\notification::error($opencasterror);

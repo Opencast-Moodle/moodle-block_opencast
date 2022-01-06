@@ -243,7 +243,7 @@ class block_opencast_renderer extends plugin_renderer_base
         $table->define_columns($columns);
         $table->define_baseurl($baseurl);
 
-        $table->sortable(true, 'course', SORT_DESC);
+        $table->sortable(true, 'series', SORT_DESC);
 
         $table->pageable(true);
         $table->is_downloadable(false);
