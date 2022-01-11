@@ -579,7 +579,7 @@ class block_opencast_renderer extends plugin_renderer_base
             array('identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
         $text = get_string('staticvideofilelink_short', 'block_opencast');
 
-        $icon = $this->output->pix_icon('play', $text, 'block_opencast');
+        $icon = $this->output->pix_icon('e/anchor', $text, 'moodle');
 
         return \html_writer::link($url, $icon, ['target' => '_blank']);
     }
