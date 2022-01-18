@@ -24,6 +24,7 @@
 
 use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
+use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -86,4 +87,17 @@ function block_opencast_output_fragment_series_form($args) {
     ob_end_clean();
 
     return $o;
+}
+
+
+/**
+ * Pre-delete course hook to cleanup any records with references to the deleted course.
+ *
+ * @param stdClass $course The deleted course
+ */
+function block_opencast_pre_course_delete(\stdClass $course) {
+    $mappings = seriesmapping::get_records(array('courseid' => $course->id));
+    foreach ($mappings as $mapping) {
+        $mapping->delete();
+    }
 }

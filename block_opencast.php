@@ -23,6 +23,7 @@
  */
 
 use block_opencast\opencast_connection_exception;
+use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -72,8 +73,15 @@ class block_opencast extends block_base
 
         if ($parentcontext->contextlevel === CONTEXT_USER) {
             foreach ($ocinstances as $instance) {
-                $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
-                    array('ocinstanceid' => $instance->id)), $instance->name . ' overview') . '<br>'; // TODO string
+                if ($rendername) {
+                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                            array('ocinstanceid' => $instance->id)),
+                            get_string('seriesoverviewof', 'block_opencast', $instance->name)) . '<br>';
+                } else {
+                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                        array('ocinstanceid' => $instance->id)),
+                        get_string('seriesoverview', 'block_opencast'));
+                }
             }
         } else {
 
@@ -122,5 +130,19 @@ class block_opencast extends block_base
         }
 
         return $this->content;
+    }
+
+    function instance_delete() {
+        global $COURSE;
+        $success = true;
+
+        $mappings = seriesmapping::get_records(array('courseid' => $COURSE->id));
+        foreach ($mappings as $mapping) {
+            if (!$mapping->delete()) {
+                $success = false;
+            }
+        }
+
+        return $success;
     }
 }

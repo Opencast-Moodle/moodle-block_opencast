@@ -243,6 +243,9 @@ class block_opencast_renderer extends plugin_renderer_base
         $table->define_columns($columns);
         $table->define_baseurl($baseurl);
 
+        $table->no_sorting('linked');
+        $table->no_sorting('activities');
+        $table->no_sorting('videos');
         $table->sortable(true, 'series', SORT_DESC);
 
         $table->pageable(true);

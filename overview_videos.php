@@ -33,20 +33,16 @@ global $PAGE, $OUTPUT, $CFG, $DB, $USER;
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 $series = required_param('series', PARAM_ALPHANUMEXT);
 
-$usercontext = context_user::instance($USER->id); // todo No clue if user context is correct.
 $baseurl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series));
 $PAGE->set_url($baseurl);
-$PAGE->set_context($usercontext);
+$PAGE->set_context(context_system::instance());
 
-require_login();
-
-$courses = get_user_capability_course('block/opencast:viewunpublishedvideos');
+require_login(get_course(SITEID), false);
+$PAGE->set_pagelayout('standard');
+$PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $opencasterror = null;
-
-$PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
 if (settings_api::num_ocinstances() > 1) {
     $PAGE->set_heading(get_string('pluginname', 'block_opencast') . ': ' . settings_api::get_ocinstance($ocinstanceid)->name);
@@ -54,9 +50,11 @@ if (settings_api::num_ocinstances() > 1) {
     $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 }
 
-// TODO change string.
-$PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
+    new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)));
+$PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $baseurl);
 echo $OUTPUT->header();
+echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
@@ -70,44 +68,52 @@ if ($ocseries) {
     echo $OUTPUT->heading($series);
 }
 
+// TODO verify that teacher has indeed permission to view series.
 // TODO handle opencast connection error. Break as soon as first error occurs.
 
-
 // Build table.
-$columns = array('course', 'linked', 'activities');
-$headers = array('Course', 'Linked in block', 'Embedded as activity'); // TODO strings
+$columns = array('videos', 'linked', 'activities');
+$headers = array(get_string('video', 'block_opencast'),
+    get_string('embeddedasactivity', 'block_opencast'),
+    get_string('embeddedasactivitywolink', 'block_opencast'));
 $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $baseurl);
 
-
 $videos = $apibridge->get_series_videos($series)->videos;
+$activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 
 foreach ($videos as $video) {
-
-    $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
-        'opencastid' => $video->identifier, 'type' => opencasttype::EPISODE)); // TODO check if mod installed
+    $activitylinks = array();
+    if ($activityinstalled) {
+        $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+            'opencastid' => $video->identifier, 'type' => opencasttype::EPISODE));
+    }
 
     $row = array();
     $row[] = $video->title;
-
-
-    $row[] = 'todo'; // use other information
-    // maybe use first column for courses where also series is linked, and second for courses without anything linked
-
     $courses = [];
+    $courseswoblocklink = [];
 
     foreach ($activitylinks as $accourse) {
         try {
             // Get activity.
             $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($accourse->course, $video->identifier, $ocinstanceid);
 
-            $courses[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
-                get_course($accourse->course)->fullname, array('target' => '_blank'));
+            if (\tool_opencast\seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid,
+                'series' => $video->is_part_of, 'courseid' => $accourse->course))) {
+                $courses[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
+                    get_course($accourse->course)->fullname, array('target' => '_blank'));
+            } else {
+                $courseswoblocklink[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
+                    get_course($accourse->course)->fullname, array('target' => '_blank'));
+            }
+
         } catch (dml_missing_record_exception $ex) {
             continue;
         }
     }
 
     $row[] = join('<br>', $courses);
+    $row[] = join('<br>', $courseswoblocklink);
 
     $table->add_data($row);
 }
