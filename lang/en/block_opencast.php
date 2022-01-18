@@ -676,5 +676,19 @@ $string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects b
 $string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
 $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
 
+// Strings for new visibility feature during initail upload
+$string['visibilityheader'] = 'Event Visibility';
+$string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimehi'] = 'Scheduling date';
+$string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least 20 minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimeerror'] = 'The scheduled date to change visibility must be set at least 20 minutes after the current data and time.';
+$string['initialvisibilitystatus'] = 'Initial visibility of the video';
+$string['scheduledvisibilitystatus'] = 'Change video visibility to';
+$string['enableschedulingchangevisibility'] = 'Schedule a visibility change';
+$string['enableschedulingchangevisibilitydesc'] = 'Set a date and a visibility status for the event in future, which will be performed using a scheduled task.';
+$string['processvisibility'] = 'Process scheduled visibility change jobs';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

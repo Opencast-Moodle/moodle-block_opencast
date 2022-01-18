@@ -192,7 +192,8 @@ class ingest_uploader
             case self::STATUS_INGEST_ADDING_ACL_ATTACHMENT:
                 try {
 
-                    $aclxml = self::create_acl_xml($apibridge->getroles(), $job);
+                    $initialvisibility = visibility_helper::get_initial_visibility($job);
+                    $aclxml = self::create_acl_xml($initialvisibility->roles, $job);
 
                     if (version_compare(phpversion(), '8', '>=')) {
                         $file = new \CURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml');
@@ -312,58 +313,57 @@ class ingest_uploader
         $root->setAttributeNode(new \DOMAttr('xmlns', 'urn:oasis:names:tc:xacml:2.0:policy:schema:os'));
         $dom->appendChild($root);
 
-        foreach ($roles as $role) {
-            foreach ($role->actions as $roleaction) {
-                $rolename = apibridge::replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0];
+        foreach ($roles as $acl) {
+            $rolename = $acl->role;
+            $roleaction = $acl->action;
 
-                $el = $dom->createElement('RULE');
-                $el->setAttributeNode(new \DOMAttr('RuleId', $rolename . '_' . $roleaction . '_PERMIT'));
-                $el->setAttributeNode(new \DOMAttr('Effect', 'Permit'));
-                $root->appendChild($el);
+            $el = $dom->createElement('RULE');
+            $el->setAttributeNode(new \DOMAttr('RuleId', $rolename . '_' . $roleaction . '_PERMIT'));
+            $el->setAttributeNode(new \DOMAttr('Effect', 'Permit'));
+            $root->appendChild($el);
 
-                $target = $dom->createElement('Target');
-                $el->appendChild($target);
+            $target = $dom->createElement('Target');
+            $el->appendChild($target);
 
-                $actions = $dom->createElement('Actions');
-                $target->appendChild($actions);
+            $actions = $dom->createElement('Actions');
+            $target->appendChild($actions);
 
-                $action = $dom->createElement('Action');
-                $actions->appendChild($action);
+            $action = $dom->createElement('Action');
+            $actions->appendChild($action);
 
-                $actionmatch = $dom->createElement('ActionMatch');
-                $actionmatch->setAttributeNode(new \DOMAttr('MatchId', 'urn:oasis:names:tc:xacml:1.0:function:string-equal'));
-                $action->appendChild($actionmatch);
+            $actionmatch = $dom->createElement('ActionMatch');
+            $actionmatch->setAttributeNode(new \DOMAttr('MatchId', 'urn:oasis:names:tc:xacml:1.0:function:string-equal'));
+            $action->appendChild($actionmatch);
 
-                $attributevalue = $dom->createElement('AttributeValue', $roleaction);
-                $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
-                $actionmatch->appendChild($attributevalue);
+            $attributevalue = $dom->createElement('AttributeValue', $roleaction);
+            $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+            $actionmatch->appendChild($attributevalue);
 
-                $actionattributedesignator = $dom->createElement('ActionAttributeDesignator');
-                $actionattributedesignator->setAttributeNode(new \DOMAttr('AttributeId',
-                    'urn:oasis:names:tc:xacml:1.0:action:action-id'));
-                $actionattributedesignator->setAttributeNode(new \DOMAttr('DataType',
-                    'http://www.w3.org/2001/XMLSchema#string'));
-                $actionmatch->appendChild($actionattributedesignator);
+            $actionattributedesignator = $dom->createElement('ActionAttributeDesignator');
+            $actionattributedesignator->setAttributeNode(new \DOMAttr('AttributeId',
+                'urn:oasis:names:tc:xacml:1.0:action:action-id'));
+            $actionattributedesignator->setAttributeNode(new \DOMAttr('DataType',
+                'http://www.w3.org/2001/XMLSchema#string'));
+            $actionmatch->appendChild($actionattributedesignator);
 
-                $condition = $dom->createElement('Condition');
-                $el->appendChild($condition);
+            $condition = $dom->createElement('Condition');
+            $el->appendChild($condition);
 
-                $apply = $dom->createElement('Apply');
-                $apply->setAttributeNode(new \DOMAttr('FunctionId',
-                    'urn:oasis:names:tc:xacml:1.0:function:string-is-in'));
-                $condition->appendChild($apply);
+            $apply = $dom->createElement('Apply');
+            $apply->setAttributeNode(new \DOMAttr('FunctionId',
+                'urn:oasis:names:tc:xacml:1.0:function:string-is-in'));
+            $condition->appendChild($apply);
 
-                $attributevalue = $dom->createElement('AttributeValue', $rolename);
-                $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
-                $apply->appendChild($attributevalue);
+            $attributevalue = $dom->createElement('AttributeValue', $rolename);
+            $attributevalue->setAttributeNode(new \DOMAttr('DataType', 'http://www.w3.org/2001/XMLSchema#string'));
+            $apply->appendChild($attributevalue);
 
-                $subjectattributedesignator = $dom->createElement('SubjectAttributeDesignator');
-                $subjectattributedesignator->setAttributeNode(new \DOMAttr('AttributeId',
-                    'urn:oasis:names:tc:xacml:2.0:subject:role'));
-                $subjectattributedesignator->setAttributeNode(new \DOMAttr('DataType',
-                    'http://www.w3.org/2001/XMLSchema#string'));
-                $apply->appendChild($subjectattributedesignator);
-            }
+            $subjectattributedesignator = $dom->createElement('SubjectAttributeDesignator');
+            $subjectattributedesignator->setAttributeNode(new \DOMAttr('AttributeId',
+                'urn:oasis:names:tc:xacml:2.0:subject:role'));
+            $subjectattributedesignator->setAttributeNode(new \DOMAttr('DataType',
+                'http://www.w3.org/2001/XMLSchema#string'));
+            $apply->appendChild($subjectattributedesignator);
         }
 
         // Add deny rule.

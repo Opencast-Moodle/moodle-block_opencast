@@ -701,5 +701,32 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021113000, 'opencast');
     }
 
+    if ($oldversion < 2022011800) {
+        // Define table block_opencast_visibility to be created.
+        $table = new xmldb_table('block_opencast_visibility');
+
+        // Adding fields to table block_opencast_visibility.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('initialvisibilitystatus', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL);
+        $table->add_field('initialvisibilitygroups', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('scheduledvisibilitytime', XMLDB_TYPE_INTEGER, '10');
+        $table->add_field('scheduledvisibilitystatus', XMLDB_TYPE_INTEGER, '1');
+        $table->add_field('scheduledvisibilitygroups', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL);
+
+        // Adding keys to table block_opencast_visibility.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('uploadjob_foreign', XMLDB_KEY_FOREIGN, ['uploadjobid'], 'block_opencast_uploadjob', ['id']);
+
+        // Conditionally launch create table for block_opencast_visibility.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2022011800, 'opencast');
+    }
+
     return true;
 }
