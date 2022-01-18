@@ -658,7 +658,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/download_channel_' . $instance->id,
                     get_string('download_setting', 'block_opencast'),
-                    get_string('download_settingdesc', 'block_opencast'), "lms-download"));
+                    get_string('download_settingdesc', 'block_opencast'), "api"));
 
 
             $additionalsettings->add(
