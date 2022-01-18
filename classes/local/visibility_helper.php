@@ -105,6 +105,22 @@ class visibility_helper
             return;
         }
 
+        // Check if Workflow is set and the acl control is enabled.
+        if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "" ||
+            get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
+            mtrace('job ' . $job->id . ':(ERROR) Invalid configuration to change visibility.');
+            self::change_job_status($job, $status);
+            return;
+        }
+
+        // Check if the teacher should be allowed to restrict the episode to course groups.
+        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+        if (!$controlgroupsenabled && $visibility == block_opencast_renderer::GROUP) {
+            mtrace('job ' . $job->id . ':(ERROR) unable to control groups.');
+            self::change_job_status($job, $status);
+            return;
+        }
+
         $visibilitychanged = $apibridge->change_visibility($eventidentifier, $courseid, $visibility, $groups);
 
         $jobmessage = '(ERROR) Changing visibility failed!';

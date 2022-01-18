@@ -205,45 +205,54 @@ class addvideo_form extends \moodleform
             $mform->hideIf('initialvisibilitygroups', 'initialvisibilitystatus', 'neq', 2);
         }
 
-        // Provide a checkbox to enable changing the visibility for later.
-        $mform->addElement('checkbox', 'enableschedulingchangevisibility',
-            get_string('enableschedulingchangevisibility', 'block_opencast'),
-            get_string('enableschedulingchangevisibilitydesc', 'block_opencast'));
-        $mform->hideIf('scheduledvisibilitytime', 'enableschedulingchangevisibility', 'notchecked');
-        $mform->hideIf('scheduledvisibilitystatus', 'enableschedulingchangevisibility', 'notchecked');
-
-        // Scheduled visibility.
-        $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
-            get_string('scheduledvisibilitytime', 'block_opencast'));
-        $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
-        $recommendedtimespan = strtotime('+ 21 minutes', strtotime('now'));
-        $mform->setDefault('scheduledvisibilitytime',  $recommendedtimespan);
-
-        $radioarray = array();
-        $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
-            get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
-        $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
-            get_string('visibility_show', 'block_opencast'), 1);
-        if ($groupvisibilityallowed) {
-            $attributes = array();
-            if (empty($groups)) {
-                $attributes = array('disabled' => true);
-            }
-            $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
-                '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
+        $allowchangevisibility = false;
+        // Check if Workflow is set and the acl control is enabled.
+        if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
+            get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
+            $allowchangevisibility = true;
         }
-        $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::VISIBLE);
-        $mform->setType('scheduledvisibilitystatus', PARAM_INT);
-
-        // Load existing groups.
-        if ($groupvisibilityallowed) {
-            $options = [];
-            foreach ($groups as $group) {
-                $options[$group->id] = $group->name;
+        
+        if ($allowchangevisibility) {
+            // Provide a checkbox to enable changing the visibility for later.
+            $mform->addElement('checkbox', 'enableschedulingchangevisibility',
+                get_string('enableschedulingchangevisibility', 'block_opencast'),
+                get_string('enableschedulingchangevisibilitydesc', 'block_opencast'));
+            $mform->hideIf('scheduledvisibilitytime', 'enableschedulingchangevisibility', 'notchecked');
+            $mform->hideIf('scheduledvisibilitystatus', 'enableschedulingchangevisibility', 'notchecked');
+    
+            // Scheduled visibility.
+            $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
+                get_string('scheduledvisibilitytime', 'block_opencast'));
+            $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
+            $recommendedtimespan = strtotime('+ 21 minutes', strtotime('now'));
+            $mform->setDefault('scheduledvisibilitytime',  $recommendedtimespan);
+    
+            $radioarray = array();
+            $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
+                get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
+            $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
+                get_string('visibility_show', 'block_opencast'), 1);
+            if ($groupvisibilityallowed) {
+                $attributes = array();
+                if (empty($groups)) {
+                    $attributes = array('disabled' => true);
+                }
+                $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
+                    '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
             }
-            $select = $mform->addElement('select', 'scheduledvisibilitygroups', get_string('groups'), $options);
-            $select->setMultiple(true);
-            $mform->hideIf('scheduledvisibilitygroups', 'scheduledvisibilitystatus', 'neq', 2);
+            $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::VISIBLE);
+            $mform->setType('scheduledvisibilitystatus', PARAM_INT);
+    
+            // Load existing groups.
+            if ($groupvisibilityallowed) {
+                $options = [];
+                foreach ($groups as $group) {
+                    $options[$group->id] = $group->name;
+                }
+                $select = $mform->addElement('select', 'scheduledvisibilitygroups', get_string('groups'), $options);
+                $select->setMultiple(true);
+                $mform->hideIf('scheduledvisibilitygroups', 'scheduledvisibilitystatus', 'neq', 2);
+            }
         }
 
         $mform->closeHeaderBefore('upload_filepicker');

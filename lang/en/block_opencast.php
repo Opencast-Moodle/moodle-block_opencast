@@ -678,7 +678,7 @@ $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short desc
 
 // Strings for new visibility feature during initail upload
 $string['visibilityheader'] = 'Event Visibility';
-$string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change.';
+$string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
 $string['scheduledvisibilitytime'] = 'Change video visibility on';
 $string['scheduledvisibilitytimehi'] = 'Scheduling date';
 $string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least 20 minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
