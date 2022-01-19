@@ -200,7 +200,7 @@ class addvideo_form extends \moodleform
             $radioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
                 '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
         }
-        $mform->setDefault('initialvisibilitystatus',  \block_opencast_renderer::HIDDEN);
+        $mform->setDefault('initialvisibilitystatus',  \block_opencast_renderer::VISIBLE);
         $mform->setType('initialvisibilitystatus', PARAM_INT);
 
         // Load existing groups.
@@ -233,8 +233,8 @@ class addvideo_form extends \moodleform
             $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
                 get_string('scheduledvisibilitytime', 'block_opencast'));
             $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
-            $recommendedtimespan = strtotime('+ 21 minutes', strtotime('now'));
-            $mform->setDefault('scheduledvisibilitytime',  $recommendedtimespan);
+            $waitingtime = $this->get_scheduled_change_visibility_waiting_time($ocinstanceid);
+            $mform->setDefault('scheduledvisibilitytime',  $waitingtime);
     
             $radioarray = array();
             $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
@@ -249,7 +249,7 @@ class addvideo_form extends \moodleform
                 $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
                     '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
             }
-            $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::VISIBLE);
+            $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::HIDDEN);
             $mform->setType('scheduledvisibilitystatus', PARAM_INT);
     
             // Load existing groups.
@@ -379,8 +379,15 @@ class addvideo_form extends \moodleform
             $errors['presentation_already_uploaded'] = get_string('emptyvideouploaderror', 'block_opencast');
         }
 
+        // Deducting 2 minutes from the time, to let teachers finish the form.
+        $customminutes = [
+            'minutes' => 2,
+            'action' => 'minus'
+        ];
+        // Get custom allowed scheduled visibility time.
+        $allowedscheduledvisibilitytime = $this->get_scheduled_change_visibility_waiting_time($this->_customdata['ocinstanceid'], $customminutes);
         if (isset($data['enableschedulingchangevisibility']) && $data['enableschedulingchangevisibility'] &&
-            $data['scheduledvisibilitytime'] < strtotime('+ 20 minutes', strtotime('now'))) {
+            $data['scheduledvisibilitytime'] < $allowedscheduledvisibilitytime) {
             $errors['scheduledvisibilitytime'] = get_string('scheduledvisibilitytimeerror', 'block_opencast');
         }
 
@@ -406,5 +413,35 @@ class addvideo_form extends \moodleform
         } else {
             return get_string($identifier, $component, $a);
         }
+    }
+
+    /**
+     * Returns scheduled change visibility waiting time.
+     *
+     * @param int $ocinstanceid The opencast instance id.
+     * @param array $customminutes Custome minutes to be added or deducted on demand.
+     * @return int
+     */
+    protected function get_scheduled_change_visibility_waiting_time($ocinstanceid, $customminutes = []) {
+        $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
+        if (empty($configwaitingtime)) {
+            $configwaitingtime = \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME;
+        }
+        $formtimestamp = $this->formtimestamp;
+        $waitingtime = $formtimestamp + (intval($configwaitingtime) * 60);
+        // Apply custom minute difference.
+        if (isset($customminutes['minutes']) && $customminutes['minutes']) {
+            $minutes = $customminutes['minutes'];
+            $action = isset($customminutes['action']) ? $customminutes['action'] : 'plus';
+            switch ($action) {
+                case 'minus':
+                    $waitingtime -= ($minutes * 60);
+                    break;
+                case 'plus':
+                default:
+                    $waitingtime += ($minutes * 60);
+            }
+        }
+        return $waitingtime;
     }
 }

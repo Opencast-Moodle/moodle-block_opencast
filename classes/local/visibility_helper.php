@@ -47,6 +47,9 @@ class visibility_helper
     /** @var int visibility change completed */
     const STATUS_DONE = 2;
 
+    /** @var int default waiting time in minutes*/
+    const DEFAULT_WAITING_TIME = 20;
+
     /**
      * Process all scheduled change visibility jobs.
      */
