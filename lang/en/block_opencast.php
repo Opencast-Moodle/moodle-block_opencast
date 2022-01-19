@@ -214,6 +214,8 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
 $string['contributor'] = 'Contributor(s)';
 $string['created'] = 'Created at';
 $string['creator'] = 'Presenter(s)';
+$string['descriptionmdfd'] = 'Field Description';
+$string['descriptionmdfd_help'] = 'The content of this field is presented as a help icon near the metadata field.';
 
 $string['date'] = 'Start Date';
 $string['descriptionmdfn'] = 'Field name';
@@ -327,6 +329,7 @@ $string['group_name_empty'] = 'The group name must not be empty if a group shoul
 
 $string['heading_name'] = 'Field Name';
 $string['heading_datatype'] = 'Field Type';
+$string['heading_description'] = 'Field Description';
 $string['heading_lti'] = 'Setting for LTI Configuration';$string['heading_position'] = 'Position';
 $string['heading_required'] = 'Required';
 $string['heading_readonly'] = 'Read Only';

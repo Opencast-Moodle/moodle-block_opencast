@@ -60,9 +60,9 @@ if (!$result->error) {
             if ($publication->channel == get_config('block_opencast', 'download_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     if ($media->id === $mediaid) {
-                        $downloadurl = $publication->media[0]->url;
-                        $mimetype = $publication->media[0]->mediatype;
-                        $size = $publication->media[0]->size;
+                        $downloadurl = $media->url;
+                        $mimetype = $media->mediatype;
+                        $size = $media->size;
                         break 2;
                     }
                 }

@@ -276,20 +276,12 @@ foreach ($courseseries as $series) {
     }
 }
 
-$showseriesinfo = false;
 if ($seriesvideodata && $errors == count($seriesvideodata)) {
     // Show single error.
     echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', reset($seriesvideodata)->error), 'opencast-bc-wrap');
 } else {
     if ($workflowsavailable) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
-    }
-
-    if ($errors > 0) {
-        // Show all series as only some have errors.
-        $showseriesinfo = true;
-    } else {
-        $showseriesinfo = count($courseseries) > 1;
     }
 }
 
@@ -306,26 +298,21 @@ if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_ser
     $series = array_filter($seriesvideodata, function ($vd) {
         return !$vd->error;
     });
-    if (!$showseriesinfo && $series) {
-        echo $renderer->render_provide_activity($coursecontext, $ocinstanceid, $courseid, array_keys($series)[0]);
-    }
 }
 
 
 foreach ($seriesvideodata as $series => $videodata) {
-    if ($showseriesinfo) {
-        // Get series title from first video.
-        if ($videodata->videos && $videodata->videos[0]) {
-            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
+    // Get series title from first video.
+    if ($videodata->videos && $videodata->videos[0]) {
+        echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
+    } else {
+        // Try to retrieve name from opencast.
+        $ocseries = $apibridge->get_series_by_identifier($series);
+        if ($ocseries) {
+            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
         } else {
-            // Try to retrieve name from opencast.
-            $ocseries = $apibridge->get_series_by_identifier($series);
-            if ($ocseries) {
-                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
-            } else {
-                // If that fails use id.
-                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
-            }
+            // If that fails use id.
+            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
         }
     }
 

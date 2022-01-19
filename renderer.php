@@ -860,4 +860,24 @@ class block_opencast_renderer extends plugin_renderer_base
 
         return $this->render_from_template('block_opencast/series_table', $context);
     }
+
+    /**
+     * Renderes a help icon from core template, but with custom text to display.
+     *
+     * @param string $title The title to be displayed when hovering over the help icon.
+     * @param string $content The description text to be displayed when the help icon is clicked.
+     * @return string
+     */
+    public function render_help_icon_with_custom_text($title, $content) {
+        global $OUTPUT;
+        $context = new stdClass();
+        $context->title = get_string('helpprefix2', '', $title);
+        $context->alt = get_string('helpprefix2', '', $title);
+        $context->ltr = !right_to_left();
+
+        $context->text = format_text($content);
+
+        return $OUTPUT->render_from_template('core/help_icon', $context);
+
+    }
 }
