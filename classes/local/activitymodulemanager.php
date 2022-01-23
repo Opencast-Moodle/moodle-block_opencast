@@ -420,11 +420,10 @@ class activitymodulemanager
     }
 
     /**
-     * Helperfunction to get Opencast LTI series modules within a course which are linking to the Opencast series of another course.
-     * These modules will be searched in the mod_lti table, i.e. the function delivers all modules which are linking to the
-     * given course' series.
+     * Helperfunction to get Opencast series modules within a course which are linking to the Opencast series of another course.
      * This especially catches modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid The course where the module is located.
      * @param int $referencedcourseid The course where the module is pointing to.
      *
@@ -465,10 +464,11 @@ class activitymodulemanager
     }
 
     /**
-     * Helperfunction to get Opencast LTI episode modules within a course which are linking to a video within the Opencast series
+     * Helperfunction to get Opencast episode modules within a course which are linking to a video within the Opencast series
      * of another course.
      * This function is just an iterator for get_modules_for_episode_linking_to_other_course(), iterating over all course videos.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedcourseid The course where the module is pointing to.
      * @param array|null $onlytheseepisodes (optional) The array of the episode identifiers.
@@ -516,12 +516,11 @@ class activitymodulemanager
     }
 
     /**
-     * Helperfunction to get Opencast LTI episode modules within a course which are linking to a video within the Opencast series
+     * Helperfunction to get Opencast episode modules within a course which are linking to a video within the Opencast series
      * of another course.
-     * These modules will be searched in the mod_lti table, i.e. the function delivers all modules which are linking to the
-     * given episode.
      * This especially catches modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedepisodeid The episode id where the module is pointing to.
      *
@@ -583,9 +582,10 @@ class activitymodulemanager
     }
 
     /**
-     * Helperfunction to cleanup the Opencast LTI series modules within a course.
+     * Helperfunction to cleanup the Opencast series modules within a course.
      * This especially cleans up modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course which is cleaned up.
      * @param int $referencedcourseid The course where the modules are pointing to.
      *
