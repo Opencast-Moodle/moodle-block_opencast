@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Scheduled task to clean up Opencast LTI episode modules after a video import
+ * Scheduled task to clean up Opencast Video Provider/LTI episode modules after a video import
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
@@ -30,7 +30,7 @@ use block_opencast\local\ltimodulemanager;
 
 defined('MOODLE_INTERNAL') || die();
 
-class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
+class cleanup_imported_episodes_cron extends \core\task\scheduled_task
 {
 
     /**

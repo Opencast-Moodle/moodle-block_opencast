@@ -554,7 +554,7 @@ class activitymodulemanager
     /**
      * Helperfunction to cleanup the Opencast activity episode modules for a given episode module from the job list in the database.
      * This especially cleans up modules which have been imported from one course to another course.
-     * This function is primarily called by the \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+     * This function is primarily called by the \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
      * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
      *
      * @param int $courseid The course which is cleaned up.
