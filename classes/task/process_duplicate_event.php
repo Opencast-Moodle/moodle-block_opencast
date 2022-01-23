@@ -130,7 +130,7 @@ class process_duplicate_event extends \core\task\adhoc_task
 
             // If requested and only if we have a OC workflow ID, schedule the Opencast LTI episode module to be cleaned up
             // by writing the necessary episode information to the database. This will be read and processed by the
-            // \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+            // \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
             if ($data->schedulemodulecleanup == true && is_number($ocworkflowid) &&
                 $data->episodemodules != null && count((array)$data->episodemodules) > 0) {
                 // Iterate over the existing modules for this episode.

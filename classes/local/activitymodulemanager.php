@@ -418,4 +418,190 @@ class activitymodulemanager
         // Finally, return the course section array.
         return $sectionmenu;
     }
+
+    /**
+     * Helperfunction to get Opencast series modules within a course which are linking to the Opencast series of another course.
+     * This especially catches modules which have been imported from one course to another course.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid The course where the module is located.
+     * @param int $referencedcourseid The course where the module is pointing to.
+     *
+     * @return array of course module IDs. The course module ID is used as array key, the references series ID as array value.
+     */
+    public static function get_modules_for_series_linking_to_other_course($ocinstanceid, $courseid, $referencedcourseid) {
+        global $DB;
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+        // Get the course series of the referenced course.
+        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
+
+        // If the referenced course does not have any series configured, return.
+        if ($referencedseriesid == null) {
+            return array();
+        }
+
+        $modules = array();
+
+        $seriesmodules = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid, 'type' => opencasttype::SERIES,
+            'course' => $courseid,
+            'opencastid' => $referencedseriesid));
+
+        // If there are any existing series modules in this course.
+        if (count($seriesmodules) > 0) {
+            // Iterate over modules.
+            foreach ($seriesmodules as $instance) {
+                $cm = get_coursemodule_from_instance('opencast', $instance->id, $courseid);
+                // Remember the series module to be returned.
+                $modules[$cm->id] = $referencedseriesid;
+            }
+        }
+
+        // Return the module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to get Opencast episode modules within a course which are linking to a video within the Opencast series
+     * of another course.
+     * This function is just an iterator for get_modules_for_episode_linking_to_other_course(), iterating over all course videos.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $modulecourseid The course where the module is located.
+     * @param int $referencedcourseid The course where the module is pointing to.
+     * @param array|null $onlytheseepisodes (optional) The array of the episode identifiers.
+     *                                      If given, only these identifiers will be evaluated.
+     *                                      If not given, all course videos will be evaluated.
+     *
+     * @return array
+     */
+    public static function get_modules_for_episodes_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid,
+                                                                            $onlytheseepisodes = null) {
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+        // Get the course series of the referenced course.
+        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
+
+        // If the referenced course does not have any series configured, return.
+        if ($referencedseriesid == null) {
+            return array();
+        }
+
+        // Get episodes which are located in the referenced course.
+        $coursevideos = $apibridge->get_course_videos($referencedcourseid);
+
+        // Initialize modules to be returned as empty array.
+        $modules = array();
+
+        // Iterate over episodes.
+        foreach ($coursevideos->videos as $video) {
+            // Proceed only if we have to check this particular video.
+            if ($onlytheseepisodes !== null && !in_array($video->identifier, $onlytheseepisodes)) {
+                continue;
+            }
+
+            // Check each episode individually.
+            $episodemodules = self::get_modules_for_episode_linking_to_other_course($ocinstanceid,
+                $modulecourseid, $video->identifier);
+
+            // And add the result to the array of modules.
+            $modules += $episodemodules;
+        }
+
+        // Return the module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to get Opencast episode modules within a course which are linking to a video within the Opencast series
+     * of another course.
+     * This especially catches modules which have been imported from one course to another course.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $modulecourseid The course where the module is located.
+     * @param int $referencedepisodeid The episode id where the module is pointing to.
+     *
+     * @return array
+     */
+    public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $courseid, $referencedepisodeid) {
+        global $DB;
+
+        $episodemodules = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+            'course' => $courseid,
+            'type' => opencasttype::EPISODE,
+            'opencastid' => $referencedepisodeid));
+
+        // Initialize modules to be returned as empty array.
+        $modules = array();
+
+        // If there are any existing episode modules in this course.
+        if (count($episodemodules) > 0) {
+            // Iterate over modules.
+            foreach ($episodemodules as $instance) {
+                $cm = get_coursemodule_from_instance('opencast', $instance->id, $courseid);
+                // Remember the episode module to be returned.
+                $modules[$cm->id] = $referencedepisodeid;
+            }
+        }
+
+        // Return the module(s) ids.
+        return $modules;
+    }
+
+    /**
+     * Helperfunction to cleanup the Opencast activity episode modules for a given episode module from the job list in the database.
+     * This especially cleans up modules which have been imported from one course to another course.
+     * This function is primarily called by the \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
+     * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
+     *
+     * @param int $courseid The course which is cleaned up.
+     * @param array $episodemodules The array of episodemodules to be cleaned up.
+     * @param string $episodeid The episode ID where the modules should be pointing to in the end.
+     *
+     * @return bool
+     */
+    public static function cleanup_episode_modules($courseid, $episodemodules, $episodeid) {
+        global $CFG, $DB;
+
+        // If there aren't any modules to be cleaned up given, return.
+        if (count($episodemodules) < 1) {
+            return true;
+        }
+
+        $success = true;
+        foreach ($episodemodules as $module) {
+            $cm = get_fast_modinfo($courseid)->get_cm($module);
+            $success = $success && $DB->set_field('opencast', 'opencastid', $episodeid,
+                    array('id' => $cm->instance));
+        }
+
+        return $success;
+    }
+
+    /**
+     * Helperfunction to cleanup the Opencast series modules within a course.
+     * This especially cleans up modules which have been imported from one course to another course.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $modulecourseid The course which is cleaned up.
+     * @param int $referencedcourseid The course where the modules are pointing to.
+     *
+     * @return bool
+     */
+    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedcourseid) {
+        global $DB;
+
+        // Get old series id.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
+
+        // Get new series id.
+        $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
+
+        return $DB->set_field('opencast', 'opencastid', $courseseries, array('ocinstanceid' => $ocinstanceid,
+            'type' => opencasttype::SERIES, 'opencastid' => $referencedseriesid, 'course' => $modulecourseid));
+    }
 }

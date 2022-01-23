@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Scheduled task to clean up Opencast LTI episode modules after a video import
+ * Scheduled task to clean up Opencast Video Provider/LTI episode modules after a video import
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
@@ -24,12 +24,13 @@
 
 namespace block_opencast\task;
 
+use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 
 defined('MOODLE_INTERNAL') || die();
 
-class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
+class cleanup_imported_episodes_cron extends \core\task\scheduled_task
 {
 
     /**
@@ -144,9 +145,24 @@ class cleanup_imported_ltiepisodes_cron extends \core\task\scheduled_task
                     $courseid = $DB->get_field('block_opencast_ltiepisode_cu', 'courseid',
                         array('ocworkflowid' => $workflow->ocworkflowid, 'ocinstanceid' => $ocinstance->id), IGNORE_MULTIPLE);
 
+                    // Split modules into LTI and activity modules to handle them respectively.
+                    $ltimodules = array();
+                    $activities = array();
+                    foreach ($coursemodules as $module) {
+                        if (get_fast_modinfo($courseid)->get_cm($module)->modname == 'opencast') {
+                            $activities[] = $module;
+                        } else {
+                            $ltimodules[] = $module;
+                        }
+                    }
+
                     // Let the LTI Module manager cleanup these episodes.
                     $cleanupresult = ltimodulemanager::cleanup_episode_modules($ocinstance->id,
-                        $courseid, $coursemodules, $episodeid);
+                        $courseid, $ltimodules, $episodeid);
+
+                    // Cleanup the activity episode modules.
+                    $cleanupresult = $cleanupresult &&
+                        activitymodulemanager::cleanup_episode_modules($courseid, $activities, $episodeid);
 
                     // If something with the cleanup failed.
                     if ($cleanupresult != true) {

@@ -21,6 +21,9 @@
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\activitymodulemanager;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $DB;
@@ -294,16 +297,8 @@ switch ($step) {
 
         // Process data.
         if ($data = $importvideosform->get_data()) {
-            // If cleanup of the episode modules was requested and the user is allowed to do this.
-            if ($fixepisodemodules == true && has_capability('block/opencast:addltiepisode', $coursecontext)) {
-                // Duplicate the videos with episode module cleanup.
-                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid,
-                    $sourcecourseid, $courseid, $coursevideos, true);
-            } else {
-                // Duplicate the videos without episode module cleanup.
-                $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid,
-                    $sourcecourseid, $courseid, $coursevideos, false);
-            }
+            $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid,
+                $sourcecourseid, $courseid, $coursevideos, $fixepisodemodules);
 
             // If duplication did not complete correctly.
             if ($resultduplicate != true) {
@@ -315,10 +310,19 @@ switch ($step) {
             }
 
             // If cleanup of the series modules was requested and the user is allowed to do this.
-            if ($fixseriesmodules == true && has_capability('block/opencast:addlti', $coursecontext)) {
-                // Clean up the series modules.
-                $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($ocinstanceid,
-                    $courseid, $sourcecourseid);
+            if ($fixseriesmodules == true) {
+                $resulthandleseries = true;
+                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+                    has_capability('block/opencast:addlti', $coursecontext)) {
+                    // Clean up the series modules.
+                    $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($ocinstanceid,
+                        $courseid, $sourcecourseid);
+                }
+
+                if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                    $resulthandleseries = $resulthandleseries &&
+                        activitymodulemanager::cleanup_series_modules($ocinstanceid, $courseid, $sourcecourseid);
+                }
 
                 // If clean up did not completed correctly.
                 if ($resulthandleseries != true) {
