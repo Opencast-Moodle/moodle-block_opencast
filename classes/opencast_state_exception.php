@@ -36,7 +36,6 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class opencast_state_exception extends \moodle_exception
-{
+class opencast_state_exception extends \moodle_exception {
 
 }

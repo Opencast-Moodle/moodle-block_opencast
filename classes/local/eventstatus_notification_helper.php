@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class eventstatus_notification_helper
-{
+class eventstatus_notification_helper {
 
     /**
      * Save the event status notification job onto the db table to be processed later with cronjobs.

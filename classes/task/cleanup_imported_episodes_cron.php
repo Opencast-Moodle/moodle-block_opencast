@@ -30,8 +30,7 @@ use block_opencast\local\ltimodulemanager;
 
 defined('MOODLE_INTERNAL') || die();
 
-class cleanup_imported_episodes_cron extends \core\task\scheduled_task
-{
+class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
 
     /**
      * Get a descriptive name for this task (shown to admins).

@@ -18,8 +18,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use tool_opencast\seriesmapping;
 
-class block_opencast_apibridge_testable extends \block_opencast\local\apibridge
-{
+class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
 
     /** @var array register for possible function results. */
     private $register = [];

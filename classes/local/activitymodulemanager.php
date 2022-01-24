@@ -35,8 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2021 Justus Dieckmann WWU, 2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class activitymodulemanager
-{
+class activitymodulemanager {
 
     /**
      * Helperfunction to get the status of the Opencast series feature.

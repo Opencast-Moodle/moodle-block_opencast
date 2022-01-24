@@ -35,8 +35,7 @@ use tool_opencast\seriesmapping;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicate_event extends \core\task\adhoc_task
-{
+class process_duplicate_event extends \core\task\adhoc_task {
 
     /** @var int max number of retries for one task */
     const MAX_COUNT_RETRIES = 10;

@@ -32,8 +32,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2018 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class groupaccess extends \core\persistent
-{
+class groupaccess extends \core\persistent {
 
     /** Table name for the persistent. */
     const TABLE = 'block_opencast_groupaccess';

@@ -35,8 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package block_opencast
  */
-class process_delete_notification_cron extends \core\task\scheduled_task
-{
+class process_delete_notification_cron extends \core\task\scheduled_task {
 
     public function get_name() {
         return get_string('processdeletenotification', 'block_opencast');

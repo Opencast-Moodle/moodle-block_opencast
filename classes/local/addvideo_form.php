@@ -42,8 +42,7 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addvideo_form extends \moodleform
-{
+class addvideo_form extends \moodleform {
     /**
      * Form definition.
      */

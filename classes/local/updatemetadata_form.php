@@ -39,8 +39,7 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class updatemetadata_form extends \moodleform
-{
+class updatemetadata_form extends \moodleform {
 
     /**
      * Form definition.

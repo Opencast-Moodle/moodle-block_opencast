@@ -38,8 +38,7 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_bac
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_opencast_block_task extends backup_block_task
-{
+class backup_opencast_block_task extends backup_block_task {
 
     /**
      * Add a setting to backup process, when course videos are available.

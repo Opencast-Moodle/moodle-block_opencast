@@ -28,8 +28,7 @@ global $CFG;
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/restore_opencast_stepslib.php');
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_restore_setting.class.php');
 
-class restore_opencast_block_task extends restore_block_task
-{
+class restore_opencast_block_task extends restore_block_task {
 
     /**
      * Check, if it is possible to restore events into given target course.

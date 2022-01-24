@@ -34,8 +34,7 @@ use tool_opencast\local\PolyfillCURLStringFile;
  * @copyright  2021 Tamara Gunkel WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ingest_uploader
-{
+class ingest_uploader {
     /** @var int Media package is created */
     const STATUS_INGEST_CREATING_MEDIA_PACKAGE = 221;
 

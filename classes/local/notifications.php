@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class notifications
-{
+class notifications {
 
     /**
      * Helperfunction to send all following messages .

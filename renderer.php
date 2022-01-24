@@ -36,8 +36,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2017 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_renderer extends plugin_renderer_base
-{
+class block_opencast_renderer extends plugin_renderer_base {
     const VISIBLE = 1;
     const MIXED_VISIBLITY = 3;
     const HIDDEN = 0;

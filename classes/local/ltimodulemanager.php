@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ltimodulemanager
-{
+class ltimodulemanager {
 
     /**
      * Helperfunction to get the list of available preconfigured LTI tools.

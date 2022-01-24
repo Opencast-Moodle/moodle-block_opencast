@@ -39,8 +39,7 @@ use tool_opencast\seriesmapping;
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_helper
-{
+class upload_helper {
 
     /** @var string File area id where videos are uploaded */
     const OC_FILEAREA = 'videotoupload';

@@ -38,8 +38,7 @@ require_once($CFG->dirroot . '/backup/util/ui/renderer.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer extends \core_backup_renderer
-{
+class renderer extends \core_backup_renderer {
     /**
      * Renderer to display the import course selector.
      * This function is a modified version of import_course_selector from core_backup_renderer
@@ -50,7 +49,7 @@ class renderer extends \core_backup_renderer
      *
      * @return string
      */
-    public function importvideos_coursesearch(\moodle_url $nextstageurl,
+    public function importvideos_coursesearch(\moodle_url                                     $nextstageurl,
                                               \block_opencast\local\importvideos_coursesearch $courses = null) {
         $html = \html_writer::start_tag('div', array('class' => 'import-course-selector'));
         $html .= $this->wizard_intro_notification(
