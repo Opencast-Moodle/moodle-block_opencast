@@ -26,8 +26,6 @@ namespace block_opencast\local;
 
 use local_chunkupload\local\chunkupload_file;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Events.
  *

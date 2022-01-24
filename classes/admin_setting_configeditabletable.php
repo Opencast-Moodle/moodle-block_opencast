@@ -24,8 +24,6 @@
 
 namespace block_opencast;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Admin setting class which is used to create an editable table.
  *

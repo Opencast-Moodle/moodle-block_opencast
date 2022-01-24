@@ -26,8 +26,6 @@ namespace block_opencast;
 
 use tool_opencast\empty_configuration_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  *  Helper class for workflow settings.
  *

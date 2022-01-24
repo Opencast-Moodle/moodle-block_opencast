@@ -26,8 +26,6 @@ namespace block_opencast\local;
 
 use context_course;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Import videos management for block_opencast.
  *

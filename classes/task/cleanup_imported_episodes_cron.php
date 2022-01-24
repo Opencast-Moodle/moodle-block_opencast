@@ -28,8 +28,6 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 
-defined('MOODLE_INTERNAL') || die();
-
 class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
 
     /**

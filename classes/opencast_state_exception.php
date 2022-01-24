@@ -24,10 +24,6 @@
 
 namespace block_opencast;
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  *
  * Exception, which is thrown when opencast has not yet processed the current step.

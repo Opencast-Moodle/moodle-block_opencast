@@ -24,10 +24,6 @@
 
 namespace block_opencast;
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
  *

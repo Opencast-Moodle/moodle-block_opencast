@@ -24,8 +24,6 @@
 
 namespace block_opencast\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Event of block opencast for succeeding uploads.
  *

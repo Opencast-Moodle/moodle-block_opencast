@@ -19,7 +19,6 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
 
 class block_opencast_generator extends testing_block_generator {
 

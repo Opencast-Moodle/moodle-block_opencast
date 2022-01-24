@@ -24,8 +24,6 @@
 
 namespace block_opencast\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 use tool_opencast\seriesmapping;
 
 /**

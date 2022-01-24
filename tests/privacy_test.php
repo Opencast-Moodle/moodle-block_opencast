@@ -24,7 +24,6 @@
  */
 
 namespace block_opencast;
-defined('MOODLE_INTERNAL') || die();
 
 use context_course;
 use \core_privacy\local\metadata\collection;

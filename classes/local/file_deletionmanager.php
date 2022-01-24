@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Manager to enable ad hoc file deletion
  *

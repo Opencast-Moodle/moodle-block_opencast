@@ -32,8 +32,6 @@ use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use core_privacy\local\request\helper;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy Subsystem for block_opencast implementing provider.
  *

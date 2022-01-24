@@ -23,7 +23,6 @@
  */
 
 namespace block_opencast;
-defined('MOODLE_INTERNAL') || die;
 
 /**
  * Persistent table of groupaccess

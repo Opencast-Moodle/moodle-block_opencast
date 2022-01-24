@@ -26,8 +26,6 @@ namespace block_opencast\local;
 
 use mod_opencast\local\opencasttype;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * LTI module management for block_opencast.
  *

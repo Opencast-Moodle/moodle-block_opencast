@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Autocompelete Suggestion helper.
  * @package    block_opencast

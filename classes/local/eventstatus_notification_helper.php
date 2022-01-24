@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Event Process Notification Helper.
  * @package    block_opencast

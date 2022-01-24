@@ -27,8 +27,6 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Renderer class for block opencast.
  *

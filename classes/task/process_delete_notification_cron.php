@@ -25,8 +25,6 @@ namespace block_opencast\task;
 
 use tool_opencast\local\settings_api;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Task for deleting the event status notification jobs.
  *
