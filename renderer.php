@@ -869,7 +869,6 @@ class block_opencast_renderer extends plugin_renderer_base
      * @return string
      */
     public function render_help_icon_with_custom_text($title, $content) {
-        global $OUTPUT;
         $context = new stdClass();
         $context->title = get_string('helpprefix2', '', $title);
         $context->alt = get_string('helpprefix2', '', $title);
@@ -877,7 +876,7 @@ class block_opencast_renderer extends plugin_renderer_base
 
         $context->text = format_text($content);
 
-        return $OUTPUT->render_from_template('core/help_icon', $context);
+        return $this->output->render_from_template('core/help_icon', $context);
 
     }
 }

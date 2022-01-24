@@ -108,7 +108,6 @@ class importvideos_step3_form extends \moodleform
                     array_keys($this->_customdata['coursevideos']));
             }
 
-
             // Check if mod_opencast is installed for handling activities.
             if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
                 $handleepisodemodules = true;

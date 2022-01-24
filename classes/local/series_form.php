@@ -97,7 +97,8 @@ class series_form extends \moodleform
             // Check if the description is set for the field, to display it as help icon.
             if (isset($field->description) && !empty($field->description)) {
                 // Use the renderer to generate a help icon with custom text.
-                $element->_helpbutton = $renderer->render_help_icon_with_custom_text($this->try_get_string($field->name, 'block_opencast'), $field->description);
+                $element->_helpbutton = $renderer->render_help_icon_with_custom_text(
+                    $this->try_get_string($field->name, 'block_opencast'), $field->description);
             }
 
             if ($field->name == 'title') {
