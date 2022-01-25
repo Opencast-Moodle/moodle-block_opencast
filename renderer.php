@@ -114,7 +114,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            if($url) {
+            if ($url) {
                 $addactivitylink = \html_writer::link($url, $icon,
                     array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
             }
@@ -135,7 +135,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('addlti_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            if($url) {
+            if ($url) {
                 $addltilink = \html_writer::link($url, $icon,
                     array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
             }
