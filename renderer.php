@@ -114,14 +114,17 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addactivitylink = \html_writer::link($url, $icon,
-                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            if($url) {
+                $addactivitylink = \html_writer::link($url, $icon,
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            }
         };
 
         if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
             // Fetch existing LTI series module for this series.
             $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
 
+            $url = null;
             if ($moduleid) {
                 $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
                 $text = get_string('addlti_viewbuttontitle', 'block_opencast');
@@ -132,8 +135,10 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('addlti_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addltilink = \html_writer::link($url, $icon,
-                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            if($url) {
+                $addltilink = \html_writer::link($url, $icon,
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            }
         }
 
         $courses = \tool_opencast\seriesmapping::get_records(array('series' => $seriesid, 'ocinstanceid' => $ocinstanceid));
