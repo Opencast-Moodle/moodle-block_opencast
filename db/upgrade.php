@@ -699,7 +699,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2021113000, 'opencast');
     }
 
-    if ($oldversion < 2022011800) {
+    if ($oldversion < 2022012500) {
         // Define table block_opencast_visibility to be created.
         $table = new xmldb_table('block_opencast_visibility');
 
@@ -723,7 +723,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2022011800, 'opencast');
+        upgrade_block_savepoint(true, 2022012500, 'opencast');
     }
 
     return true;
