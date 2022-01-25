@@ -36,8 +36,7 @@ use block_opencast_renderer;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class visibility_helper
-{
+class visibility_helper {
     /** @var int visibility change failed */
     const STATUS_FAILED = 0;
 
@@ -196,7 +195,7 @@ class visibility_helper
             if (!empty($visibilityrecord->initialvisibilitygroups)) {
                 $groups = json_decode($visibilityrecord->initialvisibilitygroups, true);
             }
-            
+
             // Checking the visibility value against the allowed visibility states.
             $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
                 block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
