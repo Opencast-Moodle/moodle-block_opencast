@@ -27,8 +27,6 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Renderer class for block opencast.
  *
@@ -36,8 +34,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2017 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_renderer extends plugin_renderer_base
-{
+class block_opencast_renderer extends plugin_renderer_base {
     const VISIBLE = 1;
     const MIXED_VISIBLITY = 3;
     const HIDDEN = 0;
@@ -117,14 +114,17 @@ class block_opencast_renderer extends plugin_renderer_base
                 $text = get_string('addactivity_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addactivitylink = \html_writer::link($url, $icon,
-                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            if ($url) {
+                $addactivitylink = \html_writer::link($url, $icon,
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            }
         };
 
         if (ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) == true) {
             // Fetch existing LTI series module for this series.
             $moduleid = ltimodulemanager::get_module_for_series($ocinstanceid, $courseid, $seriesid);
 
+            $url = null;
             if ($moduleid) {
                 $url = new moodle_url('/mod/lti/view.php', array('id' => $moduleid));
                 $text = get_string('addlti_viewbuttontitle', 'block_opencast');
@@ -135,8 +135,10 @@ class block_opencast_renderer extends plugin_renderer_base
                 $text = get_string('addlti_addbuttontitle', 'block_opencast');
                 $icon = $this->output->pix_icon('share', $text, 'block_opencast');
             }
-            $addltilink = \html_writer::link($url, $icon,
-                array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            if ($url) {
+                $addltilink = \html_writer::link($url, $icon,
+                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+            }
         }
 
         $courses = \tool_opencast\seriesmapping::get_records(array('series' => $seriesid, 'ocinstanceid' => $ocinstanceid));
@@ -869,7 +871,6 @@ class block_opencast_renderer extends plugin_renderer_base
      * @return string
      */
     public function render_help_icon_with_custom_text($title, $content) {
-        global $OUTPUT;
         $context = new stdClass();
         $context->title = get_string('helpprefix2', '', $title);
         $context->alt = get_string('helpprefix2', '', $title);
@@ -877,7 +878,7 @@ class block_opencast_renderer extends plugin_renderer_base
 
         $context->text = format_text($content);
 
-        return $OUTPUT->render_from_template('core/help_icon', $context);
+        return $this->output->render_from_template('core/help_icon', $context);
 
     }
 }

@@ -26,8 +26,6 @@ namespace block_opencast\local;
 
 use local_chunkupload\local\chunkupload_file;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Events.
  *
@@ -35,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class event
-{
+class event {
 
     /** @var array Access control list. */
     private $acl = array();

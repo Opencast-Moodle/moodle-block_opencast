@@ -22,8 +22,8 @@
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast;
-defined('MOODLE_INTERNAL') || die();
 
 use context_course;
 use \core_privacy\local\metadata\collection;
@@ -38,8 +38,7 @@ use \block_opencast\privacy\provider;
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class privacy_test extends \core_privacy\tests\provider_testcase
-{
+class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Overriding setUp() function to always reset after tests.

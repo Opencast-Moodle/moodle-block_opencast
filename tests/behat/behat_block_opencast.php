@@ -36,8 +36,7 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @copyright 2021 Tamara Gunkel, University of Münster
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class behat_block_opencast extends behat_base
-{
+class behat_block_opencast extends behat_base {
 
     /**
      * Setup test opencast API.

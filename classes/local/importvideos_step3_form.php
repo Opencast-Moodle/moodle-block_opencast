@@ -35,8 +35,7 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step3_form extends \moodleform
-{
+class importvideos_step3_form extends \moodleform {
 
     /**
      * Form definition.
@@ -68,34 +67,53 @@ class importvideos_step3_form extends \moodleform
         // Get course context.
         $coursecontext = \context_course::instance($this->_customdata['courseid']);
 
-        // Check if the handle series feature is enabled _and_ the user is allowed to use the feature.
-        if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true &&
-            has_capability('block/opencast:addlti', $coursecontext))) {
-            // Remember this fact.
-            $handleseriesmodules = true;
+        $handleseriesmodules = false;
+        $referencedseriesmodules = array();
 
-            // Get Opencast LTI series modules in this course which point to the source course's series.
-            $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course($ocinstanceid,
-                $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
-        } else {
-            // Remember this fact.
-            $handleseriesmodules = false;
+        // Check if the handle series feature is enabled and apibridge is working.
+        if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true)) {
+
+            // Check if LTI handling is enabled and the user is allowed to use the feature.
+            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+                has_capability('block/opencast:addlti', $coursecontext)) {
+                $handleseriesmodules = true;
+                // Get Opencast LTI series modules in this course which point to the source course's series.
+                $referencedseriesmodules = ltimodulemanager::get_modules_for_series_linking_to_other_course($ocinstanceid,
+                    $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
+            }
+
+            // Check if mod_opencast is installed for handling activities.
+            if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                $handleseriesmodules = true;
+                $referencedseriesmodules += activitymodulemanager::get_modules_for_series_linking_to_other_course($ocinstanceid,
+                    $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
+            }
         }
 
+        $handleepisodemodules = false;
+        $referencedepisodemodules = array();
         // Check if the handle episode feature is enabled _and_ the user is allowed to use the feature.
-        if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true &&
-            has_capability('block/opencast:addltiepisode', $coursecontext))) {
-            // Remember this fact.
-            $handleepisodemodules = true;
+        if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true)) {
 
-            // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
-            $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
-                $ocinstanceid,
-                $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
-                array_keys($this->_customdata['coursevideos']));
-        } else {
-            // Remember this fact.
-            $handleepisodemodules = false;
+            // Check if LTI handling is enabled and the user is allowed to use the feature.
+            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) &&
+                has_capability('block/opencast:addltiepisode', $coursecontext)) {
+                $handleepisodemodules = true;
+
+                // Get Opencast LTI episode modules in this course which point to a video in the source course's series.
+                $referencedepisodemodules = ltimodulemanager::get_modules_for_episodes_linking_to_other_course(
+                    $ocinstanceid,
+                    $this->_customdata['courseid'], $this->_customdata['sourcecourseid'],
+                    array_keys($this->_customdata['coursevideos']));
+            }
+
+            // Check if mod_opencast is installed for handling activities.
+            if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                $handleepisodemodules = true;
+                $referencedepisodemodules = array_merge($referencedepisodemodules,
+                    activitymodulemanager::get_modules_for_episodes_linking_to_other_course($ocinstanceid,
+                        $this->_customdata['courseid'], $this->_customdata['sourcecourseid']));
+            }
         }
 
         // If there is anything to be handled.

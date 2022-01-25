@@ -43,7 +43,7 @@ $tasks = array(
         'month' => '*'
     ),
     array(
-        'classname' => 'block_opencast\task\cleanup_imported_ltiepisodes_cron',
+        'classname' => 'block_opencast\task\cleanup_imported_episodes_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',

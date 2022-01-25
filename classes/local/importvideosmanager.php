@@ -24,7 +24,7 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
+use context_course;
 
 /**
  * Import videos management for block_opencast.
@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideosmanager
-{
+class importvideosmanager {
 
     /**
      * Helperfunction to get the status of the manual import videos feature.
@@ -204,16 +203,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid);
-
-        // If the LTI module is not working, then this feature is not working as well.
-        if ($basisfeature == false) {
-            // Inform the caller.
-            return false;
-        }
-
-        // The feature is working.
         return true;
     }
 
@@ -244,16 +233,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid);
-
-        // If the LTI module is not working, then this feature is not working as well.
-        if ($basisfeature == false) {
-            // Inform the caller.
-            return false;
-        }
-
-        // The feature is working.
         return true;
     }
 
@@ -431,8 +410,19 @@ class importvideosmanager
             // If cleanup of the episode modules was requested, look for existing modules.
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
-                $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
-                    $ocinstanceid, $targetcourseid, $identifier);
+                $episodemodules = array();
+
+                // For LTI check if capability is fulfilled.
+                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) &&
+                    has_capability('block/opencast:addltiepisode', context_course::instance($targetcourseid))) {
+                    $episodemodules = ltimodulemanager::get_modules_for_episode_linking_to_other_course(
+                        $ocinstanceid, $targetcourseid, $identifier);
+                }
+
+                if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                    $episodemodules += activitymodulemanager::get_modules_for_episode_linking_to_other_course(
+                        $ocinstanceid, $targetcourseid, $identifier);
+                }
             }
 
             // If there are existing modules to be cleaned up.

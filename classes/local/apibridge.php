@@ -47,8 +47,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class apibridge
-{
+class apibridge {
     private $ocinstanceid;
 
     /** @var bool True for tests */

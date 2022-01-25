@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Manager to enable ad hoc file deletion
  *
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_deletionmanager extends \file_system_filedir
-{
+class file_deletionmanager extends \file_system_filedir {
 
     /**
      * Delete all the users draft file entries that belongs to a videofile within

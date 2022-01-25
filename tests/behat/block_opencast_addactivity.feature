@@ -40,7 +40,7 @@ Feature: Add Opencast Video Provider series module as Teacher
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "Add Opencast Video Provider activity to course" "button"
+    And I click on "Add Opencast Video Provider activity to course" "link"
     And I set the following fields to these values:
       | Opencast series module intro | <p>This is a nice intro</p><p>Watch my videos!</p> |
     And I click on "Add module and return to course" "button"
@@ -48,7 +48,7 @@ Feature: Add Opencast Video Provider series module as Teacher
     And I should see "This is a nice intro" in the "li.activity" "css_element"
     And I should see "Opencast videos" in the "li.activity" "css_element"
     When I click on "Go to overview..." "link"
-    Then I should see "View Opencast series module in course"
+    Then "View Opencast series module in course" "link" should exist
     And "Add Opencast Video Provider activity to course" "button" should not exist
 
   @javascript

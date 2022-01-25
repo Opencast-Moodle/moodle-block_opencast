@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 use tool_opencast\seriesmapping;
 
-class block_opencast_apibridge_testable extends \block_opencast\local\apibridge
-{
+class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
 
     /** @var array register for possible function results. */
     private $register = [];

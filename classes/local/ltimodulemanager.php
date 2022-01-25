@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * LTI module management for block_opencast.
  *
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ltimodulemanager
-{
+class ltimodulemanager {
 
     /**
      * Helperfunction to get the list of available preconfigured LTI tools.
@@ -778,7 +775,7 @@ class ltimodulemanager
     /**
      * Helperfunction to cleanup the Opencast LTI episode modules for a given episode module from the job list in the database.
      * This especially cleans up modules which have been imported from one course to another course.
-     * This function is primarily called by the \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+     * This function is primarily called by the \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
      * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
      *
      * @param int $modulecourseid The course which is cleaned up.

@@ -26,8 +26,6 @@ namespace block_opencast;
 
 use tool_opencast\empty_configuration_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  *  Helper class for workflow settings.
  *
@@ -35,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class workflow_setting_helper
-{
+class workflow_setting_helper {
     public static function validate_workflow_setting($data) {
         // Hack to get the opencast instance id.
         $category = optional_param('category', null, PARAM_RAW);
