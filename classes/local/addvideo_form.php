@@ -51,6 +51,7 @@ class addvideo_form extends \moodleform {
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
         $ocinstanceid = $this->_customdata['ocinstanceid'];
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
@@ -77,7 +78,6 @@ class addvideo_form extends \moodleform {
             $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
             $seriesoption = array();
 
-            $apibridge = apibridge::get_instance($ocinstanceid);
             try {
                 $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
                 foreach ($seriesrecords as $series) {
