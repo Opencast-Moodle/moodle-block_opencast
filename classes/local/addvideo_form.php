@@ -427,8 +427,7 @@ class addvideo_form extends \moodleform
         if (empty($configwaitingtime)) {
             $configwaitingtime = \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME;
         }
-        $formtimestamp = $this->formtimestamp;
-        $waitingtime = $formtimestamp + (intval($configwaitingtime) * 60);
+        $waitingtime = intval($configwaitingtime) * 60;
         // Apply custom minute difference.
         if (isset($customminutes['minutes']) && $customminutes['minutes']) {
             $minutes = $customminutes['minutes'];
