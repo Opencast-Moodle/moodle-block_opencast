@@ -220,7 +220,7 @@ class addvideo_form extends \moodleform {
             get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
             $allowchangevisibility = true;
         }
-        
+
         if ($allowchangevisibility) {
             // Provide a checkbox to enable changing the visibility for later.
             $mform->addElement('checkbox', 'enableschedulingchangevisibility',
@@ -228,14 +228,14 @@ class addvideo_form extends \moodleform {
                 get_string('enableschedulingchangevisibilitydesc', 'block_opencast'));
             $mform->hideIf('scheduledvisibilitytime', 'enableschedulingchangevisibility', 'notchecked');
             $mform->hideIf('scheduledvisibilitystatus', 'enableschedulingchangevisibility', 'notchecked');
-    
+
             // Scheduled visibility.
             $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
                 get_string('scheduledvisibilitytime', 'block_opencast'));
             $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
-            $waitingtime = $this->get_scheduled_change_visibility_waiting_time($ocinstanceid);
+            $waitingtime = $this->get_waiting_time($ocinstanceid);
             $mform->setDefault('scheduledvisibilitytime',  $waitingtime);
-    
+
             $radioarray = array();
             $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
                 get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
@@ -251,7 +251,7 @@ class addvideo_form extends \moodleform {
             }
             $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::HIDDEN);
             $mform->setType('scheduledvisibilitystatus', PARAM_INT);
-    
+
             // Load existing groups.
             if ($groupvisibilityallowed) {
                 $options = [];
@@ -385,7 +385,7 @@ class addvideo_form extends \moodleform {
             'action' => 'minus'
         ];
         // Get custom allowed scheduled visibility time.
-        $allowedscheduledvisibilitytime = $this->get_scheduled_change_visibility_waiting_time($this->_customdata['ocinstanceid'], $customminutes);
+        $allowedscheduledvisibilitytime = $this->get_waiting_time($this->_customdata['ocinstanceid'], $customminutes);
         if (isset($data['enableschedulingchangevisibility']) && $data['enableschedulingchangevisibility'] &&
             $data['scheduledvisibilitytime'] < $allowedscheduledvisibilitytime) {
             $errors['scheduledvisibilitytime'] = get_string('scheduledvisibilitytimeerror', 'block_opencast');
@@ -422,12 +422,12 @@ class addvideo_form extends \moodleform {
      * @param array $customminutes Custome minutes to be added or deducted on demand.
      * @return int
      */
-    protected function get_scheduled_change_visibility_waiting_time($ocinstanceid, $customminutes = []) {
+    protected function get_waiting_time($ocinstanceid, $customminutes = []) {
         $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
         if (empty($configwaitingtime)) {
             $configwaitingtime = \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME;
         }
-        $waitingtime = intval($configwaitingtime) * 60;
+        $waitingtime = strtotime('now') + (intval($configwaitingtime) * 60);
         // Apply custom minute difference.
         if (isset($customminutes['minutes']) && $customminutes['minutes']) {
             $minutes = $customminutes['minutes'];
