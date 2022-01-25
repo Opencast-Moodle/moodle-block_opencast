@@ -681,7 +681,7 @@ $string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects b
 $string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
 $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
 
-// Strings for new visibility feature during initail upload
+// Strings for new visibility feature during initail upload.
 $string['visibilityheader'] = 'Event Visibility';
 $string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
 $string['scheduledvisibilitytime'] = 'Change video visibility on';

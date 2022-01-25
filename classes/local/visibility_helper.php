@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 use block_opencast_renderer;
 
 /**
@@ -242,7 +240,8 @@ class visibility_helper {
             case block_opencast_renderer::VISIBLE:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        $rolenameformatted = $apibridge::replace_placeholders($role->rolename, $courseid, null, $uploadjob->userid)[0];
+                        $rolenameformatted = $apibridge::replace_placeholders($role->rolename,
+                            $courseid, null, $uploadjob->userid)[0];
                         if ($rolenameformatted) {
                             $acls [] = (object)array(
                                 'allow' => true,
@@ -258,7 +257,8 @@ class visibility_helper {
             case block_opencast_renderer::GROUP:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
-                        foreach ($apibridge::replace_placeholders($role->rolename, $courseid, $groups, $uploadjob->userid) as $rule) {
+                        foreach ($apibridge::replace_placeholders($role->rolename,
+                            $courseid, $groups, $uploadjob->userid) as $rule) {
                             if ($rule) {
                                 $acls [] = (object)array(
                                     'allow' => true,
