@@ -51,6 +51,7 @@ class addvideo_form extends \moodleform {
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
         $ocinstanceid = $this->_customdata['ocinstanceid'];
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
@@ -66,6 +67,7 @@ class addvideo_form extends \moodleform {
         $mform = $this->_form;
 
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
+        $mform->setExpanded('metadata', true);
 
         $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
@@ -76,7 +78,6 @@ class addvideo_form extends \moodleform {
             $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
             $seriesoption = array();
 
-            $apibridge = apibridge::get_instance($ocinstanceid);
             try {
                 $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
                 foreach ($seriesrecords as $series) {
@@ -159,9 +160,114 @@ class addvideo_form extends \moodleform {
         $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
         $mform->setAdvanced('startDate');
 
+        // Event Visibility configuration.
+        $mform->closeHeaderBefore('visibility_header');
+
+        $mform->addElement('header', 'visibility_header', get_string('visibilityheader', 'block_opencast'));
+        $mform->setExpanded('visibility_header', true);
+
+        $explanation = \html_writer::tag('p', get_string('visibilityheaderexplanation', 'block_opencast'));
+        $mform->addElement('html', $explanation);
+
+        // Check if the teacher should be allowed to restrict the episode to course groups.
+        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+        // If group restriction is generally enabled, check if there are roles which allow group visibility.
+        if ($controlgroupsenabled) {
+            $roles = $apibridge->getroles(0);
+            $groupvisibilityallowed = false;
+            foreach ($roles as $role) {
+                if (strpos($role->rolename, '[COURSEGROUPID]') >= 0) {
+                    $groupvisibilityallowed = true;
+                    break;
+                }
+            }
+            $groups = groups_get_all_groups($this->_customdata['courseid']);
+        } else {
+            $groupvisibilityallowed = false;
+        }
+
+        // Initial visibility.
+        $intialvisibilityradioarray = array();
+        $intialvisibilityradioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
+            get_string('initialvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
+        $intialvisibilityradioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
+            '', get_string('visibility_show', 'block_opencast'), 1);
+        if ($groupvisibilityallowed) {
+            $attributes = array();
+            if (empty($groups)) {
+                $attributes = array('disabled' => true);
+            }
+            $radioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
+                '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
+        }
+        $mform->setDefault('initialvisibilitystatus',  \block_opencast_renderer::VISIBLE);
+        $mform->setType('initialvisibilitystatus', PARAM_INT);
+
+        // Load existing groups.
+        if ($groupvisibilityallowed) {
+            $options = [];
+            foreach ($groups as $group) {
+                $options[$group->id] = $group->name;
+            }
+            $select = $mform->addElement('select', 'initialvisibilitygroups', get_string('groups'), $options);
+            $select->setMultiple(true);
+            $mform->hideIf('initialvisibilitygroups', 'initialvisibilitystatus', 'neq', 2);
+        }
+
+        $allowchangevisibility = false;
+        // Check if Workflow is set and the acl control is enabled.
+        if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
+            get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
+            $allowchangevisibility = true;
+        }
+
+        if ($allowchangevisibility) {
+            // Provide a checkbox to enable changing the visibility for later.
+            $mform->addElement('checkbox', 'enableschedulingchangevisibility',
+                get_string('enableschedulingchangevisibility', 'block_opencast'),
+                get_string('enableschedulingchangevisibilitydesc', 'block_opencast'));
+            $mform->hideIf('scheduledvisibilitytime', 'enableschedulingchangevisibility', 'notchecked');
+            $mform->hideIf('scheduledvisibilitystatus', 'enableschedulingchangevisibility', 'notchecked');
+
+            // Scheduled visibility.
+            $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
+                get_string('scheduledvisibilitytime', 'block_opencast'));
+            $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
+            $waitingtime = $this->get_waiting_time($ocinstanceid);
+            $mform->setDefault('scheduledvisibilitytime',  $waitingtime);
+
+            $radioarray = array();
+            $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
+                get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
+            $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
+                get_string('visibility_show', 'block_opencast'), 1);
+            if ($groupvisibilityallowed) {
+                $attributes = array();
+                if (empty($groups)) {
+                    $attributes = array('disabled' => true);
+                }
+                $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
+                    '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
+            }
+            $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::HIDDEN);
+            $mform->setType('scheduledvisibilitystatus', PARAM_INT);
+
+            // Load existing groups.
+            if ($groupvisibilityallowed) {
+                $options = [];
+                foreach ($groups as $group) {
+                    $options[$group->id] = $group->name;
+                }
+                $select = $mform->addElement('select', 'scheduledvisibilitygroups', get_string('groups'), $options);
+                $select->setMultiple(true);
+                $mform->hideIf('scheduledvisibilitygroups', 'scheduledvisibilitystatus', 'neq', 2);
+            }
+        }
+
         $mform->closeHeaderBefore('upload_filepicker');
 
         $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
+        $mform->setExpanded('upload_filepicker', true);
 
         $explanation = \html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
@@ -273,6 +379,18 @@ class addvideo_form extends \moodleform {
             $errors['presentation_already_uploaded'] = get_string('emptyvideouploaderror', 'block_opencast');
         }
 
+        // Deducting 2 minutes from the time, to let teachers finish the form.
+        $customminutes = [
+            'minutes' => 2,
+            'action' => 'minus'
+        ];
+        // Get custom allowed scheduled visibility time.
+        $allowedscheduledvisibilitytime = $this->get_waiting_time($this->_customdata['ocinstanceid'], $customminutes);
+        if (isset($data['enableschedulingchangevisibility']) && $data['enableschedulingchangevisibility'] &&
+            $data['scheduledvisibilitytime'] < $allowedscheduledvisibilitytime) {
+            $errors['scheduledvisibilitytime'] = get_string('scheduledvisibilitytimeerror', 'block_opencast');
+        }
+
         return $errors;
     }
 
@@ -295,5 +413,34 @@ class addvideo_form extends \moodleform {
         } else {
             return get_string($identifier, $component, $a);
         }
+    }
+
+    /**
+     * Returns scheduled change visibility waiting time.
+     *
+     * @param int $ocinstanceid The opencast instance id.
+     * @param array $customminutes Custome minutes to be added or deducted on demand.
+     * @return int
+     */
+    protected function get_waiting_time($ocinstanceid, $customminutes = []) {
+        $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
+        if (empty($configwaitingtime)) {
+            $configwaitingtime = \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME;
+        }
+        $waitingtime = strtotime('now') + (intval($configwaitingtime) * 60);
+        // Apply custom minute difference.
+        if (isset($customminutes['minutes']) && $customminutes['minutes']) {
+            $minutes = $customminutes['minutes'];
+            $action = isset($customminutes['action']) ? $customminutes['action'] : 'plus';
+            switch ($action) {
+                case 'minus':
+                    $waitingtime -= ($minutes * 60);
+                    break;
+                case 'plus':
+                default:
+                    $waitingtime += ($minutes * 60);
+            }
+        }
+        return $waitingtime;
     }
 }

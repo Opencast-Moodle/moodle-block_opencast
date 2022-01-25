@@ -32,6 +32,8 @@ $string['acl_settingcontrolafter_desc'] = 'If enabled, teachers can control the 
 $string['acl_settingcontrolgroup'] = 'Allow episode group restriction';
 $string['acl_settingcontrolgroup_desc'] = 'If enabled, teachers can not only control the visibility of an Opencast episode for all course users but can also restrict the visibility to particular course groups.';
 $string['acl_settingheader'] = 'Control episode visibility';
+$string['acl_settingcontrolwaitingtime'] = 'Waiting time for scheduled visibility change (Minutes)';
+$string['acl_settingcontrolwaitingtime_desc'] = 'It defines a minimum waiting time (in minutes) that scheduled visibility change process should wait. This time span will be added to current time for the scheduled video change date filed in add video form, it will also be used to validate that field. Based on how fast the Opencast instance processes the videos, this waiting time could be configured. <br />NOTE: When empty or (zero) "0", the default value is used.';
 $string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
@@ -678,6 +680,20 @@ $string['opencaststudioreturnurl'] = 'Custom Studio return endpoint URL';
 $string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects back to the same Moodle opencast block overview where the request comes from. A custom endpoint URL will then be passed to Studio as return url when configured, in this case, admin is able to use 2 placeholders including [OCINSTANCEID] and [COURSEID]. Please NOTE: the URL must be relative to wwwroot.';
 $string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
 $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
+
+// Strings for new visibility feature during initail upload.
+$string['visibilityheader'] = 'Event Visibility';
+$string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimehi'] = 'Scheduling date';
+$string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least 20 minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimeerror'] = 'The scheduled date to change visibility must be set at least 20 minutes after the current data and time.';
+$string['initialvisibilitystatus'] = 'Initial visibility of the video';
+$string['scheduledvisibilitystatus'] = 'Change video visibility to';
+$string['enableschedulingchangevisibility'] = 'Schedule a visibility change';
+$string['enableschedulingchangevisibilitydesc'] = 'Set a date and a visibility status for the event in future, which will be performed using a scheduled task.';
+$string['processvisibility'] = 'Process scheduled visibility change jobs';
 
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

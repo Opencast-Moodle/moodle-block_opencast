@@ -15,17 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
- *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_opencast
+ * @copyright  2022 Farbod Zamani Boroujeni, ELAN e.V.
+ * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+namespace block_opencast\task;
 
-$plugin->version = 2022012500;
-$plugin->requires = 2017111300;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v3.11-r6';
-$plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2021120100);
+/**
+ * Task for processing the scheduled visibilty change jobs.
+ * @package block_opencast
+ */
+class process_visibility_cron extends \core\task\scheduled_task {
+
+    public function get_name() {
+        return get_string('processvisibility', 'block_opencast');
+    }
+
+    public function execute() {
+        $visibilityhelper = new \block_opencast\local\visibility_helper();
+        $visibilityhelper->cron();
+    }
+}

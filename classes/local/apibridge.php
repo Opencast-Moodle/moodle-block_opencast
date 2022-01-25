@@ -1046,12 +1046,14 @@ class apibridge {
 
         $event = new \block_opencast\local\event();
 
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, self::replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0]);
-            }
+        // Get initial visibility object.
+        $initialvisibility = visibility_helper::get_initial_visibility($job);
+
+        // Add the event roles from visibility object.
+        foreach ($initialvisibility->roles as $acl) {
+            $event->add_acl($acl->allow, $acl->action, $acl->role);
         }
+
         // Applying the media types to the event.
         $validstoredfile = true;
         if ($job->presenter_fileid) {
@@ -1098,6 +1100,22 @@ class apibridge {
 
         if ($api->get_http_code() >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
+
+        // Check if the group visibility is initialy set.
+        if (!empty($initialvisibility->groups)) {
+            $res = json_decode($result);
+            // Store group access based on event identifier.
+            $this->store_group_access($res->identifier, $initialvisibility->groups);
+        }
+
+        // Check if the visibility job is set and it has no scheduled time.
+        if (!empty($initialvisibility->visibilityjob) &&
+            empty($initialvisibility->visibilityjob->scheduledvisibilitytime)) {
+            $visibilityjob = $initialvisibility->visibilityjob;
+            // Change the status to complete, since the job finishes here.
+            $status = visibility_helper::STATUS_DONE;
+            visibility_helper::change_job_status($visibilityjob, $status);
         }
 
         return $result;
