@@ -74,7 +74,7 @@ class importvideos_step3_form extends \moodleform {
         if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true)) {
 
             // Check if LTI handling is enabled and the user is allowed to use the feature.
-            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+            if (\block_opencast\local\ltimodulemanager::is_working_for_series($ocinstanceid) &&
                 has_capability('block/opencast:addlti', $coursecontext)) {
                 $handleseriesmodules = true;
                 // Get Opencast LTI series modules in this course which point to the source course's series.
@@ -96,7 +96,7 @@ class importvideos_step3_form extends \moodleform {
         if ((\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true)) {
 
             // Check if LTI handling is enabled and the user is allowed to use the feature.
-            if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) &&
+            if (\block_opencast\local\ltimodulemanager::is_working_for_episodes($ocinstanceid) &&
                 has_capability('block/opencast:addltiepisode', $coursecontext)) {
                 $handleepisodemodules = true;
 
@@ -110,9 +110,8 @@ class importvideos_step3_form extends \moodleform {
             // Check if mod_opencast is installed for handling activities.
             if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
                 $handleepisodemodules = true;
-                $referencedepisodemodules = array_merge($referencedepisodemodules,
-                    activitymodulemanager::get_modules_for_episodes_linking_to_other_course($ocinstanceid,
-                        $this->_customdata['courseid'], $this->_customdata['sourcecourseid']));
+                $referencedepisodemodules += activitymodulemanager::get_modules_for_episodes_linking_to_other_course(
+                    $ocinstanceid, $this->_customdata['courseid'], $this->_customdata['sourcecourseid']);
             }
         }
 

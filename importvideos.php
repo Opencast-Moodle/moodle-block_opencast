@@ -301,7 +301,7 @@ switch ($step) {
                 $sourcecourseid, $courseid, $coursevideos, $fixepisodemodules);
 
             // If duplication did not complete correctly.
-            if ($resultduplicate != true) {
+            if ($resultduplicate->error) {
                 // Redirect to Opencast videos overview page without cleaning up any modules.
                 redirect($redirecturloverview,
                     get_string('importvideos_importjobcreationfailed', 'block_opencast'),
@@ -312,16 +312,16 @@ switch ($step) {
             // If cleanup of the series modules was requested and the user is allowed to do this.
             if ($fixseriesmodules == true) {
                 $resulthandleseries = true;
-                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+                if (\block_opencast\local\ltimodulemanager::is_working_for_series($ocinstanceid) &&
                     has_capability('block/opencast:addlti', $coursecontext)) {
                     // Clean up the series modules.
                     $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($ocinstanceid,
-                        $courseid, $sourcecourseid);
+                        $courseid, $sourcecourseid, $resultduplicate->duplicatedseries);
                 }
 
                 if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
                     $resulthandleseries = $resulthandleseries &&
-                        activitymodulemanager::cleanup_series_modules($ocinstanceid, $courseid, $sourcecourseid);
+                        activitymodulemanager::cleanup_series_modules($ocinstanceid, $courseid, $resultduplicate->duplicatedseries);
                 }
 
                 // If clean up did not completed correctly.

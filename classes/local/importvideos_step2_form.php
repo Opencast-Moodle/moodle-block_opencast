@@ -59,12 +59,12 @@ class importvideos_step2_form extends \moodleform {
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);
 
-        // Get list of course videos.
-        $coursevideos = importvideosmanager::get_import_source_course_videos_menu($this->_customdata['ocinstanceid'],
+        // Get list of course series with videos.
+        $courseseries = importvideosmanager::get_import_source_course_series_and_videos_menu($this->_customdata['ocinstanceid'],
             $this->_customdata['sourcecourseid']);
 
         // If there isn't any course video in the course.
-        if (count($coursevideos) < 1) {
+        if (count($courseseries) < 1) {
             // We are in a dead end situation, no chance to add anything.
             $notification = $renderer->wizard_error_notification(
                 get_string('importvideos_wizardstep2coursevideosnone', 'block_opencast'));
@@ -84,9 +84,12 @@ class importvideos_step2_form extends \moodleform {
         $mform->addElement('static', 'coursevideosvalidation', '', '');
 
         // Add multi-checkbox group to pick the course videos.
-        foreach ($coursevideos as $identifier => $label) {
-            $mform->addElement('advcheckbox', 'coursevideos[' . $identifier . ']', $label, null,
-                array('group' => 'coursevideocheckboxes'));
+        foreach ($courseseries as $identifier => $info) {
+            $mform->addElement('html', '<p>' . $info['title'] . '</p>');
+            foreach ($info['videos'] as $videoid => $label) {
+                $mform->addElement('advcheckbox', 'coursevideos[' . $videoid . ']', $label, null,
+                    array('group' => 'coursevideocheckboxes'));
+            }
         }
         $this->add_checkbox_controller('coursevideocheckboxes', null, null, 1);
 

@@ -24,8 +24,6 @@
 
 namespace block_opencast\task;
 
-use tool_opencast\seriesmapping;
-
 /**
  * Task for starting workflow to copy events.
  *

@@ -1780,6 +1780,36 @@ class apibridge {
     }
 
     /**
+     * Get course videos for backup from all course series. This might retrieve only the videos, that
+     * have a processing state of SUCCEDED.
+     *
+     * @param int $courseid
+     * @param array $processingstates
+     *
+     * @return array list of videos for backup.
+     */
+    public function get_course_series_and_videos_for_backup($courseid, $processingstates = ['SUCCEEDED']) {
+        $seriesforbackup = [];
+        foreach ($this->get_course_series($courseid) as $series) {
+            $result = $this->get_series_videos($series->series);
+
+            if ($result and $result->error == 0) {
+                $videosforbackup = [];
+                foreach ($result->videos as $video) {
+                    if (in_array($video->processing_state, $processingstates)) {
+                        $videosforbackup[$video->identifier] = $video;
+                    }
+                }
+                if ($videosforbackup) {
+                    $seriesforbackup[$series->series] = $videosforbackup;
+                }
+            }
+        }
+
+        return $seriesforbackup;
+    }
+
+    /**
      * Check, whether the opencast system supports a given level.
      *
      * @param string $level

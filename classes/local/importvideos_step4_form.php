@@ -109,15 +109,19 @@ class importvideos_step4_form extends \moodleform {
         $mform->addElement('html', '<hr>');
 
         // Summary item: Course videos.
-        $coursevideossummary = importvideosmanager::get_import_source_course_videos_summary(
+        $courseseriessummary = importvideosmanager::get_import_source_course_videos_summary(
             $this->_customdata['ocinstanceid'],
             $this->_customdata['sourcecourseid'], $this->_customdata['coursevideos']);
-        $importvideocounter = 1;
-        foreach ($coursevideossummary as $identifier => $label) {
-            $mform->addElement('static', 'summaryimportvideo' . $importvideocounter,
-                ($importvideocounter == 1) ? get_string('importvideos_wizardstep2coursevideos', 'block_opencast') : '',
-                $label);
-            $importvideocounter++;
+        $mform->addElement('static', 'summaryimportvideotitle',
+            get_string('importvideos_wizardstep2coursevideos', 'block_opencast'), '');
+        foreach ($courseseriessummary as $series => $info) {
+            $importvideocounter = 1;
+            foreach ($info['videos'] as $identifier => $label) {
+                $mform->addElement('static', 'summaryimportvideo' . $importvideocounter,
+                    ($importvideocounter == 1) ? $info['title'] : '',
+                    $label);
+                $importvideocounter++;
+            }
         }
 
         // Summary item: Handle modules.
