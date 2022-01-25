@@ -234,10 +234,16 @@ class visibility_helper {
         $apibridge = apibridge::get_instance($ocinstanceid);
         // Get all configured roles.
         $roles = $apibridge->getroles();
+        // In case of hidden visibility, only permanenet roles will be set.
+        if ($visibility == block_opencast_renderer::HIDDEN) {
+            // Get permanenet roles only.
+            $roles = $apibridge->getroles(1);
+        }
         // Initialize acl empty array.
         $acls = [];
         switch ($visibility) {
             case block_opencast_renderer::VISIBLE:
+            case block_opencast_renderer::HIDDEN:
                 foreach ($roles as $role) {
                     foreach ($role->actions as $action) {
                         $rolenameformatted = $apibridge::replace_placeholders($role->rolename,
@@ -251,8 +257,6 @@ class visibility_helper {
                         }
                     }
                 }
-                break;
-            case block_opencast_renderer::HIDDEN:
                 break;
             case block_opencast_renderer::GROUP:
                 foreach ($roles as $role) {
