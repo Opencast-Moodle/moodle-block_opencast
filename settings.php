@@ -548,6 +548,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     'block_opencast/aclcontrolafter_' . $instance->id, 'notchecked');
             }
 
+            // Control ACL: Waiting time for scheduled visibility change.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/aclcontrolwaitingtime_' . $instance->id,
+                    get_string('acl_settingcontrolwaitingtime', 'block_opencast'),
+                    get_string('acl_settingcontrolwaitingtime_desc', 'block_opencast'),
+                    \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME, PARAM_INT));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $additionalsettings->hide_if('block_opencast/aclcontrolwaitingtime_' . $instance->id,
+                    'block_opencast/aclcontrolafter_' . $instance->id, 'notchecked');
+            }
 
             if (core_plugin_manager::instance()->get_plugin_info('mod_opencast')) {
 

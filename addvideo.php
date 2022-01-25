@@ -146,8 +146,21 @@ if ($data = $addvideoform->get_data()) {
     $options->chunkupload_presenter = isset($chunkuploadpresenter) ? $chunkuploadpresenter : '';
     $options->chunkupload_presentation = isset($chunkuploadpresentation) ? $chunkuploadpresentation : '';
 
+    // Prepare the visibility object.
+    $visibility = new \stdClass();
+    $visibility->initialvisibilitystatus = $data->initialvisibilitystatus;
+    $visibility->initialvisibilitygroups = !empty($data->initialvisibilitygroups) ?
+        json_encode($data->initialvisibilitygroups) : null;
+    // Check if the scheduled visibility is set.
+    if (isset($data->enableschedulingchangevisibility) && $data->enableschedulingchangevisibility) {
+        $visibility->scheduledvisibilitytime = $data->scheduledvisibilitytime;
+        $visibility->scheduledvisibilitystatus = $data->scheduledvisibilitystatus;
+        $visibility->scheduledvisibilitygroups = !empty($data->scheduledvisibilitygroups) ?
+            json_encode($data->scheduledvisibilitygroups) : null;
+    }
+
     // Update all upload jobs.
-    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options);
+    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options, $visibility);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
