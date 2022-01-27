@@ -211,6 +211,10 @@ class event {
         return false;
     }
 
+    public function get_acl() {
+        return $this->acl;
+    }
+
     /**
      * Get the acl rules as a json object.
      *

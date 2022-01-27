@@ -23,8 +23,9 @@
  */
 
 use block_opencast\admin_setting_configeditabletable;
+use block_opencast\admin_setting_configtextvalidate;
 use block_opencast\admin_setting_hiddenhelpbtn;
-use block_opencast\workflow_setting_helper;
+use block_opencast\setting_helper;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -200,7 +201,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('limituploadjobs', 'block_opencast'),
                     get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
-            $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'upload');
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'upload');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
@@ -241,7 +242,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             ));
 
 
-            $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'delete');
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'delete');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
@@ -307,7 +308,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
 
-            $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'archive');
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'archive');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
@@ -323,6 +324,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $generalsettings->add(new admin_setting_configeditabletable('block_opencast/rolestable_' .
                 $instance->id, 'rolestable_' . $instance->id,
                 get_string('addrole', 'block_opencast')));
+
+            $roleownersetting = new admin_setting_configtextvalidate('block_opencast/aclownerrole_' . $instance->id,
+                get_string('aclownerrole', 'block_opencast'),
+                get_string('aclownerrole_desc', 'block_opencast'), '');
+            $roleownersetting->set_validate_function([setting_helper::class, 'validate_aclownerrole_setting']);
+            $generalsettings->add($roleownersetting);
 
             $generalsettings->add(
                 new admin_setting_heading('block_opencast/metadata_header_' . $instance->id,
@@ -890,7 +897,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Import videos: Duplicate workflow.
-            $workflowchoices = workflow_setting_helper::load_workflow_choices($instance->id, 'api');
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
@@ -902,7 +909,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 null, $workflowchoices);
 
             if ($CFG->branch >= 310) { // The validation functionality for admin settings is not available before Moodle 3.10.
-                $select->set_validate_function([workflow_setting_helper::class, 'validate_workflow_setting']);
+                $select->set_validate_function([setting_helper::class, 'validate_workflow_setting']);
             }
 
             $importvideossettings->add($select);
