@@ -2050,7 +2050,7 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
-        if (!$jsonacl) {
+        if ($api->get_http_code() != 200) {
             return false;
         }
 
