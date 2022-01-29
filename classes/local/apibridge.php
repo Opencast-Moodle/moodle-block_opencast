@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 use block_opencast\groupaccess;
 use block_opencast\opencast_connection_exception;
 use block_opencast_renderer;
+use core_user;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
@@ -47,9 +48,11 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class apibridge
-{
+class apibridge {
     private $ocinstanceid;
+
+    private static $userplaceholders = ['[USERNAME]', '[USERNAME_LOW]', '[USERNAME_UP]', '[USER_EMAIL]', '[USER_EXTERNAL_ID]'];
+
 
     /** @var bool True for tests */
     private static $testing = false;
@@ -754,15 +757,32 @@ class apibridge
         $title = str_replace('[COURSENAME]', $coursename, $name);
         $title = str_replace('[COURSEID]', $courseid, $title);
 
-        if (strpos($title, '[USERNAME]') !== false || strpos($title, '[USERNAME_LOW]') !== false ||
-            strpos($title, '[USERNAME_UP]') !== false) {
-            if (!$userid) {
-                return array();
+        // Replace user-related placeholders.
+        foreach (self::$userplaceholders as $placeholder) {
+            if (strpos($title, $placeholder) !== false) {
+                if (!$userid) {
+                    return array();
+                }
+
+                $user = core_user::get_user($userid, '*', MUST_EXIST);
+                switch ($placeholder) {
+                    case '[USERNAME]':
+                        $title = str_replace('[USERNAME]', $user->username, $title);
+                        break;
+                    case '[USERNAME_LOW]':
+                        $title = str_replace('[USERNAME_LOW]', strtolower($user->username), $title);
+                        break;
+                    case '[USERNAME_UP]':
+                        $title = str_replace('[USERNAME_UP]', strtoupper($user->username), $title);
+                        break;
+                    case '[USER_EMAIL]':
+                        $title = str_replace('[USER_EMAIL]', $user->email, $title);
+                        break;
+                    case '[USER_EXTERNAL_ID]':
+                        $title = str_replace('[USER_EXTERNAL_ID]', $user->idnumber, $title);
+                        break;
+                }
             }
-            $username = $DB->get_record("user", array("id" => $userid))->username;
-            $title = str_replace('[USERNAME]', $username, $title);
-            $title = str_replace('[USERNAME_LOW]', strtolower($username), $title);
-            $title = str_replace('[USERNAME_UP]', strtoupper($username), $title);
         }
 
         $result = array();
@@ -1047,12 +1067,14 @@ class apibridge
 
         $event = new \block_opencast\local\event();
 
-        $roles = $this->getroles();
-        foreach ($roles as $role) {
-            foreach ($role->actions as $action) {
-                $event->add_acl(true, $action, self::replace_placeholders($role->rolename, $job->courseid, null, $job->userid)[0]);
-            }
+        // Get initial visibility object.
+        $initialvisibility = visibility_helper::get_initial_visibility($job);
+
+        // Add the event roles from visibility object.
+        foreach ($initialvisibility->roles as $acl) {
+            $event->add_acl($acl->allow, $acl->action, $acl->role);
         }
+
         // Applying the media types to the event.
         $validstoredfile = true;
         if ($job->presenter_fileid) {
@@ -1099,6 +1121,22 @@ class apibridge
 
         if ($api->get_http_code() >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+        }
+
+        // Check if the group visibility is initialy set.
+        if (!empty($initialvisibility->groups)) {
+            $res = json_decode($result);
+            // Store group access based on event identifier.
+            $this->store_group_access($res->identifier, $initialvisibility->groups);
+        }
+
+        // Check if the visibility job is set and it has no scheduled time.
+        if (!empty($initialvisibility->visibilityjob) &&
+            empty($initialvisibility->visibilityjob->scheduledvisibilitytime)) {
+            $visibilityjob = $initialvisibility->visibilityjob;
+            // Change the status to complete, since the job finishes here.
+            $status = visibility_helper::STATUS_DONE;
+            visibility_helper::change_job_status($visibilityjob, $status);
         }
 
         return $result;
@@ -1781,6 +1819,36 @@ class apibridge
     }
 
     /**
+     * Get course videos for backup from all course series. This might retrieve only the videos, that
+     * have a processing state of SUCCEDED.
+     *
+     * @param int $courseid
+     * @param array $processingstates
+     *
+     * @return array list of videos for backup.
+     */
+    public function get_course_series_and_videos_for_backup($courseid, $processingstates = ['SUCCEEDED']) {
+        $seriesforbackup = [];
+        foreach ($this->get_course_series($courseid) as $series) {
+            $result = $this->get_series_videos($series->series);
+
+            if ($result and $result->error == 0) {
+                $videosforbackup = [];
+                foreach ($result->videos as $video) {
+                    if (in_array($video->processing_state, $processingstates)) {
+                        $videosforbackup[$video->identifier] = $video;
+                    }
+                }
+                if ($videosforbackup) {
+                    $seriesforbackup[$series->series] = $videosforbackup;
+                }
+            }
+        }
+
+        return $seriesforbackup;
+    }
+
+    /**
      * Check, whether the opencast system supports a given level.
      *
      * @param string $level
@@ -1914,6 +1982,90 @@ class apibridge
 
         };
         return false;
+    }
+
+    public function set_owner($courseid, $eventidentifier, $userid) {
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+
+        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid), array_column($roles, 'rolename'));
+        $ownerrole = $roles[$ownerrole];
+
+        // Create regex from role.
+        $ownerroleregex = false;
+        foreach (self::$userplaceholders as $userplaceholder) {
+            $r = str_replace($userplaceholder, '.*?', $ownerrole->rolename);
+            if ($r != $ownerrole->rolename) {
+                $ownerroleregex = $r;
+                break;
+            }
+        }
+
+        if (!$ownerroleregex) {
+            return false;
+        }
+
+        $ownerroleregex = '/' . $ownerroleregex . '/';
+
+        // Remove old owner role.
+        foreach ($event->get_acl() as $role) {
+            if (preg_match($ownerroleregex, $role->role)) {
+                $event->remove_acl($role->action, $role->role);
+            }
+        }
+
+        // Add new owner role.
+        $actions = array_map('trim', explode(',', $ownerrole->actions));
+        foreach ($actions as $action) {
+            foreach (self::replace_placeholders($ownerrole->rolename, $courseid, $eventidentifier, $userid) as $acl) {
+                $event->add_acl(true, $action, $acl);
+            }
+        }
+
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $params['acl'] = $event->get_json_acl();
+
+        // Acl roles have not changed.
+        if ($params['acl'] == ($jsonacl)) {
+            return true;
+        }
+
+        $api = api::get_instance($this->ocinstanceid);
+
+        $api->oc_put($resource, $params);
+        if ($api->get_http_code() == 204) {
+            // Trigger workflow.
+            return $this->update_metadata($eventidentifier);
+        }
+        return false;
+    }
+
+    public function is_owner($courseid, $eventidentifier, $userid) {
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        if (!$jsonacl) {
+            return false;
+        }
+
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+
+        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid), array_column($roles, 'rolename'));
+        $ownerrole = $roles[$ownerrole];
+
+        $roletosearch = self::replace_placeholders($ownerrole->rolename, $courseid, $eventidentifier, $userid);
+
+        $acls = array_column($event->get_acl(), 'role');
+
+        return in_array($roletosearch[0], $acls);
     }
 
     /**

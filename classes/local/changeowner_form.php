@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Manual import videos form (Step 2: Select videos).
+ * Form for changing the owner of a video.
  *
  * @package    block_opencast
- * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
+ * @copyright  2022 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,13 +29,13 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/lib/formslib.php');
 
 /**
- * Manual import videos form (Step 2: Select videos).
+ *  Form for changing the owner of a video.
  *
  * @package    block_opencast
- * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
+ * @copyright  2022 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_select_series_form extends \moodleform {
+class changeowner_form extends \moodleform {
 
     /**
      * Form definition.
@@ -45,6 +45,8 @@ class importvideos_select_series_form extends \moodleform {
 
         // Define mform.
         $mform = $this->_form;
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
+        $identifier = $this->_customdata['identifier'];
 
         // Get renderer.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
@@ -52,34 +54,30 @@ class importvideos_select_series_form extends \moodleform {
         // Add hidden fields for transferring the wizard results and for wizard step processing.
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('hidden', 'step', 2);
-        $mform->setType('step', PARAM_INT);
-        $mform->addElement('hidden', 'sourcecourseid', $this->_customdata['sourcecourseid']);
-        $mform->setType('sourcecourseid', PARAM_INT);
-        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
         $mform->setType('ocinstanceid', PARAM_INT);
+        $mform->addElement('hidden', 'identifier', $identifier);
+        $mform->setType('identifier', PARAM_INT);
 
-        // Get list of available series.
-        $courseseries = $this->_customdata['series'];
+        $apibridge = apibridge::get_instance($ocinstanceid);
+        $video = $apibridge->get_opencast_video($identifier);
+        if ($video->error) {
+            $notification = $renderer->wizard_error_notification(
+                get_string('failedtogetvideo', 'block_opencast'));
+            $mform->addElement('html', $notification);
+            $mform->addElement('cancel');
 
-        // Add intro.
+            return;
+        }
+
         $notification = $renderer->wizard_intro_notification(
-            get_string('importvideos_wizardstep2aclintro', 'block_opencast'));
+            get_string('changeowner_explanation', 'block_opencast', $video->video->title));
         $mform->addElement('html', $notification);
 
-        // Add one single empty static element.
-        // This is just there to let us attach an validation error message as this can't be attached to the checkbox group.
-        $mform->addElement('static', 'coursevideosvalidation', '', '');
-
-        $radioarray = array();
-        foreach ($courseseries as $id => $title) {
-            $radioarray[] = $mform->createElement('radio', 'series', '', $title, $id, array());
-        }
-        $mform->addGroup($radioarray, 'series',
-            get_string('importvideos_wizard_availableseries', 'block_opencast',
-                get_course($this->_customdata['sourcecourseid'])->fullname), array('<br>'), false);
+        $mform->addElement('html', $this->_customdata['userselector']->display(true));
 
         // Add action buttons.
-        $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlecontinue', 'block_opencast'));
+        $this->add_action_buttons(true, get_string('changeowner', 'block_opencast'));
     }
+
 }

@@ -26,8 +26,6 @@ use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
 use tool_opencast\seriesmapping;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Get icon mapping for FontAwesome.
  *

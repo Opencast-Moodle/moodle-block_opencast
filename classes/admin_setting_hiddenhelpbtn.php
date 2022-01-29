@@ -24,8 +24,6 @@
 
 namespace block_opencast;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Admin setting class which is used to create a hidden help button.
  *
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_hiddenhelpbtn extends \admin_setting
-{
+class admin_setting_hiddenhelpbtn extends \admin_setting {
     /** @var string Id of the div tag */
     private $divid;
 

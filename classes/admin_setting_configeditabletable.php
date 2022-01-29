@@ -24,8 +24,6 @@
 
 namespace block_opencast;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Admin setting class which is used to create an editable table.
  *
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configeditabletable extends \admin_setting
-{
+class admin_setting_configeditabletable extends \admin_setting {
     /** @var string Id of the div tag */
     private $divid;
     /** @var string Text for add button */
@@ -90,7 +87,7 @@ class admin_setting_configeditabletable extends \admin_setting
      */
     public function output_html($data, $query = '') {
         return '<div class="mt-3" id="' . $this->divid .
-            '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto" type="button" id="addrow-' .
+            '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto mb-3" type="button" id="addrow-' .
             $this->divid . '">' . $this->buttontext . '</button></div>';
     }
 }

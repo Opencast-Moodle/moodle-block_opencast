@@ -66,7 +66,7 @@ Feature: Restore courses as Teacher
     Given I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
     When I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI series module to course" "button"
+    And I click on "Add Opencast LTI series module to course" "link"
     And I click on "Add module and return to overview" "button"
     And I click on "Add Opencast episode module to course" "link"
     And I click on "Add module and return to course" "button"
@@ -93,7 +93,7 @@ Feature: Restore courses as Teacher
     And I click on "Continue" "button"
     When I click on "Import videos and return to overview" "button"
     Then I should see "The import of the selected videos into this course was scheduled"
-    And I run the scheduled task "\block_opencast\task\cleanup_imported_ltiepisodes_cron"
+    And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
     And I click on "C1_1" "link"
     And I open "Opencast videos" actions menu
     And I choose "Edit settings" in the open action menu

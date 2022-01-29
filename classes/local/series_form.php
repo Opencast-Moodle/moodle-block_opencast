@@ -39,14 +39,15 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class series_form extends \moodleform
-{
+class series_form extends \moodleform {
 
     /**
      * Form definition.
      */
     public function definition() {
-        global $USER;
+        global $USER, $PAGE;
+        // Get the renderer to use its methods.
+        $renderer = $PAGE->get_renderer('block_opencast');
         $mform = $this->_form;
 
         $ocinstanceid = $this->_customdata['ocinstanceid'];
@@ -88,9 +89,16 @@ class series_form extends \moodleform
             }
 
             $param['class'] = 'ignoredirty';
-
-            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
+            // Get the created element back from addElement function, in order to further use its attrs.
+            $element = $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
+
+            // Check if the description is set for the field, to display it as help icon.
+            if (isset($field->description) && !empty($field->description)) {
+                // Use the renderer to generate a help icon with custom text.
+                $element->_helpbutton = $renderer->render_help_icon_with_custom_text(
+                    $this->try_get_string($field->name, 'block_opencast'), $field->description);
+            }
 
             if ($field->name == 'title') {
                 $mform->setDefault('title', $apibridge->get_default_seriestitle($this->_customdata['courseid'], $USER->id));

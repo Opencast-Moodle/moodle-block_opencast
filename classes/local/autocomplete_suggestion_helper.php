@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Autocompelete Suggestion helper.
  * @package    block_opencast
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class autocomplete_suggestion_helper
-{
+class autocomplete_suggestion_helper {
     /**
      * Get all available suggestions for contributor and creator (Presenter) metadata field.
      *

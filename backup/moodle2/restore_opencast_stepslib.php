@@ -35,8 +35,7 @@ use block_opencast\local\notifications;
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_opencast_block_structure_step extends restore_structure_step
-{
+class restore_opencast_block_structure_step extends restore_structure_step {
 
     private $backupeventids = [];
     private $missingeventids = [];

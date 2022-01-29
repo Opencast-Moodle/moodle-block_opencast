@@ -39,8 +39,7 @@ use tool_opencast\seriesmapping;
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_helper
-{
+class upload_helper {
 
     /** @var string File area id where videos are uploaded */
     const OC_FILEAREA = 'videotoupload';
@@ -142,8 +141,9 @@ class upload_helper
      * @param int $courseid Course id
      * @param object $coursecontext Course context
      * @param object $options Options
+     * @param object $visibility Visibility object
      */
-    public static function save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options) {
+    public static function save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options, $visibility = null) {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -217,6 +217,12 @@ class upload_helper
 
         $options->uploadjobid = $uploadjobid;
         $DB->insert_record('block_opencast_metadata', $options);
+
+        // Check if visibility object is set, then we insert the visibility records.
+        if (!empty($visibility)) {
+            $visibility->uploadjobid = $uploadjobid;
+            visibility_helper::save_visibility_job($visibility);
+        }
 
         // Delete all jobs with status ready to transfer, where file is missing.
         $sql = "SELECT uj.id " .

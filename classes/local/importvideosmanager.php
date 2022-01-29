@@ -24,7 +24,7 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
+use context_course;
 
 /**
  * Import videos management for block_opencast.
@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideosmanager
-{
+class importvideosmanager {
 
     /**
      * Helperfunction to get the status of the manual import videos feature.
@@ -204,16 +203,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid);
-
-        // If the LTI module is not working, then this feature is not working as well.
-        if ($basisfeature == false) {
-            // Inform the caller.
-            return false;
-        }
-
-        // The feature is working.
         return true;
     }
 
@@ -244,16 +233,6 @@ class importvideosmanager
             return false;
         }
 
-        // Get the status of the LTI module feature (which is the basis for this feature).
-        $basisfeature = \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid);
-
-        // If the LTI module is not working, then this feature is not working as well.
-        if ($basisfeature == false) {
-            // Inform the caller.
-            return false;
-        }
-
-        // The feature is working.
         return true;
     }
 
@@ -265,40 +244,48 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_menu($ocinstanceid, $sourcecourseid) {
+    public static function get_import_source_course_series_and_videos_menu($ocinstanceid, $sourcecourseid) {
         global $PAGE;
 
         // Get renderer.
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Initialize course videos as empty array.
-        $coursevideos = array();
+        $courseseries = array();
 
         // If the user is not allowed to import from the given course at all, return.
         $coursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $coursecontext) != true) {
-            return $coursevideos;
+            return $courseseries;
         }
 
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get course videos which are qualified to be imported.
-        $coursebackupvideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
+        // Get course series with videos which are qualified to be imported.
+        $coursebackupseries = $apibridge->get_course_series_and_videos_for_backup($sourcecourseid);
 
         // If there aren't any videos, return.
-        if (count($coursebackupvideos) < 1) {
-            return $coursevideos;
+        if (count($coursebackupseries) < 1) {
+            return $courseseries;
         }
 
-        // Move the course videos from the array of objects into the course videos array to be used by the caller.
+        // Move the course series from the array of objects into the course series array to be used by the caller.
         // During this movement, render the course video menu entry with all necessary information.
-        foreach ($coursebackupvideos as $identifier => $video) {
-            $coursevideos[$identifier] = $renderer->course_video_menu_entry($video);
+        foreach ($coursebackupseries as $identifier => $videos) {
+            $title = $apibridge->get_series_by_identifier($identifier)->title;
+            if (!$title) {
+                $title = $identifier;
+            }
+            $courseseries[$identifier] = array('title' => $title, 'videos' => array());
+
+            foreach ($videos as $videoid => $video) {
+                $courseseries[$identifier]['videos'][$videoid] = $renderer->course_video_menu_entry($video);
+            }
         }
 
         // Finally, return the list of course videos.
-        return $coursevideos;
+        return $courseseries;
     }
 
     /**
@@ -327,18 +314,11 @@ class importvideosmanager
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get course videos which are qualified to be imported.
-        $allcoursevideos = $apibridge->get_course_videos_for_backup($sourcecourseid);
-
-        // If there aren't any videos, return.
-        if (count($allcoursevideos) < 1) {
-            return $coursevideossummary;
-        }
-
         // Iterate over all course videos which have been selected to be imported.
         foreach ($selectedcoursevideos as $identifier => $checked) {
             // If the event does not exist anymore in Opencast in the meantime, skip it silently.
-            if ($apibridge->get_already_existing_event(array($identifier)) == false) {
+            $video = $apibridge->get_already_existing_event(array($identifier));
+            if ($video == false) {
                 continue;
             }
 
@@ -350,7 +330,14 @@ class importvideosmanager
 
             // Add the selected video to the course video summary.
             // During this step, render the course video menu entry with all necessary information.
-            $coursevideossummary[$identifier] = $renderer->course_video_menu_entry($allcoursevideos[$identifier]);
+            if (!array_key_exists($video->is_part_of, $coursevideossummary)) {
+                $title = $video->series;
+                if (!$title) {
+                    $title = $video->is_part_of;
+                }
+                $coursevideossummary[$video->is_part_of] = array('title' => $title, 'videos' => array());
+            }
+            $coursevideossummary[$video->is_part_of]['videos'][$identifier] = $renderer->course_video_menu_entry($video);
 
         }
 
@@ -380,32 +367,37 @@ class importvideosmanager
      * @param array $coursevideos The array of video identifiers to be duplicated.
      * @param bool $modulecleanup (optional) The switch if we want to cleanup the episode modules.
      *
-     * @return bool
+     * @return \stdClass
      */
     public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid,
                                             $coursevideos, $modulecleanup = false) {
         global $USER;
+        $result = new \stdClass();
 
         // If the user is not allowed to import from the source course at all, return.
         $sourcecoursecontext = \context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
-            return false;
+            $result->error = true;
+            return $result;
         }
 
         // If the user is not allowed to import to the target course at all, return.
         $targetcoursecontext = \context_course::instance($targetcourseid);
         if (has_capability('block/opencast:manualimporttarget', $targetcoursecontext) != true) {
-            return false;
+            $result->error = true;
+            return $result;
         }
 
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
         // Get source course series ID.
-        $sourceseriesid = $apibridge->get_stored_seriesid($sourcecourseid);
+        $sourceseries = array_column($apibridge->get_course_series($sourcecourseid), 'series');
 
         // Get target course series ID, create a new one if necessary.
         $targetseriesid = $apibridge->get_stored_seriesid($targetcourseid, true, $USER->id);
+
+        $duplicatedsourceseries = array();
 
         // Process the array of course videos.
         foreach ($coursevideos as $identifier => $checked) {
@@ -418,7 +410,7 @@ class importvideosmanager
             }
 
             // If the given course video does not belong to the source course series, skip it to prevent any fraud silently.
-            if ($event->is_part_of != $sourceseriesid) {
+            if (!in_array($event->is_part_of, $sourceseries)) {
                 continue;
             }
 
@@ -428,11 +420,24 @@ class importvideosmanager
                 continue;
             }
 
+            $duplicatedsourceseries[] = $event->is_part_of;
+
             // If cleanup of the episode modules was requested, look for existing modules.
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
-                $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episode_linking_to_other_course(
-                    $ocinstanceid, $targetcourseid, $identifier);
+                $episodemodules = array();
+
+                // For LTI check if capability is fulfilled.
+                if (\block_opencast\local\ltimodulemanager::is_working_for_episodes($ocinstanceid) &&
+                    has_capability('block/opencast:addltiepisode', context_course::instance($targetcourseid))) {
+                    $episodemodules = ltimodulemanager::get_modules_for_episode_linking_to_other_course(
+                        $ocinstanceid, $targetcourseid, $identifier);
+                }
+
+                if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                    $episodemodules += activitymodulemanager::get_modules_for_episode_linking_to_other_course(
+                        $ocinstanceid, $targetcourseid, $identifier);
+                }
             }
 
             // If there are existing modules to be cleaned up.
@@ -450,12 +455,15 @@ class importvideosmanager
             if ($ret == false) {
                 // We seem to have a problem and should not continue to fire requests into a broken system.
                 // Stop here and inform the caller.
-                return false;
+                $result->error = true;
+                return $result;
             }
         }
 
         // Finally, inform the caller that the tasks have been created.
-        return true;
+        $result->error = false;
+        $result->duplicatedseries = array_unique($duplicatedsourceseries);
+        return $result;
     }
 
     /**

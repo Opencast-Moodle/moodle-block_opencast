@@ -25,8 +25,6 @@ namespace block_opencast\task;
 
 use tool_opencast\local\settings_api;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Task for deleting the event status notification jobs.
  *
@@ -35,8 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package block_opencast
  */
-class process_delete_notification_cron extends \core\task\scheduled_task
-{
+class process_delete_notification_cron extends \core\task\scheduled_task {
 
     public function get_name() {
         return get_string('processdeletenotification', 'block_opencast');

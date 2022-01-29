@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Helper class for workflow settings.
+ * Helper class for admin settings.
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
@@ -26,17 +26,14 @@ namespace block_opencast;
 
 use tool_opencast\empty_configuration_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
- *  Helper class for workflow settings.
+ *  Helper class for admin settings.
  *
  * @package    block_opencast
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class workflow_setting_helper
-{
+class setting_helper {
     public static function validate_workflow_setting($data) {
         // Hack to get the opencast instance id.
         $category = optional_param('category', null, PARAM_RAW);
@@ -80,5 +77,49 @@ class workflow_setting_helper
         } catch (opencast_connection_exception | empty_configuration_exception $e) {
             return $e;
         }
+    }
+
+    public static function validate_aclownerrole_setting($data) {
+        // Hack to get the opencast instance id.
+        $category = optional_param('category', null, PARAM_RAW);
+        if ($category) {
+            $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
+        } else {
+            $section = optional_param('section', null, PARAM_RAW);
+            $ocinstanceid = intval(ltrim($section, 'block_opencast_importvideossettings_'));
+        }
+
+        // Do only if a workflow was set.
+        if (!empty($data)) {
+            $roles = json_decode(get_config('block_opencast', 'roles_' . $ocinstanceid));
+            $role = array_search($data, array_column($roles, 'rolename'));
+            if (!$role) {
+                // Role isn't defined as ACL role.
+                return get_string('role_not_defined', 'block_opencast');
+            }
+
+            if (!$roles[$role]->permanent) {
+                // Role isn't defined as permanent.
+                return get_string('role_not_permanent', 'block_opencast');
+            }
+
+            $userrelated = false;
+            $userplaceholders = ['[USERNAME]', '[USERNAME_LOW]', '[USERNAME_UP]', '[USER_EMAIL]', '[USER_EXTERNAL_ID]'];
+            foreach ($userplaceholders as $placeholder) {
+                if (strpos($data, $placeholder) !== false) {
+                    $userrelated = true;
+                    break;
+                }
+            }
+
+            if (!$userrelated) {
+                // Role is not user-related.
+                return get_string('role_not_user_related', 'block_opencast');
+            }
+
+            return true;
+        }
+
+        return true;
     }
 }

@@ -22,8 +22,6 @@
 namespace block_opencast\task;
 use block_opencast\local\apibridge;
 
-defined('MOODLE_INTERNAL') || die();
-
 class process_delete_cron extends \core\task\scheduled_task {
 
     public function get_name() {

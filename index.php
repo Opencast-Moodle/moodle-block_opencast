@@ -220,6 +220,12 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
     // If Opencast Studio is enabled, show "Record video" button.
     if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
+        $target = '_self';
+        // Check for the admin config to set the link target.
+        if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstanceid)) {
+            $target = '_blank';
+        }
+
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
         if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
             if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
@@ -234,13 +240,13 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 
             $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
             $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
-                null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                null, array('class' => 'btn btn-secondary', 'target' => $target));
             echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
         } else {
             $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
                 array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
             $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-                null, array('class' => 'btn btn-secondary', 'target' => '_blank'));
+                null, array('class' => 'btn btn-secondary', 'target' => $target));
             echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
         }
     }
@@ -276,20 +282,12 @@ foreach ($courseseries as $series) {
     }
 }
 
-$showseriesinfo = false;
 if ($seriesvideodata && $errors == count($seriesvideodata)) {
     // Show single error.
     echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', reset($seriesvideodata)->error), 'opencast-bc-wrap');
 } else {
     if ($workflowsavailable) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
-    }
-
-    if ($errors > 0) {
-        // Show all series as only some have errors.
-        $showseriesinfo = true;
-    } else {
-        $showseriesinfo = count($courseseries) > 1;
     }
 }
 
@@ -306,26 +304,21 @@ if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_ser
     $series = array_filter($seriesvideodata, function ($vd) {
         return !$vd->error;
     });
-    if (!$showseriesinfo && $series) {
-        echo $renderer->render_provide_activity($coursecontext, $ocinstanceid, $courseid, array_keys($series)[0]);
-    }
 }
 
 
 foreach ($seriesvideodata as $series => $videodata) {
-    if ($showseriesinfo) {
-        // Get series title from first video.
-        if ($videodata->videos && $videodata->videos[0]) {
-            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
+    // Get series title from first video.
+    if ($videodata->videos && $videodata->videos[0]) {
+        echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
+    } else {
+        // Try to retrieve name from opencast.
+        $ocseries = $apibridge->get_series_by_identifier($series);
+        if ($ocseries) {
+            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
         } else {
-            // Try to retrieve name from opencast.
-            $ocseries = $apibridge->get_series_by_identifier($series);
-            if ($ocseries) {
-                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
-            } else {
-                // If that fails use id.
-                echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
-            }
+            // If that fails use id.
+            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
         }
     }
 
@@ -414,8 +407,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                 // Actions column.
                 $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
                 $useeditor = $opencast->can_edit_event_in_editor($video, $courseid);
+                $canchangeowner = $opencast->is_owner($courseid, $video->identifier, $USER->id);
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
-                    $workflowsavailable, $coursecontext, $useeditor);
+                    $workflowsavailable, $coursecontext, $useeditor, $canchangeowner);
 
                 if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);

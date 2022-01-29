@@ -39,15 +39,16 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class updatemetadata_form extends \moodleform
-{
+class updatemetadata_form extends \moodleform {
 
     /**
      * Form definition.
      */
     public function definition() {
+        global $PAGE;
 
         $mform = $this->_form;
+        $renderer = $PAGE->get_renderer('block_opencast');
 
         foreach ($this->_customdata['metadata_catalog'] as $field) {
             $value = $this->extract_value($field->name);
@@ -71,8 +72,15 @@ class updatemetadata_form extends \moodleform
                 }
             }
 
-            $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
+            $element = $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
+
+            // Check if the description is set for the field, to display it as help icon.
+            if (isset($field->description) && !empty($field->description)) {
+                // Use the renderer to generate a help icon with custom text.
+                $element->_helpbutton = $renderer->render_help_icon_with_custom_text(
+                    $this->try_get_string($field->name, 'block_opencast'), $field->description);
+            }
 
             if ($field->datatype == 'text') {
                 $mform->setType($field->name, PARAM_TEXT);

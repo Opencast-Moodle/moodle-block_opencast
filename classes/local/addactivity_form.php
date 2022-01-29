@@ -35,8 +35,7 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>, 2021 Justus Dieckmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addactivity_form extends \moodleform
-{
+class addactivity_form extends \moodleform {
 
     /**
      * Form definition.

@@ -37,8 +37,7 @@ require_once($CFG->libdir . '/externallib.php');
  * @copyright  2021 Tamara Gunkel <tamara.gunkel@wi.uni-muenster.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_external extends external_api
-{
+class block_opencast_external extends external_api {
 
     /**
      * Returns description of method parameters

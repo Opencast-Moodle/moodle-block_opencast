@@ -40,6 +40,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
         {key: 'delete_confirm_metadata', component: 'block_opencast'},
         {key: 'heading_name', component: 'block_opencast'},
         {key: 'heading_datatype', component: 'block_opencast'},
+        {key: 'heading_description', component: 'block_opencast'},
         {key: 'heading_required', component: 'block_opencast'},
         {key: 'heading_readonly', component: 'block_opencast'},
         {key: 'heading_params', component: 'block_opencast'},
@@ -121,7 +122,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                             body: jsstrings[4]
                         })
                             .then(function (modal) {
-                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.setSaveButtonText(jsstrings[3]);
                                 modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });
@@ -173,7 +174,14 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[9],
+                    title: jsstrings[9] + '   ' + $('#helpbtndescription_' + ocinstanceid).html(),
+                    field: "description",
+                    editor: "textarea",
+                    widthGrow: 2,
+                    headerSort: false
+                },
+                {
+                    title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
                         function (cell) {
@@ -188,7 +196,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[10],
+                    title: jsstrings[11],
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function (cell) {
                             var input = document.createElement('input');
@@ -202,7 +210,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[11] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
+                    title: jsstrings[12] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
                     field: "param_json",
                     editor: "textarea",
                     widthGrow: 2,
@@ -272,7 +280,14 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[9],
+                    title: jsstrings[9] + '   ' + $('#helpbtndescription_' + ocinstanceid).html(),
+                    field: "description",
+                    editor: "textarea",
+                    widthGrow: 2,
+                    headerSort: false
+                },
+                {
+                    title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
                         function (cell) {
@@ -287,7 +302,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[10],
+                    title: jsstrings[11],
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function (cell) {
                             var input = document.createElement('input');
@@ -301,7 +316,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                         }
                 },
                 {
-                    title: jsstrings[11] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
+                    title: jsstrings[12] + '   ' + $('#helpbtnparams_' + ocinstanceid).html(),
                     field: "param_json",
                     editor: "textarea",
                     widthGrow: 2,

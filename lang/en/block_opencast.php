@@ -23,6 +23,8 @@
  */
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
+$string['aclownerrole'] = 'ACL owner role';
+$string['aclownerrole_desc'] = 'Name of the role that identifies the owner of a video/series. The role must also be specified in the roles table. The role must be permanent and include a user-related placeholder, e.g. ROLE_OWNER_[USER_EMAIL]. If empty, owner-related plugin functionalities are disabled.';
 $string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
 $string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}<br />Some changes might have not been saved. If this occurs repeatedly, please contact your support team.';
 $string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
@@ -32,6 +34,8 @@ $string['acl_settingcontrolafter_desc'] = 'If enabled, teachers can control the 
 $string['acl_settingcontrolgroup'] = 'Allow episode group restriction';
 $string['acl_settingcontrolgroup_desc'] = 'If enabled, teachers can not only control the visibility of an Opencast episode for all course users but can also restrict the visibility to particular course groups.';
 $string['acl_settingheader'] = 'Control episode visibility';
+$string['acl_settingcontrolwaitingtime'] = 'Waiting time for scheduled visibility change (Minutes)';
+$string['acl_settingcontrolwaitingtime_desc'] = 'It defines a minimum waiting time (in minutes) that scheduled visibility change process should wait. This time span will be added to current time for the scheduled video change date filed in add video form, it will also be used to validate that field. Based on how fast the Opencast instance processes the videos, this waiting time could be configured. <br />NOTE: When empty or (zero) "0", the default value is used.';
 $string['aclnothingtobesaved'] = 'No changes to the visibility have been made.';
 $string['accesspolicies'] = 'Access Policies';
 $string['aclrolesname'] = 'Roles';
@@ -173,6 +177,8 @@ $string['appearance_overview_settingshowpublicationchannels_desc'] = 'If enabled
 $string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['blocksettings'] = 'Settings for a block instance';
 
+$string['changingownersuccess'] = 'The ownership was successfully transferred.';
+$string['changingownerfailed'] = 'An error occured. The ownership could not be transferred.';
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['cachevalidtime'] = 'Cache valid time';
 $string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
@@ -198,6 +204,8 @@ $string['legendvisibility_hiddendesc'] = 'The video is not visible to any studen
 $string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
 $string['legendvisibility_group'] = 'Group Visibilty';
 $string['legendvisibility_groupdesc'] = 'The video is visible to all student belonging to selected groups.';
+$string['changeowner'] = 'Change owner';
+$string['changeowner_explanation'] = 'Currently, you are the owner of the video {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the video.';
 $string['changevisibility_header'] = 'Change visibility for {$a->title}';
 $string['changevisibility'] = 'Alter visibility';
 $string['connection_failure'] = 'Could not reach Opencast server.';
@@ -214,6 +222,8 @@ $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2"
 $string['contributor'] = 'Contributor(s)';
 $string['created'] = 'Created at';
 $string['creator'] = 'Presenter(s)';
+$string['descriptionmdfd'] = 'Field Description';
+$string['descriptionmdfd_help'] = 'The content of this field is presented as a help icon near the metadata field.';
 
 $string['date'] = 'Start Date';
 $string['descriptionmdfn'] = 'Field name';
@@ -329,7 +339,9 @@ $string['group_name_empty'] = 'The group name must not be empty if a group shoul
 
 $string['heading_name'] = 'Field Name';
 $string['heading_datatype'] = 'Field Type';
-$string['heading_lti'] = 'Setting for LTI Configuration';$string['heading_position'] = 'Position';
+$string['heading_description'] = 'Field Description';
+$string['heading_lti'] = 'Setting for LTI Configuration';
+$string['heading_position'] = 'Position';
 $string['heading_required'] = 'Required';
 $string['heading_readonly'] = 'Read Only';
 $string['heading_params'] = 'Parameters (JSON)';
@@ -381,7 +393,7 @@ $string['importvideos_settinghandleepisodeenabled_desc'] = 'If enabled, teachers
 $string['importvideos_settinghandleseriesenabled'] = 'Handle Opencast series modules during manual video import';
 $string['importvideos_settinghandleseriesenabled_desc'] = 'If enabled, teachers can handle Opencast series modules which were created with the "Add LTI series module" feature and which relate to the videos which are imported. This especially cleans up modules which have been imported from one course to another course but which still link to the course series of the old course. The series module is instantly handled after the import wizard is finished.';
 $string['importvideos_settingmanualenabled'] = 'Allow manual video import';
-$string['importvideos_settingmanualenabled_desc'] = 'If enabled, teachers can import existing video files from other Moodle courses to their Moodle course by using a dedicated Opencast video import wizard. This feature is offered on the Opencast block overview page.<br /> In Duplicating Events import mode, the teacher can import all or a subset of videos from another course as bulk. The videos which are selected within the import wizard are duplicated in Opencast by an ad-hoc task in Moodle and will show up in the course\'s video list with a short delay.<br />In ACL Change import mode, the seriesid of the the target course will be used in the new course. Additionally, the ACLs of the series itself and all of its videos will be changed in order to grant access to them within the new course.<br />Unlike in Duplicating Events Mode, there is no manuall selection of videos available within the provided wizard.<br />Please note that there are corresponding capabilities block/opencast:manualimporttarget and block/opencast:manualimportsource for this feature which control who can import which courses to which courses. By default, managers and editing teachers have this capability and can use the feature as soon as it is enabled here.';
+$string['importvideos_settingmanualenabled_desc'] = 'If enabled, teachers can import existing video files from other Moodle courses to their Moodle course by using a dedicated Opencast video import wizard. This feature is offered on the Opencast block overview page.<br /> In Duplicating Events import mode, the teacher can import all or a subset of videos from another course as bulk. The videos which are selected within the import wizard are duplicated in Opencast by an ad-hoc task in Moodle and will show up in the course\'s video list with a short delay.<br />In ACL Change import mode, the seriesid of the the target course will be used in the new course. Additionally, the ACLs of the series itself and all of its videos will be changed in order to grant access to them within the new course.<br />Unlike in Duplicating Events Mode, there is no manual selection of videos available within the provided wizard.<br />Please note that there are corresponding capabilities block/opencast:manualimporttarget and block/opencast:manualimportsource for this feature which control who can import which courses to which courses. By default, managers and editing teachers have this capability and can use the feature as soon as it is enabled here.';
 $string['importvideos_progressbarstep'] = 'Step {$a->current} of {$a->last}';
 $string['importvideos_wizardstep1heading'] = 'Select source course';
 $string['importvideos_wizardstep1intro'] = 'Select the source course from where the videos should be imported from the following list of courses.<br />You can pick from all courses which you are allowed to import videos from.';
@@ -395,7 +407,7 @@ $string['importvideos_wizardstep2coursevideos'] = 'Import these videos';
 $string['importvideos_wizardstep2coursevideosnone'] = 'There isn\'t any video in the selected course.';
 $string['importvideos_wizardstep2coursevideosnoneselected'] = 'You have to check at least one video to be imported.';
 $string['importvideos_wizardstep2heading'] = 'Select videos';
-$string['importvideos_wizardstep2intro'] = 'Select the videos which you want to import from the source course.<br />You can pick from all videos which have been processed completely in the default series of the source course.';
+$string['importvideos_wizardstep2intro'] = 'Select the videos which you want to import from the source course.<br />You can pick from all videos which have been processed completely in the series of the source course.<br/><b>Notice: </b>All selected videos will be imported into a single series.';
 $string['importvideos_wizardstep2aclheading'] = 'Select series';
 $string['importvideos_wizardstep2aclintro'] = 'Select the series which you want to import from the source course.<br/>All videos from this series are imported.';
 $string['importvideos_wizard_availableseries'] = 'Available series in {$a}';
@@ -468,6 +480,7 @@ $string['mstateunknown'] = 'State unknown';
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
+$string['nouserselected'] = 'You must select a user.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';
 $string['notpublished'] = 'Not published';
 $string['notifications_settings_header'] = 'Notifications';
@@ -532,7 +545,7 @@ $string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date th
 $string['privacy:metadata:core_files'] = 'The opencast block stores files (videos) which have been uploaded by the user.';
 $string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
 $string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
-$string['processepisodecleanup'] = 'Process Opencast LTI episode cleanup after course imports';
+$string['processepisodecleanup'] = 'Process Opencast Video Provider/LTI episode cleanup after course imports';
 $string['processupload'] = 'Process upload';
 $string['processdelete'] = 'Process delete jobs for Opencast';
 $string['processnotification'] = 'Process event status notification jobs after upload';
@@ -557,6 +570,9 @@ $string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
 $string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
 $string['recordvideo'] = 'Record video';
 $string['rightsHolder'] = 'Rights';
+$string['role_not_defined'] = 'The role is not defined in the ACL roles table.';
+$string['role_not_user_related'] = 'The role does not contain a user placeholder and can thus not be used to identify users.';
+$string['role_not_permanent'] = 'The role is not defined as permanent in the ACL roles table.';
 
 $string['series'] = 'Series';
 $string['series_already_exists'] = 'This course is already assigned to a series.';
@@ -629,6 +645,7 @@ $string['updatemetadata_short'] = 'Update metadata';
 $string['upload'] = 'File Upload';
 $string['uploadexplanation'] = 'You have the option to upload a presenter video file and / or a presentation video file.<br />Most likely you will only upload one file, but Opencast is also capable of dealing with two videos at once which will be combined in a media package.';
 $string['usedefaultfilepicker'] = 'Use Moodle default file picker to access all repositories';
+$string['userisntowner'] = 'Only the owner of the video can change the ownership.';
 
 $string['video'] = 'Video';
 $string['videosavailable'] = 'Videos available in this course';
@@ -686,6 +703,20 @@ $string['opencaststudioreturnurl'] = 'Custom Studio return endpoint URL';
 $string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects back to the same Moodle opencast block overview where the request comes from. A custom endpoint URL will then be passed to Studio as return url when configured, in this case, admin is able to use 2 placeholders including [OCINSTANCEID] and [COURSEID]. Please NOTE: the URL must be relative to wwwroot.';
 $string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
 $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
+
+// Strings for new visibility feature during initail upload.
+$string['visibilityheader'] = 'Event Visibility';
+$string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimehi'] = 'Scheduling date';
+$string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least 20 minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
+$string['scheduledvisibilitytime'] = 'Change video visibility on';
+$string['scheduledvisibilitytimeerror'] = 'The scheduled date to change visibility must be set at least 20 minutes after the current data and time.';
+$string['initialvisibilitystatus'] = 'Initial visibility of the video';
+$string['scheduledvisibilitystatus'] = 'Change video visibility to';
+$string['enableschedulingchangevisibility'] = 'Schedule a visibility change';
+$string['enableschedulingchangevisibilitydesc'] = 'Set a date and a visibility status for the event in future, which will be performed using a scheduled task.';
+$string['processvisibility'] = 'Process scheduled visibility change jobs';
 
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

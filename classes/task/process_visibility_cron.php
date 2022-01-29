@@ -15,22 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
- *
- * @package    block_opencast
- * @copyright  2021 Tamara Gunkel, University of Münster
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_opencast
+ * @copyright  2022 Farbod Zamani Boroujeni, ELAN e.V.
+ * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace block_opencast;
+namespace block_opencast\task;
 
 /**
- * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
- *
- * @package    block_opencast
- * @copyright  2021 Tamara Gunkel, University of Münster
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Task for processing the scheduled visibilty change jobs.
+ * @package block_opencast
  */
-class opencast_connection_exception extends \moodle_exception {
+class process_visibility_cron extends \core\task\scheduled_task {
 
+    public function get_name() {
+        return get_string('processvisibility', 'block_opencast');
+    }
+
+    public function execute() {
+        $visibilityhelper = new \block_opencast\local\visibility_helper();
+        $visibilityhelper->cron();
+    }
 }

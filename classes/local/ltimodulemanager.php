@@ -24,8 +24,6 @@
 
 namespace block_opencast\local;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * LTI module management for block_opencast.
  *
@@ -33,8 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ltimodulemanager
-{
+class ltimodulemanager {
 
     /**
      * Helperfunction to get the list of available preconfigured LTI tools.
@@ -133,6 +130,16 @@ class ltimodulemanager
             return false;
         }
 
+        return self::is_working_for_series($ocinstanceid);
+    }
+
+    /**
+     * Helperfunction to get the status of the Opencast series feature.
+     * This is a sanity check if the configured tool is valid.
+     *
+     * @return boolean
+     */
+    public static function is_working_for_series($ocinstanceid) {
         // Get the preconfigured tool.
         $tool = self::get_preconfigured_tool_for_series($ocinstanceid);
 
@@ -185,15 +192,39 @@ class ltimodulemanager
             }
         }
 
+        // Check if feature is working.
+        if ($enabledandworking !== false) {
+            $enabledandworking = self::is_working_for_episodes($ocinstanceid);
+        }
+
+        // Inform the caller.
+        return $enabledandworking;
+    }
+
+    /**
+     * Helperfunction to get the status of the Opencast episodes feature.
+     * This is a sanity check if the configured tool is valid.
+     *
+     * @return boolean
+     */
+    public static function is_working_for_episodes($ocinstanceid) {
+        // Remember the status for subsequent calls.
+        static $working = null;
+
+        // If we know the status already, inform the caller directly.
+        if ($working !== null) {
+            return $working;
+        }
+
         // If we don't know the status yet, check the preconfigured tool.
-        if ($enabledandworking === null) {
+        if ($working === null) {
             // Get the preconfigured tool.
             $tool = self::get_preconfigured_tool_for_episode($ocinstanceid);
 
             // If the tool is empty, then the feature is not working.
             if ($tool == false) {
                 // Inform the caller.
-                $enabledandworking = false;
+                $working = false;
             }
         }
 
@@ -210,12 +241,12 @@ class ltimodulemanager
         }
 
         // If everything was fine up to now, we should be sure that the feature is working.
-        if ($enabledandworking !== false) {
-            $enabledandworking = true;
+        if ($working !== false) {
+            $working = true;
         }
 
         // Inform the caller.
-        return $enabledandworking;
+        return $working;
     }
 
     /**
@@ -459,42 +490,37 @@ class ltimodulemanager
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get the course series of the referenced course.
-        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
-
-        // If the referenced course does not have any series configured, return.
-        if ($referencedseriesid == null) {
-            return array();
-        }
+        // Initialize modules to be returned as empty array.
+        $modules = array();
 
         // Get the id of the preconfigured tool.
         $toolid = self::get_preconfigured_tool_for_series($ocinstanceid);
 
-        // Initialize modules to be returned as empty array.
-        $modules = array();
+        // Get the course series of the referenced course.
+        foreach ($apibridge->get_course_series($referencedcourseid) as $series) {
+            // Get the LTI series module(s) which point to the series.
+            // If there is more than one module, the list will be ordered by the time when the module was added to the course.
+            // The oldest module is probably the module which should be kept when the modules are cleaned up later,
+            // the newer ones will probably be from additional course content imports.
+            $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
+                'JOIN {course_modules} cm ' .
+                'ON l.id = cm.instance ' .
+                'WHERE l.typeid = :toolid ' .
+                'AND cm.course = :course ' .
+                'AND ' . $DB->sql_like('l.instructorcustomparameters', ':referencedseriesid') .
+                ' ORDER BY cm.added ASC';
+            $params = array('toolid' => $toolid,
+                'course' => $modulecourseid,
+                'referencedseriesid' => '%' . $series->series . '%');
+            $seriesmodules = $DB->get_fieldset_sql($sql, $params);
 
-        // Get the LTI series module(s) which point to the series.
-        // If there is more than one module, the list will be ordered by the time when the module was added to the course.
-        // The oldest module is probably the module which should be kept when the modules are cleaned up later,
-        // the newer ones will probably be from additional course content imports.
-        $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
-            'JOIN {course_modules} cm ' .
-            'ON l.id = cm.instance ' .
-            'WHERE l.typeid = :toolid ' .
-            'AND cm.course = :course ' .
-            'AND ' . $DB->sql_like('l.instructorcustomparameters', ':referencedseriesid') .
-            ' ORDER BY cm.added ASC';
-        $params = array('toolid' => $toolid,
-            'course' => $modulecourseid,
-            'referencedseriesid' => '%' . $referencedseriesid . '%');
-        $seriesmodules = $DB->get_fieldset_sql($sql, $params);
-
-        // If there are any existing series modules in this course.
-        if (count($seriesmodules) > 0) {
-            // Iterate over modules.
-            foreach ($seriesmodules as $s) {
-                // Remember the series module to be returned.
-                $modules[$s] = $referencedseriesid;
+            // If there are any existing series modules in this course.
+            if (count($seriesmodules) > 0) {
+                // Iterate over modules.
+                foreach ($seriesmodules as $s) {
+                    // Remember the series module to be returned.
+                    $modules[$s] = $series->series;
+                }
             }
         }
 
@@ -511,7 +537,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedcourseid) {
+    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedcourseid, $duplicatedseries) {
         global $CFG, $DB;
 
         // Require grade library. For an unknown reason, this is needed when updating the module.
@@ -526,6 +552,10 @@ class ltimodulemanager
         // Get the existing series modules in the course.
         $referencedseriesmodules = self::get_modules_for_series_linking_to_other_course($ocinstanceid,
             $modulecourseid, $referencedcourseid);
+
+        $referencedseriesmodules = array_filter($referencedseriesmodules, function ($entry) use ($duplicatedseries) {
+            return in_array($entry, $duplicatedseries);
+        });
 
         // If there aren't any modules in the course to be cleaned up, return.
         if (count($referencedseriesmodules) < 1) {
@@ -696,33 +726,28 @@ class ltimodulemanager
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-        // Get the course series of the referenced course.
-        $referencedseriesid = $apibridge->get_stored_seriesid($referencedcourseid);
-
-        // If the referenced course does not have any series configured, return.
-        if ($referencedseriesid == null) {
-            return array();
-        }
-
-        // Get episodes which are located in the referenced course.
-        $coursevideos = $apibridge->get_course_videos($referencedcourseid);
-
         // Initialize modules to be returned as empty array.
         $modules = array();
 
-        // Iterate over episodes.
-        foreach ($coursevideos->videos as $video) {
-            // Proceed only if we have to check this particular video.
-            if ($onlytheseepisodes == null || !in_array($video->identifier, $onlytheseepisodes)) {
-                continue;
+        // Get the course series of the referenced course.
+        foreach ($apibridge->get_course_series($referencedcourseid) as $series) {
+            // Get episodes which are located in the referenced series.
+            $coursevideos = $apibridge->get_series_videos($series->series);
+
+            // Iterate over episodes.
+            foreach ($coursevideos->videos as $video) {
+                // Proceed only if we have to check this particular video.
+                if ($onlytheseepisodes == null || !in_array($video->identifier, $onlytheseepisodes)) {
+                    continue;
+                }
+
+                // Check each episode individually.
+                $episodemodules = self::get_modules_for_episode_linking_to_other_course($ocinstanceid,
+                    $modulecourseid, $video->identifier);
+
+                // And add the result to the array of modules.
+                $modules += $episodemodules;
             }
-
-            // Check each episode individually.
-            $episodemodules = self::get_modules_for_episode_linking_to_other_course($ocinstanceid,
-                $modulecourseid, $video->identifier);
-
-            // And add the result to the array of modules.
-            $modules += $episodemodules;
         }
 
         // Return the LTI module(s) ids.
@@ -778,7 +803,7 @@ class ltimodulemanager
     /**
      * Helperfunction to cleanup the Opencast LTI episode modules for a given episode module from the job list in the database.
      * This especially cleans up modules which have been imported from one course to another course.
-     * This function is primarily called by the \block_opencast\task\cleanup_imported_ltiepisodes_cron scheduled task.
+     * This function is primarily called by the \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
      * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
      *
      * @param int $modulecourseid The course which is cleaned up.

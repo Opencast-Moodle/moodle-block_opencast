@@ -25,10 +25,7 @@
 use block_opencast\opencast_connection_exception;
 use tool_opencast\seriesmapping;
 
-defined('MOODLE_INTERNAL') || die();
-
-class block_opencast extends block_base
-{
+class block_opencast extends block_base {
 
     public function init() {
         $this->title = get_string('pluginname', 'block_opencast');
