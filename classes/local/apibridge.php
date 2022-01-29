@@ -2050,6 +2050,10 @@ class apibridge {
         $resource = '/api/events/' . $eventidentifier . '/acl';
         $jsonacl = $api->oc_get($resource);
 
+        if (!$jsonacl) {
+            return false;
+        }
+
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
 
@@ -2061,7 +2065,7 @@ class apibridge {
 
         $acls = array_column($event->get_acl(), 'role');
 
-        return in_array($roletosearch, $acls);
+        return in_array($roletosearch[0], $acls);
     }
 
     /**

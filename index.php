@@ -401,8 +401,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                 // Actions column.
                 $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
                 $useeditor = $opencast->can_edit_event_in_editor($video, $courseid);
+                $canchangeowner = $opencast->is_owner($courseid, $video->identifier, $USER->id);
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
-                    $workflowsavailable, $coursecontext, $useeditor);
+                    $workflowsavailable, $coursecontext, $useeditor, $canchangeowner);
 
                 if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);

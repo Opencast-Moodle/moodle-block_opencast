@@ -30,11 +30,11 @@ if (!$apibridge->is_owner($courseid, $identifier, $USER->id)) {
     $PAGE->navbar->add(get_string('changeowner', 'block_opencast'), $baseurl);
 
     $userselector = new block_opencast_enrolled_user_selector('ownerselect',
-        array('context' => $coursecontext, 'multiselect' => false));
+        array('context' => $coursecontext, 'multiselect' => false, 'exclude' => [$USER->id]));
 
     $changeownerform = new \block_opencast\local\changeowner_form(null,
         array('courseid' => $courseid, 'identifier' => $identifier,
-            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'exclude' => [$USER->id]));
+            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector));
 
     if ($changeownerform->is_cancelled()) {
         redirect($redirecturl);
