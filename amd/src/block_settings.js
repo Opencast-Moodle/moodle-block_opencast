@@ -122,7 +122,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                             body: jsstrings[4]
                         })
                             .then(function (modal) {
-                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.setSaveButtonText(jsstrings[3]);
                                 modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });

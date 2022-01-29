@@ -674,8 +674,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
-    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier,
-                                          $updatemetadata, $startworkflows, $coursecontext, $useeditor) {
+    public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
+                                          $startworkflows, $coursecontext, $useeditor, $canchangeowner) {
         // Get the action menu options.
         $actionmenu = new action_menu();
         $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
@@ -708,6 +708,15 @@ class block_opencast_renderer extends plugin_renderer_base {
                 new pix_icon('t/collapsed', get_string('startworkflow', 'block_opencast')),
                 get_string('startworkflow', 'block_opencast'),
                 array('class' => 'start-workflow', 'data-id' => $videoidentifier)
+            ));
+        }
+
+        if ($canchangeowner) {
+            $actionmenu->add(new action_menu_link_secondary(
+                new \moodle_url('/blocks/opencast/changeowner.php',
+                    array('identifier' => $videoidentifier, 'ocinstanceid' => $ocinstanceid, 'courseid' => $courseid)),
+                new pix_icon('t/user', get_string('changeowner', 'block_opencast')),
+                get_string('changeowner', 'block_opencast')
             ));
         }
 

@@ -87,7 +87,7 @@ class admin_setting_configeditabletable extends \admin_setting {
      */
     public function output_html($data, $query = '') {
         return '<div class="mt-3" id="' . $this->divid .
-            '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto" type="button" id="addrow-' .
+            '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto mb-3" type="button" id="addrow-' .
             $this->divid . '">' . $this->buttontext . '</button></div>';
     }
 }

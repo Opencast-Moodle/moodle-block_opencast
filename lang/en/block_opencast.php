@@ -23,6 +23,8 @@
  */
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
+$string['aclownerrole'] = 'ACL owner role';
+$string['aclownerrole_desc'] = 'Name of the role that identifies the owner of a video/series. The role must also be specified in the roles table. The role must be permanent and include a user-related placeholder, e.g. ROLE_OWNER_[USER_EMAIL]. If empty, owner-related plugin functionalities are disabled.';
 $string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
 $string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}<br />Some changes might have not been saved. If this occurs repeatedly, please contact your support team.';
 $string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
@@ -175,6 +177,8 @@ $string['appearance_overview_settingshowpublicationchannels_desc'] = 'If enabled
 $string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['blocksettings'] = 'Settings for a block instance';
 
+$string['changingownersuccess'] = 'The ownership was successfully transferred.';
+$string['changingownerfailed'] = 'An error occured. The ownership could not be transferred.';
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['cachevalidtime'] = 'Cache valid time';
 $string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
@@ -200,6 +204,8 @@ $string['legendvisibility_hiddendesc'] = 'The video is not visible to any studen
 $string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
 $string['legendvisibility_group'] = 'Group Visibilty';
 $string['legendvisibility_groupdesc'] = 'The video is visible to all student belonging to selected groups.';
+$string['changeowner'] = 'Change owner';
+$string['changeowner_explanation'] = 'Currently, you are the owner of the video {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the video.';
 $string['changevisibility_header'] = 'Change visibility for {$a->title}';
 $string['changevisibility'] = 'Alter visibility';
 $string['connection_failure'] = 'Could not reach Opencast server.';
@@ -332,7 +338,8 @@ $string['group_name_empty'] = 'The group name must not be empty if a group shoul
 $string['heading_name'] = 'Field Name';
 $string['heading_datatype'] = 'Field Type';
 $string['heading_description'] = 'Field Description';
-$string['heading_lti'] = 'Setting for LTI Configuration';$string['heading_position'] = 'Position';
+$string['heading_lti'] = 'Setting for LTI Configuration';
+$string['heading_position'] = 'Position';
 $string['heading_required'] = 'Required';
 $string['heading_readonly'] = 'Read Only';
 $string['heading_params'] = 'Parameters (JSON)';
@@ -470,6 +477,7 @@ $string['mstateunknown'] = 'State unknown';
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
+$string['nouserselected'] = 'You must select a user.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';
 $string['notpublished'] = 'Not published';
 $string['notifications_settings_header'] = 'Notifications';
@@ -558,6 +566,9 @@ $string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
 $string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
 $string['recordvideo'] = 'Record video';
 $string['rightsHolder'] = 'Rights';
+$string['role_not_defined'] = 'The role is not defined in the ACL roles table.';
+$string['role_not_user_related'] = 'The role does not contain a user placeholder and can thus not be used to identify users.';
+$string['role_not_permanent'] = 'The role is not defined as permanent in the ACL roles table.';
 
 $string['series'] = 'Series';
 $string['series_already_exists'] = 'This course is already assigned to a series.';
@@ -625,6 +636,7 @@ $string['updatemetadata_short'] = 'Update metadata';
 $string['upload'] = 'File Upload';
 $string['uploadexplanation'] = 'You have the option to upload a presenter video file and / or a presentation video file.<br />Most likely you will only upload one file, but Opencast is also capable of dealing with two videos at once which will be combined in a media package.';
 $string['usedefaultfilepicker'] = 'Use Moodle default file picker to access all repositories';
+$string['userisntowner'] = 'Only the owner of the video can change the ownership.';
 
 $string['videosavailable'] = 'Videos available in this course';
 $string['video_notallowed'] = 'The video is not part of the course series.';
