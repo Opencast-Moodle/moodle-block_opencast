@@ -46,8 +46,6 @@ class block_opencast extends block_base {
     public function get_content() {
         global $COURSE;
 
-        # todo get different content if on dashboard
-
         if ($this->content !== null) {
             return $this->content;
         }
@@ -129,7 +127,7 @@ class block_opencast extends block_base {
         return $this->content;
     }
 
-    function instance_delete() {
+    public function instance_delete() {
         global $COURSE;
         $success = true;
 

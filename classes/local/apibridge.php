@@ -2002,7 +2002,8 @@ class apibridge {
         $event->set_json_acl($jsonacl);
 
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid), array_column($roles, 'rolename'));
+        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+            array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
         // Create regex from role.
@@ -2067,7 +2068,8 @@ class apibridge {
 
     private function get_owner_role_for_user($userid, $courseid) {
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid), array_column($roles, 'rolename'));
+        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+            array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
         $roletosearch = self::replace_placeholders($ownerrole->rolename, $courseid, null, $userid);
@@ -2078,7 +2080,8 @@ class apibridge {
         global $SITE;
         $api = api::get_instance($this->ocinstanceid);
         $resource = '/api/series?withacl=1&onlyWithWriteAccess=1';
-        $ownerrole = self::get_owner_role_for_user($userid, $SITE->id); # Course id should not be used in owner role, so we can use the site id.
+        // Course id should not be used in owner role, so we can use the site id.
+        $ownerrole = self::get_owner_role_for_user($userid, $SITE->id);
 
         $response = $api->oc_get($resource, array($ownerrole));
         if ($api->get_http_code() == 200) {

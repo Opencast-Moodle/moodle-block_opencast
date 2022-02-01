@@ -154,7 +154,8 @@ foreach ($myseries as $seriesid) {
 
     $row[] = join("<br>", $rowblocks);
     $row[] = join("<br>", $rowactivities);
-    $row[] = html_writer::link(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid)),
+    $row[] = html_writer::link(new moodle_url('/blocks/opencast/overview_videos.php',
+        array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid)),
         $OUTPUT->pix_icon('i/messagecontentvideo', get_string('showvideos', 'block_opencast')));
 
     $table->add_data($row);
@@ -162,7 +163,7 @@ foreach ($myseries as $seriesid) {
 
 $table->finish_html();
 
-// todo Retrieve videos that are owned but not included in any series.
+// Todo Retrieve videos that are owned but not included in any series.
 
 if ($opencasterror) {
     \core\notification::error($opencasterror);

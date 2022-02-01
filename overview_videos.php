@@ -94,7 +94,7 @@ foreach ($videos as $video) {
 
     $row = array();
 
-    if($apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
+    if ($apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
         if ($showchangeownerlink) {
             $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
                 array('ocinstanceid' => $ocinstanceid, 'identifier' => $video->identifier, 'isseries' => false)),
@@ -102,8 +102,7 @@ foreach ($videos as $video) {
         } else {
             $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
         }
-    }
-    else {
+    } else {
         $row[] = '';
     }
 
@@ -114,7 +113,8 @@ foreach ($videos as $video) {
     foreach ($activitylinks as $accourse) {
         try {
             // Get activity.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($accourse->course, $video->identifier, $ocinstanceid);
+            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($accourse->course,
+                $video->identifier, $ocinstanceid);
 
             if (\tool_opencast\seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid,
                 'series' => $video->is_part_of, 'courseid' => $accourse->course))) {
