@@ -32,7 +32,7 @@ class block_opencast extends block_base {
     }
 
     public function applicable_formats() {
-        return array('course' => true, 'course-editsection' => false, 'my' => true);
+        return array('all' => false, 'course' => true, 'my' => true);
     }
 
     public function instance_allow_multiple() {
