@@ -23,12 +23,13 @@
  */
 require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 use block_opencast\local\apibridge;
 use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
 
-global $PAGE, $OUTPUT, $CFG, $DB, $USER;
+global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
@@ -36,7 +37,7 @@ $baseurl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' 
 $PAGE->set_url($baseurl);
 $PAGE->set_context(context_system::instance());
 
-require_login(get_course(SITEID), false);
+require_login(get_course($SITE->id), false);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
@@ -70,9 +71,15 @@ foreach ($courses as $course) {
     }
 }
 
+// Add series that are owned by the user.
+$ownedseries = $apibridge->get_series_owned_by($USER->id);
+$myseries = array_unique(array_merge($myseries, $ownedseries));
+
 // Build course table.
-$columns = array('series', 'linked', 'activities', 'videos');
-$headers = array(get_string('series', 'block_opencast'),
+$columns = array('owner', 'series', 'linked', 'activities', 'videos');
+$headers = array(
+    get_string('owner', 'block_opencast'),
+    get_string('series', 'block_opencast'),
     get_string('linkedinblock', 'block_opencast'),
     get_string('embeddedasactivity', 'block_opencast'),
     get_string('showvideos', 'block_opencast'));
@@ -80,9 +87,24 @@ $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $
 $sortcolumns = $table->get_sort_columns();
 
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+$showchangeownerlink = course_can_view_participants(context_system::instance());
 
 foreach ($myseries as $seriesid) {
     $row = array();
+
+    // Check if current user is owner of the series.
+    if (in_array($seriesid, $ownedseries)) {
+        if ($showchangeownerlink) {
+            $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
+                array('ocinstanceid' => $ocinstanceid, 'identifier' => $seriesid, 'isseries' => true)),
+                $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
+        } else {
+            $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
+        }
+
+    } else {
+        $row[] = '';
+    }
 
     // Try to retrieve name from opencast.
     $ocseries = $apibridge->get_series_by_identifier($seriesid);
@@ -139,6 +161,8 @@ foreach ($myseries as $seriesid) {
 }
 
 $table->finish_html();
+
+// todo Retrieve videos that are owned but not included in any series.
 
 if ($opencasterror) {
     \core\notification::error($opencasterror);

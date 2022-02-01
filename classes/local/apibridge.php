@@ -386,7 +386,7 @@ class apibridge {
 
         $seriesfilter = "series:" . $series;
 
-        $query = 'sign=1&withacl=1&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
+        $query = 'sign=1&withacl=true&withmetadata=1&withpublications=true&filter=' . urlencode($seriesfilter);
         if ($sortcolumns) {
             $sort = api::get_sort_param($sortcolumns);
             $query .= $sort;
@@ -465,12 +465,11 @@ class apibridge {
      * @param bool $withpublications If true, publications are included
      * @return \stdClass Video
      */
-    public function get_opencast_video($identifier, bool $withpublications = false) {
-        $resource = '/api/events/' . $identifier;
-
-        if ($withpublications) {
-            $resource .= '?withpublications=true';
-        }
+    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false) {
+        $withpublicationsparameter = $withpublications ? 'true' : 'false';
+        $withaclparameter = $withacl ? 'true' : 'false';
+        $resource = '/api/events/' . $identifier . '?withpublications=' . $withpublicationsparameter .
+            '&withacl=' . $withaclparameter;
 
         $withroles = array();
 
@@ -658,9 +657,13 @@ class apibridge {
      * @param int $seriesid
      * @return null|\stdClass series if it exists in the opencast system.
      */
-    public function get_series_by_identifier($seriesid) {
+    public function get_series_by_identifier($seriesid, bool $withacl = false) {
 
         $url = '/api/series/' . $seriesid;
+
+        if ($withacl) {
+            $url .= '?withacl=true';
+        }
 
         $api = api::get_instance($this->ocinstanceid);
 
@@ -1984,9 +1987,15 @@ class apibridge {
         return false;
     }
 
-    public function set_owner($courseid, $eventidentifier, $userid) {
+    public function set_owner($courseid, $eventidentifier, $userid, $isseries) {
         $api = api::get_instance($this->ocinstanceid);
-        $resource = '/api/events/' . $eventidentifier . '/acl';
+
+        if ($isseries) {
+            $resource = '/api/series/' . $eventidentifier . '/acl';
+        } else {
+            $resource = '/api/events/' . $eventidentifier . '/acl';
+        }
+
         $jsonacl = $api->oc_get($resource);
 
         $event = new \block_opencast\local\event();
@@ -2027,7 +2036,6 @@ class apibridge {
             }
         }
 
-        $resource = '/api/events/' . $eventidentifier . '/acl';
         $params['acl'] = $event->get_json_acl();
 
         // Acl roles have not changed.
@@ -2038,6 +2046,11 @@ class apibridge {
         $api = api::get_instance($this->ocinstanceid);
 
         $api->oc_put($resource, $params);
+
+        if ($isseries) {
+            return $api->get_http_code() == 200;
+        }
+
         if ($api->get_http_code() == 204) {
             // Trigger workflow.
             return $this->update_metadata($eventidentifier);
@@ -2045,27 +2058,34 @@ class apibridge {
         return false;
     }
 
-    public function is_owner($courseid, $eventidentifier, $userid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $resource = '/api/events/' . $eventidentifier . '/acl';
-        $jsonacl = $api->oc_get($resource);
+    public function is_owner($acls, $userid, $courseid) {
+        $roletosearch = self::get_owner_role_for_user($userid, $courseid);
+        $acls = array_column($acls, 'role');
 
-        if ($api->get_http_code() != 200) {
-            return false;
-        }
+        return in_array($roletosearch, $acls);
+    }
 
-        $event = new \block_opencast\local\event();
-        $event->set_json_acl($jsonacl);
-
+    private function get_owner_role_for_user($userid, $courseid) {
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
         $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid), array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
-        $roletosearch = self::replace_placeholders($ownerrole->rolename, $courseid, $eventidentifier, $userid);
+        $roletosearch = self::replace_placeholders($ownerrole->rolename, $courseid, null, $userid);
+        return $roletosearch[0];
+    }
 
-        $acls = array_column($event->get_acl(), 'role');
+    public function get_series_owned_by($userid) {
+        global $SITE;
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = '/api/series?withacl=1&onlyWithWriteAccess=1';
+        $ownerrole = self::get_owner_role_for_user($userid, $SITE->id); # Course id should not be used in owner role, so we can use the site id.
 
-        return in_array($roletosearch[0], $acls);
+        $response = $api->oc_get($resource, array($ownerrole));
+        if ($api->get_http_code() == 200) {
+            $series = json_decode($response);
+            return array_column($series, 'identifier');
+        }
+        return array();
     }
 
     /**

@@ -24,7 +24,7 @@
 
 $string['aclgroupdeleted'] = 'Access deleted for video: {$a->title}';
 $string['aclownerrole'] = 'ACL owner role';
-$string['aclownerrole_desc'] = 'Name of the role that identifies the owner of a video/series. The role must also be specified in the roles table. The role must be permanent and include a user-related placeholder, e.g. ROLE_OWNER_[USER_EMAIL]. If empty, owner-related plugin functionalities are disabled.';
+$string['aclownerrole_desc'] = 'Name of the role that identifies the owner of a video/series. The role must also be specified in the roles table. The role must be permanent and include a user-related placeholder, e.g. ROLE_OWNER_[USER_EMAIL]. It should not include any course-related placeholders. If empty, owner-related plugin functionalities are disabled.';
 $string['aclrolesadded'] = 'The change of visibility has been triggered to allow all students of the course to access the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
 $string['aclroleschangeerror'] = 'Error during the change of visibility of the video: {$a->title}<br />Some changes might have not been saved. If this occurs repeatedly, please contact your support team.';
 $string['aclrolesdeleted'] = 'The change of visibility has been triggered to prevent all students of the course from accessing the video: {$a->title}<br />Please refresh the site after some time to see the current visibility status.';
@@ -206,6 +206,7 @@ $string['legendvisibility_group'] = 'Group Visibilty';
 $string['legendvisibility_groupdesc'] = 'The video is visible to all student belonging to selected groups.';
 $string['changeowner'] = 'Change owner';
 $string['changeowner_explanation'] = 'Currently, you are the owner of the video {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the video.';
+$string['changeownerseries_explanation'] = 'Currently, you are the owner of the series {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the series.';
 $string['changevisibility_header'] = 'Change visibility for {$a->title}';
 $string['changevisibility'] = 'Alter visibility';
 $string['connection_failure'] = 'Could not reach Opencast server.';
@@ -521,6 +522,7 @@ $string['opencast:unassignevent'] = 'Unassign a video from the course, where the
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not published';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
 $string['opencastseries'] = 'Opencast Series';
+$string['owner'] = 'Owner';
 $string['overview'] = 'Overview';
 
 $string['planned'] = 'Planned';

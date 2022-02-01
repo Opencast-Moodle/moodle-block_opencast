@@ -87,6 +87,14 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'block/opencast:canchangeownerforallvideos' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
     'block/opencast:viewunpublishedvideos' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'read',

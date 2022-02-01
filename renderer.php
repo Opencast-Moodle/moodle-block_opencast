@@ -245,10 +245,40 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->define_columns($columns);
         $table->define_baseurl($baseurl);
 
+        $table->no_sorting('owner');
         $table->no_sorting('linked');
         $table->no_sorting('activities');
         $table->no_sorting('videos');
         $table->sortable(true, 'series', SORT_DESC);
+
+        $table->pageable(true);
+        $table->is_downloadable(false);
+
+        $table->set_control_variables(
+            array(
+                TABLE_VAR_SORT => 'tsort',
+                TABLE_VAR_PAGE => 'page'
+            )
+        );
+
+        $table->setup();
+        return $table;
+    }
+
+    public function create_overview_videos_table($id, $headers, $columns, $baseurl) {
+        $table = new block_opencast\local\flexible_table($id);
+        $table->set_attribute('cellspacing', '0');
+        $table->set_attribute('cellpadding', '3');
+        $table->set_attribute('class', 'generaltable');
+        $table->set_attribute('id', $id);
+        $table->headers = $headers;
+        $table->define_columns($columns);
+        $table->define_baseurl($baseurl);
+
+        $table->no_sorting('owner');
+        $table->no_sorting('linked');
+        $table->no_sorting('activities');
+        $table->sortable(true, 'videos', SORT_DESC);
 
         $table->pageable(true);
         $table->is_downloadable(false);
@@ -743,7 +773,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         if ($canchangeowner) {
             $actionmenu->add(new action_menu_link_secondary(
                 new \moodle_url('/blocks/opencast/changeowner.php',
-                    array('identifier' => $videoidentifier, 'ocinstanceid' => $ocinstanceid, 'courseid' => $courseid)),
+                    array('identifier' => $videoidentifier, 'ocinstanceid' => $ocinstanceid, 'courseid' => $courseid,
+                        'isseries' => false)),
                 new pix_icon('t/user', get_string('changeowner', 'block_opencast')),
                 get_string('changeowner', 'block_opencast')
             ));

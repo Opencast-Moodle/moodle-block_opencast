@@ -28,7 +28,7 @@ use block_opencast\local\apibridge;
 use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
 
-global $PAGE, $OUTPUT, $CFG, $DB, $USER;
+global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 $series = required_param('series', PARAM_ALPHANUMEXT);
@@ -37,7 +37,7 @@ $baseurl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinsta
 $PAGE->set_url($baseurl);
 $PAGE->set_context(context_system::instance());
 
-require_login(get_course(SITEID), false);
+require_login(get_course($SITE->id), false);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
@@ -54,7 +54,6 @@ $PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
     new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $baseurl);
 echo $OUTPUT->header();
-echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
@@ -68,18 +67,23 @@ if ($ocseries) {
     echo $OUTPUT->heading($series);
 }
 
+echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
+
 // TODO verify that teacher has indeed permission to view series.
 // TODO handle opencast connection error. Break as soon as first error occurs.
 
 // Build table.
-$columns = array('videos', 'linked', 'activities');
-$headers = array(get_string('video', 'block_opencast'),
+$columns = array('owner', 'videos', 'linked', 'activities');
+$headers = array(
+    get_string('owner', 'block_opencast'),
+    get_string('video', 'block_opencast'),
     get_string('embeddedasactivity', 'block_opencast'),
     get_string('embeddedasactivitywolink', 'block_opencast'));
-$table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $baseurl);
+$table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
 $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+$showchangeownerlink = course_can_view_participants(context_system::instance());
 
 foreach ($videos as $video) {
     $activitylinks = array();
@@ -89,6 +93,20 @@ foreach ($videos as $video) {
     }
 
     $row = array();
+
+    if($apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
+        if ($showchangeownerlink) {
+            $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
+                array('ocinstanceid' => $ocinstanceid, 'identifier' => $video->identifier, 'isseries' => false)),
+                $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
+        } else {
+            $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
+        }
+    }
+    else {
+        $row[] = '';
+    }
+
     $row[] = $video->title;
     $courses = [];
     $courseswoblocklink = [];

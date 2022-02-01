@@ -407,7 +407,8 @@ foreach ($seriesvideodata as $series => $videodata) {
                 // Actions column.
                 $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
                 $useeditor = $opencast->can_edit_event_in_editor($video, $courseid);
-                $canchangeowner = $opencast->is_owner($courseid, $video->identifier, $USER->id);
+                $canchangeowner = $opencast->is_owner($video->acl, $USER->id, $courseid) ||
+                    has_capability('block/opencast:canchangeownerforallvideos', context_system::instance());
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
                     $workflowsavailable, $coursecontext, $useeditor, $canchangeowner);
 

@@ -1,26 +1,61 @@
 <?php
 
 require_once('../../config.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
-global $PAGE, $OUTPUT, $CFG, $USER;
+global $PAGE, $OUTPUT, $CFG, $USER, $SITE;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
-$courseid = required_param('courseid', PARAM_INT);
+$courseid = optional_param('courseid', $SITE->id, PARAM_INT);
+$isseries = optional_param('isseries', false, PARAM_BOOL);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/changeowner.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'isseries' => $isseries));
 $PAGE->set_url($baseurl);
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+
+if ($courseid == $SITE->id) {
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+} else {
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+}
 
 require_login($courseid, false);
 $coursecontext = context_course::instance($courseid);
-course_require_view_participants($coursecontext);
+$systemcontext = context_system::instance();
+
+if ($courseid == $SITE->id) {
+    course_require_view_participants($systemcontext);
+} else {
+    course_require_view_participants($coursecontext);
+}
 
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
-// Verify that current user is the owner.
-if (!$apibridge->is_owner($courseid, $identifier, $USER->id)) {
+if ($isseries) {
+    $series = $apibridge->get_series_by_identifier($identifier, true);
+    if (!$series) {
+        redirect($redirecturl, get_string('series_does_not_exist_admin', 'block_opencast', $identifier), null,
+            \core\output\notification::NOTIFY_ERROR);
+    }
+    $title = $series->title;
+    $acls = $series->acl;
+
+} else {
+    $video = $apibridge->get_opencast_video($identifier, false, true);
+
+    if ($video->error) {
+        redirect($redirecturl, get_string('failedtogetvideo', 'block_opencast'), null,
+            \core\output\notification::NOTIFY_ERROR);
+    } else {
+        $title = $video->video->title;
+        $acls = $video->video->acl;
+    }
+}
+
+// Verify that current user is the owner or is admin.
+if (!$apibridge->is_owner($acls, $USER->id, $courseid) &&
+    !has_capability('block/opencast:canchangeownerforallvideos', $systemcontext)) {
     throw new moodle_exception(get_string('userisntowner', 'block_opencast'));
 } else {
     $PAGE->set_pagelayout('incourse');
@@ -30,11 +65,11 @@ if (!$apibridge->is_owner($courseid, $identifier, $USER->id)) {
     $PAGE->navbar->add(get_string('changeowner', 'block_opencast'), $baseurl);
 
     $userselector = new block_opencast_enrolled_user_selector('ownerselect',
-        array('context' => $coursecontext, 'multiselect' => false, 'exclude' => [$USER->id]));
+        array('context' => $coursecontext, 'multiselect' => false));
 
     $changeownerform = new \block_opencast\local\changeowner_form(null,
-        array('courseid' => $courseid, 'identifier' => $identifier,
-            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector));
+        array('courseid' => $courseid, 'title' => $title, 'identifier' => $identifier,
+            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'isseries' => $isseries));
 
     if ($changeownerform->is_cancelled()) {
         redirect($redirecturl);
@@ -46,7 +81,7 @@ if (!$apibridge->is_owner($courseid, $identifier, $USER->id)) {
             redirect($baseurl, get_string('nouserselected', 'block_opencast'));
         }
 
-        $success = $apibridge->set_owner($courseid, $identifier, $newowner->id);
+        $success = $apibridge->set_owner($courseid, $identifier, $newowner->id, $isseries);
         if ($success) {
             redirect($redirecturl, get_string('changingownersuccess', 'block_opencast'));
         } else {

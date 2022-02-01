@@ -58,26 +58,21 @@ class changeowner_form extends \moodleform {
         $mform->setType('ocinstanceid', PARAM_INT);
         $mform->addElement('hidden', 'identifier', $identifier);
         $mform->setType('identifier', PARAM_INT);
+        $mform->addElement('hidden', 'isseries', $this->_customdata['isseries']);
+        $mform->setType('isseries', PARAM_BOOL);
 
-        $apibridge = apibridge::get_instance($ocinstanceid);
-        $video = $apibridge->get_opencast_video($identifier);
-        if ($video->error) {
-            $notification = $renderer->wizard_error_notification(
-                get_string('failedtogetvideo', 'block_opencast'));
-            $mform->addElement('html', $notification);
-            $mform->addElement('cancel');
-
-            return;
+        if ($this->_customdata['isseries']) {
+            $notification = $renderer->wizard_intro_notification(
+                get_string('changeownerseries_explanation', 'block_opencast', $this->_customdata['title']));
+        } else {
+            $notification = $renderer->wizard_intro_notification(
+                get_string('changeowner_explanation', 'block_opencast', $this->_customdata['title']));
         }
 
-        $notification = $renderer->wizard_intro_notification(
-            get_string('changeowner_explanation', 'block_opencast', $video->video->title));
         $mform->addElement('html', $notification);
-
         $mform->addElement('html', $this->_customdata['userselector']->display(true));
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('changeowner', 'block_opencast'));
     }
-
 }
