@@ -39,6 +39,13 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
  */
 class backup_opencast_block_structure_step extends backup_block_structure_step {
 
+    /**
+     * Defines the structure of the backup file.
+     * @return backup_nested_element
+     * @throws base_element_struct_exception
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function define_structure() {
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
 

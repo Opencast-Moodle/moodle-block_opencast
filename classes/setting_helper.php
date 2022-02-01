@@ -34,6 +34,14 @@ use tool_opencast\empty_configuration_exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_helper {
+
+    /**
+     * Validate if the selected workflow does indeed exist.
+     *
+     * @param string $data Setting value
+     * @return false|\lang_string|string
+     * @throws \coding_exception
+     */
     public static function validate_workflow_setting($data) {
         // Hack to get the opencast instance id.
         $category = optional_param('category', null, PARAM_RAW);
@@ -59,6 +67,12 @@ class setting_helper {
         return false;
     }
 
+    /**
+     * Returns available workflows with the given tag.
+     * @param int $ocinstanceid Opencast instance id.
+     * @param string $workflowtag
+     * @return array|opencast_connection_exception|\Exception|empty_configuration_exception|null
+     */
     public static function load_workflow_choices($ocinstanceid, $workflowtag) {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
@@ -79,6 +93,15 @@ class setting_helper {
         }
     }
 
+    /**
+     * Ensures that the owner setting corresponds to a role defined in the ACL table and
+     * fulfills the requirements for the owner role.
+     *
+     * @param string $data Setting data
+     * @return bool|\lang_string|string
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     public static function validate_aclownerrole_setting($data) {
         // Hack to get the opencast instance id.
         $category = optional_param('category', null, PARAM_RAW);

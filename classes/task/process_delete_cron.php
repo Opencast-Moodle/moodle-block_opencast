@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Processes the videos marked as deleted.
  * @package   block_opencast
  * @copyright 2018 Tobias Reischmann, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -22,12 +23,27 @@
 namespace block_opencast\task;
 use block_opencast\local\apibridge;
 
+/**
+ * Processes the videos marked as deleted.
+ * @package   block_opencast
+ * @copyright 2018 Tobias Reischmann, WWU
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class process_delete_cron extends \core\task\scheduled_task {
 
+    /**
+     * Get the name of the task.
+     * @return \lang_string|string
+     * @throws \coding_exception
+     */
     public function get_name() {
         return get_string('processdelete', 'block_opencast');
     }
 
+    /**
+     * Executes the task.
+     * @throws \dml_exception
+     */
     public function execute() {
         global $DB;
 

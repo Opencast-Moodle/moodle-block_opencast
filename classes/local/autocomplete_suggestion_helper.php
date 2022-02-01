@@ -32,9 +32,10 @@ namespace block_opencast\local;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autocomplete_suggestion_helper {
+
     /**
      * Get all available suggestions for contributor and creator (Presenter) metadata field.
-     *
+     * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
     public static function get_suggestions_for_creator_and_contributor($ocinstanceid) {
@@ -171,7 +172,7 @@ class autocomplete_suggestion_helper {
 
     /**
      * Get the fullname suggestions from the available course opencat videos.
-     *
+     * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
     private static function get_suggestions_from_opencast_course_videos($ocinstanceid) {

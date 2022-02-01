@@ -49,8 +49,10 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class apibridge {
+    /** @var int Opencast instance id */
     private $ocinstanceid;
 
+    /** @var string[] Placeholders related to users. */
     private static $userplaceholders = ['[USERNAME]', '[USERNAME_LOW]', '[USERNAME_UP]', '[USER_EMAIL]', '[USER_EXTERNAL_ID]'];
 
 
@@ -59,6 +61,7 @@ class apibridge {
 
     /**
      * apibridge constructor.
+     * @param int $ocinstanceid Opencast instance id.
      */
     private function __construct($ocinstanceid) {
         $this->ocinstanceid = $ocinstanceid;
@@ -66,6 +69,8 @@ class apibridge {
 
     /**
      * Get an instance of an object of this class. Create as a singleton.
+     *
+     * @param int $ocinstanceid Opencast instance id
      * @param boolean $forcenewinstance true, when a new instance should be created.
      * @return apibridge
      */
@@ -463,6 +468,7 @@ class apibridge {
      * Retrieves a video from Opencast.
      * @param string $identifier Event id
      * @param bool $withpublications If true, publications are included
+     * @param bool $withacl If true, ACLs are included
      * @return \stdClass Video
      */
     public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false) {
@@ -655,6 +661,7 @@ class apibridge {
      * API call to check, whether series exists in opencast system.
      *
      * @param int $seriesid
+     * @param bool $withacl If true, ACLs are included
      * @return null|\stdClass series if it exists in the opencast system.
      */
     public function get_series_by_identifier($seriesid, bool $withacl = false) {
@@ -680,7 +687,7 @@ class apibridge {
     /**
      * API call to check, whether series exists in opencast system.
      *
-     * @param int $seriesid
+     * @param string[] $allseries
      * @return null|string id of the series id if it exists in the opencast system.
      */
     public function get_multiple_series_by_identifier($allseries) {
@@ -731,6 +738,12 @@ class apibridge {
         return null;
     }
 
+    /**
+     * Returns the default series of a course.
+     * @param int $courseid
+     * @return array
+     * @throws \dml_exception
+     */
     public function get_course_series($courseid) {
         global $DB;
         return $DB->get_records('tool_opencast_series',
@@ -833,7 +846,7 @@ class apibridge {
     /**
      * API call to create a series for given course.
      * @param int $courseid Course id
-     * @param null|string $seriestitle Series title
+     * @param null|array $metadatafields
      * @param int $userid
      * @return bool  tells if the creation of the series was successful.
      */
@@ -1150,6 +1163,7 @@ class apibridge {
      * Returns an array of acl roles. The actions field of each entry contains an array of trimmed action names
      * for the specific role.
      *
+     * @param string|bool $permanent If true, only permanent roles are returned
      * @return array of acl roles.
      * @throws \dml_exception A DML specific exception is thrown for any errors.
      */
@@ -1941,7 +1955,6 @@ class apibridge {
     /**
      * Get the series's metadata of the specified type
      * @param string $seriesid Series id
-     * @param string $query Api query additions
      * @return bool|int|mixed Event metadata
      */
     public function get_series_metadata($seriesid) {
@@ -1959,7 +1972,7 @@ class apibridge {
     /**
      * Update the metadata with the matching type of the specified event.
      * @param string $eventidentifier identifier of the event
-     * @param stdClass $metadata collection of metadata
+     * @param \stdClass $metadata collection of metadata
      * @return bool
      * @throws \dml_exception
      * @throws \moodle_exception
@@ -1987,6 +2000,17 @@ class apibridge {
         return false;
     }
 
+    /**
+     * Set the owner of a video or series.
+     * @param int $courseid
+     * @param string $eventidentifier Video/series identifier
+     * @param int $userid User ID of the new owner
+     * @param bool $isseries True if the identifier is a series
+     * @return bool|int
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
     public function set_owner($courseid, $eventidentifier, $userid, $isseries) {
         $api = api::get_instance($this->ocinstanceid);
 
@@ -2059,6 +2083,13 @@ class apibridge {
         return false;
     }
 
+    /**
+     * Checks if a given user is defined as owner in the passed video/series ACLs.
+     * @param string[] $acls ACLs
+     * @param int $userid User ID
+     * @param int $courseid
+     * @return bool
+     */
     public function is_owner($acls, $userid, $courseid) {
         $roletosearch = self::get_owner_role_for_user($userid, $courseid);
         $acls = array_column($acls, 'role');
@@ -2066,6 +2097,14 @@ class apibridge {
         return in_array($roletosearch, $acls);
     }
 
+    /**
+     * Returns the owner rolename for a given user.
+     * @param int $userid
+     * @param int $courseid
+     * @return string
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     private function get_owner_role_for_user($userid, $courseid) {
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
         $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
@@ -2076,6 +2115,14 @@ class apibridge {
         return $roletosearch[0];
     }
 
+    /**
+     * Retrieves all series that are owned by the specified user.
+     * @param int $userid
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
     public function get_series_owned_by($userid) {
         global $SITE;
         $api = api::get_instance($this->ocinstanceid);
@@ -2093,7 +2140,7 @@ class apibridge {
 
     /**
      * Update the metadata with the matching type of the specified series.
-     * @param string $eventidentifier identifier of the series
+     * @param string $seriesid identifier of the series
      * @param array $metadata collection of metadata
      * @return bool
      * @throws \dml_exception
@@ -2185,9 +2232,9 @@ class apibridge {
      *
      * @param int $courseid Course ID.
      * @param string $seriesid Series ID.
-     * @param int $sourcecourseid Course ID of the source course.
+     * @param int $userid User ID.
      *
-     * @return stdClass $result
+     * @return \stdClass $result
      */
     public function import_series_to_course_with_acl_change($courseid, $seriesid, $userid) {
         // Define result object to return.
@@ -2249,6 +2296,7 @@ class apibridge {
      * Change and update the ACL of the series.
      * @param int $courseid Course ID.
      * @param string $seriesid Series ID.
+     * @param int $userid User ID.
      *
      * @return bool
      */
@@ -2312,6 +2360,7 @@ class apibridge {
      * Make Event visible for the new course that has been imported to, by changing the ACLs.
      *
      * @param string $identifier event identifier
+     * @param int $courseid Course ID.
      * @return int $courseid id of the course being imported to.
      */
     private function imported_events_acl_change($identifier, $courseid) {
@@ -2330,6 +2379,7 @@ class apibridge {
     /**
      * Map the seriesid to the course that has been imported to, by assinging the series as secondary.
      *
+     * @param int $courseid Course id.
      * @param string $seriesid series id.
      */
     private function map_imported_series_to_course($courseid, $seriesid) {

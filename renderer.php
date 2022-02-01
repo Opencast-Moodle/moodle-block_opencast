@@ -30,14 +30,18 @@ use block_opencast\local\ltimodulemanager;
 /**
  * Renderer class for block opencast.
  *
- * @package   block_customcomments
+ * @package   block_opencast
  * @copyright 2017 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
+    /** @var int Video is visible for students */
     const VISIBLE = 1;
+    /** @var int Video is visible for some students */
     const MIXED_VISIBLITY = 3;
+    /** @var int Video is hidden for students */
     const HIDDEN = 0;
+    /** @var int Video is visible for groups of students. */
     const GROUP = 2;
 
     /**
@@ -94,6 +98,17 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
     }
 
+    /**
+     * Render the intro for series on the index page.
+     * @param object $coursecontext
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param string $seriesid
+     * @param string $seriesname
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public function render_series_intro($coursecontext, $ocinstanceid, $courseid, $seriesid, $seriesname) {
         $url = null;
         $text = null;
@@ -167,6 +182,16 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $this->heading($seriesname, 4, array('mt-4 mb-4 d-inline-block')) . ' ' . $addactivitylink . ' ' . $addltilink;
     }
 
+    /**
+     * Render the link for providing a series as activity.
+     * @param \stdClass $coursecontext
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param int $seriesid
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public function render_provide_activity($coursecontext, $ocinstanceid, $courseid, $seriesid) {
         $activitybutton = '';
         $ltibutton = '';
@@ -204,6 +229,14 @@ class block_opencast_renderer extends plugin_renderer_base {
         return html_writer::tag('p', $activitybutton) . html_writer::tag('p', $ltibutton);
     }
 
+    /**
+     * Create the table of videos.
+     * @param string $id
+     * @param string[] $headers
+     * @param string[] $columns
+     * @param string $baseurl
+     * @return \block_opencast\local\flexible_table
+     */
     public function create_videos_tables($id, $headers, $columns, $baseurl) {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
@@ -235,6 +268,14 @@ class block_opencast_renderer extends plugin_renderer_base {
 
     }
 
+    /**
+     * Create the table of all series belonging to a user.
+     * @param string $id
+     * @param string[] $headers
+     * @param string[] $columns
+     * @param string $baseurl
+     * @return \block_opencast\local\flexible_table
+     */
     public function create_series_courses_tables($id, $headers, $columns, $baseurl) {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
@@ -265,6 +306,14 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $table;
     }
 
+    /**
+     * Create the table of videos and where they are used.
+     * @param string $id
+     * @param string[] $headers
+     * @param string[] $columns
+     * @param string $baseurl
+     * @return \block_opencast\local\flexible_table
+     */
     public function create_overview_videos_table($id, $headers, $columns, $baseurl) {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
@@ -297,7 +346,10 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the whole block content.
      *
+     * @param int $courseid
      * @param object $videodata data as a result from api query against opencast.
+     * @param int $ocinstance Opencast instance id.
+     * @param bool $rendername
      */
     public function render_block_content($courseid, $videodata, $ocinstance, $rendername) {
         global $USER;
@@ -421,8 +473,9 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the tabel of upload jobs.
      *
-     * @param array uploadjobs array of uploadjob objects
-     * @param bool showdeletebutton shows a delete button in the last column
+     * @param int $ocinstanceid Opencast instance id.
+     * @param array $uploadjobs array of uploadjob objects
+     * @param bool $showdeletebutton shows a delete button in the last column
      *
      * @return string
      */
@@ -533,6 +586,8 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the link to delete a group assignment.
      *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid
      * @param string $videoidentifier
      */
     public function render_delete_acl_group_assignment_icon($ocinstanceid, $courseid, $videoidentifier) {
@@ -549,7 +604,10 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the link to change the visibility of a video.
      *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid
      * @param string $videoidentifier
+     * @param int $visible
      */
     public function render_change_visibility_icon($ocinstanceid, $courseid, $videoidentifier, $visible) {
         global $USER;
@@ -583,6 +641,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render the information about the video before deleting the assignment of the event
      * to the course series.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param object $video
      * @return string
@@ -630,6 +689,8 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the link to delete a group assignment.
      *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid
      * @param string $videoidentifier
      */
     public function render_delete_event_icon($ocinstanceid, $courseid, $videoidentifier) {
@@ -646,6 +707,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the icon to add an LTI episode module.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $episodeuuid
      *
@@ -681,6 +743,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the icon to add an Opencast Activity episode module.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $episodeuuid
      *
@@ -716,6 +779,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the link to delete a draft file.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $videoidentifier
      * @return string
@@ -733,6 +797,20 @@ class block_opencast_renderer extends plugin_renderer_base {
         return \html_writer::link($url, $icon);
     }
 
+    /**
+     * Render menu of edit options for a video.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param string $videoidentifier
+     * @param bool $updatemetadata
+     * @param bool $startworkflows
+     * @param \stdClass $coursecontext
+     * @param bool $useeditor
+     * @param bool $canchangeowner
+     * @return bool|string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
                                           $startworkflows, $coursecontext, $useeditor, $canchangeowner) {
         // Get the action menu options.
@@ -786,6 +864,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Render the information about the video before finally delete it.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param object $video
      * @return string
@@ -852,6 +931,13 @@ class block_opencast_renderer extends plugin_renderer_base {
         return html_writer::tag('ul', $o);
     }
 
+    /**
+     * Render link to manage series page.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @return string
+     * @throws moodle_exception
+     */
     public function render_series_settings_actions(int $ocinstanceid, int $courseid): string {
         $context = new \stdClass();
         $context->hasanyactions = true;
@@ -863,7 +949,8 @@ class block_opencast_renderer extends plugin_renderer_base {
     /**
      * Display the lti form.
      *
-     * @param object $data The prepared variables.
+     * @param string $endpoint
+     * @param object $params The prepared variables.
      * @return string
      */
     public function render_lti_form($endpoint, $params) {
@@ -884,6 +971,16 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $content;
     }
 
+    /**
+     * Render download icon for a video.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param \stdClass $video
+     * @return bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function render_download_event_icon($ocinstanceid, $courseid, $video) {
         // Get the action menu options.
         $actionmenu = new action_menu();
@@ -911,11 +1008,25 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $this->render($actionmenu);
     }
 
+    /**
+     * Render report problem icon for a video.
+     * @param string $identifier
+     * @return string
+     * @throws coding_exception
+     */
     public function render_report_problem_icon($identifier) {
         $icon = $this->output->pix_icon('t/message', get_string('reportproblem_modal_title', 'block_opencast'));
         return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
     }
 
+    /**
+     * Render series table for "manage series" page.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @return bool|string
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function render_manage_series_table($ocinstanceid, $courseid) {
         global $DB;
         $series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
@@ -930,14 +1041,6 @@ class block_opencast_renderer extends plugin_renderer_base {
         $context->numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
 
         return $this->render_from_template('block_opencast/series_table', $context);
-    }
-
-    public function render_series_course_overview($id, $cards) {
-        $context = new stdClass();
-        $context->accordionid = $id;
-        $context->cards = $cards;
-
-        return $this->render_from_template('block_opencast/accordion', $context);
     }
 
     /**

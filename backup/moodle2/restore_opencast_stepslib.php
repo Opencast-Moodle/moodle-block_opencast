@@ -37,11 +37,17 @@ use block_opencast\local\notifications;
  */
 class restore_opencast_block_structure_step extends restore_structure_step {
 
+    /** @var array Ids of the videos included in the backup. */
     private $backupeventids = [];
+    /** @var array Ids of the videos that could not be found. */
     private $missingeventids = [];
+    /** @var array Series in the backup. */
     private $series = [];
+    /** @var array True if the ACls were changed. */
     private $aclchanged = [];
+    /** @var int Opencast instance id */
     private $ocinstanceid;
+    /** @var string Duplication or ACL import mode */
     private $importmode;
 
     /**
@@ -119,6 +125,13 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
     }
 
+    /**
+     * Restore a series.
+     * @param object $data
+     * @throws base_step_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function process_series($data) {
         global $USER;
 

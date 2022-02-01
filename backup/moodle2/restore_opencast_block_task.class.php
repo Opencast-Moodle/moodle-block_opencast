@@ -28,6 +28,9 @@ global $CFG;
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/restore_opencast_stepslib.php');
 require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_restore_setting.class.php');
 
+/**
+ * Define settings of the restore tasks for the opencast block.
+ */
 class restore_opencast_block_task extends restore_block_task {
 
     /**
@@ -36,6 +39,7 @@ class restore_opencast_block_task extends restore_block_task {
      * - the course has not series assigned OR
      * - we are importing into an existing course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     private function can_restore_events($ocinstanceid) {

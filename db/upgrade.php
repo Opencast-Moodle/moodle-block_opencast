@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   blocks_opencast
+ * Execute opencast upgrade from the given old version
+ * @package   block_opencast
+ * @copyright 2017 Tamara Gunkel, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

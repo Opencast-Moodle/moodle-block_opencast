@@ -211,6 +211,10 @@ class event {
         return false;
     }
 
+    /**
+     * Get the acl rules as array.
+     * @return array
+     */
     public function get_acl() {
         return $this->acl;
     }
@@ -227,6 +231,7 @@ class event {
     /**
      * Return the processing workflow as a json object.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return string
      */
     public function get_processing($ocinstanceid) {
@@ -254,6 +259,7 @@ class event {
     /**
      * Get all form params to create a new event in opencast via api.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return array form params.
      */
     public function get_form_params($ocinstanceid) {
@@ -276,6 +282,7 @@ class event {
     /**
      * Create an adhoc task that will start duplication workflows.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param string $courseid The course ID.
      * @param string $seriesid The course series identifier.
      * @param string $eventid The event identifier.
@@ -299,5 +306,4 @@ class event {
         $task->set_custom_data($data);
         return \core\task\manager::queue_adhoc_task($task, true);
     }
-
 }

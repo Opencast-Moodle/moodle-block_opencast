@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *
+ * Update the metadata of a video.
  * @package    block_opencast
  * @copyright  2019 Farbod Zamani, ELAN e.V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

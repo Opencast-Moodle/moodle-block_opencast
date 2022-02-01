@@ -15,13 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Generator for test data.
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Generator for test data.
+ */
 class block_opencast_generator extends testing_block_generator {
 
+    /**
+     * Creates a file.
+     * @param null $record
+     * @return stored_file
+     * @throws file_exception
+     * @throws moodle_exception
+     * @throws stored_file_creation_exception
+     */
     public function create_file($record = null) {
         global $USER;
 

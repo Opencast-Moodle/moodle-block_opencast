@@ -49,7 +49,7 @@ class admin_setting_configtextvalidate extends \admin_setting_configtext {
 
     /**
      * Validate data before storage
-     * @param string data
+     * @param string $data New setting data
      * @return mixed true if ok string if error found
      */
     public function validate($data) {

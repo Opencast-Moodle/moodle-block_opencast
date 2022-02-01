@@ -98,8 +98,9 @@ echo $OUTPUT->footer();
 
 /**
  * Create necessary editor lti parameters.
+ *
+ * @param int $ocinstanceid Opencast instance id.
  * @param string $endpoint of the opencast instance.
- * @param string $seriesid id of the series, to which recordings should be uploaded.
  * @param string $customtool the custom tool to used in order to redirect after lti authentication.
  *
  * @return array lti parameters

@@ -50,7 +50,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  */
 class backup_test extends advanced_testcase {
 
-    /** var string apiurl for the testcase, must NOT be a real server! */
+    /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
 
     public function setUp(): void {
@@ -63,11 +63,22 @@ class backup_test extends advanced_testcase {
         \block_opencast\local\apibridge::set_testing(false);
     }
 
+    /**
+     * Returns filepath for backup directory.
+     * @param int $courseid
+     * @return string
+     */
     private function get_backup_filepath($courseid) {
         global $CFG;
         return $CFG->tempdir . '/backup/core_course_testcase_' . $courseid;
     }
 
+    /**
+     * Returns filename of backup file.
+     * @param int $courseid
+     * @param int $blockid
+     * @return string
+     */
     private function get_backup_filename($courseid, $blockid) {
 
         $backupfilepath = $this->get_backup_filepath($courseid);
@@ -78,6 +89,7 @@ class backup_test extends advanced_testcase {
      * Backup a course and return its backup ID.
      *
      * @param int $courseid The course ID.
+     * @param bool $includevideos
      * @param int $userid The user doing the backup.
      * @return string filepath of backup
      */
@@ -108,6 +120,7 @@ class backup_test extends advanced_testcase {
      *
      * @param int $backupid The backup ID.
      * @param int $courseid The course ID to restore in, or 0.
+     * @param bool $includevideos
      * @param int $userid The ID of the user performing the restore.
      * @return stdClass The updated course object.
      */
@@ -141,6 +154,7 @@ class backup_test extends advanced_testcase {
 
     /**
      *  Execute an adhoc task like via cron function.
+     * @param \stdClass $taskrecord
      */
     private function execute_adhoc_task($taskrecord) {
 
@@ -160,6 +174,13 @@ class backup_test extends advanced_testcase {
         return ob_get_clean();
     }
 
+    /**
+     * Check if task failed with error.
+     * @param string $expectederrortextkey
+     * @param int $expectedfailedcount
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
     private function check_task_fail_with_error($expectederrortextkey, $expectedfailedcount) {
         global $DB;
 

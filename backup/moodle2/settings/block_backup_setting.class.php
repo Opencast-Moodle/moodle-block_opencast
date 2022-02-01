@@ -35,10 +35,10 @@ class backup_block_opencast_setting extends backup_setting {
      * Create an instance of this class. Note that this is used to control level and layout of this setting.
      *
      * @param string $name Name of the setting
-     * @param string $vtype Type of the setting, eg {@link self::IS_TEXT}
+     * @param string $vtype Type of the setting
      * @param mixed $value Value of the setting
-     * @param bool $visibility Is the setting visible in the UI, eg {@link self::VISIBLE}
-     * @param int $status Status of the setting with regards to the locking, eg {@link self::NOT_LOCKED}
+     * @param bool $visibility Is the setting visible in the UI
+     * @param int $status Status of the setting with regards to the locking
      */
     public function __construct($name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
 

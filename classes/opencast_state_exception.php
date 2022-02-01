@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Exception, which is thrown when opencast has not yet processed the current step.
- * Then the job is postponed until the next cron run.
+ * Exception thrown when opencast has not yet processed the current step. Then the job is postponed until the next cron run.
  * @package    block_opencast
  * @copyright  2017 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,9 +24,8 @@
 namespace block_opencast;
 
 /**
+ * Exception thrown when opencast has not yet processed the current step. Then the job is postponed until the next cron run.
  *
- * Exception, which is thrown when opencast has not yet processed the current step.
- * Then the job is postponed until the next cron run.
  * @package    block_opencast
  * @copyright  2017 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

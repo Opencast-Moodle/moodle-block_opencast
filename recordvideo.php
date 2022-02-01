@@ -130,8 +130,9 @@ echo $OUTPUT->footer();
 
 /**
  * Create necessary lti parameters for studio.
+ * @param int $ocinstanceid Opencast instance id.
  * @param string $endpoint of the opencast instance.
- * @param string $seriesid id of the series, to which recordings should be uploaded.
+ * @param string $customtool
  *
  * @return array lti parameters
  * @throws dml_exception

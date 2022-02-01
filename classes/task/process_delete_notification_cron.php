@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Task for deleting the event status notification jobs.
+ *
  * @package   block_opencast
  * @copyright  2021 Farbod Zamani Boroujeni, ELAN e.V.
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
@@ -35,10 +37,19 @@ use tool_opencast\local\settings_api;
  */
 class process_delete_notification_cron extends \core\task\scheduled_task {
 
+    /**
+     * Get the name of the task.
+     * @return \lang_string|string
+     * @throws \coding_exception
+     */
     public function get_name() {
         return get_string('processdeletenotification', 'block_opencast');
     }
 
+    /**
+     * Executes the task.
+     * @throws \dml_exception
+     */
     public function execute() {
         global $DB;
 

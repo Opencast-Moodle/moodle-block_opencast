@@ -90,6 +90,7 @@ class upload_helper {
     /**
      * Get all upload jobs, for which a file is present in the filearea of plugin.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid Course id
      * @return array
      */
@@ -138,6 +139,7 @@ class upload_helper {
      * 1. Add a new job for an completely uploaded to moodlle-video, when no entry in block_opencast_uploadjob exists
      * 2. Remove upload job, when status is readytoupload.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid Course id
      * @param object $coursecontext Course context
      * @param object $options Options
@@ -712,6 +714,7 @@ class upload_helper {
     /**
      * Gets the catalog of metadata fields from database
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return stdClass $metadata the metadata object
      */
     public static function get_opencast_metadata_catalog($ocinstanceid) {
@@ -719,6 +722,11 @@ class upload_helper {
         return $metadatacatalog;
     }
 
+    /**
+     * Ensures that the series exists.
+     * @param \stdClass $job
+     * @param object $apibridge
+     */
     public static function ensure_series_metadata($job, $apibridge) {
         $metadata = json_decode($job->metadata);
         $mtseries = array_search('isPartOf', array_column($metadata, 'id'));

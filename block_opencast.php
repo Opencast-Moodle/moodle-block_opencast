@@ -25,24 +25,49 @@
 use block_opencast\opencast_connection_exception;
 use tool_opencast\seriesmapping;
 
+/**
+ * Configuration of block_opencast.
+ */
 class block_opencast extends block_base {
 
+    /**
+     * Initializes the block.
+     * @throws coding_exception
+     */
     public function init() {
         $this->title = get_string('pluginname', 'block_opencast');
     }
 
+    /**
+     * Block can appear on the dashboard and course pages.
+     */
     public function applicable_formats() {
         return array('all' => false, 'course' => true, 'my' => true);
     }
 
+    /**
+     * Block cannot be added twice to a page.
+     * @return false
+     */
     public function instance_allow_multiple() {
         return false;
     }
 
+    /**
+     * Block has own settings.
+     * @return bool
+     */
     public function has_config() {
         return true;
     }
 
+    /**
+     * Get the block's content (depends on where it is embedded).
+     * @return stdClass|stdObject|null
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function get_content() {
         global $COURSE;
 
@@ -127,6 +152,11 @@ class block_opencast extends block_base {
         return $this->content;
     }
 
+    /**
+     * Deletes the series mappings when a block is deleted.
+     * @return bool
+     * @throws coding_exception
+     */
     public function instance_delete() {
         global $COURSE;
         $success = true;

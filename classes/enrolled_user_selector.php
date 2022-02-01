@@ -34,9 +34,11 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_enrolled_user_selector extends user_selector_base {
+    /** @var bool|context|context_system|mixed|null Moodle context, usually course */
     protected $context;
 
     /**
+     * Creates the selector.
      * @param string $name control name
      * @param array $options should have two elements with keys groupid and courseid.
      */
@@ -49,12 +51,23 @@ class block_opencast_enrolled_user_selector extends user_selector_base {
         parent::__construct($name, $options);
     }
 
+    /**
+     * Get options supported by the selector.
+     * @return array
+     */
     protected function get_options() {
         $options = parent::get_options();
         $options['contextid'] = $this->context->id;
         return $options;
     }
 
+    /**
+     * Returns enrolled users in a course.
+     * @param string $search Search conditions
+     * @return array|array[] Users
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function find_users($search) {
         global $DB;
 

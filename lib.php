@@ -40,6 +40,7 @@ function block_opencast_get_fontawesome_icon_map() {
 
 /**
  * Serve the create series form as a fragment.
+ * @param object $args
  */
 function block_opencast_output_fragment_series_form($args) {
     global $CFG;

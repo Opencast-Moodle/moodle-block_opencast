@@ -28,6 +28,13 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 
+/**
+ * Scheduled task to clean up Opencast Video Provider/LTI episode modules after a video import
+ *
+ * @package    block_opencast
+ * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
 
     /**

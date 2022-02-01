@@ -66,6 +66,7 @@ class ltimodulemanager {
      * Helperfunction to get the preconfigured tool to be used for Opencast series.
      * This includes a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return int|boolean
      */
     public static function get_preconfigured_tool_for_series($ocinstanceid) {
@@ -92,6 +93,7 @@ class ltimodulemanager {
      * Helperfunction to get the preconfigured tool to be used for Opencast episodes.
      * This includes a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return int|boolean
      */
     public static function get_preconfigured_tool_for_episode($ocinstanceid) {
@@ -118,6 +120,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast series feature.
      * This consists of a check if the feature is enabled by the admin and a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_enabled_and_working_for_series($ocinstanceid) {
@@ -137,6 +140,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast series feature.
      * This is a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_working_for_series($ocinstanceid) {
@@ -169,6 +173,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast episodes feature.
      * This consists of a check if the feature is enabled by the admin and a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_enabled_and_working_for_episodes($ocinstanceid) {
@@ -205,6 +210,7 @@ class ltimodulemanager {
      * Helperfunction to get the status of the Opencast episodes feature.
      * This is a sanity check if the configured tool is valid.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_working_for_episodes($ocinstanceid) {
@@ -252,6 +258,7 @@ class ltimodulemanager {
     /**
      * Helperfunction to create the Opencast LTI series module in a course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $title
      * @param string $seriesid
@@ -319,6 +326,7 @@ class ltimodulemanager {
     /**
      * Helperfunction to create the Opencast LTI episode module in a course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $title
      * @param string $episodeuuid
@@ -440,7 +448,9 @@ class ltimodulemanager {
      * series which must have been created from within the Opencast videos overview page.
      * This includes a sanity check if the stored LTI series module still exists.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
+     * @param string $series
      *
      * @return int|boolean
      */
@@ -479,6 +489,7 @@ class ltimodulemanager {
      * given course' series.
      * This especially catches modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedcourseid The course where the module is pointing to.
      *
@@ -532,8 +543,10 @@ class ltimodulemanager {
      * Helperfunction to cleanup the Opencast LTI series modules within a course.
      * This especially cleans up modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course which is cleaned up.
      * @param int $referencedcourseid The course where the modules are pointing to.
+     * @param string $duplicatedseries
      *
      * @return bool
      */
@@ -630,6 +643,7 @@ class ltimodulemanager {
      * Helperfunction to get the Opencast LTI episode modules of a course.
      * This includes a sanity check if the stored LTI episode modules still exists.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      *
      * @return array
@@ -648,6 +662,7 @@ class ltimodulemanager {
     /**
      * Helperfunction to pick the Opencast LTI episode module of a particular episode from a given associative array of modules.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param array $modules
      * @param int $courseid
      * @param string $episodeuuid
@@ -692,6 +707,7 @@ class ltimodulemanager {
     /**
      * Helperfunction to get the Opencast LTI episode module of a particular course in a course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $episodeuuid
      *
@@ -713,6 +729,7 @@ class ltimodulemanager {
      * of another course.
      * This function is just an iterator for get_modules_for_episode_linking_to_other_course(), iterating over all course videos.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedcourseid The course where the module is pointing to.
      * @param array|null $onlytheseepisodes (optional) The array of the episode identifiers.
@@ -761,6 +778,7 @@ class ltimodulemanager {
      * given episode.
      * This especially catches modules which have been imported from one course to another course.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course where the module is located.
      * @param int $referencedepisodeid The episode id where the module is pointing to.
      *
@@ -806,6 +824,7 @@ class ltimodulemanager {
      * This function is primarily called by the \block_opencast\task\cleanup_imported_episodes_cron scheduled task.
      * That's why it does not do any capability check anymore, this must have been done before the task was scheduled.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course which is cleaned up.
      * @param array $episodemodules The array of episodemodules to be cleaned up.
      * @param string $episodeid The episode ID where the modules should be pointing to in the end.
@@ -886,6 +905,7 @@ class ltimodulemanager {
      * Helperfunction to get the default Opencast LTI series module title.
      * This includes a fallback for the case that the admin has set it to an empty string.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return string
      */
     public static function get_default_title_for_series($ocinstanceid) {
@@ -905,6 +925,7 @@ class ltimodulemanager {
      * Helperfunction to get the default title for a particular Opencast LTI episode module.
      * This includes a fallback for the case that the episode title is empty.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param string $episodeuuid
      *
      * @return string
@@ -939,6 +960,7 @@ class ltimodulemanager {
     /**
      * Helperfunction to get the default intro for a particular Opencast LTI episode module.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param string $episodeuuid
      *
      * @return string

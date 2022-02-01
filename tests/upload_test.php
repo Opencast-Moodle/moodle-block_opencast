@@ -39,8 +39,11 @@ global $CFG;
  */
 class upload_test extends advanced_testcase {
 
+    /** @var string Test api url. */
     private $apiurl = 'http://localhost:8080';
+    /** @var string Test api username. */
     private $apiusername = 'admin';
+    /** @var string Test api password. */
     private $apipassword = 'opencast';
 
     /**

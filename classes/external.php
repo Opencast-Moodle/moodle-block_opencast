@@ -109,6 +109,8 @@ class block_opencast_external extends external_api {
      * Submits the series form.
      *
      * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
+     * @param string $seriesid Series identifier
      * @param string $jsonformdata The data from the form, encoded as json array.
      *
      * @return string new series id
@@ -183,6 +185,7 @@ class block_opencast_external extends external_api {
      * Retrieves the series titles.
      *
      * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
      * @param string $series Requested series, encoded as json array.
      *
      * @return string Series titles
@@ -215,6 +218,7 @@ class block_opencast_external extends external_api {
      * Imports a series into a course.
      *
      * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
      * @param string $series Series to be imported
      *
      * @return bool True if successful
@@ -259,6 +263,7 @@ class block_opencast_external extends external_api {
      * Removes a series from a course but does not delete it in Opencast.
      *
      * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
      * @param string $series Series to be removed from the course
      *
      * @return bool True if successful
@@ -302,6 +307,7 @@ class block_opencast_external extends external_api {
      * Sets a new default series for a course.
      *
      * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
      * @param string $series Series to be set as default
      *
      * @return bool True if successful

@@ -36,6 +36,7 @@ class eventstatus_notification_helper {
     /**
      * Save the event status notification job onto the db table to be processed later with cronjobs.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param string $eventidentifier
      * @param int $courseid Course id
      * @param int $uploaderuserid userid of the uploader

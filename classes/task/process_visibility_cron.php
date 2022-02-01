@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Task for processing the scheduled visibilty change jobs.
  * @package   block_opencast
  * @copyright  2022 Farbod Zamani Boroujeni, ELAN e.V.
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
@@ -28,10 +29,19 @@ namespace block_opencast\task;
  */
 class process_visibility_cron extends \core\task\scheduled_task {
 
+    /**
+     * Get the name of the task.
+     * @return \lang_string|string
+     * @throws \coding_exception
+     */
     public function get_name() {
         return get_string('processvisibility', 'block_opencast');
     }
 
+    /**
+     * Executes the task.
+     * @throws \dml_exception
+     */
     public function execute() {
         $visibilityhelper = new \block_opencast\local\visibility_helper();
         $visibilityhelper->cron();

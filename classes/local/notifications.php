@@ -232,6 +232,7 @@ class notifications {
      *
      * @param int $courseid
      * @param int $sourcecourseid
+     * @param string $seriesid
      */
     public static function notify_failed_series_acl_change($courseid, $sourcecourseid, $seriesid) {
         global $DB, $PAGE;
@@ -299,6 +300,7 @@ class notifications {
      * Send notifications to admins, when series mapping was not successful.
      *
      * @param int $courseid
+     * @param int $sourcecourseid
      * @param string $seriesid
      */
     public static function notify_failed_series_mapping($courseid, $sourcecourseid, $seriesid) {

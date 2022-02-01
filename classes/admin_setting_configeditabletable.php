@@ -41,6 +41,7 @@ class admin_setting_configeditabletable extends \admin_setting {
      * Not a setting, just an editable table.
      * @param string $name Setting name
      * @param string $divid Id of the div tag
+     * @param string $buttontext Text of "Add row" button
      */
     public function __construct($name, $divid, $buttontext) {
         $this->nosave = true;

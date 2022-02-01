@@ -39,6 +39,7 @@ class importvideosmanager {
      * Helperfunction to get the status of the manual import videos feature.
      * This consists of a check if the feature is enabled by the admin and a check if a duplicate workflow is configured.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_enabled_and_working_for_manualimport($ocinstanceid) {
@@ -110,6 +111,7 @@ class importvideosmanager {
      * Helperfunction to get the status of the import videos within Moodle core course import wizard feature.
      * This consists of a check if the feature is enabled by the admin and a check if a duplicate workflow is configured.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function is_enabled_and_working_for_coreimport($ocinstanceid) {
@@ -179,6 +181,7 @@ class importvideosmanager {
     /**
      * Helperfunction to get the status of the handle Opencast series modules feature.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function handle_series_modules_is_enabled_and_working($ocinstanceid) {
@@ -209,6 +212,7 @@ class importvideosmanager {
     /**
      * Helperfunction to get the status of the handle Opencast episode modules feature.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
     public static function handle_episode_modules_is_enabled_and_working($ocinstanceid) {
@@ -240,6 +244,7 @@ class importvideosmanager {
      * Helperfunction to get the list of course videos that are stored in the
      * given source course to be selected during manual import.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $sourcecourseid The source course id.
      *
      * @return array
@@ -291,6 +296,7 @@ class importvideosmanager {
     /**
      * Helperfunction to get the list of course videos which are stored in the given source course to be shown as summary.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $sourcecourseid The source course id.
      * @param array $selectedcoursevideos The selected course videos.
      *
@@ -345,6 +351,13 @@ class importvideosmanager {
         return $coursevideossummary;
     }
 
+    /**
+     * Get all series from the source course.
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $sourcecourseid
+     * @return array
+     * @throws \dml_exception
+     */
     public static function get_import_source_course_series($ocinstanceid, $sourcecourseid) {
         // Get an APIbridge instance.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
@@ -362,6 +375,7 @@ class importvideosmanager {
     /**
      * Helperfunction to duplicate the videos which have been selected during manual import.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $sourcecourseid The source course id.
      * @param int $targetcourseid The target course id.
      * @param array $coursevideos The array of video identifiers to be duplicated.
@@ -470,7 +484,8 @@ class importvideosmanager {
      * Helperfunction to get the list of course videos which are stored in the given source course
      * to be shown as summary in ACL change mode.
      *
-     * @param int $sourcecourseid The source course id.
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $seriesid The source series id.
      *
      * @return string
      */
@@ -518,7 +533,9 @@ class importvideosmanager {
     /**
      * Helperfunction to perform ACL Change approache during manual import.
      *
+     * @param int $ocinstanceid Opencast instance id.
      * @param int $sourcecourseid The source course id.
+     * @param string $sourcecourseseries
      * @param int $targetcourseid The target course id.
      *
      * @return object

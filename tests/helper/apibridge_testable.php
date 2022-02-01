@@ -14,13 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Test apibridge.
+ * @package block_opencast
+ * @copyright 2022 Tamara Gunkel, WWU
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 use tool_opencast\seriesmapping;
 
+/**
+ * Test apibridge.
+ */
 class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
 
     /** @var array register for possible function results. */
     private $register = [];
 
+    /** @var string Test workflow for duplication. */
     const DUPLICATE_WORKFLOW = 'api_duplicate';
 
     /**
@@ -44,9 +55,9 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * Set data for the simulation of test data.
      *
      * @param string $methodname
-     * @param strint $key
-     *
+     * @param string $key
      * @param mixed $value
+     *
      */
     public function set_testdata($methodname, $key, $value) {
         global $CFG;
@@ -127,6 +138,12 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return $result;
     }
 
+    /**
+     * Returns test videos of a series.
+     * @param string $series
+     * @param null $sortcolumns
+     * @return stdClass
+     */
     public function get_series_videos($series, $sortcolumns = null) {
         $result = new stdClass();
         $result->error = 0;
@@ -153,6 +170,11 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return $result;
     }
 
+    /**
+     * Returns test videos for a course.
+     * @param int $courseid
+     * @return stdClass
+     */
     public function get_block_videos($courseid) {
         // Used for behat test.
         $result = new \stdClass();
@@ -188,6 +210,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      *
      * @param int $courseid
      * @param string $seriestitle
+     * @param int $userid
      * @return boolean
      * @throws \moodle_exception
      */
@@ -249,6 +272,11 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return false;
     }
 
+    /**
+     * Returns the default series of a course.
+     * @param int $courseid
+     * @return object|null
+     */
     public function get_default_course_series($courseid) {
 
         $result = null;
@@ -259,10 +287,23 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
         return $result;
     }
 
+    /**
+     * Checks if a workflow exists.
+     * @param string $name
+     * @return bool|mixed|null
+     */
     public function check_if_workflow_exists($name) {
         return $this->get_testdata('check_if_workflow_exists', $name);
     }
 
+    /**
+     * Simulates that a workflow is started.
+     * @param string $eventid
+     * @param string $duplicateworkflow
+     * @param array $params
+     * @param false $returnworkflowid
+     * @return bool|int|mixed|null
+     */
     public function start_workflow($eventid, $duplicateworkflow, $params = array(), $returnworkflowid = false) {
         return $this->get_testdata('start_workflow', $duplicateworkflow);
     }

@@ -39,6 +39,7 @@ class activitymodulemanager {
      * Helperfunction to get the status of the Opencast series feature.
      * This consists of a check if the feature is enabled by the admin.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @return boolean
      */
     public static function is_enabled_and_working_for_series($ocinstanceid): bool {
@@ -50,6 +51,7 @@ class activitymodulemanager {
      * Helperfunction to get the status of the Opencast episodes feature.
      * This consists of a check if the feature is enabled by the admin.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @return boolean
      */
     public static function is_enabled_and_working_for_episodes($ocinstanceid) {
@@ -61,12 +63,14 @@ class activitymodulemanager {
      * Helperfunction to create the Opencast LTI series module in a course.
      *
      * @param int $courseid
+     * @param int $ocinstanceid Opencast instance id
      * @param string $title
      * @param string $seriesid
      * @param int $sectionid
      * @param string $introtext
      * @param int $introformat
      * @param string $availability
+     * @param bool $allowdownload
      *
      * @return boolean
      */
@@ -113,12 +117,14 @@ class activitymodulemanager {
      * Helperfunction to create the Opencast LTI episode module in a course.
      *
      * @param int $courseid
+     * @param int $ocinstanceid Opencast instance id
      * @param string $title
      * @param string $episodeuuid
      * @param int $sectionid
      * @param string $introtext
      * @param int $introformat
      * @param string $availability
+     * @param bool $allowdownload
      *
      * @return boolean
      */
@@ -166,6 +172,7 @@ class activitymodulemanager {
      * Helperfunction to create a modinfo class, holding the Opencast LTI module information.
      *
      * @param int $pluginid
+     * @param int $ocinstanceid Opencast instance id
      * @param string $title
      * @param int $sectionid
      * @param string $opencastid
@@ -173,6 +180,7 @@ class activitymodulemanager {
      * @param string $introtext
      * @param int $introformat
      * @param string $availability
+     * @param bool $allowdownload
      *
      * @return object
      */
@@ -218,7 +226,9 @@ class activitymodulemanager {
      * Helperfunction to get the Opencast series module of a course.
      * This includes a sanity check if the stored series module still exists.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @param int $courseid
+     * @param string $seriesid Series identifier
      *
      * @return int|boolean
      */
@@ -259,6 +269,7 @@ class activitymodulemanager {
      *
      * @param int $courseid
      * @param string $episodeuuid
+     * @param int $ocinstanceid Opencast instance id
      *
      * @return int|boolean
      */
@@ -297,6 +308,7 @@ class activitymodulemanager {
      * Helperfunction to get the default Opencast Activity series module title.
      * This includes a fallback for the case that the admin has set it to an empty string.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @return string
      */
     public static function get_default_title_for_series($ocinstanceid) {
@@ -316,6 +328,7 @@ class activitymodulemanager {
      * Helperfunction to get the default title for a particular Opencast Activity episode module.
      * This includes a fallback for the case that the episode title is empty.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @param string $episodeuuid
      *
      * @return string
@@ -350,6 +363,7 @@ class activitymodulemanager {
     /**
      * Helperfunction to get the default intro for a particular Opencast Activity episode module.
      *
+     * @param int $ocinstanceid Opencast instance id
      * @param string $episodeuuid
      *
      * @return string
@@ -509,7 +523,7 @@ class activitymodulemanager {
      * This especially catches modules which have been imported from one course to another course.
      *
      * @param int $ocinstanceid Opencast instance id.
-     * @param int $modulecourseid The course where the module is located.
+     * @param int $courseid The course where the module is located.
      * @param int $referencedepisodeid The episode id where the module is pointing to.
      *
      * @return array
@@ -575,6 +589,7 @@ class activitymodulemanager {
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $modulecourseid The course which is cleaned up.
+     * @param string[] $referencedseries Series identifiers
      *
      * @return bool
      */

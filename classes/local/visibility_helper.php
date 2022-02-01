@@ -33,7 +33,6 @@ use block_opencast_renderer;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class visibility_helper {
     /** @var int visibility change failed */
     const STATUS_FAILED = 0;
