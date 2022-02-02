@@ -523,6 +523,8 @@ $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast s
 $string['opencaststudiointegration'] = 'Opencast studio integration';
 $string['opencastseries'] = 'Opencast Series';
 $string['owner'] = 'Owner';
+$string['ownedvideosoverview'] = 'Your videos';
+$string['ownedvideosoverview_explanation'] = 'Here you can see all videos that belong to you but to whose series you do not have access.';
 $string['overview'] = 'Overview';
 
 $string['planned'] = 'Planned';

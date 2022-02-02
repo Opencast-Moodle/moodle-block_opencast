@@ -163,7 +163,34 @@ foreach ($myseries as $seriesid) {
 
 $table->finish_html();
 
-// Todo Retrieve videos that are owned but not included in any series.
+// Show videos that the user owns but are not included in any of the series he has access to.
+$ownedvideos = $apibridge->get_videos_owned_by($USER->id);
+$ownedvideos = array_filter($ownedvideos, function ($v) use ($myseries) {
+    return !in_array($v->is_part_of, $myseries);
+});
+
+if (count($ownedvideos) > 0) {
+    echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'));
+    echo html_writer::tag('p', get_string('ownedvideosoverview_explanation', 'block_opencast'));
+
+    $columns = array('owner', 'videos', 'linked', 'activities');
+    $headers = array(
+        get_string('owner', 'block_opencast'),
+        get_string('video', 'block_opencast'),
+        get_string('embeddedasactivity', 'block_opencast'),
+        get_string('embeddedasactivitywolink', 'block_opencast'));
+    $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
+
+    $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+    $showchangeownerlink = course_can_view_participants(context_system::instance());
+
+    foreach ($renderer->create_overview_videos_rows($ownedvideos, $apibridge, $ocinstanceid,
+        $activityinstalled, $showchangeownerlink, true) as $row) {
+        $table->add_data($row);
+    }
+
+    $table->finish_html();
+}
 
 if ($opencasterror) {
     \core\notification::error($opencasterror);

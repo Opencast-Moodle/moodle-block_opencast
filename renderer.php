@@ -26,6 +26,7 @@
 use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
+use mod_opencast\local\opencasttype;
 
 /**
  * Renderer class for block opencast.
@@ -340,7 +341,81 @@ class block_opencast_renderer extends plugin_renderer_base {
         );
 
         $table->setup();
+
         return $table;
+    }
+
+    /**
+     * Creates the rows for the video overview table.
+     * @param array $videos
+     * @param object $apibridge
+     * @param int $ocinstanceid
+     * @param bool $activityinstalled
+     * @param bool $showchangeownerlink
+     * @param bool $isownerverified
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
+                                                $showchangeownerlink, $isownerverified = false) {
+        global $USER, $SITE, $DB;
+        $rows = array();
+
+        foreach ($videos as $video) {
+            $activitylinks = array();
+            if ($activityinstalled) {
+                $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+                    'opencastid' => $video->identifier, 'type' => opencasttype::EPISODE));
+            }
+
+            $row = array();
+
+            if ($isownerverified || $apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
+                if ($showchangeownerlink) {
+                    $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
+                        array('ocinstanceid' => $ocinstanceid, 'identifier' => $video->identifier, 'isseries' => false)),
+                        $this->output->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
+                } else {
+                    $row[] = $this->output->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
+                }
+            } else {
+                $row[] = '';
+            }
+
+            $row[] = $video->title;
+            $courses = [];
+            $courseswoblocklink = [];
+
+            foreach ($activitylinks as $accourse) {
+                try {
+                    // Get activity.
+                    $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($accourse->course,
+                        $video->identifier, $ocinstanceid);
+
+                    if (\tool_opencast\seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid,
+                        'series' => $video->is_part_of, 'courseid' => $accourse->course))) {
+                        $courses[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
+                            get_course($accourse->course)->fullname, array('target' => '_blank'));
+                    } else {
+                        $courseswoblocklink[] = html_writer::link(new moodle_url('/mod/opencast/view.php',
+                            array('id' => $moduleid)),
+                            get_course($accourse->course)->fullname, array('target' => '_blank'));
+                    }
+
+                } catch (dml_missing_record_exception $ex) {
+                    continue;
+                }
+            }
+
+            $row[] = join('<br>', $courses);
+            $row[] = join('<br>', $courseswoblocklink);
+
+            $rows[] = $row;
+        }
+
+        return $rows;
     }
 
     /**

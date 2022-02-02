@@ -85,57 +85,10 @@ $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = course_can_view_participants(context_system::instance());
 
-foreach ($videos as $video) {
-    $activitylinks = array();
-    if ($activityinstalled) {
-        $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
-            'opencastid' => $video->identifier, 'type' => opencasttype::EPISODE));
-    }
-
-    $row = array();
-
-    if ($apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
-        if ($showchangeownerlink) {
-            $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
-                array('ocinstanceid' => $ocinstanceid, 'identifier' => $video->identifier, 'isseries' => false)),
-                $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
-        } else {
-            $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
-        }
-    } else {
-        $row[] = '';
-    }
-
-    $row[] = $video->title;
-    $courses = [];
-    $courseswoblocklink = [];
-
-    foreach ($activitylinks as $accourse) {
-        try {
-            // Get activity.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($accourse->course,
-                $video->identifier, $ocinstanceid);
-
-            if (\tool_opencast\seriesmapping::get_record(array('ocinstanceid' => $ocinstanceid,
-                'series' => $video->is_part_of, 'courseid' => $accourse->course))) {
-                $courses[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
-                    get_course($accourse->course)->fullname, array('target' => '_blank'));
-            } else {
-                $courseswoblocklink[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
-                    get_course($accourse->course)->fullname, array('target' => '_blank'));
-            }
-
-        } catch (dml_missing_record_exception $ex) {
-            continue;
-        }
-    }
-
-    $row[] = join('<br>', $courses);
-    $row[] = join('<br>', $courseswoblocklink);
-
+foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
+    $activityinstalled, $showchangeownerlink) as $row) {
     $table->add_data($row);
 }
-
 
 $table->finish_html();
 

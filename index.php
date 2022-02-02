@@ -394,6 +394,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                         $video->processing_state !== "STOPPED") {
                         $row[] = "-";
                     } else {
+                        // TODO query alcs already at the beginning to avoid second rest call.
                         $visible = $apibridge->is_event_visible($video->identifier, $courseid);
                         $row[] = $renderer->render_change_visibility_icon($ocinstanceid, $courseid, $video->identifier, $visible);
                     }

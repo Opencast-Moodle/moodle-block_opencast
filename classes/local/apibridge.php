@@ -2139,6 +2139,28 @@ class apibridge {
     }
 
     /**
+     * Retrieves all videos that are owned by the specified user.
+     * @param int $userid
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function get_videos_owned_by($userid) {
+        global $SITE;
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = '/api/events?onlyWithWriteAccess=1';
+        // Course id should not be used in owner role, so we can use the site id.
+        $ownerrole = self::get_owner_role_for_user($userid, $SITE->id);
+
+        $response = $api->oc_get($resource, array($ownerrole));
+        if ($api->get_http_code() == 200) {
+            return json_decode($response);
+        }
+        return array();
+    }
+
+    /**
      * Update the metadata with the matching type of the specified series.
      * @param string $seriesid identifier of the series
      * @param array $metadata collection of metadata
