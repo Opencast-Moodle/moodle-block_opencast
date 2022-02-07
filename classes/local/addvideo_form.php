@@ -70,14 +70,15 @@ class addvideo_form extends \moodleform {
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
         $mform->setExpanded('metadata', true);
 
-        $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php', 
+        $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php',
             array(
                 'courseid' => $this->_customdata['courseid'],
                 'ocinstanceid' => $ocinstanceid,
                 'redirectto' => 'addvideo'
             ));
         $managedefaultslink = \html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
-        $managedefaultsexplation = \html_writer::tag('p', get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
+        $managedefaultsexplation = \html_writer::tag('p',
+            get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
         $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation . $managedefaultsexplation);
 

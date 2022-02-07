@@ -62,7 +62,7 @@ class managedefaults_form extends \moodleform {
             $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
             foreach ($defaultables->eventmetadata as $field) {
                 $default = (isset($usereventdefaults[$field->name]) ? $usereventdefaults[$field->name] : null);
-                $this->generateElement($field, 'event', $default);
+                $this->generate_element($field, 'event', $default);
             }
         }
 
@@ -74,7 +74,7 @@ class managedefaults_form extends \moodleform {
             $userseriesdefaults = (!empty($userdefaults['series'])) ? $userdefaults['series'] : [];
             foreach ($defaultables->seriesmetadata as $field) {
                 $default = (isset($userseriesdefaults[$field->name]) ? $userseriesdefaults[$field->name] : null);
-                $this->generateElement($field, 'series', $default);
+                $this->generate_element($field, 'series', $default);
             }
         }
 
@@ -119,7 +119,7 @@ class managedefaults_form extends \moodleform {
      * @param string $belongsto decides which default sets the element belongs to.
      * @param string $default the default value that user has already set.
      */
-    protected function generateElement($field, $belongsto, $default = null) {
+    protected function generate_element($field, $belongsto, $default = null) {
         $mform = $this->_form;
         $param = array();
         $attributes = array();

@@ -128,7 +128,7 @@ if ($data = $managedefaultsform->get_data()) {
         $userdefaultsrecord->defaults = json_encode($defaults);
         $DB->insert_record('block_opencast_user_default', $userdefaultsrecord);
     }
-    
+
     redirect($redirecturl, get_string('defaultssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 $renderer = $PAGE->get_renderer('block_opencast');
