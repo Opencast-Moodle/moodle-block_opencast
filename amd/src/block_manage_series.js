@@ -146,7 +146,7 @@ function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     }]);
 }
 
-export const init = (contextid, ocinstanceid) => {
+export const init = (contextid, ocinstanceid, createseries) => {
 
     // Load strings
     var strings = [
@@ -429,6 +429,11 @@ export const init = (contextid, ocinstanceid) => {
                     modal.show();
                 });
         });
+
+        // Perform click on createseries
+        if (createseries) {
+            $('#createseries').trigger('click');
+        }
     });
 };
 

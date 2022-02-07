@@ -43,7 +43,7 @@ function block_opencast_get_fontawesome_icon_map() {
  * @param object $args
  */
 function block_opencast_output_fragment_series_form($args) {
-    global $CFG;
+    global $CFG, $USER, $DB;
 
     $args = (object)$args;
     $context = $args->context;
@@ -76,8 +76,12 @@ function block_opencast_output_fragment_series_form($args) {
         $mform = new series_form(null, array('courseid' => $course->id, 'metadata' => $ocseries,
             'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
     } else {
-        $mform = new series_form(null, array('courseid' => $course->id,
-            'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog));
+        // Get user series defaults when the page is new.
+        $userdefaultsrecord = $DB->get_record('block_opencast_user_default', ['userid' => $USER->id]);
+        $userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults, true) : [];
+        $userseriesdefaults = (!empty($userdefaults['series'])) ? $userdefaults['series'] : [];
+        $mform = new series_form(null, array('courseid' => $course->id, 'ocinstanceid' => $args->ocinstanceid,
+            'metadata_catalog' => $metadatacatalog, 'seriesdefaults' => $userseriesdefaults));
     }
 
     ob_start();

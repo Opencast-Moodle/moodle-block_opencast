@@ -51,11 +51,26 @@ class series_form extends \moodleform {
         $mform = $this->_form;
 
         $ocinstanceid = $this->_customdata['ocinstanceid'];
+        $seriesdefaults = $this->_customdata['seriesdefaults'];
 
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
+
+        if (isset($seriesdefaults)) {
+            $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php',
+                array(
+                    'courseid' => $this->_customdata['courseid'],
+                    'ocinstanceid' => $ocinstanceid,
+                    'redirectto' => 'manageseries'
+                )
+            );
+            $managedefaultslink = \html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
+            $managedefaultsexplation = \html_writer::tag('p',
+                get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
+            $mform->addElement('html', $managedefaultsexplation);
+        }
 
         $settitle = true;
         foreach ($this->_customdata['metadata_catalog'] as $field) {
@@ -116,8 +131,11 @@ class series_form extends \moodleform {
                 }
             }
 
+            $default = (isset($seriesdefaults[$field->name]) ? $seriesdefaults[$field->name] : null);
             if ($value) {
                 $mform->setDefault($field->name, $value);
+            } else if ($default) {
+                $mform->setDefault($field->name, $default);
             }
         }
 

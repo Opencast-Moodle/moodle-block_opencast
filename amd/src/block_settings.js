@@ -44,6 +44,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
         {key: 'heading_required', component: 'block_opencast'},
         {key: 'heading_readonly', component: 'block_opencast'},
         {key: 'heading_params', component: 'block_opencast'},
+        {key: 'heading_defaultable', component: 'block_opencast'},
         {key: 'delete', component: 'moodle'}
     ];
     str.get_strings(strings).then(function (jsstrings) {
@@ -217,6 +218,23 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     headerSort: false
                 },
                 {
+                    title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
+                    field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+                        function (cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return;
+                            }
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
                         function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
@@ -228,7 +246,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                             body: jsstrings[6]
                         })
                             .then(function (modal) {
-                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.setSaveButtonText(jsstrings[14]);
                                 modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });
@@ -323,6 +341,23 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     headerSort: false
                 },
                 {
+                    title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
+                    field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+                        function (cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return;
+                            }
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function () {
+                                cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
                         function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
@@ -334,7 +369,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                             body: jsstrings[6]
                         })
                             .then(function (modal) {
-                                modal.setSaveButtonText(jsstrings[12]);
+                                modal.setSaveButtonText(jsstrings[14]);
                                 modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });

@@ -52,6 +52,7 @@ class addvideo_form extends \moodleform {
         $renderer = $PAGE->get_renderer('block_opencast');
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         $apibridge = apibridge::get_instance($ocinstanceid);
+        $eventdefaults = $this->_customdata['eventdefaults'];
 
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
@@ -69,8 +70,16 @@ class addvideo_form extends \moodleform {
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
         $mform->setExpanded('metadata', true);
 
+        $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php', 
+            array(
+                'courseid' => $this->_customdata['courseid'],
+                'ocinstanceid' => $ocinstanceid,
+                'redirectto' => 'addvideo'
+            ));
+        $managedefaultslink = \html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
+        $managedefaultsexplation = \html_writer::tag('p', get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
         $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
-        $mform->addElement('html', $explanation);
+        $mform->addElement('html', $explanation . $managedefaultsexplation);
 
         $seriesrecords = $DB->get_records('tool_opencast_series',
             array('courseid' => $this->_customdata['courseid'], 'ocinstanceid' => $ocinstanceid));
@@ -151,6 +160,10 @@ class addvideo_form extends \moodleform {
                 }
             }
             $mform->setAdvanced($field->name, !$field->required);
+            $default = (isset($eventdefaults[$field->name]) ? $eventdefaults[$field->name] : null);
+            if ($default) {
+                $mform->setDefault($field->name, $default);
+            }
         }
         if ($settitle) {
             $mform->addElement('text', 'title', get_string('title', 'block_opencast'));
