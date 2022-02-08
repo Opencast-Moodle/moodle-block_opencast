@@ -75,7 +75,7 @@ class behat_block_opencast extends behat_base {
         $newdata = ['api_events.json', 'api_events_acl.json', 'api_events_detailpage.json', 'api_series.json',
             'api_series_metadata.json', 'api_series_two.json', 'api_events_with_publication.json',
             'api_series_filter.json', 'api_events_metadata.json', 'api_events_single_event.json',
-            'api_events_nolimit.json'];
+            'api_events_nolimit.json', 'api_events_only_basic_infos.json',];
         $apitestable = new api_testable();
         foreach ($newdata as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
