@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.4']
+        php: ['8.1']
         moodle-branch: ['MOODLE_311_STABLE']
         database: ['mariadb']
         opencast: ['9.3']
@@ -110,7 +110,7 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.4']
+        php: ['8.1']
         moodle-branch: ['MOODLE_311_STABLE']
         database: ['mariadb']
         opencast: ['9.3']
@@ -190,7 +190,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.3', '7.4']
+        php: ['7.4', '8.1']
         moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['9.3']
