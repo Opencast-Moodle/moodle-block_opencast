@@ -1,5 +1,5 @@
 {
-  "resource": "/api/events?sign=1&withacl=1&withmetadata=1&withpublications=true&filter=series%3A1111-1111-1111-1111-1111",
+  "resource": "/api/events?sign=1&withacl=true&withmetadata=1&withpublications=true&filter=series%3A1111-1111-1111-1111-1111",
   "response": [
     {
       "identifier": "bbbb-bbbb-bbbb-bbbb",
@@ -27,7 +27,44 @@
         "api",
         "annotation"
       ],
-      "status": "EVENTS.EVENTS.STATUS.PROCESSED"
+      "status": "EVENTS.EVENTS.STATUS.PROCESSED",
+      "acl": [
+        {
+          "allow": true,
+          "role": "ROLE_ADMIN",
+          "action": "write"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_ADMIN",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+          "action": "write"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "1_Instructor",
+          "action": "write"
+        },
+        {
+          "allow": true,
+          "role": "1_Instructor",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "1_Learner",
+          "action": "read"
+        }
+      ]
     }
   ]
 }
