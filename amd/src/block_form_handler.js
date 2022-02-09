@@ -63,6 +63,12 @@ define(['jquery'], function ($) {
     function setDefautlTitle(filename) {
         var title = $('input[name="title"]').val();
         if (!title && filename) {
+            // Removing the extension from the filename.
+            var filename = filename.split('.');
+            if (Array.isArray(filename)) {
+                filename.pop();
+            }
+            filename = filename.length > 1 ? filename.join('.') : filename[0];
             $('input[name="title"]').val(filename);
         }
     }
