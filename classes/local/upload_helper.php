@@ -718,7 +718,7 @@ class upload_helper {
      * @return array $metadatacatalog the metadata catalog array of stdClasses
      */
     public static function get_opencast_metadata_catalog($ocinstanceid) {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata1_' . $ocinstanceid));
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
         return !empty($metadatacatalog) ? $metadatacatalog : [];
     }
 
