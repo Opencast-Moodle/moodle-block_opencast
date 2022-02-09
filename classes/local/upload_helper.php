@@ -715,11 +715,11 @@ class upload_helper {
      * Gets the catalog of metadata fields from database
      *
      * @param int $ocinstanceid Opencast instance id.
-     * @return stdClass $metadata the metadata object
+     * @return array $metadatacatalog the metadata catalog array of stdClasses
      */
     public static function get_opencast_metadata_catalog($ocinstanceid) {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
-        return $metadatacatalog;
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata1_' . $ocinstanceid));
+        return !empty($metadatacatalog) ? $metadatacatalog : [];
     }
 
     /**
