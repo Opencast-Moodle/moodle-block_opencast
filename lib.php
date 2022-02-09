@@ -64,7 +64,8 @@ function block_opencast_output_fragment_series_form($args) {
     require_capability('block/opencast:createseriesforcourse', $context);
 
     $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $args->ocinstanceid));
-
+    // Make sure $metadatacatalog is array.
+    $metadatacatalog = !empty($metadatacatalog) ? $metadatacatalog : [];
     if ($formdata) {
         $mform = new series_form(null, array('courseid' => $course->id,
             'ocinstanceid' => $args->ocinstanceid, 'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $formdata);
