@@ -51,14 +51,17 @@ class series_form extends \moodleform {
         $mform = $this->_form;
 
         $ocinstanceid = $this->_customdata['ocinstanceid'];
-        $seriesdefaults = $this->_customdata['seriesdefaults'];
+        $seriesdefaults = [];
+        if (isset($this->_customdata['seriesdefaults'])) {
+            $seriesdefaults = $this->_customdata['seriesdefaults'];
+        }
 
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
-        if (isset($seriesdefaults)) {
+        if (!empty($seriesdefaults)) {
             $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php',
                 array(
                     'courseid' => $this->_customdata['courseid'],
