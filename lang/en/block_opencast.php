@@ -662,6 +662,7 @@ $string['userisntowner'] = 'Only the owner of the video can change the ownership
 $string['video'] = 'Video';
 $string['videosavailable'] = 'Videos available in this course';
 $string['video_notallowed'] = 'The video is not part of the course series.';
+$string['viewviedeosnotallowed'] = 'You are not allowed to view the videos in this series.';
 $string['videonotfound'] = 'Video not found';
 $string['videodraftnotfound'] = 'The video to be deleted before the transfer to Opencast was not found.';
 $string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before the transfer to Opencast as the processing status is already "{$a}"';

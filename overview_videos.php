@@ -50,16 +50,37 @@ if (settings_api::num_ocinstances() > 1) {
     $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 }
 
+/** @var block_opencast_renderer $renderer */
+$renderer = $PAGE->get_renderer('block_opencast');
+
+// Try to retrieve name from opencast.
+$ocseries = $apibridge->get_series_by_identifier($series, true);
+
+// Verify that user has permission to view series.
+if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
+    // User is not owner but might have read access to course where series is embedded.
+    $records = $DB->get_records('tool_opencast_series', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
+    $haspermission = false;
+    foreach ($records as $record) {
+        $coursecontext = context_course::instance($record->courseid, IGNORE_MISSING);
+        if ($coursecontext && has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+            $haspermission = true;
+            break;
+        }
+    }
+
+    if (!$haspermission) {
+        redirect(new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)),
+            get_string('viewviedeosnotallowed', 'block_opencast'), null,
+            \core\output\notification::NOTIFY_ERROR);
+    }
+}
+
 $PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
     new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $baseurl);
 echo $OUTPUT->header();
 
-/** @var block_opencast_renderer $renderer */
-$renderer = $PAGE->get_renderer('block_opencast');
-
-// Try to retrieve name from opencast.
-$ocseries = $apibridge->get_series_by_identifier($series);
 if ($ocseries) {
     echo $OUTPUT->heading($ocseries->title);
 } else {
@@ -69,7 +90,6 @@ if ($ocseries) {
 
 echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
-// TODO verify that teacher has indeed permission to view series.
 // TODO handle opencast connection error. Break as soon as first error occurs.
 
 // Build table.
