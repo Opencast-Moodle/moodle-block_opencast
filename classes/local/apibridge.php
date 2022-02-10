@@ -2428,4 +2428,77 @@ class apibridge {
 
         return $mapping->to_record();
     }
+
+    /**
+     * Unlinking a series from a course in 2 steps:
+     * 1. Change visibility of series' events for the course to hidden.
+     * 2. Remove non permanent ACLs of the course from series ACLs.
+     *
+     * @param int $courseid Course ID.
+     * @param string $seriesid Series Identifier.
+     *
+     * @return bool
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
+    public function unlink_series_from_course($courseid, $seriesid) {
+        // Step 1: Change visibility of series' events for the course to hidden.
+        $videos = $this->get_series_videos($seriesid);
+        if ($videos->error != 0) {
+            return false;
+        }
+
+        // Loop through the videos and hide them for this course.
+        $hiddenevents = true;
+        foreach ($videos->videos as $video) {
+            if ($video->identifier) {
+                $visibilitychanged = $this->change_visibility(
+                    $video->identifier,
+                    $courseid,
+                    block_opencast_renderer::HIDDEN
+                );
+                if (!$visibilitychanged) {
+                    $hiddenevents = false;
+                }
+            }
+        }
+
+        // Make sure all events are hidden.
+        if (!$hiddenevents) {
+            return false;
+        }
+
+        // Step 2: Remove non permanent ACLs of the course from series ACLs.
+        // Get api instance to read acls.
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = "/api/series/$seriesid/acl";
+        $jsonacl = $api->oc_get($resource);
+        $oldseriesacls = json_decode($jsonacl);
+
+        // Make sure series ACL retreived.
+        if (!is_array($oldseriesacls)) {
+            return false;
+        }
+
+        $aclstoremove = $this->get_non_permanent_acl_rules_for_status(
+            $courseid,
+            \block_opencast_renderer::VISIBLE
+        );
+        $aclrolestoremove = array_column($aclstoremove, 'role');
+        $newacls = array_filter($oldseriesacls, function ($acl) use ($aclrolestoremove) {
+            if (!in_array($acl->role, $aclrolestoremove)) {
+                return true;
+            }
+        });
+
+        // Get api instance to put acls.
+        $api = api::get_instance($this->ocinstanceid);
+        $params['acl'] = json_encode(array_values($newacls));
+
+        // We put back the new acls.
+        $api->oc_put($resource, $params);
+
+        // Finally, we return boolean if series' new acls are in place.
+        return ($api->get_http_code() == 200);
+    }
 }

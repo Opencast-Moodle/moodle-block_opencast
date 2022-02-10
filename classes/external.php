@@ -295,7 +295,11 @@ class block_opencast_external extends external_api {
                 }
             }
 
-            if (!$mapping->delete()) {
+            // Unlinking series from course.
+            $apibridge = apibridge::get_instance($params['ocinstanceid']);
+            $seriesunlinked = $apibridge->unlink_series_from_course($course->id, $params['seriesid']);
+
+            if (!$seriesunlinked || !$mapping->delete()) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
         }
