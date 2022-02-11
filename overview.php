@@ -170,7 +170,7 @@ $ownedvideos = array_filter($ownedvideos, function ($v) use ($myseries) {
 });
 
 if (count($ownedvideos) > 0) {
-    echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'));
+    echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'), 2, array('mt-4'));
     echo html_writer::tag('p', get_string('ownedvideosoverview_explanation', 'block_opencast'));
 
     $columns = array('owner', 'videos', 'linked', 'activities');

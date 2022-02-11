@@ -1041,7 +1041,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Display the lti form.
      *
      * @param string $endpoint
-     * @param object $params The prepared variables.
+     * @param array $params The prepared variables.
      * @return string
      */
     public function render_lti_form($endpoint, $params) {

@@ -329,7 +329,7 @@ foreach ($seriesvideodata as $series => $videodata) {
     if ($videodata->error == 0) {
         $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);
         $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
-        $engageurl = get_config('filter_opencast', 'engageurl_' . $ocinstanceid);
+        $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
 
         foreach ($videodata->videos as $video) {
 
@@ -350,7 +350,9 @@ foreach ($seriesvideodata as $series => $videodata) {
 
             // Title column.
             if ($engageurl) {
-                $row[] = format_text(html_writer::link($engageurl . '/play/' . $video->identifier, $video->title));
+                $row[] = html_writer::link(new moodle_url('/blocks/opencast/engageredirect.php',
+                    array('identifier' => $video->identifier, 'courseid' => $courseid,
+                        'ocinstanceid' => $ocinstanceid)), $video->title, array('target' => '_blank'));
             } else {
                 $row[] = $video->title;
             }
