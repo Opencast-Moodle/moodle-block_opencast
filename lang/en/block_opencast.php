@@ -734,7 +734,7 @@ $string['processvisibility'] = 'Process scheduled visibility change jobs';
 // Strings for DCMI metadata field.
 $string['dcmitermsnotice'] = '<br /><strong>IMPORTANT</strong>: Opencast supports standardized Dublin Core metadata set, therefore all metadata fields should follow DCMI terms,
     otherwise attempting to add unknown metadata field will result in error.<br />
-    You can check the list of all available terms to use in <a target="_blank" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">DCMI Metadata Terms</a>';
+    You can check the list of all available terms to use in <a target="_blank" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">DCMI Metadata Terms</a>.';
 $string['invalidmetadatafield'] = 'Invalid metadata field found: {$a}';
 
 // Deprecated since version 2021062300.
