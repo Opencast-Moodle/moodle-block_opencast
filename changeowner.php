@@ -51,6 +51,11 @@ if ($courseid == $SITE->id) {
     course_require_view_participants($coursecontext);
 }
 
+if (empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'))) {
+    redirect($redirecturl, get_string('functionalitydisabled', 'block_opencast'), null,
+        \core\output\notification::NOTIFY_ERROR);
+}
+
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
 if ($isseries) {

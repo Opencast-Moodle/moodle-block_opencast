@@ -336,6 +336,7 @@ $string['failedtransferattempts'] = 'Failed transfer attempts: {$a}';
 $string['filetypes'] = 'Accepted file types';
 $string['form_seriesid'] = 'Series ID';
 $string['form_seriestitle'] = 'Series title';
+$string['functionalitydisabled'] = 'This functionality is disabled.';
 
 $string['general_settings'] = 'General settings';
 $string['gotooverview'] = 'Go to overview...';
