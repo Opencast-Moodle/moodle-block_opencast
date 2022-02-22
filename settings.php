@@ -169,15 +169,14 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('aclrolesnamedesc',
                     'block_opencast'), $rolesdefault);
 
+            $dcmitermsnotice = get_string('dcmitermsnotice', 'block_opencast');
             $metadatasetting = new admin_setting_configtext('block_opencast/metadata_' . $instance->id,
                 get_string('metadata', 'block_opencast'),
-                get_string('metadatadesc',
-                    'block_opencast'), $metadatadefault);
+                get_string('metadatadesc', 'block_opencast') . $dcmitermsnotice , $metadatadefault);
 
             $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries_' . $instance->id,
                 get_string('metadataseries', 'block_opencast'),
-                get_string('metadataseriesdesc',
-                    'block_opencast'), $metadataseriesdefault);
+                get_string('metadataseriesdesc', 'block_opencast') . $dcmitermsnotice, $metadataseriesdefault);
 
             // Crashes if plugins.php is opened because css cannot be included anymore.
             if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
