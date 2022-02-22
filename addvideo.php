@@ -25,7 +25,7 @@ require_once('../../config.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $USER;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -55,8 +55,14 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
+$userdefaultsrecord = $DB->get_record('block_opencast_user_default', ['userid' => $USER->id]);
+$userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults, true) : [];
+$usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
+
 $addvideoform = new \block_opencast\local\addvideo_form(null,
-    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog, 'ocinstanceid' => $ocinstanceid));
+    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
+        'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid)
+    );
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);

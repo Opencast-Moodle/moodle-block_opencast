@@ -191,6 +191,10 @@ if (!$opencasterror && (has_capability('block/opencast:createseriesforcourse', $
     echo $renderer->render_series_settings_actions($ocinstanceid, $courseid);
 }
 
+// Manage default values settings action.
+if (has_capability('block/opencast:addvideo', $coursecontext)) {
+    echo $renderer->render_defaults_settings_actions($ocinstanceid, $courseid);
+}
 
 // Section "Upload or record videos".
 if (has_capability('block/opencast:addvideo', $coursecontext)) {
