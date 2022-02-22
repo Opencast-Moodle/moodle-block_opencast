@@ -26,6 +26,7 @@ Feature: Update video metadata as Teacher
       | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
       | enablechunkupload_1 | 0                                                             | block_opencast |
       | workflow_roles_1    | republish-metadata                                            | block_opencast |
+      | metadata_1          | [{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":null}] | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"

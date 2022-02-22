@@ -1022,6 +1022,22 @@ class block_opencast_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render link that redirects to manage defaults page.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @return string
+     * @throws moodle_exception
+     */
+    public function render_defaults_settings_actions(int $ocinstanceid, int $courseid): string {
+        $context = new \stdClass();
+        $context->hasanyactions = true;
+        $url = new moodle_url('/blocks/opencast/managedefaults.php',
+            array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+        $context->managedefaultsurl = $url->out();
+        return $this->render_from_template('block_opencast/defaults_settings_actions', $context);
+    }
+
+    /**
      * Display the lti form.
      *
      * @param string $endpoint

@@ -736,6 +736,17 @@ $string['dcmitermsnotice'] = '<br /><strong>IMPORTANT</strong>: Opencast support
     otherwise attempting to add unknown metadata field will result in error.<br />
     You can check the list of all available terms to use in <a target="_blank" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">DCMI Metadata Terms</a>.';
 $string['invalidmetadatafield'] = 'Invalid metadata field found: {$a}';
+// Strings for default metadata value.
+$string['managedefaultsforuser'] = 'Manage default values';
+$string['managedefaultsforuser_desc'] = 'Here you can manage default values for metadata fields used to add videos as well create new series.
+    If you add a default value for a field here, it will be automatically inserted into the field as predefined value (default) inside those mentioned pages.<br />
+    NOTE: In case this page is empty, or you are looking for a field that does not exist here, please contact your system administrator and ask him/her to configure the metadata fields as defaultable.';
+$string['managedefaultredirectlinkwithexp'] = 'You can add default values for these metadata fields, using: ';
+$string['savedefaults'] = 'Save Defaults';
+$string['defaultssaved'] = 'Default values are saved.';
+$string['heading_defaultable'] = 'Defaultable';
+$string['descriptionmddefaultable'] = 'Defaultable';
+$string['descriptionmddefaultable_help'] = 'When enabled, users can add default value for this field.';
 
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
