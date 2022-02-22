@@ -728,5 +728,28 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022012500, 'opencast');
     }
 
+    if ($oldversion < 2022022200) {
+
+        // Define field id to be added to block_opencast_user_default.
+        $table = new xmldb_table('block_opencast_user_default');
+
+        // Adding fields to table block_opencast_user_default.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('defaults', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'userid');
+
+        // Adding keys to table block_opencast_user_default.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_user', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Conditionally launch create table for block_opencast_user_default.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2022022200, 'opencast');
+    }
+
     return true;
 }

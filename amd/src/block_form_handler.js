@@ -57,6 +57,36 @@ define(['jquery'], function ($) {
     }
 
     /**
+     * Sets default title if it is empty.
+     *
+     */
+    function setDefautlTitle(filename) {
+        var title = $('input[name="title"]').val();
+        if (!title && filename) {
+            // Removing the extension from the filename.
+            var filename = filename.split('.');
+            if (Array.isArray(filename)) {
+                filename.pop();
+            }
+            filename = filename.length > 1 ? filename.join('.') : filename[0];
+            $('input[name="title"]').val(filename);
+        }
+    }
+
+    /**
+     * Extracts the filename from filelist.
+     *
+     */
+    function getFilenameFromFilelist(filelist) {
+        var filename = '';
+        if (filelist.length) {
+            var filelinks = filelist.find('.filepicker-filename > a');
+            filename = filelinks.length ? $(filelinks[0]).text() : '';
+        }
+        return filename;
+    }
+
+    /**
      * Initialise all of the modules for the opencast block.
      *
      */
@@ -66,6 +96,24 @@ define(['jquery'], function ($) {
         $('#termsofuse_toggle').on('click', function (e) {
             $('#termsofuse').toggle();
             e.preventDefault();
+        });
+
+        // Chunkupload.
+        $('.local_chunkupload input[type="file"]').on('change', function (e) {
+            setTimeout(function () {
+                var span = $(e.currentTarget).siblings('label.chunkupload-label').find('.chunkupload-filename');
+                if (span.length) {
+                    setDefautlTitle($(span[0]).text());
+                }
+            }, 500);
+        });
+
+        $('.filepickerhidden').on('change', function (e) {
+            setTimeout(function () {
+                var filelist = $(e.currentTarget).parent().find('.filepicker-filelist');
+                var filename = getFilenameFromFilelist(filelist);
+                setDefautlTitle(filename);
+            }, 500);
         });
 
         $('.filepicker-filelist').on('drop', function (e) {
@@ -94,6 +142,10 @@ define(['jquery'], function ($) {
                 }, 500);
             }
 
+            setTimeout(function () {
+                var filename = getFilenameFromFilelist(filelist);
+                setDefautlTitle(filename);
+            }, 500);
         });
 
         // Ensures that autocomplete fields are loaded properly after 1 sec!

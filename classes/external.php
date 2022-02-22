@@ -142,6 +142,8 @@ class block_opencast_external extends external_api {
         $data['courseid'] = $course->id;
 
         $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $params['ocinstanceid']));
+        // Make sure $metadatacatalog is array.
+        $metadatacatalog = !empty($metadatacatalog) ? $metadatacatalog : [];
         $createseriesform = new series_form(null, array('courseid' => $course->id,
             'ocinstanceid' => $params['ocinstanceid'],
             'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $data);

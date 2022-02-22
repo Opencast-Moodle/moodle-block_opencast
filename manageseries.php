@@ -34,11 +34,13 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $coursecontext = context_course::instance($courseid);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+// Passing optional param createseries to perform click on Create new series button.
+$createseries = optional_param('createseries', 0, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, $ocinstanceid]);
+$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, $ocinstanceid, $createseries]);
 $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
 $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
 

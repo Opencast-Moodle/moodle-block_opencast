@@ -1136,6 +1136,12 @@ class apibridge {
         $result = $api->oc_post('/api/events', $params);
 
         if ($api->get_http_code() >= 400) {
+            // In case the metadata field is invalid, $result contains the following pattern.
+            $errorpattern = "/Cannot find a metadata field with id '([\w]+)' from Catalog with Flavor 'dublincore\/episode'./";
+            if (preg_match($errorpattern, $result)) {
+                // If the process fails due to invalid metadata field, more specific error message will be thrown.
+                throw new \moodle_exception('invalidmetadatafield', 'block_opencast', null, $result);
+            }
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
