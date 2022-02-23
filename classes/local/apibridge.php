@@ -2448,7 +2448,7 @@ class apibridge {
      * @throws \moodle_exception
      */
     public function unlink_series_from_course($courseid, $seriesid) {
-        // Step 1: Remove all related course ACLs from series event one by one. 
+        // Step 1: Remove all related course ACLs from series event one by one.
         $videos = $this->get_series_videos($seriesid);
         if ($videos->error != 0) {
             return false;
