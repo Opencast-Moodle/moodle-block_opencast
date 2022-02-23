@@ -87,7 +87,8 @@ $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $
 $sortcolumns = $table->get_sort_columns();
 
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
-$showchangeownerlink = course_can_view_participants(context_system::instance()) && !empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'));
+$showchangeownerlink = course_can_view_participants(context_system::instance()) &&
+    !empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'));
 
 foreach ($myseries as $seriesid) {
     $row = array();
