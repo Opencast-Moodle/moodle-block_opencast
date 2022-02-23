@@ -121,23 +121,23 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             $metadatadefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
-                '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}},' .
+                '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
                 '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
-                '"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":0}},' .
+                '"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":0},' .
                 '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":' .
                 '\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",' .
                 '\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",' .
                 '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",' .
-                '\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0}},' .
+                '\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0},' .
                 '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":' .
-                '"{\"style\":\"min-width: 27ch;\"}","defaultable":0}},' .
+                '"{\"style\":\"min-width: 27ch;\"}","defaultable":0},' .
                 '{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}",' .
-                '"defaultable":0}},' .
-                '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}},' .
-                '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}}]';
+                '"defaultable":0},' .
+                '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
+                '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}]';
 
             $metadataseriesdefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
@@ -151,7 +151,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '\"nld\":\"Dutch\",\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",' .
                 '\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0},' .
                 '{"name":"rightsHolder","datatype":"text","required":1,"readonly":0,"param_json":' .
-                '"{\"style\":\"min-width: 27ch;\"},"defaultable":0}"},' .
+                '"{\"style\":\"min-width: 27ch;\"}", "defaultable":0},' .
                 '{"name":"license","datatype":"select","required":1,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
                 '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
                 '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}",' .
