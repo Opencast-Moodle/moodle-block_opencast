@@ -2437,8 +2437,8 @@ class apibridge {
 
     /**
      * Unlinking a series from a course in 2 steps:
-     * 1. Change visibility of series' events for the course to hidden.
-     * 2. Remove non permanent ACLs of the course from series ACLs.
+     * 1. Remove all related course ACLs from series event one by one.
+     * 2. Remove all related course ACLs from series.
      *
      * @param int $courseid Course ID.
      * @param string $seriesid Series Identifier.
@@ -2448,58 +2448,154 @@ class apibridge {
      * @throws \moodle_exception
      */
     public function unlink_series_from_course($courseid, $seriesid) {
-        // Step 1: Change visibility of series' events for the course to hidden.
+        // Step 1: Remove all related course ACLs from series event one by one. 
         $videos = $this->get_series_videos($seriesid);
         if ($videos->error != 0) {
             return false;
         }
 
-        // Loop through the videos and hide them for this course.
-        $hiddenevents = true;
+        // Loop through the videos.
+        $eventsaclsremoved = true;
         foreach ($videos->videos as $video) {
             if ($video->identifier) {
-                $visibilitychanged = $this->change_visibility(
-                    $video->identifier,
-                    $courseid,
-                    block_opencast_renderer::HIDDEN
-                );
-                if (!$visibilitychanged) {
-                    $hiddenevents = false;
+                $aclsremoved = $this->remove_course_acls_from_event($video->identifier, $courseid);
+                if (!$aclsremoved) {
+                    $eventsaclsremoved = false;
                 }
             }
         }
 
-        // Make sure all events are hidden.
-        if (!$hiddenevents) {
+        // Make sure all events acls are removed before we remove series acls.
+        if (!$eventsaclsremoved) {
             return false;
         }
 
-        // Step 2: Remove non permanent ACLs of the course from series ACLs.
-        // Get api instance to read acls.
+        // Step 2: Remove course ACLs from series.
+        $seriesaclsremoved = $this->remove_course_acls_from_series($seriesid, $courseid);
+
+        // Finally, we return the result of removing acls from series.
+        return $seriesaclsremoved;
+    }
+
+    /**
+     * Removes all course related acls from the event.
+     * @param string $eventidentifier Video identifier
+     * @param int $courseid
+     * @return bool
+     */
+    private function remove_course_acls_from_event($eventidentifier, $courseid) {
+        // Preparing groups.
+        $groups = groupaccess::get_record(
+            [
+                'opencasteventid' => $eventidentifier,
+                'ocinstanceid' => $this->ocinstanceid
+            ]
+        );
+        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : [];
+
+        // Preparing all course related acls to remove.
+        $aclstoremove = [];
+        // Go through all roles.
+        $roles = $this->getroles();
+        foreach ($roles as $role) {
+            // We need to check only those roles that have placeholders.
+            if (preg_match("/\[(.*?)\]/", $role->rolename)) {
+                // Perform replace placeholders.
+                $rolenamearray = $this->replace_placeholders($role->rolename, $courseid, $groupsarray);
+                if (!empty($rolenamearray)) {
+                    $aclstoremove = array_merge($aclstoremove, $rolenamearray);
+                }
+            }
+        }
+
+        // Get event acls.
+        $api = api::get_instance($this->ocinstanceid);
+        $resource = '/api/events/' . $eventidentifier . '/acl';
+        $jsonacl = $api->oc_get($resource);
+
+        // Preparing dummy event to handle acls properly.
+        $event = new \block_opencast\local\event();
+        $event->set_json_acl($jsonacl);
+        // Going through current event acls to delete course acls.
+        foreach ($event->get_acl() as $eventrole) {
+            if (in_array($eventrole->role, $aclstoremove)) {
+                $event->remove_acl($eventrole->action, $eventrole->role);
+            }
+        }
+
+        // Preparing the acl params from event to set as new acls for the event.
+        $params['acl'] = $event->get_json_acl();
+
+        // Prevent further process if there is no change.
+        if ($params['acl'] == ($jsonacl)) {
+            return true;
+        }
+
+        // Get another api instance to put the acls back.
+        $api = api::get_instance($this->ocinstanceid);
+
+        $api->oc_put($resource, $params);
+
+        if ($api->get_http_code() >= 400) {
+            return false;
+        }
+
+        // Update metadata.
+        if ($this->update_metadata($eventidentifier)) {
+            return true;
+        }
+
+        // If it hits here, means that the metadata is not updated.
+        return false;
+    }
+
+    /**
+     * Removes all course related acls from the series.
+     * @param string $seriesid Series identifier
+     * @param int $courseid
+     * @return bool
+     */
+    private function remove_course_acls_from_series($seriesid, $courseid) {
+        // Preparing all course related acls to remove.
+        $aclstoremove = [];
+        // Go through all roles.
+        $roles = $this->getroles();
+        foreach ($roles as $role) {
+            // We need to check only those roles that have placeholders.
+            if (preg_match("/\[(.*?)\]/", $role->rolename)) {
+                // Perform replace placeholders.
+                $rolenamearray = $this->replace_placeholders($role->rolename, $courseid);
+                if (!empty($rolenamearray)) {
+                    $aclstoremove = array_merge($aclstoremove, $rolenamearray);
+                }
+            }
+        }
+
+        // Get api instance to read series acls.
         $api = api::get_instance($this->ocinstanceid);
         $resource = "/api/series/$seriesid/acl";
         $jsonacl = $api->oc_get($resource);
-        $oldseriesacls = json_decode($jsonacl);
+        $seriesacls = json_decode($jsonacl);
 
         // Make sure series ACL retreived.
-        if (!is_array($oldseriesacls)) {
+        if (!is_array($seriesacls)) {
             return false;
         }
 
-        $aclstoremove = $this->get_non_permanent_acl_rules_for_status(
-            $courseid,
-            \block_opencast_renderer::VISIBLE
-        );
-        $aclrolestoremove = array_column($aclstoremove, 'role');
-        $newacls = array_filter($oldseriesacls, function ($acl) use ($aclrolestoremove) {
-            if (!in_array($acl->role, $aclrolestoremove)) {
+        $newacls = array_filter($seriesacls, function ($acl) use ($aclstoremove) {
+            if (!in_array($acl->role, $aclstoremove)) {
                 return true;
             }
         });
 
+        $params['acl'] = json_encode(array_values($newacls));
+        // Prevent further process if there is no change.
+        if ($params['acl'] == ($jsonacl)) {
+            return true;
+        }
+
         // Get api instance to put acls.
         $api = api::get_instance($this->ocinstanceid);
-        $params['acl'] = json_encode(array_values($newacls));
 
         // We put back the new acls.
         $api->oc_put($resource, $params);
