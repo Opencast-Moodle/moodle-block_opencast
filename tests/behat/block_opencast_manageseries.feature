@@ -42,6 +42,8 @@ Feature: Manage series as Teacher
     When I click on "Create new series" "button" in the ".modal" "css_element"
     Then I should see "Required"
     When I set the field "Title" to "My new series"
+    And I set the field "Rights" to "Some user"
+    And I select "ALLRIGHTS" from the "License" singleselect
     And I click on "Create new series" "button" in the ".modal" "css_element"
     And I wait "2" seconds
     Then I should see "My new series"
@@ -55,6 +57,8 @@ Feature: Manage series as Teacher
     When I click on ".tabulator-row-odd i.fa-edit" "css_element"
     Then I should see "Title"
     When I set the field "Title" to "Another series title"
+    And I set the field "Rights" to "Some user"
+    And I select "ALLRIGHTS" from the "License" singleselect
     And I click on "Edit series" "button"
     And I wait "2" seconds
     Then I should not see "Updating the series metadata failed"
