@@ -270,5 +270,10 @@ jobs:
         run: moodle-plugin-ci phpunit
 
       - name: Behat features
-        if: ${{ always() }}
+        if: matrix.moodle-branch != 'master'
+        run: moodle-plugin-ci behat
+
+      - name: Behat features
+        continue-on-error: true
+        if: matrix.moodle-branch == 'master'
         run: moodle-plugin-ci behat
