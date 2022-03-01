@@ -359,7 +359,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
-                                                $showchangeownerlink, $isownerverified = false) {
+                                                $showchangeownerlink, $isownerverified = false, $isseriesowner = false) {
         global $USER, $SITE, $DB;
         $rows = array();
 
@@ -372,7 +372,8 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             $row = array();
 
-            if ($isownerverified || $apibridge->is_owner($video->acl, $USER->id, $SITE->id)) {
+            if ($isownerverified || $apibridge->is_owner($video->acl, $USER->id, $SITE->id) ||
+                ($isseriesowner && !$apibridge->has_owner($video->acl))) {
                 if ($showchangeownerlink) {
                     $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
                         array('ocinstanceid' => $ocinstanceid, 'identifier' => $video->identifier, 'isseries' => false)),

@@ -2104,6 +2104,37 @@ class apibridge {
     }
 
     /**
+     * Checks if a given event/series has an owner.
+     * @param string[] $acls ACLs
+     * @return bool
+     */
+    public function has_owner($acls) {
+        $ownerrole = get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid);
+        $ownerroleregex = false;
+        foreach (self::$userplaceholders as $userplaceholder) {
+            $r = str_replace($userplaceholder, '.*?', $ownerrole);
+            if ($r != $ownerrole) {
+                $ownerroleregex = $r;
+                break;
+            }
+        }
+
+        if (!$ownerroleregex) {
+            return false;
+        }
+
+        $ownerroleregex = '/' . $ownerroleregex . '/';
+
+        foreach (array_column($acls, 'role') as $role) {
+            if (preg_match($ownerroleregex, $role)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the owner rolename for a given user.
      * @param int $userid
      * @param int $courseid

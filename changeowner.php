@@ -46,12 +46,14 @@ $coursecontext = context_course::instance($courseid);
 $systemcontext = context_system::instance();
 
 if ($courseid == $SITE->id) {
-    course_require_view_participants($systemcontext);
+    require_capability('block/opencast:viewusers', $systemcontext);
+    $viewfullnames = has_capability('moodle/site:viewfullnames', $systemcontext);
 } else {
     course_require_view_participants($coursecontext);
+    $viewfullnames = has_capability('moodle/site:viewfullnames', $coursecontext);
 }
 
-if (empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'))) {
+if (empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid))) {
     redirect($redirecturl, get_string('functionalitydisabled', 'block_opencast'), null,
         \core\output\notification::NOTIFY_ERROR);
 }
@@ -66,6 +68,7 @@ if ($isseries) {
     }
     $title = $series->title;
     $acls = $series->acl;
+    $noowner = !$apibridge->has_owner($series->acl);
 
 } else {
     $video = $apibridge->get_opencast_video($identifier, false, true);
@@ -77,10 +80,20 @@ if ($isseries) {
         $title = $video->video->title;
         $acls = $video->video->acl;
     }
+    $noowner = !$apibridge->has_owner($acls);
+    if ($noowner) {
+        // Check if user owns series.
+        $series = $apibridge->get_series_by_identifier($video->video->is_part_of, true);
+        if (!$series || (!$apibridge->is_owner($acls, $USER->id, $courseid) && $apibridge->has_owner($series->acl))) {
+            $noowner = false;
+        }
+    }
 }
 
 // Verify that current user is the owner or is admin.
-if (!$apibridge->is_owner($acls, $USER->id, $courseid) &&
+$isowner = $apibridge->is_owner($acls, $USER->id, $courseid);
+if (!$isowner &&
+    !$noowner &&
     !has_capability('block/opencast:canchangeownerforallvideos', $systemcontext)) {
     throw new moodle_exception(get_string('userisntowner', 'block_opencast'));
 } else {
@@ -90,12 +103,18 @@ if (!$apibridge->is_owner($acls, $USER->id, $courseid) &&
     $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
     $PAGE->navbar->add(get_string('changeowner', 'block_opencast'), $baseurl);
 
+    $excludeusers = array();
+    if ($isowner) {
+        $excludeusers = [$USER->id];
+    }
+
     $userselector = new block_opencast_enrolled_user_selector('ownerselect',
-        array('context' => $coursecontext, 'multiselect' => false));
+        array('context' => $coursecontext, 'multiselect' => false, 'exclude' => $excludeusers));
+    $userselector->viewfullnames = $viewfullnames;
 
     $changeownerform = new \block_opencast\local\changeowner_form(null,
         array('courseid' => $courseid, 'title' => $title, 'identifier' => $identifier,
-            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'isseries' => $isseries));
+            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'isseries' => $isseries, 'noowner' => $noowner));
 
     if ($changeownerform->is_cancelled()) {
         redirect($redirecturl);

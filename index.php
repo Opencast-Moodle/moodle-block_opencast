@@ -312,18 +312,16 @@ if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_ser
 
 
 foreach ($seriesvideodata as $series => $videodata) {
-    // Get series title from first video.
-    if ($videodata->videos && $videodata->videos[0]) {
-        echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $videodata->videos[0]->series);
+    // Try to retrieve name from opencast.
+    $ocseries = $apibridge->get_series_by_identifier($series, true);
+    $isseriesowner = false;
+
+    if ($ocseries) {
+        echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
+        $isseriesowner = $opencast->is_owner($ocseries->acl, $USER->id, $courseid) || !$opencast->has_owner($ocseries->acl);
     } else {
-        // Try to retrieve name from opencast.
-        $ocseries = $apibridge->get_series_by_identifier($series);
-        if ($ocseries) {
-            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $ocseries->title);
-        } else {
-            // If that fails use id.
-            echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
-        }
+        // If that fails use id.
+        echo $renderer->render_series_intro($coursecontext, $ocinstanceid, $courseid, $series, $series);
     }
 
     if ($videodata->error == 0) {
@@ -415,8 +413,10 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $updatemetadata = $opencast->can_update_event_metadata($video, $courseid);
                 $useeditor = $opencast->can_edit_event_in_editor($video, $courseid);
                 $canchangeowner = ($opencast->is_owner($video->acl, $USER->id, $courseid) ||
+                        ($isseriesowner && !$opencast->has_owner($video->acl)) ||
                         has_capability('block/opencast:canchangeownerforallvideos', context_system::instance())) &&
-                    !empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'));
+                    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
+
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
                     $workflowsavailable, $coursecontext, $useeditor, $canchangeowner);
 

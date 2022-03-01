@@ -87,14 +87,17 @@ $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $
 $sortcolumns = $table->get_sort_columns();
 
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
-$showchangeownerlink = course_can_view_participants(context_system::instance()) &&
-    !empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'));
+$showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
+    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
 foreach ($myseries as $seriesid) {
     $row = array();
 
+    // Try to retrieve name from opencast.
+    $ocseries = $apibridge->get_series_by_identifier($seriesid, true);
+
     // Check if current user is owner of the series.
-    if (in_array($seriesid, $ownedseries)) {
+    if (in_array($seriesid, $ownedseries) || ($ocseries && !$apibridge->has_owner($ocseries->acl))) {
         if ($showchangeownerlink) {
             $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
                 array('ocinstanceid' => $ocinstanceid, 'identifier' => $seriesid, 'isseries' => true)),
@@ -107,8 +110,6 @@ foreach ($myseries as $seriesid) {
         $row[] = '';
     }
 
-    // Try to retrieve name from opencast.
-    $ocseries = $apibridge->get_series_by_identifier($seriesid);
     if ($ocseries) {
         $row[] = $ocseries->title;
     } else {

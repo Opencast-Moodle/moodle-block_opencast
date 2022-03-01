@@ -76,6 +76,9 @@ if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
     }
 }
 
+
+$isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id) || !$apibridge->has_owner($ocseries->acl));
+
 $PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
     new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $baseurl);
@@ -103,11 +106,11 @@ $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $
 
 $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
-$showchangeownerlink = course_can_view_participants(context_system::instance()) &&
-    !empty(get_config('aclownerrole_' . $ocinstanceid, 'block_opencast'));
+$showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
+    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
 foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
-    $activityinstalled, $showchangeownerlink) as $row) {
+    $activityinstalled, $showchangeownerlink, false, $isseriesowner) as $row) {
     $table->add_data($row);
 }
 

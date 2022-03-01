@@ -32,6 +32,14 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/my:manageblocks'
     ),
+    'block/opencast:viewusers' => array(
+        'captype' => 'read',
+        'riskbitmask' => RISK_PERSONAL,
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    ),
     'block/opencast:addinstance' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

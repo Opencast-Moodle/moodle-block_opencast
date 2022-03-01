@@ -62,11 +62,21 @@ class changeowner_form extends \moodleform {
         $mform->setType('isseries', PARAM_BOOL);
 
         if ($this->_customdata['isseries']) {
-            $notification = $renderer->wizard_intro_notification(
-                get_string('changeownerseries_explanation', 'block_opencast', $this->_customdata['title']));
+            if ($this->_customdata['noowner']) {
+                $notification = $renderer->wizard_intro_notification(
+                    get_string('claimownerseries_explanation', 'block_opencast', $this->_customdata['title']));
+            } else {
+                $notification = $renderer->wizard_intro_notification(
+                    get_string('changeownerseries_explanation', 'block_opencast', $this->_customdata['title']));
+            }
         } else {
-            $notification = $renderer->wizard_intro_notification(
-                get_string('changeowner_explanation', 'block_opencast', $this->_customdata['title']));
+            if ($this->_customdata['noowner']) {
+                $notification = $renderer->wizard_intro_notification(
+                    get_string('claimowner_explanation', 'block_opencast', $this->_customdata['title']));
+            } else {
+                $notification = $renderer->wizard_intro_notification(
+                    get_string('changeowner_explanation', 'block_opencast', $this->_customdata['title']));
+            }
         }
 
         $mform->addElement('html', $notification);
