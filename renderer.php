@@ -888,9 +888,15 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
                                           $startworkflows, $coursecontext, $useeditor, $canchangeowner) {
+        global $CFG;
+
         // Get the action menu options.
         $actionmenu = new action_menu();
-        $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        if ($CFG->branch >= 400) {
+            $actionmenu->set_menu_left();
+        } else {
+            $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        }
         $actionmenu->prioritise = true;
         $actionmenu->attributes['class'] .= ' inline-action-menu';
 
@@ -1073,9 +1079,15 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function render_download_event_icon($ocinstanceid, $courseid, $video) {
+        global $CFG;
+
         // Get the action menu options.
         $actionmenu = new action_menu();
-        $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        if ($CFG->branch >= 400) {
+            $actionmenu->set_menu_left();
+        } else {
+            $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        }
         $actionmenu->prioritise = true;
         $actionmenu->actionicon = new pix_icon('t/down', get_string('downloadvideo', 'block_opencast'));
         $actionmenu->set_menu_trigger(' ');
