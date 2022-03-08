@@ -231,7 +231,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
         }
 
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
-        if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
+        if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
             if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
                 $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
             } else {

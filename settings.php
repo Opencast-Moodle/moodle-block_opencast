@@ -446,16 +446,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('opencaststudiobaseurl', 'block_opencast'),
                     get_string('opencaststudiobaseurl_desc', 'block_opencast'), ''));
 
-            $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/lticonsumerkey_' . $instance->id,
-                    get_string('lticonsumerkey', 'block_opencast'),
-                    get_string('lticonsumerkey_desc', 'block_opencast'), ""));
-
-            $additionalsettings->add(
-                new admin_setting_configpasswordunmask('block_opencast/lticonsumersecret_' . $instance->id,
-                    get_string('lticonsumersecret', 'block_opencast'),
-                    get_string('lticonsumersecret_desc', 'block_opencast'), ""));
-
             // Studio redirect button settings.
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/show_opencast_studio_return_btn_' . $instance->id,
@@ -498,18 +488,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('editorendpointurl', 'block_opencast'),
                     get_string('editorendpointurl_desc', 'block_opencast'), "/editor-ui/index.html?mediaPackageId="));
 
-            // LTI Consumer Key for the editor alone.
-            $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/editorlticonsumerkey_' . $instance->id,
-                    get_string('editorlticonsumerkey', 'block_opencast'),
-                    get_string('editorlticonsumerkey_desc', 'block_opencast'), ""));
-
-            // LTI Consumer Secret for the editor alone.
-            $additionalsettings->add(
-                new admin_setting_configpasswordunmask('block_opencast/editorlticonsumersecret_' . $instance->id,
-                    get_string('editorlticonsumersecret', 'block_opencast'),
-                    get_string('editorlticonsumersecret_desc', 'block_opencast'), ""));
-
             // Opencast Video Player in additional feature settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/opencast_access_video_' . $instance->id,
@@ -521,18 +499,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configtext('block_opencast/engageurl_' . $instance->id,
                     get_string('engageurl', 'block_opencast'),
                     get_string('engageurl_desc', 'block_opencast'), ""));
-
-            // LTI Consumer Key for the video player.
-            $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/engagelticonsumerkey_' . $instance->id,
-                    get_string('engagelticonsumerkey', 'block_opencast'),
-                    get_string('engagelticonsumerkey_desc', 'block_opencast'), ""));
-
-            // LTI Consumer Secret for the video player.
-            $additionalsettings->add(
-                new admin_setting_configpasswordunmask('block_opencast/engagelticonsumersecret_' . $instance->id,
-                    get_string('engagelticonsumersecret', 'block_opencast'),
-                    get_string('engagelticonsumersecret_desc', 'block_opencast'), ""));
 
             // Notifications in additional features settings.
             $additionalsettings->add(

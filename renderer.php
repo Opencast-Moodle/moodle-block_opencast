@@ -452,7 +452,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     $target = '_blank';
                 }
                 // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
-                if (empty(get_config('block_opencast', 'lticonsumerkey_' . $ocinstance->id))) {
+                if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstance->id))) {
                     if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
                         $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstance->id);
                     } else {

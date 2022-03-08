@@ -270,10 +270,6 @@ $string['engageplayerintegration'] = 'Engage player integration';
 $string['engageredirect'] = 'Redirect to engage player';
 $string['engageurl'] = 'URL of the Opencast Engage server';
 $string['engageurl_desc'] = 'If empty, the video titles in the overview are not linked to the engage player.';
-$string['engagelticonsumerkey'] = 'LTI Consumer key to access video';
-$string['engagelticonsumerkey_desc'] = 'LTI Consumer key to access videos in the engage player.';
-$string['engagelticonsumersecret'] = 'LTI Consumer secret to access video';
-$string['engagelticonsumersecret_desc'] = 'LTI Consumer secret to access videos in the engage player.';
 $string['expirydate'] = 'Expiry Date';
 $string['exists_catalogname'] = 'The field is already existed';
 $string['enablechunkupload'] = 'Enable Chunkupload';
@@ -452,10 +448,6 @@ $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
 $string['linkedinblock'] = 'Linked in block';
 $string['loading'] = 'Loading...';
 $string['ltimodule_settings'] = 'LTI module features';
-$string['lticonsumerkey'] = 'Consumer key';
-$string['lticonsumerkey_desc'] = 'LTI Consumer key for the opencast studio integration. If the integration is enabled but no key is set, the link without LTI authentication will be shown.';
-$string['lticonsumersecret'] = 'Consumer secret';
-$string['lticonsumersecret_desc'] = 'LTI Consumer secret for the opencast studio integration.';
 $string['license'] = 'License';
 $string['location'] = 'Location';
 
@@ -706,10 +698,6 @@ $string['editorbaseurl'] = 'Opencast Editor Base URL';
 $string['editorbaseurl_desc'] = 'The base URL to be used to call the Opencast Editor, the base url of the opencast instance is used if empty.';
 $string['editorendpointurl'] = 'Opencast Editor Endpoint';
 $string['editorendpointurl_desc'] = 'The editor endpoint to access the editor. The mediapackage ID will be added at the end of the url.';
-$string['editorlticonsumerkey'] = 'Opencast Editor Consumer key';
-$string['editorlticonsumerkey_desc'] = 'LTI Consumer key for the opencast editor integration.';
-$string['editorlticonsumersecret'] = 'Opencast Editor Consumer secret';
-$string['editorlticonsumersecret_desc'] = 'LTI Consumer secret for the opencast editor integration.';
 
 // Strings fot new opencast studio settings.
 $string['opencaststudionewtab'] = 'Redirect to Studio in a new tab';

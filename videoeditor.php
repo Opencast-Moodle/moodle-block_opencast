@@ -67,7 +67,7 @@ if (strpos($editorbaseurl, 'http') !== 0) {
     $editorbaseurl = 'http://' . $editorbaseurl;
 }
 
-if (empty(get_config('block_opencast', 'editorlticonsumerkey_' . $ocinstanceid))) {
+if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
     redirect($editorbaseurl . $editorendpoint);
 }
 
@@ -83,8 +83,8 @@ if ((empty($editorbaseurl) || empty($editorendpoint) ||
 }
 
 // Create parameters.
-$consumerkey = get_config('block_opencast', 'editorlticonsumerkey_' . $ocinstanceid);
-$consumersecret = get_config('block_opencast', 'editorlticonsumersecret_' . $ocinstanceid);
+$consumerkey = get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid);
+$consumersecret = get_config('tool_opencast', 'lticonsumersecret_' . $ocinstanceid);
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $editorendpoint);
 
 $renderer = $PAGE->get_renderer('block_opencast');
