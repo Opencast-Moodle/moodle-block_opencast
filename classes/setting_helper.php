@@ -116,7 +116,7 @@ class setting_helper {
         if (!empty($data)) {
             $roles = json_decode(get_config('block_opencast', 'roles_' . $ocinstanceid));
             $role = array_search($data, array_column($roles, 'rolename'));
-            if (!$role) {
+            if ($role === false) {
                 // Role isn't defined as ACL role.
                 return get_string('role_not_defined', 'block_opencast');
             }

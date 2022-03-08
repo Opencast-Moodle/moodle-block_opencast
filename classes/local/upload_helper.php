@@ -603,11 +603,11 @@ class upload_helper {
                 $courseseries = $DB->get_records('tool_opencast_series',
                     array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
 
-                if (!array_search($assignedseries, array_column($courseseries, 'series'))) {
+                if (array_search($assignedseries, array_column($courseseries, 'series')) === false) {
                     // Try to assign series again.
                     $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
 
-                    if (!array_search($mtseries, array_column($courseseries, 'series'))) {
+                    if (array_search($mtseries, array_column($courseseries, 'series')) === false) {
                         $mtseries = $apibridge->get_default_course_series($job->courseid)->identifier;
                     }
 
