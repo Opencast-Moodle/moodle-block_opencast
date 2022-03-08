@@ -77,7 +77,8 @@ if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
 }
 
 
-$isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id) || !$apibridge->has_owner($ocseries->acl));
+$isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id) ||
+        !$apibridge->has_owner($ocseries->acl));
 
 $PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
     new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)));

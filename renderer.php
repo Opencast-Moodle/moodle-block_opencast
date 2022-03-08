@@ -353,6 +353,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $activityinstalled
      * @param bool $showchangeownerlink
      * @param bool $isownerverified
+     * @param bool $isseriesowner
      * @return array
      * @throws coding_exception
      * @throws dml_exception
