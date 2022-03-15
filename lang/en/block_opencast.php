@@ -159,6 +159,7 @@ $string['addactivityepisode_settingsection_desc'] = 'If enabled, teachers can ch
 $string['addactivityepisode_viewicontitle'] = 'View Opencast episode module in course';
 $string['additional_settings'] = 'Additional features';
 $string['addvideo'] = 'Add video';
+$string['addvideonotallowed'] = 'You are not allowed to upload a video to this series.';
 $string['addrole'] = 'Add new role';
 $string['adminchoice_noworkflow'] = "-- No workflow --";
 $string['adminchoice_noconnection'] = "-- Workflows could not be retrieved --";

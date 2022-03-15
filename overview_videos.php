@@ -92,6 +92,58 @@ if ($ocseries) {
     echo $OUTPUT->heading($series);
 }
 
+// Show heading and explanation depending if Opencast Studio is enabled.
+if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
+    echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast') . '<br />' .
+        get_string('uploadprocessingexplanation', 'block_opencast'));
+} else {
+    echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast') . '<br />' .
+        get_string('uploadprocessingexplanation', 'block_opencast'));
+}
+
+// todo permission
+// Show "Add video" button.
+$addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'series' => $series));
+$addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
+echo html_writer::div($addvideobutton);
+
+
+// TODO check if lti is working correctly with roles
+
+// If Opencast Studio is enabled, show "Record video" button.
+if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
+    $target = '_self';
+    // Check for the admin config to set the link target.
+    if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstanceid)) {
+        $target = '_blank';
+    }
+
+    // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
+    if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
+        if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
+            $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+        } else {
+            $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
+        }
+
+        if (strpos($endpoint, 'http') !== 0) {
+            $endpoint = 'http://' . $endpoint;
+        }
+
+        $url = $endpoint . '/studio?upload.seriesId=' . $series;
+        $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
+            null, array('class' => 'btn btn-secondary', 'target' => $target));
+        echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+    } else {
+        $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
+            array('ocinstanceid' => $ocinstanceid));
+        $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
+            null, array('class' => 'btn btn-secondary', 'target' => $target));
+        echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
+    }
+}
+
+
 echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
 // TODO handle opencast connection error. Break as soon as first error occurs.

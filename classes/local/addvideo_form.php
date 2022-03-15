@@ -103,6 +103,22 @@ class addvideo_form extends \moodleform {
             $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
             $mform->addRule('series', get_string('required'), 'required');
             $mform->setDefault('series', $defaultseries);
+        } elseif ($this->_customdata['series']) {
+            // todo check if this fails for a new block
+            $seriesoption = array();
+            try {
+                $seriesrecords = $apibridge->get_multiple_series_by_identifier(array($this->_customdata['series']));
+                foreach ($seriesrecords as $series) {
+                    $seriesoption[$series->identifier] = $series->title;
+                }
+            } catch (\block_opencast\opencast_connection_exception $e) {
+                \core\notification::warning($e->getMessage());
+                $seriesoption[$this->_customdata['series']] = $this->_customdata['series'];
+            }
+
+            $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
+            $mform->addRule('series', get_string('required'), 'required');
+            $mform->setDefault('series', $this->_customdata['series']);
         }
 
         $settitle = true;
@@ -214,7 +230,7 @@ class addvideo_form extends \moodleform {
             $radioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
                 '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
         }
-        $mform->setDefault('initialvisibilitystatus',  \block_opencast_renderer::VISIBLE);
+        $mform->setDefault('initialvisibilitystatus', \block_opencast_renderer::VISIBLE);
         $mform->setType('initialvisibilitystatus', PARAM_INT);
 
         // Load existing groups.
@@ -248,7 +264,7 @@ class addvideo_form extends \moodleform {
                 get_string('scheduledvisibilitytime', 'block_opencast'));
             $mform->addHelpButton('scheduledvisibilitytime', 'scheduledvisibilitytimehi', 'block_opencast');
             $waitingtime = $this->get_waiting_time($ocinstanceid);
-            $mform->setDefault('scheduledvisibilitytime',  $waitingtime);
+            $mform->setDefault('scheduledvisibilitytime', $waitingtime);
 
             $radioarray = array();
             $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
@@ -263,7 +279,7 @@ class addvideo_form extends \moodleform {
                 $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
                     '', get_string('visibility_group', 'block_opencast'), 2, $attributes);
             }
-            $mform->setDefault('scheduledvisibilitystatus',  \block_opencast_renderer::HIDDEN);
+            $mform->setDefault('scheduledvisibilitystatus', \block_opencast_renderer::HIDDEN);
             $mform->setType('scheduledvisibilitystatus', PARAM_INT);
 
             // Load existing groups.

@@ -25,17 +25,27 @@ require_once('../../config.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG, $USER;
+global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+$series = optional_param('series', null, PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+if ($series) {
+    $baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid,
+        'ocinstanceid' => $ocinstanceid, 'series' => $series));
+} else {
+    $baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+}
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+if ($courseid == $SITE->id && $series) {
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
+} else {
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+}
 
 require_login($courseid, false);
 
@@ -50,8 +60,44 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 
 // Capability check.
-$coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:addvideo', $coursecontext);
+if ($courseid == $SITE->id) {
+    // If upload initiated from overview page, check that capability is given in specific course or ownership.
+    if (!$series) {
+        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+            get_string('addvideonotallowed', 'block_opencast'), null,
+            \core\output\notification::NOTIFY_ERROR);
+    }
+
+    $records = $DB->get_records('tool_opencast_series', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
+    $haspermission = false;
+    foreach ($records as $record) {
+        $cc = context_course::instance($record->courseid, IGNORE_MISSING);
+        if ($cc && has_capability('block/opencast:addvideo', $cc)) {
+            $haspermission = true;
+            break;
+        }
+    }
+
+    if (!$haspermission) {
+        // Check if series is owned by user.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $ocseries = $apibridge->get_series_by_identifier($series);
+        if (!$ocseries) {
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+                get_string('connection_failure', 'block_opencast'), null,
+                \core\output\notification::NOTIFY_ERROR);
+        }
+
+        if (!$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+                get_string('addvideonotallowed', 'block_opencast'), null,
+                \core\output\notification::NOTIFY_ERROR);
+        }
+    }
+} else {
+    $coursecontext = context_course::instance($courseid);
+    require_capability('block/opencast:addvideo', $coursecontext);
+}
 
 $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
@@ -59,10 +105,17 @@ $userdefaultsrecord = $DB->get_record('block_opencast_user_default', ['userid' =
 $userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults, true) : [];
 $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
 
-$addvideoform = new \block_opencast\local\addvideo_form(null,
-    array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
-        'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid)
+if ($series) {
+    $addvideoform = new \block_opencast\local\addvideo_form(null,
+        array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
+            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, 'series' => $series)
     );
+} else {
+    $addvideoform = new \block_opencast\local\addvideo_form(null,
+        array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
+            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid)
+    );
+}
 
 if ($addvideoform->is_cancelled()) {
     redirect($redirecturl);
@@ -166,7 +219,7 @@ if ($data = $addvideoform->get_data()) {
     }
 
     // Update all upload jobs.
-    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options, $visibility);
+    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 

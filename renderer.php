@@ -711,7 +711,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 break;
         }
 
-        return \html_writer::link($url, $icon);
+        return \html_writer::link($url, $icon, array('aria-label' => $text));
     }
 
     /**
@@ -778,7 +778,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $icon = $this->output->pix_icon('t/delete', $text);
 
-        return \html_writer::link($url, $icon);
+        return \html_writer::link($url, $icon, array('aria-label' => $text));
     }
 
     /**
@@ -1121,7 +1121,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_report_problem_icon($identifier) {
         $icon = $this->output->pix_icon('t/message', get_string('reportproblem_modal_title', 'block_opencast'));
-        return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier));
+        return \html_writer::link('#', $icon, array('class' => 'report-problem', 'data-id' => $identifier,
+            'aria-label' => get_string('reportproblem_modal_title', 'block_opencast')));
     }
 
     /**

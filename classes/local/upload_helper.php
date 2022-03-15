@@ -141,11 +141,10 @@ class upload_helper {
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid Course id
-     * @param object $coursecontext Course context
      * @param object $options Options
      * @param object $visibility Visibility object
      */
-    public static function save_upload_jobs($ocinstanceid, $courseid, $coursecontext, $options, $visibility = null) {
+    public static function save_upload_jobs($ocinstanceid, $courseid, $options, $visibility = null) {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -448,7 +447,7 @@ class upload_helper {
      * @throws \moodle_exception
      */
     protected function process_upload_job($job) {
-        global $DB;
+        global $DB, $SITE;
         $stepsuccessful = false;
         $apibridge = apibridge::get_instance($job->ocinstanceid);
 
@@ -486,7 +485,7 @@ class upload_helper {
                         $series = $apibridge->get_series_by_identifier($metadata[$mtseries]->value);
                     }
 
-                    if (!$series) {
+                    if (!$series && $job->courseid !== $SITE->id) {
                         $series = $apibridge->ensure_course_series_exists($job->courseid, $job->userid);
                     }
 
@@ -603,7 +602,7 @@ class upload_helper {
                 $courseseries = $DB->get_records('tool_opencast_series',
                     array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
 
-                if (array_search($assignedseries, array_column($courseseries, 'series')) === false) {
+                if (array_search($assignedseries, array_column($courseseries, 'series')) === false && $job->courseid !== $SITE->id) {
                     // Try to assign series again.
                     $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
 

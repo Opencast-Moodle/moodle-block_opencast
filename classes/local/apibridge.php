@@ -767,7 +767,16 @@ class apibridge {
      * @throws \dml_exception
      */
     public static function replace_placeholders($name, $courseid, $groups = null, $userid = null) {
-        global $DB;
+        global $SITE;
+
+        // Skip course related placeholders if courseid is site id.
+        if ($courseid === $SITE->id) {
+            if (strpos($name, '[COURSENAME]') !== false ||
+                strpos($name, '[COURSEID]') !== false ||
+                strpos($name, '[COURSEGROUPID]') !== false) {
+                return array();
+            }
+        }
 
         $coursename = get_course($courseid)->fullname;
         $title = str_replace('[COURSENAME]', $coursename, $name);
