@@ -31,14 +31,16 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
+$series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'redirectpage' => $redirectpage,
+        'series' => $series));
 $PAGE->set_url($baseurl);
 
-if ($courseid == $SITE->id) {
-    $redirecturl = new moodle_url('/blocks/opencast/overview.php',
-        array('ocinstanceid' => $ocinstanceid));
+if ($redirectpage == 'overviewvideos') {
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series));
 } else {
     $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 }
@@ -61,7 +63,7 @@ $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null,
     array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier,
-        'ocinstanceid' => $ocinstanceid));
+        'ocinstanceid' => $ocinstanceid, 'redirectpage' => $redirectpage, 'series' => $series));
 
 if ($updatemetadataform->is_cancelled()) {
     redirect($redirecturl);

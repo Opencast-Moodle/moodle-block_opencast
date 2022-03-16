@@ -421,16 +421,22 @@ class block_opencast_renderer extends plugin_renderer_base {
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
-                    false, null, false, false);
+                    false, null, false, false,
+                    'overviewvideos', $video->is_part_of);
             }
-            // TODO test this.
+
             if ($hasdownloadpermission && $video->is_downloadable) {
                 $actions .= $this->render_download_event_icon($ocinstanceid, $SITE->id, $video);
             }
 
             if ($hasdeletepermission && isset($video->processing_state) &&
                 ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
-                $actions .= $this->render_delete_event_icon($ocinstanceid, $SITE->id, $video->identifier);
+                $url = new \moodle_url('/blocks/opencast/deleteevent.php',
+                    array('identifier' => $video->identifier, 'courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid,
+                        'series' => $video->is_part_of, 'redirectpage' => 'overviewvideos'));
+                $text = get_string('deleteevent', 'block_opencast');
+                $icon = $this->output->pix_icon('t/delete', $text);
+                $actions .= \html_writer::link($url, $icon, array('aria-label' => $text));
             }
 
             $row[] = $actions;
@@ -577,7 +583,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true) {
+    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true, $redirectpage = null, $seriesid = null) {
 
         $table = new html_table();
         $table->head = array(
@@ -672,7 +678,8 @@ class block_opencast_renderer extends plugin_renderer_base {
                 // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
                 $row[] = ($uploadjob->status == \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD &&
                     has_capability('block/opencast:addvideo', $coursecontext)) ?
-                    $this->render_delete_draft_icon($uploadjob->ocinstanceid, $uploadjob->courseid, $uploadjob->id) : '';
+                    $this->render_delete_draft_icon($uploadjob->ocinstanceid, $uploadjob->courseid,
+                        $uploadjob->id, $redirectpage, $seriesid) : '';
             }
 
             $table->data[] = $row;
@@ -884,10 +891,11 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private function render_delete_draft_icon($ocinstanceid, $courseid, $videoidentifier) {
+    private function render_delete_draft_icon($ocinstanceid, $courseid, $videoidentifier, $redirectpage = null, $series = null) {
 
         $url = new \moodle_url('/blocks/opencast/deletedraft.php',
-            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+            array('identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+                'redirectpage' => $redirectpage, 'series' => $series));
         $text = get_string('dodeleteevent', 'block_opencast');
 
         $icon = $this->output->pix_icon('t/delete', $text);
@@ -910,7 +918,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
-                                          $startworkflows, $coursecontext, $useeditor, $canchangeowner) {
+                                          $startworkflows, $coursecontext, $useeditor, $canchangeowner,
+                                          $redirectpage = null, $series = null) {
         global $CFG;
 
         // Get the action menu options.
@@ -927,7 +936,8 @@ class block_opencast_renderer extends plugin_renderer_base {
             // Update metadata event.
             $actionmenu->add(new action_menu_link_secondary(
                 new \moodle_url('/blocks/opencast/updatemetadata.php',
-                    array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
+                    array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+                        'redirectpage' => $redirectpage, 'series' => $series)),
                 new pix_icon('t/editstring', get_string('updatemetadata_short', 'block_opencast')),
                 get_string('updatemetadata_short', 'block_opencast')
             ));
@@ -973,7 +983,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param object $video
      * @return string
      */
-    public function render_video_deletion_info($ocinstanceid, $courseid, $video) {
+    public function render_video_deletion_info($ocinstanceid, $courseid, $video, $redirectpage = null, $series = null) {
 
         if (!$video) {
             return get_string('videonotfound', 'block_opencast');
@@ -1007,7 +1017,9 @@ class block_opencast_renderer extends plugin_renderer_base {
         $params = array(
             'identifier' => $video->identifier,
             'courseid' => $courseid,
-            'action' => 'delete', 'ocinstanceid' => $ocinstanceid
+            'action' => 'delete', 'ocinstanceid' => $ocinstanceid,
+            'redirectpage' => $redirectpage,
+            'series' => $series
         );
         $url = new \moodle_url('/blocks/opencast/deleteevent.php', $params);
         $html .= $this->output->single_button($url, $label);

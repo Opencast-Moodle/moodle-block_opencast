@@ -133,7 +133,7 @@ if (count($videojobs) > 0) {
 
     // Show explanation.
     echo html_writer::tag('p', get_string('uploadqueuetoopencastexplanation', 'block_opencast'));
-    echo $renderer->render_upload_jobs($ocinstanceid, $videojobs);
+    echo $renderer->render_upload_jobs($ocinstanceid, $videojobs, true, 'overviewvideos', $series);
 }
 
 echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));

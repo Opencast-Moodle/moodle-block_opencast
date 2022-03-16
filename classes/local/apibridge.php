@@ -774,7 +774,7 @@ class apibridge {
             if (strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
                 strpos($name, '[COURSEGROUPID]') !== false) {
-                return array();
+                return array(null);
             }
         }
 
@@ -1144,7 +1144,7 @@ class apibridge {
 
         $result = $api->oc_post('/api/events', $params);
 
-        if ($api->get_http_code() >= 400) {
+        if ($api->get_http_code() != 201) {
             // In case the metadata field is invalid, $result contains the following pattern.
             $errorpattern = "/Cannot find a metadata field with id '([\w]+)' from Catalog with Flavor 'dublincore\/episode'./";
             if (preg_match($errorpattern, $result)) {

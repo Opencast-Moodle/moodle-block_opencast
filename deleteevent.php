@@ -25,15 +25,18 @@ require_once('../../config.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $SITE;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
+$series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteevent.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series));
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -42,7 +45,12 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+if ($redirectpage == 'overviewvideos') {
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series));
+} else {
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+}
+
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('deleteevent', 'block_opencast'), $baseurl);
 
@@ -73,5 +81,5 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('deleteevent', 'block_opencast'));
-echo $renderer->render_video_deletion_info($ocinstanceid, $courseid, $video->video);
+echo $renderer->render_video_deletion_info($ocinstanceid, $courseid, $video->video, $redirectpage, $series);
 echo $OUTPUT->footer();
