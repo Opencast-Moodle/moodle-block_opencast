@@ -602,7 +602,8 @@ class upload_helper {
                 $courseseries = $DB->get_records('tool_opencast_series',
                     array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
 
-                if (array_search($assignedseries, array_column($courseseries, 'series')) === false && $job->courseid !== $SITE->id) {
+                if (array_search($assignedseries, array_column($courseseries, 'series')) === false &&
+                    $job->courseid !== $SITE->id) {
                     // Try to assign series again.
                     $mtseries = array_search('isPartOf', array_column(json_decode($job->metadata), 'id'));
 

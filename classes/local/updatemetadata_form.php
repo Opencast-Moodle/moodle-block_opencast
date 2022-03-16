@@ -111,11 +111,11 @@ class updatemetadata_form extends \moodleform {
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);
 
-        if($this->_customdata['redirectpage']) {
+        if ($this->_customdata['redirectpage']) {
             $mform->addElement('hidden', 'redirectpage', $this->_customdata['redirectpage']);
             $mform->setType('redirectpage', PARAM_ALPHA);
         }
-        if($this->_customdata['series']) {
+        if ($this->_customdata['series']) {
             $mform->addElement('hidden', 'series', $this->_customdata['series']);
             $mform->setType('series', PARAM_ALPHANUMEXT);
         }

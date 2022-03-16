@@ -115,15 +115,11 @@ if ($ocseries) {
 echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast') . '<br />' .
     get_string('uploadprocessingexplanation', 'block_opencast'));
 
-
-// todo permission
 // Show "Add video" button.
-$addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'series' => $series));
+$addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $SITE->id,
+    'ocinstanceid' => $ocinstanceid, 'series' => $series));
 $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
 echo html_writer::div($addvideobutton);
-
-
-// TODO check if lti is working correctly with roles
 
 // If there are upload jobs scheduled, show the upload queue table.
 $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($ocinstanceid, $SITE->id);

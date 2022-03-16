@@ -35,12 +35,13 @@ $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'redirectpage' => $redirectpage,
-        'series' => $series));
+    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series));
 $PAGE->set_url($baseurl);
 
 if ($redirectpage == 'overviewvideos') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
+        'series' => $series));
 } else if ($redirectpage == 'overview') {
     $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
 } else {

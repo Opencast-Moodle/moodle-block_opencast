@@ -43,7 +43,7 @@ class visibility_helper {
     /** @var int visibility change completed */
     const STATUS_DONE = 2;
 
-    /** @var int default waiting time in minutes*/
+    /** @var int default waiting time in minutes */
     const DEFAULT_WAITING_TIME = 20;
 
     /**
@@ -248,7 +248,7 @@ class visibility_helper {
                         $rolenameformatted = $apibridge::replace_placeholders($role->rolename,
                             $courseid, null, $uploadjob->userid)[0];
                         if ($rolenameformatted) {
-                            $acls [] = (object)array(
+                            $acls[] = (object)array(
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rolenameformatted,
@@ -263,7 +263,7 @@ class visibility_helper {
                         foreach ($apibridge::replace_placeholders($role->rolename,
                             $courseid, $groups, $uploadjob->userid) as $rule) {
                             if ($rule) {
-                                $acls [] = (object)array(
+                                $acls[] = (object)array(
                                     'allow' => true,
                                     'action' => $action,
                                     'role' => $rule,

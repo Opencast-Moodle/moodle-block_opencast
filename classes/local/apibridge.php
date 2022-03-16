@@ -815,13 +815,13 @@ class apibridge {
         if (strpos($name, '[COURSEGROUPID]') !== false) {
             if ($groups) {
                 foreach ($groups as $groupid) {
-                    $result [] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
+                    $result[] = str_replace('[COURSEGROUPID]', 'G' . $groupid, $title);
                 }
             } else {
-                $result [] = str_replace('[COURSEGROUPID]', $courseid, $title);
+                $result[] = str_replace('[COURSEGROUPID]', $courseid, $title);
             }
         } else {
-            $result [] = $title;
+            $result[] = $title;
         }
 
         return $result;
@@ -1499,7 +1499,7 @@ class apibridge {
                         $rolenameformatted = self::replace_placeholders($role->rolename, $courseid)[0];
                         // Might return null if USERNAME cannot be replaced.
                         if ($rolenameformatted) {
-                            $result [] = (object)array(
+                            $result[] = (object)array(
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rolenameformatted,
@@ -1515,7 +1515,7 @@ class apibridge {
                     foreach ($role->actions as $action) {
                         foreach (self::replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
                             if ($rule) {
-                                $result [] = (object)array(
+                                $result[] = (object)array(
                                     'allow' => true,
                                     'action' => $action,
                                     'role' => $rule,
@@ -1918,7 +1918,6 @@ class apibridge {
      * @return bool the capability of updating!
      */
     public function can_update_event_metadata($video, $courseid, $capabilitycheck = true) {
-
         if (isset($video->processing_state) &&
             ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
                 $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {

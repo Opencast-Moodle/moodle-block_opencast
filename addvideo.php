@@ -42,7 +42,8 @@ if ($series) {
 $PAGE->set_url($baseurl);
 
 if ($courseid == $SITE->id && $series) {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('series' => $series,
+        'ocinstanceid' => $ocinstanceid));
 } else {
     $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 }
@@ -63,7 +64,8 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 if ($courseid == $SITE->id) {
     // If upload initiated from overview page, check that capability is given in specific course or ownership.
     if (!$series) {
-        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
+            'series' => $series)),
             get_string('addvideonotallowed', 'block_opencast'), null,
             \core\output\notification::NOTIFY_ERROR);
     }
@@ -83,13 +85,15 @@ if ($courseid == $SITE->id) {
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
         $ocseries = $apibridge->get_series_by_identifier($series);
         if (!$ocseries) {
-            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
+                'series' => $series)),
                 get_string('connection_failure', 'block_opencast'), null,
                 \core\output\notification::NOTIFY_ERROR);
         }
 
         if (!$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
-            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series)),
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
+                'series' => $series)),
                 get_string('addvideonotallowed', 'block_opencast'), null,
                 \core\output\notification::NOTIFY_ERROR);
         }

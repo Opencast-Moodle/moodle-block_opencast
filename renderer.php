@@ -421,7 +421,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             $row[] = join('<br>', $courses);
             $row[] = join('<br>', $courseswoblocklink);
 
-            // Actions column
+            // Actions column.
             $actions = '';
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
@@ -589,7 +589,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param string $seriesid
      * @return string
      */
-    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true, $redirectpage = null, $seriesid = null) {
+    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true,
+                                       redirectpage = null, $seriesid = null) {
 
         $table = new html_table();
         $table->head = array(
@@ -1005,12 +1006,12 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $table = new \html_table();
         $table->head = array();
-        $table->head [] = get_string('hstart_date', 'block_opencast');
-        $table->head [] = get_string('htitle', 'block_opencast');
+        $table->head[] = get_string('hstart_date', 'block_opencast');
+        $table->head[] = get_string('htitle', 'block_opencast');
         if (get_config('block_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
-            $table->head [] = get_string('hpublished', 'block_opencast');
+            $table->head[] = get_string('hpublished', 'block_opencast');
         };
-        $table->head [] = get_string('hworkflow_state', 'block_opencast');
+        $table->head[] = get_string('hworkflow_state', 'block_opencast');
 
         $row = array();
 

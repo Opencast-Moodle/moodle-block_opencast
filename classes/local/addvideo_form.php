@@ -103,8 +103,8 @@ class addvideo_form extends \moodleform {
             $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
             $mform->addRule('series', get_string('required'), 'required');
             $mform->setDefault('series', $defaultseries);
-        } elseif ($this->_customdata['series']) {
-            // todo check if this fails for a new block
+        } else if ($this->_customdata['series']) {
+            // Todo check if this fails for a new block.
             $seriesoption = array();
             try {
                 $seriesrecords = $apibridge->get_multiple_series_by_identifier(array($this->_customdata['series']));
