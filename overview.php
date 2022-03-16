@@ -175,12 +175,13 @@ if (count($ownedvideos) > 0) {
     echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'), 2, array('mt-4'));
     echo html_writer::tag('p', get_string('ownedvideosoverview_explanation', 'block_opencast'));
 
-    $columns = array('owner', 'videos', 'linked', 'activities');
+    $columns = array('owner', 'videos', 'linked', 'activities', 'action');
     $headers = array(
         get_string('owner', 'block_opencast'),
         get_string('video', 'block_opencast'),
         get_string('embeddedasactivity', 'block_opencast'),
-        get_string('embeddedasactivitywolink', 'block_opencast'));
+        get_string('embeddedasactivitywolink', 'block_opencast'),
+        get_string('action', 'block_opencast'));
     $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
     $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;

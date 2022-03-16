@@ -24,7 +24,7 @@ require_once('../../config.php');
 
 use block_opencast\local\upload_helper;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $SITE;
 
 require_once($CFG->dirroot . '/repository/lib.php');
 
@@ -36,7 +36,12 @@ $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
     array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+if ($courseid == $SITE->id) {
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php',
+        array('ocinstanceid' => $ocinstanceid));
+} else {
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+}
 
 require_login($courseid, false);
 

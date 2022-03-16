@@ -1916,13 +1916,17 @@ class apibridge {
      * @param int $courseid Course id
      * @return bool the capability of updating!
      */
-    public function can_update_event_metadata($video, $courseid) {
+    public function can_update_event_metadata($video, $courseid, $capabilitycheck = true) {
 
         if (isset($video->processing_state) &&
             ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
                 $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
-            $context = \context_course::instance($courseid);
-            return has_capability('block/opencast:addvideo', $context);
+            if ($capabilitycheck) {
+                $context = \context_course::instance($courseid);
+                return has_capability('block/opencast:addvideo', $context);
+            } else {
+                return true;
+            }
         }
 
         return false;

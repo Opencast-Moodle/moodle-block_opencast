@@ -56,26 +56,46 @@ $renderer = $PAGE->get_renderer('block_opencast');
 // Try to retrieve name from opencast.
 $ocseries = $apibridge->get_series_by_identifier($series, true);
 
+$hasaddvideopermission = false;
+$hasviewpermission = false;
+$hasdownloadpermission = false;
+$hasdeletepermission = false;
+
 // Verify that user has permission to view series.
 if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
     // User is not owner but might have read access to course where series is embedded.
     $records = $DB->get_records('tool_opencast_series', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
-    $haspermission = false;
     foreach ($records as $record) {
         $coursecontext = context_course::instance($record->courseid, IGNORE_MISSING);
-        if ($coursecontext && has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
-            $haspermission = true;
-            break;
+        if ($coursecontext) {
+            if (has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+                $hasviewpermission = true;
+            }
+            if (has_capability('block/opencast:addvideo', $coursecontext)) {
+                $hasaddvideopermission = true;
+            }
+            if (has_capability('block/opencast:downloadvideo', $coursecontext)) {
+                $hasdownloadpermission = true;
+            }
+            if (has_capability('block/opencast:deleteevent', $coursecontext)) {
+                $hasdeletepermission = true;
+            }
         }
     }
 
-    if (!$haspermission) {
+    if (!$hasviewpermission) {
         redirect(new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid)),
             get_string('viewviedeosnotallowed', 'block_opencast'), null,
             \core\output\notification::NOTIFY_ERROR);
     }
 }
 
+if ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
+    $hasviewpermission = true;
+    $hasaddvideopermission = true;
+    $hasdownloadpermission = true;
+    $hasdeletepermission = true;
+}
 
 $isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id) ||
         !$apibridge->has_owner($ocseries->acl));
@@ -92,14 +112,9 @@ if ($ocseries) {
     echo $OUTPUT->heading($series);
 }
 
-// Show heading and explanation depending if Opencast Studio is enabled.
-if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
-    echo html_writer::tag('p', get_string('uploadrecordvideosexplanation', 'block_opencast') . '<br />' .
-        get_string('uploadprocessingexplanation', 'block_opencast'));
-} else {
-    echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast') . '<br />' .
-        get_string('uploadprocessingexplanation', 'block_opencast'));
-}
+echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast') . '<br />' .
+    get_string('uploadprocessingexplanation', 'block_opencast'));
+
 
 // todo permission
 // Show "Add video" button.
@@ -110,51 +125,29 @@ echo html_writer::div($addvideobutton);
 
 // TODO check if lti is working correctly with roles
 
-// If Opencast Studio is enabled, show "Record video" button.
-if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
-    $target = '_self';
-    // Check for the admin config to set the link target.
-    if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstanceid)) {
-        $target = '_blank';
-    }
+// If there are upload jobs scheduled, show the upload queue table.
+$videojobs = \block_opencast\local\upload_helper::get_upload_jobs($ocinstanceid, $SITE->id);
+if (count($videojobs) > 0) {
+    // Show heading.
+    echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
 
-    // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
-    if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
-        if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
-            $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
-        } else {
-            $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
-        }
-
-        if (strpos($endpoint, 'http') !== 0) {
-            $endpoint = 'http://' . $endpoint;
-        }
-
-        $url = $endpoint . '/studio?upload.seriesId=' . $series;
-        $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
-            null, array('class' => 'btn btn-secondary', 'target' => $target));
-        echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
-    } else {
-        $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
-            array('ocinstanceid' => $ocinstanceid));
-        $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-            null, array('class' => 'btn btn-secondary', 'target' => $target));
-        echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
-    }
+    // Show explanation.
+    echo html_writer::tag('p', get_string('uploadqueuetoopencastexplanation', 'block_opencast'));
+    echo $renderer->render_upload_jobs($ocinstanceid, $videojobs);
 }
-
 
 echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
 // TODO handle opencast connection error. Break as soon as first error occurs.
 
 // Build table.
-$columns = array('owner', 'videos', 'linked', 'activities');
+$columns = array('owner', 'videos', 'linked', 'activities', 'action');
 $headers = array(
     get_string('owner', 'block_opencast'),
     get_string('video', 'block_opencast'),
     get_string('embeddedasactivity', 'block_opencast'),
-    get_string('embeddedasactivitywolink', 'block_opencast'));
+    get_string('embeddedasactivitywolink', 'block_opencast'),
+    get_string('heading_actions', 'block_opencast'));
 $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
 $videos = $apibridge->get_series_videos($series)->videos;
@@ -163,7 +156,8 @@ $showchangeownerlink = has_capability('block/opencast:viewusers', context_system
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
 foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
-    $activityinstalled, $showchangeownerlink, false, $isseriesowner) as $row) {
+    $activityinstalled, $showchangeownerlink, false, $isseriesowner, $hasaddvideopermission,
+    $hasdownloadpermission, $hasdeletepermission) as $row) {
     $table->add_data($row);
 }
 

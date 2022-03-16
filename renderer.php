@@ -360,7 +360,9 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
-                                                $showchangeownerlink, $isownerverified = false, $isseriesowner = false) {
+                                                $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
+                                                $hasaddvideopermissions = false,
+                                                $hasdownloadpermission = false, $hasdeletepermission = false) {
         global $USER, $SITE, $DB;
         $rows = array();
 
@@ -413,6 +415,25 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             $row[] = join('<br>', $courses);
             $row[] = join('<br>', $courseswoblocklink);
+
+            // Actions column
+            $actions = '';
+            if ($hasaddvideopermissions) {
+                $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
+                $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
+                    false, null, false, false);
+            }
+            // TODO test this.
+            if ($hasdownloadpermission && $video->is_downloadable) {
+                $actions .= $this->render_download_event_icon($ocinstanceid, $SITE->id, $video);
+            }
+
+            if ($hasdeletepermission && isset($video->processing_state) &&
+                ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+                $actions .= $this->render_delete_event_icon($ocinstanceid, $SITE->id, $video->identifier);
+            }
+
+            $row[] = $actions;
 
             $rows[] = $row;
         }
