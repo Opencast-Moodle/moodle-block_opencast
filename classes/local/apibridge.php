@@ -1914,6 +1914,7 @@ class apibridge {
      * The allowance of the update metadata process
      * @param object $video Opencast video
      * @param int $courseid Course id
+     * @param bool $capabilitycheck
      * @return bool the capability of updating!
      */
     public function can_update_event_metadata($video, $courseid, $capabilitycheck = true) {

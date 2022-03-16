@@ -354,6 +354,10 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $showchangeownerlink
      * @param bool $isownerverified
      * @param bool $isseriesowner
+     * @param bool $hasaddvideopermissions
+     * @param bool $hasdownloadpermission
+     * @param bool $hasdeletepermission
+     * @param string $redirectpage
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -581,7 +585,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param int $ocinstanceid Opencast instance id.
      * @param array $uploadjobs array of uploadjob objects
      * @param bool $showdeletebutton shows a delete button in the last column
-     *
+     * @param string $redirectpage
+     * @param string $seriesid
      * @return string
      */
     public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true, $redirectpage = null, $seriesid = null) {
@@ -888,6 +893,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param string $videoidentifier
+     * @param string $redirectpage
+     * @param string $series
      * @return string
      * @throws coding_exception
      * @throws moodle_exception
@@ -914,6 +921,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param \stdClass $coursecontext
      * @param bool $useeditor
      * @param bool $canchangeowner
+     * @param string $redirectpage
+     * @param string $series
      * @return bool|string
      * @throws coding_exception
      * @throws moodle_exception
@@ -982,6 +991,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid
      * @param object $video
+     * @param string $redirectpage
+     * @param string $series
      * @return string
      */
     public function render_video_deletion_info($ocinstanceid, $courseid, $video, $redirectpage = null, $series = null) {
