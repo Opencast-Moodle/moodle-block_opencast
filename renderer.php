@@ -362,7 +362,8 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
                                                 $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
                                                 $hasaddvideopermissions = false,
-                                                $hasdownloadpermission = false, $hasdeletepermission = false) {
+                                                $hasdownloadpermission = false, $hasdeletepermission = false,
+                                                $redirectpage = 'overviewvideos') {
         global $USER, $SITE, $DB;
         $rows = array();
 
@@ -422,7 +423,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
                     false, null, false, false,
-                    'overviewvideos', $video->is_part_of);
+                    'overview', $video->is_part_of);
             }
 
             if ($hasdownloadpermission && $video->is_downloadable) {
@@ -433,7 +434,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
                 $url = new \moodle_url('/blocks/opencast/deleteevent.php',
                     array('identifier' => $video->identifier, 'courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid,
-                        'series' => $video->is_part_of, 'redirectpage' => 'overviewvideos'));
+                        'series' => $video->is_part_of, 'redirectpage' => $redirectpage));
                 $text = get_string('deleteevent', 'block_opencast');
                 $icon = $this->output->pix_icon('t/delete', $text);
                 $actions .= \html_writer::link($url, $icon, array('aria-label' => $text));

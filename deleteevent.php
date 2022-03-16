@@ -47,6 +47,8 @@ $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 if ($redirectpage == 'overviewvideos') {
     $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => $series));
+} else if ($redirectpage == 'overview') {
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
 } else {
     $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 }

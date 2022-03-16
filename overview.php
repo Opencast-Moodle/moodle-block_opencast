@@ -167,7 +167,7 @@ $table->finish_html();
 
 // Show videos that the user owns but are not included in any of the series he has access to.
 $ownedvideos = $apibridge->get_videos_owned_by($USER->id);
-$ownedvideos = array_filter($ownedvideos, function ($v) use ($myseries) {
+$ownedvideos = array_filter($ownedvideos->videos, function ($v) use ($myseries) {
     return !in_array($v->is_part_of, $myseries);
 });
 
@@ -181,14 +181,15 @@ if (count($ownedvideos) > 0) {
         get_string('video', 'block_opencast'),
         get_string('embeddedasactivity', 'block_opencast'),
         get_string('embeddedasactivitywolink', 'block_opencast'),
-        get_string('action', 'block_opencast'));
+        get_string('heading_actions', 'block_opencast'));
     $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
     $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     $showchangeownerlink = course_can_view_participants(context_system::instance());
 
     foreach ($renderer->create_overview_videos_rows($ownedvideos, $apibridge, $ocinstanceid,
-        $activityinstalled, $showchangeownerlink, true) as $row) {
+        $activityinstalled, $showchangeownerlink, true, false,
+        true, true, true, 'overview') as $row) {
         $table->add_data($row);
     }
 
