@@ -2156,6 +2156,10 @@ class apibridge {
      * @throws \dml_exception
      */
     private function get_owner_role_for_user($userid, $courseid) {
+        if (empty(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
+            return null;
+        }
+
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
         $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
             array_column($roles, 'rolename'));
@@ -2179,6 +2183,9 @@ class apibridge {
         $resource = '/api/series?withacl=1&onlyWithWriteAccess=1';
         // Course id should not be used in owner role, so we can use the site id.
         $ownerrole = self::get_owner_role_for_user($userid, $SITE->id);
+        if (!$ownerrole) {
+            return array();
+        }
 
         $response = $api->oc_get($resource, array($ownerrole));
         if ($api->get_http_code() == 200) {
@@ -2206,6 +2213,11 @@ class apibridge {
         $result = new \stdClass();
         $result->videos = array();
         $result->error = 0;
+
+        if (!$ownerrole) {
+            return $result;
+        }
+
         $response = $api->oc_get($resource, array($ownerrole));
 
         if ($api->get_http_code() == 200) {

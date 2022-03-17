@@ -32,6 +32,8 @@ use tool_opencast\local\settings_api;
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = optional_param('perpage', 20, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
@@ -73,7 +75,7 @@ foreach ($courses as $course) {
 
 // Add series that are owned by the user.
 $ownedseries = $apibridge->get_series_owned_by($USER->id);
-$myseries = array_unique(array_merge($myseries, $ownedseries));
+$myseries = array_values(array_unique(array_merge($myseries, $ownedseries)));
 
 // Build course table.
 $columns = array('owner', 'series', 'linked', 'activities', 'videos');
@@ -90,17 +92,17 @@ $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_open
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
-foreach ($myseries as $seriesid) {
+for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); $i++) {
     $row = array();
 
     // Try to retrieve name from opencast.
-    $ocseries = $apibridge->get_series_by_identifier($seriesid, true);
+    $ocseries = $apibridge->get_series_by_identifier($myseries[$i], true);
 
     // Check if current user is owner of the series.
-    if (in_array($seriesid, $ownedseries) || ($ocseries && !$apibridge->has_owner($ocseries->acl))) {
+    if (in_array($myseries[$i], $ownedseries) || ($ocseries && !$apibridge->has_owner($ocseries->acl))) {
         if ($showchangeownerlink) {
             $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
-                array('ocinstanceid' => $ocinstanceid, 'identifier' => $seriesid, 'isseries' => true)),
+                array('ocinstanceid' => $ocinstanceid, 'identifier' => $myseries[$i], 'isseries' => true)),
                 $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
         } else {
             $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
@@ -114,16 +116,16 @@ foreach ($myseries as $seriesid) {
         $row[] = $ocseries->title;
     } else {
         // If that fails use id.
-        $row[] = $seriesid;
+        $row[] = $myseries[$i];
     }
 
-    $blocklinks = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid));
+    $blocklinks = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i]));
     $blocklinks = array_column($blocklinks, 'courseid');
 
     $activitylinks = array();
     if ($activityinstalled) {
         $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
-            'opencastid' => $seriesid, 'type' => opencasttype::SERIES));
+            'opencastid' => $myseries[$i], 'type' => opencasttype::SERIES));
         $activitylinks = array_column($activitylinks, 'course');
     }
 
@@ -147,7 +149,7 @@ foreach ($myseries as $seriesid) {
 
         if (in_array($course, $activitylinks)) {
             // Get activity.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $mc->id, $seriesid);
+            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $mc->id, $myseries[$i]);
 
             $rowactivities[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
                 $mc->fullname);
@@ -157,13 +159,14 @@ foreach ($myseries as $seriesid) {
     $row[] = join("<br>", $rowblocks);
     $row[] = join("<br>", $rowactivities);
     $row[] = html_writer::link(new moodle_url('/blocks/opencast/overview_videos.php',
-        array('ocinstanceid' => $ocinstanceid, 'series' => $seriesid)),
+        array('ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i])),
         $OUTPUT->pix_icon('i/messagecontentvideo', get_string('showvideos', 'block_opencast')));
 
     $table->add_data($row);
 }
 
 $table->finish_html();
+echo $OUTPUT->paging_bar(count($myseries), $page, $perpage, $baseurl);
 
 // Show videos that the user owns but are not included in any of the series he has access to.
 $ownedvideos = $apibridge->get_videos_owned_by($USER->id);
