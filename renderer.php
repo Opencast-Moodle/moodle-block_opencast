@@ -590,7 +590,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true,
-                                       redirectpage = null, $seriesid = null) {
+                                       $redirectpage = null, $seriesid = null) {
 
         $table = new html_table();
         $table->head = array(
