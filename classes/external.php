@@ -271,7 +271,6 @@ class block_opencast_external extends external_api {
      * @return bool True if successful
      */
     public static function unlink_series(int $contextid, int $ocinstanceid, string $series) {
-        global $USER;
         $params = self::validate_parameters(self::unlink_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
@@ -288,15 +287,6 @@ class block_opencast_external extends external_api {
             'series' => $params['seriesid']), true);
 
         if ($mapping) {
-            if ($mapping->get('isdefault')) {
-                // Although it shouldn't happen, there might be multiple default series (see Issue-232)
-                // Allow deletion if there is another default series.
-                if (seriesmapping::count_records(array('ocinstanceid' => $params['ocinstanceid'],
-                        'courseid' => $course->id, 'isdefault' => true)) === 1) {
-                    throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
-                }
-            }
-
             if (!$mapping->delete()) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
