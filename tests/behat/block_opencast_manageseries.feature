@@ -86,17 +86,7 @@ Feature: Manage series as Teacher
     Then I should not see "Changing the default series failed"
 
   @javascript
-  Scenario: Teachers should not be able to delete the default series
-    When I click on "Go to overview..." "link"
-    And I click on "Manage series" "link"
-    And I click on ".tabulator-row-odd i.fa-trash" "css_element"
-    Then I should see "Are you sure you want to delete this series"
-    When I click on "Delete" "button" in the ".modal" "css_element"
-    And I wait "2" seconds
-    Then I should see "You cannot delete the default series."
-
-  @javascript
-  Scenario: Teachers should be able to delete a non-default series
+  Scenario: Teachers should be able to delete a series
     Given I create a second series
     When I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
