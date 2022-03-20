@@ -26,7 +26,6 @@
 namespace block_opencast\local;
 
 use local_chunkupload\chunkupload_form_element;
-use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -103,8 +102,7 @@ class addvideo_form extends \moodleform {
             $mform->addElement('select', 'series', get_string('series', 'block_opencast'), $seriesoption);
             $mform->addRule('series', get_string('required'), 'required');
             $mform->setDefault('series', $defaultseries);
-        } else if ($this->_customdata['series']) {
-            // Todo check if this fails for a new block.
+        } else if (array_key_exists('series', $this->_customdata) && $this->_customdata['series']) {
             $seriesoption = array();
             try {
                 $seriesrecords = $apibridge->get_multiple_series_by_identifier(array($this->_customdata['series']));
