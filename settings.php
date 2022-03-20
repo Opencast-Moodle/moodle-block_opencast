@@ -35,7 +35,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     // Empty $settings to prevent a single settings page from being created by lib/classes/plugininfo/block.php
     // because we will create several settings pages now.
 
-
     $settings = null;
 
     // Create admin settings category.
@@ -533,6 +532,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             // Control ACL: Enable feature.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/aclcontrol_' . $instance->id,
+                    get_string('acl_settingcontrol', 'block_opencast'),
+                    get_string('acl_settingcontrol_desc', 'block_opencast'), 1));
+
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/aclcontrolafter_' . $instance->id,
                     get_string('acl_settingcontrolafter', 'block_opencast'),

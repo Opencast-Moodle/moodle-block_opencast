@@ -211,7 +211,8 @@ if ($data = $addvideoform->get_data()) {
 
     // Prepare the visibility object.
     $visibility = new \stdClass();
-    $visibility->initialvisibilitystatus = $data->initialvisibilitystatus;
+    $visibility->initialvisibilitystatus = !isset($data->initialvisibilitystatus) ?
+        \block_opencast_renderer::VISIBLE : $data->initialvisibilitystatus;
     $visibility->initialvisibilitygroups = !empty($data->initialvisibilitygroups) ?
         json_encode($data->initialvisibilitygroups) : null;
     // Check if the scheduled visibility is set.
