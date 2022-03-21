@@ -65,12 +65,12 @@ echo html_writer::tag('p', get_string('seriesoverviewexplanation', 'block_openca
 $renderer = $PAGE->get_renderer('block_opencast');
 $myseries = array();
 
-foreach ($courses as $course) {
-    $courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $course->id, 'ocinstanceid' => $ocinstanceid));
-
-    foreach ($courseseries as $series) {
-        $myseries[] = $series->series;
-    }
+if (count($courses) > 0) {
+    $courseids = array_column($courses, 'id');
+    list($insql, $inparams) = $DB->get_in_or_equal($courseids);
+    $sql = "SELECT series FROM {tool_opencast_series} WHERE courseid $insql AND ocinstanceid = ?";
+    $inparams[] = $ocinstanceid;
+    $myseries = array_column($DB->get_records_sql($sql, $inparams), 'series');
 }
 
 // Add series that are owned by the user.
