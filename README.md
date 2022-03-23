@@ -8,17 +8,6 @@ The block can be used to automatically set the access privileges of moodle users
 All events belonging to the series are displayed in the block. 
 This way, the teacher gets an overview of all recorded lectures as well as planned ones.
 Further, if setup correctly, the teacher is able to restrict the visibility to moodle groups or prevent access by students at all.
- 
-System requirements
-------------------
-
-* Min. Moodle Version: 3.3
-* Opencast API level:
-   * Minimum: v1.1.0
-
-   * Some features might do not works as expected, when using an older API level.
-
-* Installed plugin: <a href="https://github.com/unirz-tu-ilmenau/moodle-tool_opencast">tool_opencast</a>
 
 Features
 ------------------
