@@ -68,7 +68,7 @@ $myseries = array();
 if (count($courses) > 0) {
     $courseids = array_column($courses, 'id');
     list($insql, $inparams) = $DB->get_in_or_equal($courseids);
-    $sql = "SELECT series FROM {tool_opencast_series} WHERE courseid $insql AND ocinstanceid = ?";
+    $sql = "SELECT id, series FROM {tool_opencast_series} WHERE courseid $insql AND ocinstanceid = ?";
     $inparams[] = $ocinstanceid;
     $myseries = array_column($DB->get_records_sql($sql, $inparams), 'series');
 }
