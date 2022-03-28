@@ -1612,12 +1612,21 @@ class apibridge {
      * @throws \moodle_exception
      */
     private function update_metadata($eventid) {
-        $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
+        $video = $this->get_opencast_video($eventid);
 
-        if (!$workflow) {
+        if ($video->error === 0) {
+            // Don't start workflow for scheduled videos.
+            if ($video->video->processing_state !== "PLANNED") {
+                $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
+
+                if (!$workflow) {
+                    return true;
+                }
+                return $this->start_workflow($eventid, $workflow);
+            }
             return true;
         }
-        return $this->start_workflow($eventid, $workflow);
+        return false;
     }
 
     /**
@@ -2004,17 +2013,7 @@ class apibridge {
         $api->oc_put($resource, $params);
 
         if ($api->get_http_code() == 204) {
-            $video = $this->get_opencast_video($eventidentifier);
-
-            if ($video->error === 0) {
-                // Don't start workflow for scheduled videos.
-                if ($video->video->processing_state !== "PLANNED") {
-                    return $this->update_metadata($eventidentifier);
-                }
-                return true;
-            }
-            return false;
-
+            return $this->update_metadata($eventidentifier);
         };
         return false;
     }
