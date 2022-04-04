@@ -54,7 +54,6 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     Then "Add Opencast LTI series module to course" "link" should exist
 
-
   Scenario: When the feature is enabled and working, users who have been granted the right to view the recordings list but not to add the LTI module are not able to add the LTI module to the course
     Given the following "users" exist:
       | username | firstname | lastname | email                | idnumber |
