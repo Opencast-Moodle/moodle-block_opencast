@@ -16,19 +16,19 @@
 /**
  * Javascript to initialise the opencast block.
  *
- * @package    block_opencast
+ * @module     block_opencast
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url'],
-    function ($, ModalFactory, ModalEvents, str, url) {
+define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url', 'core/notification'],
+    function($, ModalFactory, ModalEvents, str, url, Notification) {
 
-        var initWorkflowModal = function (ocinstanceid, courseid, langstrings) {
-            if(document.getElementById('workflowsjson')) {
+        var initWorkflowModal = function(ocinstanceid, courseid, langstrings) {
+            if (document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
 
-                $('.start-workflow').on('click', function (e) {
+                $('.start-workflow').on('click', function(e) {
                     e.preventDefault();
                     var clickedVideo = $(e.currentTarget);
                     var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
@@ -51,27 +51,28 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                             '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
                             '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
                             '</iframe><input type="hidden" name="configparams" id="configparams"></form>'
-                    })
-                        .then(function (modal) {
+                    }, undefined)
+                        .then(function(modal) {
                             modal.setSaveButtonText(langstrings[5]);
                             var root = modal.getRoot();
-                            root.on(ModalEvents.save, function (e) {
+                            root.on(ModalEvents.save, function(e) {
                                 document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
                                 // Handle form submission after receiving data.
                                 e.preventDefault();
                             });
 
                             // Show description for initial value.
-                            modal.show().then(function () {
-                                $('#workflowdesc').html(workflows[$('#workflowselect').val()].description);
+                            modal.show().then(function() {
+                                const workflowselect = $('#workflowselect');
+                                $('#workflowdesc').html(workflows[workflowselect.val()].description);
                                 $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
                                     'ocinstanceid': ocinstanceid,
                                     'courseid': courseid,
-                                    'workflowid': $('#workflowselect').val()
+                                    'workflowid': workflowselect.val()
                                 }));
 
                                 // Show workflow description when selected.
-                                $('#workflowselect').change(function () {
+                                workflowselect.change(function() {
                                     let workflowid = $(this).val();
                                     $('#workflowdesc').html(workflows[workflowid].description);
                                     $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
@@ -80,14 +81,16 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                                         'workflowid': workflowid
                                     }));
                                 });
-                            });
-                        });
+                                return;
+                            }).catch(Notification.exception);
+                            return;
+                        }).catch(Notification.exception);
                 });
             }
         };
 
-        var initReportModal = function (ocinstanceid, courseid, langstrings) {
-            $('.report-problem').on('click', function (e) {
+        var initReportModal = function(ocinstanceid, courseid, langstrings) {
+            $('.report-problem').on('click', function(e) {
                 e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
                 ModalFactory.create({
@@ -105,10 +108,10 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                         '  <div class="invalid-feedback d-none" id="messageValidation">' + langstrings[3] + '</div>' +
                         '</div></form>'
                 })
-                    .then(function (modal) {
+                    .then(function(modal) {
                         modal.setSaveButtonText(langstrings[4]);
                         var root = modal.getRoot();
-                        root.on(ModalEvents.save, function (e) {
+                        root.on(ModalEvents.save, function(e) {
                             if ($('#inputMessage').val()) {
                                 $('#reportProblemForm').submit();
                             } else {
@@ -118,15 +121,15 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                             e.preventDefault();
                         });
                         modal.show();
-
-                    });
+                        return;
+                    }).catch(Notification.exception);
             });
         };
 
         /*
          * Initialise all of the modules for the opencast block.
          */
-        var init = function (courseid, ocinstanceid) {
+        var init = function(courseid, ocinstanceid) {
             // Load strings
             var strings = [
                 {
@@ -158,11 +161,12 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                     component: 'block_opencast'
                 }
             ];
-            str.get_strings(strings).then(function (results) {
+            str.get_strings(strings).then(function(results) {
                 initWorkflowModal(ocinstanceid, courseid, results);
                 initReportModal(ocinstanceid, courseid, results);
-            });
-            window.addEventListener('message', function (event) {
+                return;
+            }).catch(Notification.exception);
+            window.addEventListener('message', function(event) {
                 if (event.origin !== "null") {
                     return;
                 }
