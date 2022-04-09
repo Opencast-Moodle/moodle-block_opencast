@@ -40,7 +40,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
     And I set the following fields to these values:
-      | Enable ”Add LTI series module"            | 1               |
+      | Enable "Add LTI series module"            | 1               |
       | Default LTI series module title           | Opencast videos |
       | Preconfigured LTI tool for series modules | Opencast series |
     And I press "Save changes"
@@ -97,7 +97,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I click on "Go to overview..." "link"
     Then "View Opencast LTI series module in course" "link" should exist
     And I click on "View Opencast LTI series module in course" "link"
-    Then I should see "Opencast videos" in the "region-main" "region"
+    Then I should see "Opencast videos"
 
   Scenario: After adding the LTI module to the course, the teacher deletes the module manually and is able to add the module again in the Opencast overview.
     Given I log in as "teacher1"
