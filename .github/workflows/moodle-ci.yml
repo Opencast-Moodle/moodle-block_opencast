@@ -186,4 +186,4 @@ jobs:
         run: moodle-plugin-ci phpunit
 
       - name: Behat features
-        run: moodle-plugin-ci behat --profile chrome --auto-rerun 0
+        run: moodle-plugin-ci behat --auto-rerun 0
