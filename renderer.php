@@ -132,7 +132,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             if ($url) {
                 $addactivitylink = \html_writer::link($url, $icon,
-                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+                    array('title' => $text));
             }
         };
 
@@ -153,7 +153,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             if ($url) {
                 $addltilink = \html_writer::link($url, $icon,
-                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+                    array('title' => $text));
             }
         }
 
