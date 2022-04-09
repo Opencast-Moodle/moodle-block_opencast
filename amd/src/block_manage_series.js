@@ -171,7 +171,7 @@ function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     }]);
 }
 
-export const init = (contextid, ocinstanceid, createseries) => {
+export const init = (contextid, ocinstanceid, createseries, series, numseriesallowed) => {
 
     // Load strings
     var strings = [
@@ -193,23 +193,11 @@ export const init = (contextid, ocinstanceid, createseries) => {
     ];
     str.get_strings(strings).then(function(jsstrings) {
         // Style hidden input.
-        var seriesinput = $('#seriesinput');
-        var numseriesallowed = $('#numseriesallowed').val();
-
         var seriestable = new Tabulator("#seriestable", {
-            data: JSON.parse(seriesinput.val()),
+            data: series,
             layout: "fitColumns",
             placeholder: jsstrings[3],
             headerSort: false,
-            dataChanged: function(data) {
-                // Remove empty rows.
-                data = data.filter(value => value.series);
-                data = data.reduce((function(arr, x) {
-                    arr[x.series] = x.isdefault;
-                    return arr;
-                }), {});
-                seriesinput.val(JSON.stringify(data));
-            },
             dataLoaded: function(data) {
                 // Load series titles.
                 loadSeriesTitles(contextid, ocinstanceid, data.map(x => x.series), this);
@@ -237,7 +225,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
                                 .then(function(modal) {
                                     modal.getRoot().on(ModalEvents.hidden, function() {
                                         modal.destroy();
-                                    }).bind(this);
+                                    });
 
                                     modal.getRoot().on(ModalEvents.save, function() {
                                         Ajax.call([{
@@ -285,7 +273,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
                                 // Reset modal on every open event.
                                 modal.getRoot().on(ModalEvents.hidden, function() {
                                     modal.destroy();
-                                }).bind(this);
+                                });
 
                                 // We want to hide the submit buttons every time it is opened.
                                 modal.getRoot().on(ModalEvents.shown, function() {
@@ -365,7 +353,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[4],
-                body: getBody(contextid, ocinstanceid, '')
+                body: getBody(contextid, ocinstanceid, '', undefined)
             })
                 .then(function(modal) {
                     modal.setSaveButtonText(jsstrings[4]);
@@ -373,7 +361,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
 
                     modal.getRoot().on(ModalEvents.hidden, function() {
                         modal.destroy();
-                    }).bind(this);
+                    });
 
                     // We want to hide the submit buttons every time it is opened.
                     modal.getRoot().on(ModalEvents.shown, function() {
@@ -395,9 +383,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
 
                     modal.show();
                     return;
-                }).catch(() => {
-                    return;
-            });
+                }).catch(Notification.exception);
 
         });
 
@@ -428,7 +414,7 @@ export const init = (contextid, ocinstanceid, createseries) => {
 
                     modal.getRoot().on(ModalEvents.hidden, function() {
                         modal.destroy();
-                    }).bind(this);
+                    });
 
                     modal.getRoot().on(ModalEvents.save, function(e) {
                         e.preventDefault();

@@ -26,6 +26,7 @@ import $ from 'jquery';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
+import Notification from 'core/notification';
 
 export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocinstanceid) => {
 
@@ -129,10 +130,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                                 });
                                 modal.show();
                                 return;
-                            }).catch(() => {
-                                return;
-                            }
-                        );
+                            }).catch(Notification.exception);
                     }
                 }
             ],
@@ -254,10 +252,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                                 });
                                 modal.show();
                                 return;
-                            }).catch(() => {
-                                return;
-                            }
-                        );
+                            }).catch(Notification.exception);
                     }
                 }
             ],
@@ -379,10 +374,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                                 });
                                 modal.show();
                                 return;
-                            }).catch(() => {
-                                return;
-                            }
-                        );
+                            }).catch(Notification.exception);
                     }
                 }
             ],
@@ -392,8 +384,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
         return;
-    }).catch(() => {
-        return;
-    });
+    }).catch(Notification.exception);
 };
 
