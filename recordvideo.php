@@ -60,10 +60,10 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
-$api = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
 // Get series ID, create a new one if necessary.
-$seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
+$seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
 
 // Create lti customtool to redirect to Studio.
 $customtoolparams = [];

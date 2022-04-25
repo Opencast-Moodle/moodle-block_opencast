@@ -61,7 +61,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
-$metadata = $opencast->get_event_metadata($identifier, '?type=dublincore/episode');
+$metadata = $opencast->get_event_metadata($identifier, 'dublincore/episode');
 $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
 $updatemetadataform = new \block_opencast\local\updatemetadata_form(null,

@@ -108,7 +108,7 @@ class upload_test extends advanced_testcase {
         $this->assertCount(1, $jobs);
 
         \block_opencast\local\apibridge::set_testing(false);
-        $api = \block_opencast\local\apibridge::get_instance(1, true);
+        $apibridge = \block_opencast\local\apibridge::get_instance(1, true);
 
         $uploadhelper = new \block_opencast\local\upload_helper();
         // Prevent mtrace output, which would be considered risky.
@@ -122,7 +122,7 @@ class upload_test extends advanced_testcase {
         ob_end_clean();
 
         // Check if video was uploaded.
-        $videos = $api->get_course_videos($course->id);
+        $videos = $apibridge->get_course_videos($course->id);
 
         $this->assertEmpty($videos->error, 'There was an error: ' . $videos->error);
         $this->assertCount(1, $videos->videos);
