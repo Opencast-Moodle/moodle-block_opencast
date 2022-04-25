@@ -2020,7 +2020,7 @@ class apibridge {
 
         if ($response['code'] == 204) {
             return $this->update_metadata($eventidentifier);
-        };
+        }
         return false;
     }
 
