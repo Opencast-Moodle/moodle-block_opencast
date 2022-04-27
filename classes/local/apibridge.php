@@ -1694,7 +1694,15 @@ class apibridge {
         $workflows = array();
         $resource = '/api/workflow-definitions';
         $api = api::get_instance($this->ocinstanceid);
-        $resource .= '?filter=tag:' . $tag;
+        // Manage multi-tags.
+        $tags = array();
+        if (!empty($tag)) {
+            $tags = explode(',', $tag);
+            $tags = array_map('trim', $tags);
+        }
+        if (count($tags) == 1) {
+            $resource .= '?filter=tag:' . $tags[0];
+        }
 
         if ($withconfigurations) {
             $resource .= '&withconfigurationpanel=true';
@@ -1703,6 +1711,13 @@ class apibridge {
         $result = $api->oc_get($resource);
         if ($api->get_http_code() === 200) {
             $returnedworkflows = json_decode($result);
+
+            // Lookup and filter workflow definistions by tags.
+            if (count($tags) > 1) {
+                $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
+                    return !empty(array_intersect($wd->tags, $tags));
+                });
+            }
 
             if (!$onlynames) {
                 return $returnedworkflows;

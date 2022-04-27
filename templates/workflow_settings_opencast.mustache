@@ -48,7 +48,8 @@ If you do, the external JavaScript code from the Opencast server can access mood
     };
 
     window.addEventListener('message', function (event) {
-        if (event.origin !== "{{parent_origin}}") {
+        let parent_origin = new URL("{{parent_origin}}");
+        if (event.origin !== parent_origin.origin) {
             return;
         }
         if (event.data === "getdata") {
