@@ -1712,7 +1712,7 @@ class apibridge {
         if ($api->get_http_code() === 200) {
             $returnedworkflows = json_decode($result);
 
-            // Lookup and filter workflow definistions by tags.
+            // Lookup and filter workflow definitions by tags.
             if (count($tags) > 1) {
                 $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
                     return !empty(array_intersect($wd->tags, $tags));
