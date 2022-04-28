@@ -76,7 +76,7 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
 
     // Initializing default studio return url.
     $returnurl = '/blocks/opencast/index.php';
-    $returnquery = array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid);
+    $returnqueryarray = ["courseid={$courseid}", "ocinstanceid={$ocinstanceid}"];
     // Check if custom return url is configured.
     if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid))) {
         // Prepare the custom url.
@@ -94,33 +94,29 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
             // Put them into loop to replace the placeholders and add them into the customurldata array.
             foreach ($customquerystringdata as $data) {
                 $datastring = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $data);
-                $dataarray = explode('=', $datastring);
-                if (count($dataarray) == 2) {
-                    $customurldata[$dataarray[0]] = $dataarray[1];
-                }
+                $customurldata[] = $datastring;
             }
         }
 
         // If a custom url is defined, then we replace them with return url and query.
         if (!empty($customurl)) {
             $returnurl = $customurl;
-            $returnquery = $customurldata;
+            $returnqueryarray = $customurldata;
         }
     }
 
-    // Due to an unexpected discovered bug in Studio (Build date 2022-02-16),
-    // in which it does not accept more than one query string,
-    // we make sure that courseid come first if exists.
-    if (in_array('courseid', array_keys($returnquery))) {
-        $tempcoursedata = ['courseid' => $returnquery['courseid']];
-        unset($returnquery['courseid']);
-        $returnquery = array_merge($tempcoursedata, $returnquery);
-    }
-    // Appending studio return data, only when there is a url.
-    $studioreturnurl = new moodle_url($returnurl, $returnquery);
-    if (!empty($studioreturnurl)) {
+    // Appending studio return data, only when there is an url.
+    $moodlereturnurl = new moodle_url($returnurl);
+    if (!empty($moodlereturnurl)) {
         $studioqueryparams[] = 'return.label=' . $studioreturnbtnlabel;
-        $studioqueryparams[] = 'return.target=' . urlencode($studioreturnurl->out());
+
+        $targeturlstring = $moodlereturnurl->out();
+        // Manually appending query string params,
+        // because out() method of moodle_url class will produce a string that messes up the urlencode.
+        if (!empty($returnqueryarray)) {
+            $targeturlstring .= '?' . implode('&', $returnqueryarray);
+        }
+        $studioqueryparams[] = 'return.target=' . urlencode($targeturlstring);
     }
 }
 $studioqueryparams = array_merge(['upload.seriesId=' . $seriesid], $studioqueryparams);
