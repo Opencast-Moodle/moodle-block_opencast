@@ -124,7 +124,7 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
     }
 }
 $studioqueryparams = array_merge(['upload.seriesId=' . $seriesid], $studioqueryparams);
-$studioredirecturl = rtrim($endpoint, '/') . '/studio?' . implode('&', $studioqueryparams); 
+$studioredirecturl = rtrim($endpoint, '/') . '/studio?' . implode('&', $studioqueryparams);
 
 // Create parameters.
 $customtool = '/ltitools';
