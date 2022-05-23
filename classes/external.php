@@ -105,6 +105,19 @@ class block_opencast_external extends external_api {
         ]);
     }
 
+
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function get_default_series_parameters() {
+        return new external_function_parameters([
+            'course' => new external_value(PARAM_INT, 'course to get series for')
+        ]);
+    }
+
+
     /**
      * Submits the series form.
      *
@@ -355,6 +368,36 @@ class block_opencast_external extends external_api {
 
 
     /**
+     * Returns default series for course
+     *
+     * @param  $course Course for which the default series should be returned
+     * @return string Default series of the course
+     */
+    public static function get_default_series($course) {
+        $apibridge = apibridge::get_instance();
+        $series    = $apibridge->get_course_series($course);
+        if (($series === null) || (is_array($series) && count($series) === 0)) {
+            $apibridge->create_course_series($course);
+            $series = $apibridge->get_course_series($course);
+        }
+
+        $default = array_values(
+            array_filter(
+                $series,
+                function ($serie) {
+                    return $serie->isdefault == 1;
+                }
+            )
+        )[0];
+
+        return [
+            'course' => $course,
+            'series' => $series[$default->id]->series,
+        ];
+    }
+
+
+    /**
      * Returns description of method result value
      *
      * @return external_description
@@ -397,5 +440,17 @@ class block_opencast_external extends external_api {
      */
     public static function set_default_series_returns() {
         return new external_value(PARAM_BOOL, 'True if successful');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function get_default_series_returns() {
+        return new external_single_structure([
+            'course' => new external_value(PARAM_INT, 'course for which the default series should be returned'),
+            'series' => new external_value(PARAM_TEXT, 'default series for this course')
+        ]);
     }
 }

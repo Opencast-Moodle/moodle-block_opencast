@@ -69,5 +69,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'block/opencast:manageseriesforcourse'
+    ),
+    'block_opencast_get_default_series' => array(
+        'classname' => 'block_opencast_external',
+        'methodname' => 'get_default_series',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Get default opencast series for course and create if it does not exist',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:manageseriesforcourse'
     )
 );
