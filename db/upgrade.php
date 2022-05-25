@@ -751,5 +751,11 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022022200, 'opencast');
     }
 
+    if ($oldversion < 2022052500) {
+        // Update workflow_tag configs to workflow_tags.
+        $DB->execute("UPDATE {config_plugins} SET name = REPLACE(name, 'workflow_tag', 'workflow_tags') " .
+            "WHERE plugin='block_opencast' AND name LIKE ('workflow_tag%')");
+    }
+
     return true;
 }

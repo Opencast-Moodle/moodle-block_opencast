@@ -22,7 +22,7 @@ Feature: Start workflows for a video as Teacher
       | group_name_1        | Moodle_course_[COURSEID]                                      | block_opencast |
       | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
       | enablechunkupload_1 | 0                                                             | block_opencast |
-      | workflow_tag_1      | archive                                                       | block_opencast |
+      | workflow_tags_1     | archive                                                       | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"

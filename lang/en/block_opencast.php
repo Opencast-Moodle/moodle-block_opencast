@@ -684,8 +684,8 @@ $string['workflow_started_success'] = 'Workflow successfully started.';
 $string['workflow_started_failure'] = 'Starting workflow failed.';
 $string['workflow_invalid'] = 'This workflow does not exist or is not enabled.';
 $string['workflow_opencast_invalid'] = 'This workflow does not exist in Opencast or is restricted. Please contact the administrator.';
-$string['workflowtag_setting'] = 'Workflow tag';
-$string['workflowtag_settingdesc'] = 'Tag for Opencast workflows that can be configured by the admin and manually started by teachers. Multiple tags can be defined using comma-separated list of tags.';
+$string['workflowtags_setting'] = 'Workflow tags';
+$string['workflowtags_settingdesc'] = 'Comma separated list of tags for Opencast workflows that can be configured by the admin and manually started by teachers.';
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';

@@ -56,7 +56,7 @@ if ($seriesid->identifier != $video->video->is_part_of) {
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
 // Apply multiple tags.
 $workflowtags = array();
-$workflowtagsconfig = get_config('block_opencast', 'workflow_tag_' . $ocinstanceid);
+$workflowtagsconfig = get_config('block_opencast', 'workflow_tags_' . $ocinstanceid);
 if (!empty($workflowtagsconfig)) {
     $workflowtags = explode(',', $workflowtagsconfig);
     $workflowtags = array_map('trim', $workflowtags);

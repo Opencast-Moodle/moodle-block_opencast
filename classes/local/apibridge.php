@@ -1681,8 +1681,8 @@ class apibridge {
     }
 
     /**
-     * Retrieves all workflows from the OC system and parses them to be easily processable.
-     * @param string $tag if not empty the workflows are filter according to this tag.
+     * Retrieves all workflows from the OC system and parses them to be easily processable. Multi-tags could be defined.
+     * @param array $tags if not empty the workflows are filter according to the list of tags.
      * @param bool $onlynames If only the names of the workflows should be returned
      * @param false $withconfigurations If true, the configurations are included
      * @return array of OC workflows. The keys represent the ID of the workflow,
@@ -1690,16 +1690,17 @@ class apibridge {
      * the workflows details are also included.
      * @throws \moodle_exception
      */
-    public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
+    public function get_existing_workflows($tags = array(), $onlynames = true, $withconfigurations = false) {
         $workflows = array();
         $resource = '/api/workflow-definitions';
         $api = api::get_instance($this->ocinstanceid);
-        // Manage multi-tags.
-        $tags = array();
-        if (!empty($tag)) {
-            $tags = explode(',', $tag);
+
+        // Make sure that the tags are trimmed.
+        if (!empty($tags)) {
             $tags = array_map('trim', $tags);
         }
+
+        // If only one tag is defined, we pass that as a filter to the API call.
         if (count($tags) == 1) {
             $resource .= '?filter=tag:' . $tags[0];
         }
@@ -1768,7 +1769,7 @@ class apibridge {
      */
     public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
         // Get the workflow list.
-        $workflows = $this->get_existing_workflows($tag);
+        $workflows = $this->get_existing_workflows(array($tag));
 
         // If requested, add the 'no workflow' item to the list of workflows.
         if ($withnoworkflow == true) {

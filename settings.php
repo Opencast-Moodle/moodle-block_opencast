@@ -678,9 +678,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/workflow_tag_' . $instance->id,
-                    get_string('workflowtag_setting', 'block_opencast'),
-                    get_string('workflowtag_settingdesc', 'block_opencast'), null));
+                new admin_setting_configtext('block_opencast/workflow_tags_' . $instance->id,
+                    get_string('workflowtags_setting', 'block_opencast'),
+                    get_string('workflowtags_settingdesc', 'block_opencast'), null));
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/support_email_' . $instance->id,
