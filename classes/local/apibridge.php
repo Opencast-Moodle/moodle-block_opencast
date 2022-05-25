@@ -1710,7 +1710,7 @@ class apibridge {
         }
 
         $result = $api->oc_get($resource);
-        if ($api->get_http_code() === 200) {
+        if ($api->get_http_code() == 200) {
             $returnedworkflows = json_decode($result);
 
             // Lookup and filter workflow definitions by tags.
@@ -1769,7 +1769,11 @@ class apibridge {
      */
     public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
         // Get the workflow list.
-        $workflows = $this->get_existing_workflows(array($tag));
+        $tags = array();
+        if (!empty($tag)) {
+            $tags[] = $tag;
+        }
+        $workflows = $this->get_existing_workflows($tags);
 
         // If requested, add the 'no workflow' item to the list of workflows.
         if ($withnoworkflow == true) {
