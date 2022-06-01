@@ -76,28 +76,23 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
 
     // Initializing default studio return url.
     $returnurl = '/blocks/opencast/index.php';
-    $returnqueryarray = ["courseid={$courseid}", "ocinstanceid={$ocinstanceid}"];
+    $returnqueryarray = ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid];
     // Check if custom return url is configured.
     if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid))) {
         // Prepare the custom url.
         $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid);
-        // Slipt it into parts, to extract endpoint and query strings.
-        $customreturnurlarray = explode('?', $customreturnurl);
-        $customurl = $customreturnurlarray[0];
-        $customquerystring = count($customreturnurlarray) > 1 ? $customreturnurlarray[1] : null;
-
+        // Replace the placeholders, if any.
+        $customreturnurl = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $customreturnurl);
+        // Parse URL.
+        $parsedurl = parse_url($customreturnurl);
+        // Prepare custom URL.
+        $customurl = isset($parsedurl['path']) ? $parsedurl['path'] : null;
+        $customquerystring = isset($parsedurl['query']) ? $parsedurl['query'] : null;
         $customurldata = [];
         // If there is any query string.
         if (!empty($customquerystring)) {
-            // Split them.
-            $customquerystringdata = explode('&', $customquerystring);
-            // Put them into loop to replace the placeholders and add them into the customurldata array.
-            foreach ($customquerystringdata as $data) {
-                $datastring = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $data);
-                $customurldata[] = $datastring;
-            }
+            parse_str($parsedurl['query'], $customurldata);
         }
-
         // If a custom url is defined, then we replace them with return url and query.
         if (!empty($customurl)) {
             $returnurl = $customurl;
@@ -110,12 +105,7 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
     if (!empty($moodlereturnurl)) {
         $studioqueryparams[] = 'return.label=' . $studioreturnbtnlabel;
 
-        $targeturlstring = $moodlereturnurl->out();
-        // Manually appending query string params,
-        // because out() method of moodle_url class will produce a string that messes up the urlencode.
-        if (!empty($returnqueryarray)) {
-            $targeturlstring .= '?' . implode('&', $returnqueryarray);
-        }
+        $targeturlstring = $moodlereturnurl->out(false, $returnqueryarray);
         $studioqueryparams[] = 'return.target=' . urlencode($targeturlstring);
     }
 }
