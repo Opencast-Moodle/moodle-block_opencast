@@ -736,7 +736,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             } else {
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
-                $url = '/admin/settings.php?section=modsettinglti';
+                $url = $CFG->wwwroot . '/admin/settings.php?section=modsettinglti';
                 $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
                 $description = get_string('addlti_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(
@@ -810,7 +810,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             } else {
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
-                $url = '/admin/settings.php?section=modsettinglti';
+                $url = $CFG->wwwroot . '/admin/settings.php?section=modsettinglti';
                 $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
                 $description = get_string('addltiepisode_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(
