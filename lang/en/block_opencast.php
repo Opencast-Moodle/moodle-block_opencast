@@ -637,6 +637,8 @@ $string['uploadfileextensions'] = 'Allowed file extensions';
 $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
 $string['uploadjobssaved'] = 'Video upload successful.<br />The video is scheduled to be transferred to Opencast now. You do not need to wait on this page for this transfer to finish.';
+$string['uploadtimeout'] = 'Moodle to Opencast upload timeout';
+$string['uploadtimeoutdesc'] = 'Configure the time in seconds a single video upload may take during the background uploading task.';
 $string['uploadqueuetoopencast'] = 'Videos scheduled to be transferred to Opencast';
 $string['uploadqueuetoopencastexplanation'] = 'In this section, you see the videos which have been uploaded to this Moodle course by you or some other user. These videos are scheduled to be transferred to Opencast now.<br />The transfer is happening automatically on the Moodle server in the background. You do not need to wait on this page for this transfer to finish.';
 $string['uploadrecordvideos'] = 'Upload or record videos';

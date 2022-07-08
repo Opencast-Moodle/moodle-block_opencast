@@ -266,6 +266,7 @@ class apibridge {
      */
     public function ingest($mediapackage) {
         $api = $this->get_ingest_api();
+        $api->set_timeout(1000 * get_config('block_opencast', 'uploadtimeout'));
         $workflow = $api->oc_post('/ingest/' . get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid), array(
             'mediaPackage' => $mediapackage));
 
@@ -1133,6 +1134,7 @@ class apibridge {
 
         $api = api::get_instance($this->ocinstanceid);
 
+        $api->set_timeout(1000 * get_config('block_opencast', 'uploadtimeout'));
         $result = $api->oc_post('/api/events', $params);
 
         if ($api->get_http_code() >= 400) {
