@@ -63,8 +63,8 @@ $api = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 // Get series ID, create a new one if necessary.
 $seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
 
-// Create an empty array to store endpoint params to redirect to Studio.
-$studioqueryparams = [];
+// Create lti customtool to redirect to Studio.
+$customtoolparams = [];
 // Check if Studio return button is enabled.
 if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanceid)) {
     // Initializing default label for studio return button.
@@ -75,28 +75,34 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
     }
 
     // Initializing default studio return url.
-    $returnurl = '/blocks/opencast/index.php';
-    $returnqueryarray = ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid];
+    $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
+        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
     // Check if custom return url is configured.
     if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid))) {
         // Prepare the custom url.
         $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $ocinstanceid);
-        // Replace the placeholders, if any.
-        $customreturnurl = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $customreturnurl);
-        // Parse URL.
-        $parsedurl = parse_url($customreturnurl);
-        // Prepare custom URL.
-        $customurl = isset($parsedurl['path']) ? $parsedurl['path'] : null;
-        $customquerystring = isset($parsedurl['query']) ? $parsedurl['query'] : null;
+        // Slipt it into parts, to extract endpoint and query strings.
+        $customreturnurlarray = explode('?', $customreturnurl);
+        $customurl = $customreturnurlarray[0];
+        $customquerystring = count($customreturnurlarray) > 1 ? $customreturnurlarray[1] : null;
+
         $customurldata = [];
         // If there is any query string.
         if (!empty($customquerystring)) {
-            parse_str($parsedurl['query'], $customurldata);
+            // Split them.
+            $customquerystringdata = explode('&', $customquerystring);
+            // Put them into loop to replace the placeholders and add them into the customurldata array.
+            foreach ($customquerystringdata as $data) {
+                $datastring = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $ocinstanceid], $data);
+                $dataarray = explode('=', $datastring);
+                if (count($dataarray) == 2) {
+                    $customurldata[$dataarray[0]] = $dataarray[1];
+                }
+            }
         }
-        // If a custom url is defined, then we replace them with return url and query.
+
         if (!empty($customurl)) {
-            $returnurl = $customurl;
-            $returnqueryarray = $customurldata;
+            $studioreturnurl = new moodle_url($customurl, $customurldata);
         }
     }
 
@@ -106,8 +112,9 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
         $customtoolparams[] = 'return.target=' . urlencode($studioreturnurl->out(false));
     }
 }
-$studioqueryparams = array_merge(['upload.seriesId=' . $seriesid], $studioqueryparams);
-$studioredirecturl = rtrim($endpoint, '/') . '/studio?' . implode('&', $studioqueryparams);
+$customtoolparams[] = 'upload.seriesId=' . $seriesid;
+$customtool = '/studio?' . implode('&', $customtoolparams);
+// Create parameters.
 
 $consumerkey = $api->get_lti_consumerkey();
 $consumersecret = $api->get_lti_consumersecret();
@@ -119,5 +126,5 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
 echo $renderer->render_lti_form($ltiendpoint, $params);
 
-$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init', [$studioredirecturl]);
+$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
 echo $OUTPUT->footer();
