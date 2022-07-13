@@ -21,39 +21,13 @@
  * @copyright  2020 Farbod Zamani (zamani@elan-ev.de)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+ define(['jquery'], function($) {
 
     /*
     * Submits lti form
     */
-    var init = function(withredirecturl = '') {
-        if (withredirecturl) {
-            $('#ltiLaunchForm').submit(function(e) {
-                e.preventDefault();
-                var ocurl = decodeURIComponent($(this).attr("action"));
-                var data = $(`#ltiLaunchForm`).serialize();
-                $.ajax({
-                    url: ocurl,
-                    crossDomain: true,
-                    type: 'POST',
-                    xhrFields: {withCredentials: true},
-                    data: data,
-                    success: () => {
-                        window.location = withredirecturl;
-                    },
-                    error: function (request, status, error) {
-                        var errorMessage = request.responseText ? request.responseText :
-                            'Most likely "Cross-Origin Request Blocked" happend,' +
-                            ' due to the fact that the opencast server is unable to accept the LTI call from moodle server!';
-                        console.log('Opencast LTI Launch (FAILED): ' + errorMessage);
-                    },
-                    async: false
-                });
-            });
-            $('#ltiLaunchForm').submit();
-        } else {
-            $('#ltiLaunchForm').submit();
-        }
+    var init = function() {
+        $('#ltiLaunchForm').submit();
     };
     return {
         init: init
