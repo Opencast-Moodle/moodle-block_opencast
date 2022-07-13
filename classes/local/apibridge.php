@@ -2679,4 +2679,30 @@ class apibridge {
         // Finally, we return boolean if series' new acls are in place.
         return ($api->get_http_code() == 200);
     }
+
+    /**
+     * Returns lti consumer key base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumerkey
+     */
+    public function get_lti_consumerkey() {
+        $configname = 'lticonsumerkey';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
+    }
+
+    /**
+     * Returns lti consumer secret base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumersecret
+     */
+    public function get_lti_consumersecret() {
+        $configname = 'lticonsumersecret';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
+    }
 }
