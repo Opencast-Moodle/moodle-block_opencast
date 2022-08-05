@@ -10,13 +10,13 @@ jobs:
     strategy:
       matrix:
         php: ['7.4']
-        moodle-branch: ['master'] # Replace with MOODLE_400_STABLE once existent
-        database: ['mariadb']
+        moodle-branch: ['MOODLE_400_STABLE']
+        database: ['pgsql']
         opencast: ['11.5']
 
     steps:
-      - name: Start MariaDB
-        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10
+      - name: Start PostgreSQL
+        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:14
 
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -111,7 +111,7 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.4']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'master']
+        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'MOODLE_400_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['11.5']
 
@@ -122,7 +122,7 @@ jobs:
 
       - name: Start PostgreSQL
         if: matrix.database == 'pgsql'
-        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:10
+        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:14
 
       - name: Check out opencast-docker
         uses: actions/checkout@v2
