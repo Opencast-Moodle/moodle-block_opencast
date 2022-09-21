@@ -470,7 +470,8 @@ class block_opencast_renderer extends plugin_renderer_base {
             $html .= $this->output->heading($ocinstance->name);
         }
 
-        if (has_capability('block/opencast:addvideo', $coursecontext)) {
+         global $SITE;
+         if (has_capability('block/opencast:addvideo', $coursecontext) && $courseid !== $SITE->id) {
             $addvideourl = new moodle_url('/blocks/opencast/addvideo.php',
                 array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
