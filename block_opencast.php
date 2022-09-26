@@ -42,7 +42,7 @@ class block_opencast extends block_base {
      * Block can appear on the dashboard and course pages.
      */
     public function applicable_formats() {
-        return array('all' => false, 'course' => true, 'my' => true);
+        return array('all' => false, 'course-view' => true, 'my' => true);
     }
 
     /**

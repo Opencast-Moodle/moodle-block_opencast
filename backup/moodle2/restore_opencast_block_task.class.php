@@ -66,7 +66,8 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_settings() {
         $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
-            if (!file_exists($this->get_taskbasepath() . '/opencast_' . $ocinstance->id . '.xml')) {
+            if (!file_exists($this->get_taskbasepath() . '/opencast_' . $ocinstance->id . '.xml') ||
+                $this->plan->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 continue;
             }
 
