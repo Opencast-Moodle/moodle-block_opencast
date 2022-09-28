@@ -54,7 +54,7 @@ if ($seriesid->identifier != $video->video->is_part_of) {
 }
 
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
-if (!$apiworkflow or !in_array(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), $apiworkflow->tags)) {
+if (!$apiworkflow || !in_array(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), $apiworkflow->tags)) {
     redirect($redirecturl,
         get_string('workflow_opencast_invalid', 'block_opencast'),
         null,
