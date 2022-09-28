@@ -70,7 +70,7 @@ class lti_helper {
         $params['lti_message_type'] = 'basic-lti-launch-request';
         $urlparts = parse_url($CFG->wwwroot);
         $params['tool_consumer_instance_guid'] = $urlparts['host'];
-        $params['custom_tool'] = $customtool;
+        $params['custom_tool'] = urlencode($customtool);
 
         // User data.
         $params['user_id'] = $USER->id;
