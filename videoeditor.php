@@ -67,13 +67,17 @@ if (strpos($editorbaseurl, 'http') !== 0) {
     $editorbaseurl = 'http://' . $editorbaseurl;
 }
 
-if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
+$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+$consumerkey = $opencast->get_lti_consumerkey();
+$consumersecret = $opencast->get_lti_consumersecret();
+
+if (empty($consumerkey)) {
     redirect($editorbaseurl . $editorendpoint);
 }
 
 $ltiendpoint = rtrim($editorbaseurl, '/') . '/lti';
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 $video = $opencast->get_opencast_video($identifier);
 
 // Validate the video and make sure the video can be edited by the editor (double check).
@@ -83,8 +87,6 @@ if ((empty($editorbaseurl) || empty($editorendpoint) ||
 }
 
 // Create parameters.
-$consumerkey = get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid);
-$consumersecret = get_config('tool_opencast', 'lticonsumersecret_' . $ocinstanceid);
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $editorendpoint);
 
 $renderer = $PAGE->get_renderer('block_opencast');

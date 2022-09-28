@@ -18,10 +18,10 @@
  *
  * @module     block/opencast
  * @package    block_opencast
- * * @copyright  2020 Farbod Zamani (zamani@elan-ev.de)
+ * @copyright  2020 Farbod Zamani (zamani@elan-ev.de)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function($) {
+ define(['jquery'], function($) {
 
     /*
     * Submits lti form

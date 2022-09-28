@@ -55,15 +55,18 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $url = $endpoint . '/play/' . $identifier;
 
-if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
+$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+$consumerkey = $opencast->get_lti_consumerkey();
+$consumersecret = $opencast->get_lti_consumersecret();
+
+if (empty($consumerkey)) {
     redirect($url);
 }
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
 // Create parameters.
-$consumerkey = get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid);
-$consumersecret = get_config('tool_opencast', 'lticonsumersecret_' . $ocinstanceid);
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $url);
 
 $renderer = $PAGE->get_renderer('block_opencast');
