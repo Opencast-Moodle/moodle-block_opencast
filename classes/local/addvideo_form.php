@@ -131,7 +131,7 @@ class addvideo_form extends \moodleform {
                 }
             }
             if ($field->param_json) {
-                $param = $field->datatype == 'static' ? $field->param_json : (array)json_decode($field->param_json);
+                $param = $field->datatype == 'static' ? $field->param_json : json_decode($field->param_json, true);
             }
             if ($field->datatype == 'autocomplete') {
                 $attributes = [
@@ -150,6 +150,13 @@ class addvideo_form extends \moodleform {
                     $param = array_merge($param,
                         autocomplete_suggestion_helper::get_suggestions_for_creator_and_contributor($ocinstanceid));
                 }
+            }
+
+            // Apply format_string to each value of select option, to use Multi-Language filters (if any).
+            if ($field->datatype == 'select') {
+                array_walk($param, function (&$item) {
+                    $item = format_string($item);
+                });
             }
 
             // Get the created element back from addElement function, in order to further use its attrs.

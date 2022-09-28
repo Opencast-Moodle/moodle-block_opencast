@@ -1873,7 +1873,7 @@ class apibridge {
         foreach ($this->get_course_series($courseid) as $series) {
             $result = $this->get_series_videos($series->series);
 
-            if ($result and $result->error == 0) {
+            if ($result && $result->error == 0) {
                 $videosforbackup = [];
                 foreach ($result->videos as $video) {
                     if (in_array($video->processing_state, $processingstates)) {
