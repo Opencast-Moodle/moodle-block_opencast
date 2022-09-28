@@ -206,7 +206,7 @@ jobs:
 
       - name: Start PostgreSQL
         if: matrix.database == 'pgsql' && matrix.moodle-branch == 'master'
-        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:10
+        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:12
 
       - name: Check out opencast-docker
         uses: actions/checkout@v2
