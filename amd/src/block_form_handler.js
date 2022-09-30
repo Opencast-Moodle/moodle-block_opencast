@@ -16,12 +16,12 @@
 /**
  * Javascript to initialise the opencast block.
  *
- * @package    block_opencast
+ * @module     block_opencast
  * @copyright  2019 Farbod Zamani (zamani@elan-ev.de)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function ($) {
+define(['jquery'], function($) {
     /**
      * Instantiate the window variable in order to work with Intervals
      *
@@ -48,7 +48,7 @@ define(['jquery'], function ($) {
      *
      */
     function autocompletePrettifier() {
-        $('div[data-fieldtype="autocomplete"]').each(function (i, elm) {
+        $('div[data-fieldtype="autocomplete"]').each(function(i, elm) {
             var input = $(elm).find('input');
             if (!input.hasClass('form-control')) {
                 input.addClass('form-control');
@@ -57,18 +57,20 @@ define(['jquery'], function ($) {
     }
 
     /**
-     * Sets default title if it is empty.
+     * Sets default title if it is empty. If the filename contains one or more dots, everything after the last dot
+     * is treated as the fileextension and removed.
      *
+     * @param {string} filename the filename.
      */
-    function setDefautlTitle(filename) {
+    function setDefaultTitle(filename) {
         var title = $('input[name="title"]').val();
         if (!title && filename) {
             // Removing the extension from the filename.
-            var filename = filename.split('.');
-            if (Array.isArray(filename)) {
-                filename.pop();
+            let filenameArray = filename.split('.');
+            if (filenameArray.length > 1) {
+                filenameArray.pop();
             }
-            filename = filename.length > 1 ? filename.join('.') : filename[0];
+            filename = filenameArray.join('.');
             $('input[name="title"]').val(filename);
         }
     }
@@ -76,6 +78,8 @@ define(['jquery'], function ($) {
     /**
      * Extracts the filename from filelist.
      *
+     * @param {jQuery} filelist The filename
+     * @returns {string} The filename
      */
     function getFilenameFromFilelist(filelist) {
         var filename = '';
@@ -90,41 +94,41 @@ define(['jquery'], function ($) {
      * Initialise all of the modules for the opencast block.
      *
      */
-    var init = function () {
+    var init = function() {
         // Toggle visibility of terms of use
         $('#termsofuse').hide();
-        $('#termsofuse_toggle').on('click', function (e) {
+        $('#termsofuse_toggle').on('click', function(e) {
             $('#termsofuse').toggle();
             e.preventDefault();
         });
 
         // Chunkupload.
-        $('.local_chunkupload input[type="file"]').on('change', function (e) {
-            setTimeout(function () {
+        $('.local_chunkupload input[type="file"]').on('change', function(e) {
+            setTimeout(function() {
                 var span = $(e.currentTarget).siblings('label.chunkupload-label').find('.chunkupload-filename');
                 if (span.length) {
-                    setDefautlTitle($(span[0]).text());
+                    setDefaultTitle($(span[0]).text());
                 }
             }, 500);
         });
 
-        $('.filepickerhidden').on('change', function (e) {
-            setTimeout(function () {
+        $('.filepickerhidden').on('change', function(e) {
+            setTimeout(function() {
                 var filelist = $(e.currentTarget).parent().find('.filepicker-filelist');
                 var filename = getFilenameFromFilelist(filelist);
-                setDefautlTitle(filename);
+                setDefaultTitle(filename);
             }, 500);
         });
 
-        $('.filepicker-filelist').on('drop', function (e) {
+        $('.filepicker-filelist').on('drop', function(e) {
             var filelist = e.currentTarget;
-            var video_identifier = $(filelist).parent().siblings('.filepickerhidden').attr('name');
+            var videoIdentifier = $(filelist).parent().siblings('.filepickerhidden').attr('name');
 
             $('[name="submitbutton"]').attr('disabled', 'disabled');
 
-            if (video_identifier == 'video_presenter') {
+            if (videoIdentifier == 'video_presenter') {
                 $(filelist).addClass('presenter-uploading');
-                window.presenterIntervalHandle = setInterval(function () {
+                window.presenterIntervalHandle = setInterval(function() {
                     window.presenterRun = true;
                     if (!$('.presenter-uploading').hasClass('dndupload-inprogress')) {
                         window.presenterRun = false;
@@ -133,7 +137,7 @@ define(['jquery'], function ($) {
                 }, 500);
             } else {
                 $(filelist).addClass('presentation-uploading');
-                window.presenterIntervalHandle = setInterval(function () {
+                window.presenterIntervalHandle = setInterval(function() {
                     window.presentationRun = true;
                     if (!$('.presentation-uploading').hasClass('dndupload-inprogress')) {
                         window.presentationRun = false;
@@ -142,16 +146,16 @@ define(['jquery'], function ($) {
                 }, 500);
             }
 
-            setTimeout(function () {
+            setTimeout(function() {
                 var filename = getFilenameFromFilelist(filelist);
-                setDefautlTitle(filename);
+                setDefaultTitle(filename);
             }, 500);
         });
 
         // Ensures that autocomplete fields are loaded properly after 1 sec!
-        setTimeout(function () {
+        setTimeout(function() {
             autocompletePrettifier();
-            $('.moreless-actions').on('click', function () { //
+            $('.moreless-actions').on('click', function() { //
                 autocompletePrettifier();
             });
         }, 1000);

@@ -39,5 +39,3 @@ Feature: Report problems
     And I set the field "inputMessage" to "This is a message."
     And I click on "Report problem" "button"
     Then I should see "The email was successfully sent to the support team"
-
-

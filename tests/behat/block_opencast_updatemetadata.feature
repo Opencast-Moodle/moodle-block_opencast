@@ -43,4 +43,3 @@ Feature: Update video metadata as Teacher
     When I set the field "Title" to "New title"
     And I click on "Save changes" "button"
     Then I should see "Metadata is saved"
-

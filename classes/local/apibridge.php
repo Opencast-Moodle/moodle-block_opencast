@@ -332,7 +332,7 @@ class apibridge {
         }
 
         usort($allvideos, function ($a, $b) {
-            return $a->start < $b->start;
+            return (int)$a->start - (int)$b->start;
         });
 
         $result->count = count($allvideos);

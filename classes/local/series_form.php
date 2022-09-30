@@ -113,7 +113,7 @@ class series_form extends \moodleform {
                 });
             }
 
-            $param['class'] = 'ignoredirty';
+            $attributes['class'] = 'ignoredirty';
             // Get the created element back from addElement function, in order to further use its attrs.
             $element = $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);

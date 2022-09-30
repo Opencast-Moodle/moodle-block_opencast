@@ -40,7 +40,15 @@ $createseries = optional_param('createseries', 0, PARAM_INT);
 $baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
-$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, $ocinstanceid, $createseries]);
+$series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+// Transform isdefault to int.
+array_walk($series, function ($item) {
+    $item->isdefault = intval($item->isdefault);
+});
+$series = array_values($series);
+$numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+
+$PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init', [$coursecontext->id, $ocinstanceid, $createseries, $series, $numseriesallowed]);
 $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
 $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
 
