@@ -24,8 +24,6 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
 
-use block_opencast\local\upload_helper;
-
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE;
 
 require_once($CFG->dirroot . '/repository/lib.php');
@@ -111,15 +109,15 @@ if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $ocinstanc
     // Appending studio return data, only when there is a url.
     if (!empty($studioreturnurl)) {
         $customtoolparams[] = 'return.label=' . urlencode($studioreturnbtnlabel);
-        $customtoolparams[] = 'return.target=' . urlencode($studioreturnurl->out());
+        $customtoolparams[] = 'return.target=' . urlencode($studioreturnurl->out(false));
     }
 }
 $customtoolparams[] = 'upload.seriesId=' . $seriesid;
 $customtool = '/studio?' . implode('&', $customtoolparams);
 // Create parameters.
 
-$consumerkey = get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid);
-$consumersecret = get_config('tool_opencast', 'lticonsumersecret_' . $ocinstanceid);
+$consumerkey = $api->get_lti_consumerkey();
+$consumersecret = $api->get_lti_consumersecret();
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
 
 $renderer = $PAGE->get_renderer('block_opencast');

@@ -132,7 +132,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             if ($url) {
                 $addactivitylink = \html_writer::link($url, $icon,
-                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+                    array('title' => $text));
             }
         };
 
@@ -153,7 +153,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             if ($url) {
                 $addltilink = \html_writer::link($url, $icon,
-                    array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $text));
+                    array('title' => $text));
             }
         }
 
@@ -484,7 +484,8 @@ class block_opencast_renderer extends plugin_renderer_base {
                     $target = '_blank';
                 }
                 // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
-                if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstance->id))) {
+                $apibridge = apibridge::get_instance($ocinstance->id);
+                if (empty($apibridge->get_lti_consumerkey())) {
                     if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
                         $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstance->id);
                     } else {
@@ -495,7 +496,6 @@ class block_opencast_renderer extends plugin_renderer_base {
                         $endpoint = 'http://' . $endpoint;
                     }
 
-                    $apibridge = apibridge::get_instance($ocinstance->id);
                     $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
                     $recordvideobutton = $this->output->action_link($url, get_string('recordvideo', 'block_opencast'),
                         null, array('class' => 'btn btn-secondary', 'target' => $target));
@@ -1182,15 +1182,9 @@ class block_opencast_renderer extends plugin_renderer_base {
     public function render_manage_series_table($ocinstanceid, $courseid) {
         global $DB;
         $series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
-        // Transform isdefault to int.
-        array_walk($series, function ($item) {
-            $item->isdefault = intval($item->isdefault);
-        });
 
         $context = new stdClass();
-        $context->series = json_encode(array_values($series));
         $context->addseriesallowed = count($series) < get_config('block_opencast', 'maxseries_' . $ocinstanceid);
-        $context->numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
 
         return $this->render_from_template('block_opencast/series_table', $context);
     }
