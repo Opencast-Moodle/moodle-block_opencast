@@ -461,7 +461,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $rendername
      */
     public function render_block_content($courseid, $videodata, $ocinstance, $rendername) {
-        global $USER;
+        global $USER, $SITE;
         $html = '';
 
         $coursecontext = context_course::instance($courseid);
@@ -470,7 +470,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             $html .= $this->output->heading($ocinstance->name);
         }
 
-        if (has_capability('block/opencast:addvideo', $coursecontext)) {
+        if (has_capability('block/opencast:addvideo', $coursecontext)  && $SITE->id != $courseid) {
             $addvideourl = new moodle_url('/blocks/opencast/addvideo.php',
                 array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
@@ -536,6 +536,11 @@ class block_opencast_renderer extends plugin_renderer_base {
             $moretext = get_string('morevideos', 'block_opencast');
         }
         $url = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstance->id));
+
+        // In admin page, we redirect to the series overview page to manage series from there.
+        if ($SITE->id == $courseid) {
+            $url = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstance->id));
+        }
         $link = html_writer::link($url, $moretext);
         $html .= html_writer::div($link, 'opencast-more-wrap');
 

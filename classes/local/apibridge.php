@@ -666,6 +666,10 @@ class apibridge {
      */
     public function get_series_by_identifier($seriesid, bool $withacl = false) {
 
+        if (empty($seriesid)) {
+            return null;
+        }
+
         $url = '/api/series/' . $seriesid;
 
         if ($withacl) {
@@ -770,7 +774,7 @@ class apibridge {
         global $SITE;
 
         // Skip course related placeholders if courseid is site id.
-        if ($courseid === $SITE->id) {
+        if (intval($courseid) === intval($SITE->id)) {
             if (strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
                 strpos($name, '[COURSEGROUPID]') !== false) {
