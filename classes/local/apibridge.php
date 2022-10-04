@@ -1704,13 +1704,18 @@ class apibridge {
             $tags = array_map('trim', $tags);
         }
 
+        $queryparams = [];
         // If only one tag is defined, we pass that as a filter to the API call.
         if (count($tags) == 1) {
-            $resource .= '?filter=tag:' . $tags[0];
+            $queryparams[] = 'filter=tag:' . $tags[0];
         }
 
         if ($withconfigurations) {
-            $resource .= '&withconfigurationpanel=true';
+            $queryparams[] = 'withconfigurationpanel=true';
+        }
+
+        if (!empty($queryparams)) {
+            $resource .= '?' . implode('&', $queryparams);
         }
 
         $result = $api->oc_get($resource);
