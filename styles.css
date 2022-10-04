@@ -84,7 +84,7 @@
 
 .inline-action-menu .menubar,
 .download-action-menu .menubar {
-    display: inline-flex !important;
+    display: inline-flex !important; /* stylelint-disable-line */
 }
 
 .download-action-menu .dropdown-menu i {

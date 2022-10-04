@@ -16,7 +16,7 @@
 /**
  * Javascript to initialise the opencast block settings.
  *
- * @package    block_opencast
+ * @module     block/opencast
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +26,7 @@ import $ from 'jquery';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
+import Notification from 'core/notification';
 
 export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocinstanceid) => {
 
@@ -47,14 +48,14 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
         {key: 'heading_defaultable', component: 'block_opencast'},
         {key: 'delete', component: 'moodle'}
     ];
-    str.get_strings(strings).then(function (jsstrings) {
+    str.get_strings(strings).then(function(jsstrings) {
         // Style hidden input.
         var rolesinput = $('#' + rolesinputid);
         rolesinput.parent().hide();
         rolesinput.parent().next().hide(); // Default value.
 
         // Don't create tables if they are not visible.
-        if(!rolesinput.length) {
+        if (!rolesinput.length) {
             return;
         }
 
@@ -69,13 +70,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
         var rolestable = new Tabulator("#rolestable_" + ocinstanceid, {
             data: JSON.parse(rolesinput.val()),
             layout: "fitColumns",
-            dataChanged: function (data) {
+            dataChanged: function(data) {
                 data = data.filter(value => value.rolename);
                 rolesinput.val(JSON.stringify(data));
             },
             columns: [
                 {
-                    title: jsstrings[0], field: "rolename", editor: "input", widthGrow: 4, cellEdited: function (cell) {
+                    title: jsstrings[0], field: "rolename", editor: "input", widthGrow: 4, cellEdited: function(cell) {
                         if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
                             cell.getData().rolename.includes('[USERNAME_UP]')) {
                             // Tick permanent checkbox.
@@ -92,11 +93,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     field: "permanent",
                     hozAlign: "center",
                     widthGrow: 0,
-                    formatter: function (cell) {
+                    formatter: function(cell) {
                         var input = document.createElement('input');
                         input.type = 'checkbox';
                         input.checked = cell.getValue();
-                        input.addEventListener('click', function () {
+                        input.addEventListener('click', function() {
                             cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
                         });
 
@@ -113,42 +114,43 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     width: 40,
                     headerSort: false,
                     hozAlign: "center",
-                    formatter: function () {
+                    formatter: function() {
                         return '<i class="icon fa fa-trash fa-fw"></i>';
                     },
-                    cellClick: function (e, cell) {
+                    cellClick: function(e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[3],
                             body: jsstrings[4]
                         })
-                            .then(function (modal) {
+                            .then(function(modal) {
                                 modal.setSaveButtonText(jsstrings[3]);
-                                modal.getRoot().on(ModalEvents.save, function () {
+                                modal.getRoot().on(ModalEvents.save, function() {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                            });
+                                return;
+                            }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-rolestable_' + ocinstanceid).click(function () {
-            rolestable.addRow({'rolename': '', 'actions':'', 'permanent': 0});
+        $('#addrow-rolestable_' + ocinstanceid).click(function() {
+            rolestable.addRow({'rolename': '', 'actions': '', 'permanent': 0});
         });
 
         var metadatatable = new Tabulator("#metadatatable_" + ocinstanceid, {
             data: JSON.parse(metadatainput.val()),
             layout: "fitColumns",
             movableRows: true,
-            rowMoved: function () {
+            rowMoved: function() {
                 // Order by row position
                 var data = metadatatable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
                 metadatainput.val(JSON.stringify(data));
             },
-            dataChanged: function () {
+            dataChanged: function() {
                 // Order by row position
                 var data = metadatatable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
@@ -185,11 +187,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
-                        function (cell) {
+                        function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -199,11 +201,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                 {
                     title: jsstrings[11],
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function (cell) {
+                        function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -220,44 +222,43 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                 {
                     title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function (cell) {
+                        function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
-
-                            return input;
                         }
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function () {
+                        function() {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                    cellClick: function (e, cell) {
+                    cellClick: function(e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
-                            .then(function (modal) {
+                            .then(function(modal) {
                                 modal.setSaveButtonText(jsstrings[14]);
-                                modal.getRoot().on(ModalEvents.save, function () {
+                                modal.getRoot().on(ModalEvents.save, function() {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                            });
+                                return;
+                            }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-metadatatable_' + ocinstanceid).click(function () {
+        $('#addrow-metadatatable_' + ocinstanceid).click(function() {
             metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
@@ -265,13 +266,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
             data: JSON.parse(metadataseriesinput.val()),
             layout: "fitColumns",
             movableRows: true,
-            rowMoved: function () {
+            rowMoved: function() {
                 // Order by row position
                 var data = metadataseriestable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
                 metadataseriesinput.val(JSON.stringify(data));
             },
-            dataChanged: function () {
+            dataChanged: function() {
                 // Order by row position
                 var data = metadataseriestable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
@@ -308,11 +309,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                     title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
-                        function (cell) {
+                        function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -322,11 +323,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                 {
                     title: jsstrings[11],
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function (cell) {
+                        function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -343,46 +344,46 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, ocins
                 {
                     title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function (cell) {
+                        function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function () {
+                            input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
-
-                            return input;
                         }
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function () {
+                        function() {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                    cellClick: function (e, cell) {
+                    cellClick: function(e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
-                            .then(function (modal) {
+                            .then(function(modal) {
                                 modal.setSaveButtonText(jsstrings[14]);
-                                modal.getRoot().on(ModalEvents.save, function () {
+                                modal.getRoot().on(ModalEvents.save, function() {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                            });
+                                return;
+                            }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-metadataseriestable_' + ocinstanceid).click(function () {
+        $('#addrow-metadataseriestable_' + ocinstanceid).click(function() {
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
-    });
+        return;
+    }).catch(Notification.exception);
 };
 

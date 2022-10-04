@@ -61,7 +61,7 @@ if (!empty($workflowtagsconfig)) {
     $workflowtags = explode(',', $workflowtagsconfig);
     $workflowtags = array_map('trim', $workflowtags);
 }
-if (!$apiworkflow or empty(array_intersect($apiworkflow->tags, $workflowtags))) {
+if (!$apiworkflow || empty(array_intersect($apiworkflow->tags, $workflowtags))) {
     redirect($redirecturl,
         get_string('workflow_opencast_invalid', 'block_opencast'),
         null,

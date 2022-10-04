@@ -55,7 +55,7 @@ If you do, the external JavaScript code from the Opencast server can access mood
         if (event.data === "getdata") {
             var values = {};
             $('#configForm input').each(function () {
-                if(this.type == 'checkbox' || this.type === 'radio') {
+                if(this.type === 'checkbox' || this.type === 'radio') {
                     values[this.id] = this.checked ? 'true' : 'false';
                 }
                 else {

@@ -70,7 +70,7 @@ $string['addlti_settingdefaulttitle'] = 'Default LTI series module title';
 $string['addlti_settingdefaulttitle_desc'] = 'The default title to be used when a new Opencast LTI series module is added to a course.';
 $string['addlti_settingintro'] = 'Add series module intro';
 $string['addlti_settingintro_desc'] = 'If enabled, teachers can add an intro to the Opencast LTI series module. This intro will be shown on the course overview page.';
-$string['addlti_settingenabled'] = 'Enable ”Add LTI series module"';
+$string['addlti_settingenabled'] = 'Enable "Add LTI series module"';
 $string['addlti_settingenabled_desc'] = 'If enabled, teachers can add an Opencast LTI series module to a course. This LTI series module will be pointing to the course\'s Opencast series.';
 $string['addlti_settingheader'] = 'Add Opencast LTI series modules to courses';
 $string['addlti_settingpreconfiguredtool'] = 'Preconfigured LTI tool for series modules';
@@ -99,7 +99,7 @@ $string['addltiepisode_settingavailability'] = 'Set episode module availability'
 $string['addltiepisode_settingavailability_desc'] = 'If enabled, teachers can set the availability conditions when a new Opencast LTI episode module is added to a course.';
 $string['addltiepisode_settingintro'] = 'Add episode module intro';
 $string['addltiepisode_settingintro_desc'] = 'If enabled, teachers can add a intro to the Opencast LTI episode module. This intro will be shown on the course overview page.';
-$string['addltiepisode_settingenabled'] = 'Enable ”Add LTI episode module"';
+$string['addltiepisode_settingenabled'] = 'Enable "Add LTI episode module"';
 $string['addltiepisode_settingenabled_desc'] = 'If enabled, teachers can add an Opencast LTI episode module to a course. This LTI episode module will be pointing to an Opencast episode.';
 $string['addltiepisode_settingheader'] = 'Add Opencast LTI episode modules to courses';
 $string['addltiepisode_settingpreconfiguredtool'] = 'Preconfigured LTI tool for episode modules';
@@ -130,7 +130,7 @@ $string['addactivity_settingdefaulttitle'] = 'Default Opencast activity series m
 $string['addactivity_settingdefaulttitle_desc'] = 'The default title to be used when a new Opencast Video Provider activity for series is added to a course.';
 $string['addactivity_settingintro'] = 'Add series module intro';
 $string['addactivity_settingintro_desc'] = 'If enabled, teachers can add an intro to the Opencast activity series module. This intro will be shown on the course overview page.';
-$string['addactivity_settingenabled'] = 'Enable ”Add Opencast activity series module"';
+$string['addactivity_settingenabled'] = 'Enable "Add Opencast activity series module"';
 $string['addactivity_settingenabled_desc'] = 'If enabled, teachers can add an Opencast Activity series module to a course. This Activity series module will be pointing to the course\'s Opencast series.';
 $string['addactivity_settingheader'] = 'Add Opencast Activity modules to courses';
 $string['addactivity_settingsection'] = 'Choose series module section';
@@ -154,7 +154,7 @@ $string['addactivityepisode_settingavailability'] = 'Set episode module availabi
 $string['addactivityepisode_settingavailability_desc'] = 'If enabled, teachers can set the availability conditions when a new Opencast Activity episode module is added to a course.';
 $string['addactivityepisode_settingintro'] = 'Add episode module intro';
 $string['addactivityepisode_settingintro_desc'] = 'If enabled, teachers can add a intro to the Opencast Activity episode module. This intro will be shown on the course overview page.';
-$string['addactivityepisode_settingenabled'] = 'Enable ”Add Opencast Activity episode module"';
+$string['addactivityepisode_settingenabled'] = 'Enable "Add Opencast Activity episode module"';
 $string['addactivityepisode_settingenabled_desc'] = 'If enabled, teachers can add an Opencast Video Provider activity for episodes to a course. This Opencast Activity episode module will be pointing to an Opencast episode.';
 $string['addactivityepisode_settingsection'] = 'Choose episode module section';
 $string['addactivityepisode_settingsection_desc'] = 'If enabled, teachers can choose the section which the Opencast Activity episode module will be added to.';
@@ -222,7 +222,8 @@ $string['cronsettings'] = 'Settings for upload jobs';
 $string['catalogparam'] = 'Parameters in JSON-Format';
 $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>
                                 <b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>
-                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>
+                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show.
+                                <b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}No option selected{mlang}{mlang de}Keine Option ausgewählt{mlang}" or "{mlang en}English{mlang}{mlang de}Englisch{mlang}"<br>
                                 <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
                                 <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['contributor'] = 'Contributor(s)';

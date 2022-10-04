@@ -332,7 +332,7 @@ class apibridge {
         }
 
         usort($allvideos, function ($a, $b) {
-            return $a->start < $b->start;
+            return (int)$a->start - (int)$b->start;
         });
 
         $result->count = count($allvideos);
@@ -666,6 +666,10 @@ class apibridge {
      */
     public function get_series_by_identifier($seriesid, bool $withacl = false) {
 
+        if (empty($seriesid)) {
+            return null;
+        }
+
         $url = '/api/series/' . $seriesid;
 
         if ($withacl) {
@@ -770,7 +774,7 @@ class apibridge {
         global $SITE;
 
         // Skip course related placeholders if courseid is site id.
-        if ($courseid === $SITE->id) {
+        if (intval($courseid) === intval($SITE->id)) {
             if (strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
                 strpos($name, '[COURSEGROUPID]') !== false) {
@@ -1893,7 +1897,7 @@ class apibridge {
         foreach ($this->get_course_series($courseid) as $series) {
             $result = $this->get_series_videos($series->series);
 
-            if ($result and $result->error == 0) {
+            if ($result && $result->error == 0) {
                 $videosforbackup = [];
                 foreach ($result->videos as $video) {
                     if (in_array($video->processing_state, $processingstates)) {
@@ -2698,5 +2702,31 @@ class apibridge {
 
         // Finally, we return boolean if series' new acls are in place.
         return ($api->get_http_code() == 200);
+    }
+
+    /**
+     * Returns lti consumer key base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumerkey
+     */
+    public function get_lti_consumerkey() {
+        $configname = 'lticonsumerkey';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
+    }
+
+    /**
+     * Returns lti consumer secret base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumersecret
+     */
+    public function get_lti_consumersecret() {
+        $configname = 'lticonsumersecret';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
     }
 }
