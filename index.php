@@ -46,8 +46,10 @@ $opencasterror = null;
 
 try {
     $workflows = array();
-    if (!empty(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid))) {
-        $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), false);
+    if (!empty(get_config('block_opencast', 'workflow_tags_' . $ocinstanceid))) {
+        $tags = explode(',', get_config('block_opencast', 'workflow_tags_' . $ocinstanceid));
+        $tags = array_map('trim', $tags);
+        $workflows = $apibridge->get_existing_workflows($tags, false);
     }
 } catch (\block_opencast\opencast_connection_exception $e) {
     $opencasterror = $e->getMessage();

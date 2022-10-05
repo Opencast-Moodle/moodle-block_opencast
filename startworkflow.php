@@ -54,7 +54,14 @@ if ($seriesid->identifier != $video->video->is_part_of) {
 }
 
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
-if (!$apiworkflow || !in_array(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), $apiworkflow->tags)) {
+// Apply multiple tags.
+$workflowtags = array();
+$workflowtagsconfig = get_config('block_opencast', 'workflow_tags_' . $ocinstanceid);
+if (!empty($workflowtagsconfig)) {
+    $workflowtags = explode(',', $workflowtagsconfig);
+    $workflowtags = array_map('trim', $workflowtags);
+}
+if (!$apiworkflow || empty(array_intersect($apiworkflow->tags, $workflowtags))) {
     redirect($redirecturl,
         get_string('workflow_opencast_invalid', 'block_opencast'),
         null,

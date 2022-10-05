@@ -1685,8 +1685,8 @@ class apibridge {
     }
 
     /**
-     * Retrieves all workflows from the OC system and parses them to be easily processable.
-     * @param string $tag if not empty the workflows are filter according to this tag.
+     * Retrieves all workflows from the OC system and parses them to be easily processable. Multi-tags could be defined.
+     * @param array $tags if not empty the workflows are filter according to the list of tags.
      * @param bool $onlynames If only the names of the workflows should be returned
      * @param false $withconfigurations If true, the configurations are included
      * @return array of OC workflows. The keys represent the ID of the workflow,
@@ -1694,19 +1694,40 @@ class apibridge {
      * the workflows details are also included.
      * @throws \moodle_exception
      */
-    public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
+    public function get_existing_workflows($tags = array(), $onlynames = true, $withconfigurations = false) {
         $workflows = array();
         $resource = '/api/workflow-definitions';
         $api = api::get_instance($this->ocinstanceid);
-        $resource .= '?filter=tag:' . $tag;
+
+        // Make sure that the tags are trimmed.
+        if (!empty($tags)) {
+            $tags = array_map('trim', $tags);
+        }
+
+        $queryparams = [];
+        // If only one or no tag is defined, we pass that as a filter to the API call.
+        if (count($tags) < 2) {
+            $queryparams[] = 'filter=tag:' . (isset($tags[0]) ? $tags[0] : '');
+        }
 
         if ($withconfigurations) {
-            $resource .= '&withconfigurationpanel=true';
+            $queryparams[] = 'withconfigurationpanel=true';
+        }
+
+        if (!empty($queryparams)) {
+            $resource .= '?' . implode('&', $queryparams);
         }
 
         $result = $api->oc_get($resource);
-        if ($api->get_http_code() === 200) {
+        if ($api->get_http_code() == 200) {
             $returnedworkflows = json_decode($result);
+
+            // Lookup and filter workflow definitions by tags.
+            if (count($tags) > 1) {
+                $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
+                    return !empty(array_intersect($wd->tags, $tags));
+                });
+            }
 
             if (!$onlynames) {
                 return $returnedworkflows;
@@ -1724,7 +1745,7 @@ class apibridge {
         } else if ($api->get_http_code() == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $api->get_http_code());
         }
     }
 
@@ -1757,7 +1778,11 @@ class apibridge {
      */
     public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
         // Get the workflow list.
-        $workflows = $this->get_existing_workflows($tag);
+        $tags = array();
+        if (!empty($tag)) {
+            $tags[] = $tag;
+        }
+        $workflows = $this->get_existing_workflows($tags);
 
         // If requested, add the 'no workflow' item to the list of workflows.
         if ($withnoworkflow == true) {
