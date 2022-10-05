@@ -1705,7 +1705,7 @@ class apibridge {
         }
 
         $queryparams = [];
-        // If only one tag is defined, we pass that as a filter to the API call.
+        // If only one or no tag is defined, we pass that as a filter to the API call.
         if (count($tags) < 2) {
             $queryparams[] = 'filter=tag:' . (isset($tags[0]) ? $tags[0] : '');
         }
@@ -1742,9 +1742,6 @@ class apibridge {
                 }
             }
             return $workflows;
-        } else if ($api->get_http_code() == 404) {
-            // We return empty array if nothing could be found from the opencast  api endpoint.
-            return [];
         } else if ($api->get_http_code() == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
