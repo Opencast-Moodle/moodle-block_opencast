@@ -1745,7 +1745,7 @@ class apibridge {
         } else if ($api->get_http_code() == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $api->get_http_code());
         }
     }
 
