@@ -1742,6 +1742,9 @@ class apibridge {
                 }
             }
             return $workflows;
+        } else if ($api->get_http_code() == 404) {
+            // We return empty array if nothing could be found from the opencast  api endpoint.
+            return [];
         } else if ($api->get_http_code() == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
