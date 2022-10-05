@@ -1706,8 +1706,8 @@ class apibridge {
 
         $queryparams = [];
         // If only one tag is defined, we pass that as a filter to the API call.
-        if (count($tags) == 1) {
-            $queryparams[] = 'filter=tag:' . $tags[0];
+        if (count($tags) < 2) {
+            $queryparams[] = 'filter=tag:' . (isset($tags[0]) ? $tags[0] : '');
         }
 
         if ($withconfigurations) {
