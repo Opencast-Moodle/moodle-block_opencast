@@ -96,7 +96,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('cachevalidtime', 'block_opencast'),
                 get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
 
-        // Upload timeout. 
+        // Upload timeout.
         $sharedsettings->add(
             new admin_setting_configtext('block_opencast/uploadtimeout',
                 get_string('uploadtimeout', 'block_opencast'),
