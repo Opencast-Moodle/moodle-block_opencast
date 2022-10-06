@@ -78,7 +78,7 @@ if (!$result->error) {
         }
 
         $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
-        
+
         // Make sure the endpoint is correct.
         if (strpos($endpoint, 'http') !== 0) {
             $endpoint = 'http://' . $endpoint;
@@ -106,7 +106,7 @@ if (!$result->error) {
 
         $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
         echo $OUTPUT->footer();
-        
+
     } else {
         redirect($redirecturl,
             get_string('video_not_accessible', 'block_opencast'),
