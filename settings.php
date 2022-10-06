@@ -95,6 +95,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             new admin_setting_configtext('block_opencast/cachevalidtime',
                 get_string('cachevalidtime', 'block_opencast'),
                 get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
+        $sharedsettings->add(
+            new admin_setting_configtext('block_opencast/uploadtimeout',
+                get_string('uploadtimeout', 'block_opencast'),
+                get_string('uploadtimeoutdesc', 'block_opencast'), 60, PARAM_INT));
         $ADMIN->add('block_opencast', $sharedsettings);
 
         foreach ($ocinstances as $instance) {
