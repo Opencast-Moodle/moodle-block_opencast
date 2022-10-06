@@ -262,6 +262,9 @@ $string['downloadvideo'] = 'Download video';
 $string['download_settingheader'] = 'Download videos';
 $string['download_setting'] = 'Download channel';
 $string['download_settingdesc'] = 'Opencast publication channel from which the videos are served when downloading them.';
+$string['directaccesstovideo'] = 'Direct access to video';
+$string['directaccess_setting'] = 'Direct access channel';
+$string['directaccess_settingdesc'] = 'Opencast publication channel from which the videos are served when accessing them directly.';
 $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for importing opencast events from one course into another. If not set, it is not possible to import Opencast events.';
 
@@ -669,6 +672,7 @@ $string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before 
 $string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
 $string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
 $string['video_not_downloadable'] = 'This video was not published in the download channel.';
+$string['video_not_accessible'] = 'This video was not published in the direct access channel.';
 $string['videostoupload'] = 'Videos to upload to opencast';
 $string['videosoverviewexplanation'] = 'Here you can see in which courses the videos are provided as activity to the students.<br>The second column shows the activities of the courses where the series is managed by the Opencast block. The third column shows courses where the video is embedded without the series being managed by the block.';
 $string['visibility'] = 'Visibility of the video';

@@ -192,7 +192,7 @@ if (count($ownedvideos) > 0) {
 
     foreach ($renderer->create_overview_videos_rows($ownedvideos, $apibridge, $ocinstanceid,
         $activityinstalled, $showchangeownerlink, true, false,
-        true, true, true, 'overview') as $row) {
+        true, true, true, 'overview', true) as $row) {
         $table->add_data($row);
     }
 

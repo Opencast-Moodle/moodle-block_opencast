@@ -358,6 +358,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $hasdownloadpermission
      * @param bool $hasdeletepermission
      * @param string $redirectpage
+     * @param bool $hasaccesspermission
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -365,9 +366,9 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
                                                 $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
-                                                $hasaddvideopermissions = false,
-                                                $hasdownloadpermission = false, $hasdeletepermission = false,
-                                                $redirectpage = 'overviewvideos') {
+                                                $hasaddvideopermissions = false, $hasdownloadpermission = false,
+                                                $hasdeletepermission = false,
+                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false) {
         global $USER, $SITE, $DB;
         $rows = array();
 
@@ -432,6 +433,10 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             if ($hasdownloadpermission && $video->is_downloadable) {
                 $actions .= $this->render_download_event_icon($ocinstanceid, $SITE->id, $video);
+            }
+
+            if ($hasaccesspermission && $video->is_accessible) {
+                $actions .= $this->render_direct_link_event_icon($ocinstanceid, $SITE->id, $video);
             }
 
             if ($hasdeletepermission && isset($video->processing_state) &&
@@ -1156,6 +1161,50 @@ class block_opencast_renderer extends plugin_renderer_base {
                                 'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid)),
                         null,
                         $name
+                    ));
+                }
+            }
+        }
+
+        return $this->render($actionmenu);
+    }
+
+    /**
+     * Render share icon for a video.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param \stdClass $video
+     * @return bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_direct_link_event_icon($ocinstanceid, $courseid, $video) {
+        global $CFG;
+
+        // Get the action menu options.
+        $actionmenu = new action_menu();
+        if ($CFG->branch >= 400) {
+            $actionmenu->set_menu_left();
+        } else {
+            $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        }
+        $actionmenu->prioritise = true;
+        $actionmenu->actionicon = new pix_icon('e/anchor', get_string('directaccesstovideo', 'block_opencast'), 'moodle');
+        $actionmenu->set_menu_trigger(' ');
+        $actionmenu->attributes['class'] .= ' access-action-menu';
+
+        foreach ($video->publications as $publication) {
+            if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
+                foreach ($publication->media as $media) {
+                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
+                    $actionmenu->add(new action_menu_link_secondary(
+                        new \moodle_url('/blocks/opencast/directaccess.php',
+                            array('video_identifier' => $video->identifier, 'courseid' => $courseid,
+                                'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid)),
+                        null,
+                        $name,
+                        ['target' => '_blank']
                     ));
                 }
             }

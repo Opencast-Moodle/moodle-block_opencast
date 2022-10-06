@@ -160,6 +160,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $video->start = "2021-07-31T09:55:00Z";
             $video->is_part_of = '1234-5678-abcd-efgh';
             $video->is_downloadable = false;
+            $video->is_accessible = false;
             $video->location = '';
             $video->publication_status = array();
             $result->videos = [$video];
@@ -195,6 +196,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $video->start = "2021-07-31T09:55:00Z";
             $video->is_part_of = '1234-5678-abcd-efgh';
             $video->is_downloadable = false;
+            $video->is_accessible = false;
             $video->location = '';
             $video->publication_status = array();
 
