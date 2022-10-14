@@ -225,6 +225,18 @@ class upload_helper {
             visibility_helper::save_visibility_job($visibility);
         }
 
+        // Processing attachemnts.
+        if (property_exists($options, 'attachments')) {
+            // Save the transcription upload files.
+            if (property_exists($options->attachments, 'transcriptions') && !empty($options->attachments->transcriptions)) {
+                attachment_helper::save_attachment_upload_job(
+                    $uploadjobid,
+                    attachment_helper::ATTACHMENT_TYPE_TRANSCRIPTION,
+                    $options->attachments->transcriptions
+                );
+            }
+        }
+
         // Delete all jobs with status ready to transfer, where file is missing.
         $sql = "SELECT uj.id " .
             "FROM {block_opencast_uploadjob} uj " .

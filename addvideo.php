@@ -153,6 +153,33 @@ if ($data = $addvideoform->get_data()) {
         \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresentation->get_itemid());
     }
 
+    // Transcription files.
+    $transcriptions = [];
+    if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+        $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
+        // If the max upload limit is not set we assume only 1 field set.
+        if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
+            $maxtranscriptionupload = 1;
+        }
+        for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
+            $fileelm = "transcription_file_{$transcriptionindex}";
+            $langelm = "transcription_lang_{$transcriptionindex}";
+            if (property_exists($data, $fileelm)) {
+                $storedfile = $addvideoform->save_stored_file($fileelm, $coursecontext->id,
+                        'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
+                $language = property_exists($data, $langelm) ? $data->{$langelm} : 'en';
+                if (isset($storedfile) && $storedfile) {
+                    $transcriptions[] = [
+                        'file_itemid' => $storedfile->get_itemid(),
+                        'file_id' => $storedfile->get_id(),
+                        'file_contenhash' => $storedfile->get_contenthash(),
+                        'lang' => $language
+                    ];
+                }
+            }
+        }
+    }
+
     $metadata = [];
 
     if (property_exists($data, 'series')) {
@@ -211,6 +238,14 @@ if ($data = $addvideoform->get_data()) {
     $options->chunkupload_presenter = isset($chunkuploadpresenter) ? $chunkuploadpresenter : '';
     $options->chunkupload_presentation = isset($chunkuploadpresentation) ? $chunkuploadpresentation : '';
 
+    // Prepare attachment object.
+    $attachments = new \stdClass();
+    if (isset($transcriptions) && !empty($transcriptions)) {
+        $attachments->transcriptions = $transcriptions;
+    }
+    // Adding attachment object to the options.
+    $options->attachments =  $attachments;
+
     // Prepare the visibility object.
     $visibility = new \stdClass();
     $visibility->initialvisibilitystatus = !isset($data->initialvisibilitystatus) ?
@@ -226,7 +261,7 @@ if ($data = $addvideoform->get_data()) {
     }
 
     // Update all upload jobs.
-    \block_opencast\local\upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
+    upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 

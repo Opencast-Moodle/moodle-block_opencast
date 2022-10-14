@@ -426,8 +426,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
-                    false, null, false, false,
-                    'overview', $video->is_part_of);
+                    false, null, false, false, false, 'overview', $video->is_part_of);
             }
 
             if ($hasdownloadpermission && $video->is_downloadable) {
@@ -927,6 +926,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param \stdClass $coursecontext
      * @param bool $useeditor
      * @param bool $canchangeowner
+     * @param bool $canmanagetranscriptions
      * @param string $redirectpage
      * @param string $series
      * @return bool|string
@@ -935,7 +935,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
                                           $startworkflows, $coursecontext, $useeditor, $canchangeowner,
-                                          $redirectpage = null, $series = null) {
+                                          $canmanagetranscriptions, $redirectpage = null, $series = null) {
         global $CFG;
 
         // Get the action menu options.
@@ -956,6 +956,17 @@ class block_opencast_renderer extends plugin_renderer_base {
                         'redirectpage' => $redirectpage, 'series' => $series)),
                 new pix_icon('t/editstring', get_string('updatemetadata_short', 'block_opencast')),
                 get_string('updatemetadata_short', 'block_opencast')
+            ));
+        }
+
+        if ($canmanagetranscriptions) {
+            // Event's transcriptions menu.
+            $actionmenu->add(new action_menu_link_secondary(
+                new \moodle_url('/blocks/opencast/managetranscriptions.php',
+                    array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
+                // new pix_icon('i/report', get_string('managetranscriptions', 'block_opencast')),
+                new pix_icon('caption', get_string('managetranscriptions', 'block_opencast'), 'block_opencast'),
+                get_string('managetranscriptions', 'block_opencast')
             ));
         }
 
@@ -1210,5 +1221,23 @@ class block_opencast_renderer extends plugin_renderer_base {
         $context->text = format_text($content);
 
         return $this->output->render_from_template('core/help_icon', $context);
+    }
+
+    /**
+     * Render transcription table for "manage transcription" page.
+     * @param array $list list of current transcriptions
+     * @param string $addnewurl add new transcription url
+     * @param boolean $candelete whether to provide delete feature
+     * @return bool|string
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $candelete = false) {
+        $context = new stdClass();
+        $context->list = $list;
+        $context->listhascontent = !empty($list) ? true : false;
+        $context->addnewurl = $addnewurl;
+        $context->candelete = $candelete;
+        return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
 }
