@@ -338,8 +338,6 @@ class attachment_helper {
         $mediapackagexml = $apibridge->get_event_media_package($eventidentifier);
         $mediapackagexml = self::remove_existing_flavor_from_mediapackage($mediapackagexml, 'id', $transcriptionidentifier);
         try {
-            // Take snapshot.
-            $apibridge->take_snapshot($mediapackagexml);
             $ingested = $apibridge->ingest($mediapackagexml,
                 get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
             if (!empty($ingested)) {

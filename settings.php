@@ -289,51 +289,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('maxseriesdesc', 'block_opencast'), 3, PARAM_INT
             ));
 
-            // Transcription upload settings.
-            $generalsettings->add(
-                new admin_setting_heading('block_opencast/transcription_header_' . $instance->id,
-                    get_string('transcriptionsettingsheader', 'block_opencast'),
-                    ''));
-
-            $generalsettings->add(
-                new admin_setting_configtext('block_opencast/transcriptionworkflow_' . $instance->id,
-                    get_string('transcriptionworkflow', 'block_opencast'),
-                    get_string('transcriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
-
-            $generalsettings->add(
-                new admin_setting_configtext('block_opencast/deletetranscriptionworkflow_' . $instance->id,
-                    get_string('deletetranscriptionworkflow', 'block_opencast'),
-                    get_string('deletetranscriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
-            $generalsettings->hide_if('block_opencast/deletetranscriptionworkflow_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
-
-            $generalsettings->add($transcriptionflavors);
-            $generalsettings->add(
-                new admin_setting_configeditabletable(
-                    'block_opencast/transcriptionflavorsoptions_' . $instance->id,
-                    'transcriptionflavorsoptions_' . $instance->id,
-                    get_string('addtranscriptionflavor', 'block_opencast')));
-
-            $generalsettings->hide_if('block_opencast/transcriptionflavorsoptions_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
-
-            $generalsettings->add(new admin_setting_configtext('block_opencast/maxtranscriptionupload_' . $instance->id,
-                new lang_string('maxtranscriptionupload', 'block_opencast'),
-                get_string('maxtranscriptionupload_desc', 'block_opencast'), 3, PARAM_INT
-            ));
-            $generalsettings->hide_if('block_opencast/maxtranscriptionupload_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
-
-            $generalsettings->add(
-                new admin_setting_filetypes('block_opencast/transcriptionfileextensions_' . $instance->id,
-                    new lang_string('transcriptionfileextensions', 'block_opencast'),
-                    get_string('transcriptionfileextensions_desc', 'block_opencast',
-                        $CFG->wwwroot . '/admin/tool/filetypes/index.php')
-            ));
-            $generalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
-            // End of transcription upload settings.
-
             $generalsettings->add(
                 new admin_setting_heading('block_opencast/block_header_' . $instance->id,
                     get_string('blocksettings', 'block_opencast'),
@@ -724,6 +679,51 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         'block_opencast/addactivityepisodeenabled_' . $instance->id, 'notchecked');
                 }
             }
+
+            // Transcription upload settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/transcription_header_' . $instance->id,
+                    get_string('transcriptionsettingsheader', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/transcriptionworkflow_' . $instance->id,
+                    get_string('transcriptionworkflow', 'block_opencast'),
+                    get_string('transcriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                    get_string('deletetranscriptionworkflow', 'block_opencast'),
+                    get_string('deletetranscriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
+            $additionalsettings->hide_if('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add($transcriptionflavors);
+            $additionalsettings->add(
+                new admin_setting_configeditabletable(
+                    'block_opencast/transcriptionflavorsoptions_' . $instance->id,
+                    'transcriptionflavorsoptions_' . $instance->id,
+                    get_string('addtranscriptionflavor', 'block_opencast')));
+
+            $additionalsettings->hide_if('block_opencast/transcriptionflavorsoptions_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(new admin_setting_configtext('block_opencast/maxtranscriptionupload_' . $instance->id,
+                new lang_string('maxtranscriptionupload', 'block_opencast'),
+                get_string('maxtranscriptionupload_desc', 'block_opencast'), 3, PARAM_INT
+            ));
+            $additionalsettings->hide_if('block_opencast/maxtranscriptionupload_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(
+                new admin_setting_filetypes('block_opencast/transcriptionfileextensions_' . $instance->id,
+                    new lang_string('transcriptionfileextensions', 'block_opencast'),
+                    get_string('transcriptionfileextensions_desc', 'block_opencast',
+                        $CFG->wwwroot . '/admin/tool/filetypes/index.php')
+            ));
+            $additionalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+            // End of transcription upload settings.
 
             // Additional Settings.
             // Terms of use. Downlaod channel. Custom workflows channel. Support email.
