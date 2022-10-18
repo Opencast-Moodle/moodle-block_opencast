@@ -163,17 +163,17 @@ if ($data = $addvideoform->get_data()) {
         }
         for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
             $fileelm = "transcription_file_{$transcriptionindex}";
-            $langelm = "transcription_lang_{$transcriptionindex}";
-            if (property_exists($data, $fileelm)) {
+            $flavorelm = "transcription_flavor_{$transcriptionindex}";
+            if (property_exists($data, $fileelm) && property_exists($data, $flavorelm)) {
                 $storedfile = $addvideoform->save_stored_file($fileelm, $coursecontext->id,
                         'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
-                $language = property_exists($data, $langelm) ? $data->{$langelm} : 'en';
+                $flavor = $data->{$flavorelm};
                 if (isset($storedfile) && $storedfile) {
                     $transcriptions[] = [
                         'file_itemid' => $storedfile->get_itemid(),
                         'file_id' => $storedfile->get_id(),
                         'file_contenhash' => $storedfile->get_contenthash(),
-                        'lang' => $language
+                        'flavor' => $flavor
                     ];
                 }
             }

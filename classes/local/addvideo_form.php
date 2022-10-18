@@ -404,11 +404,20 @@ class addvideo_form extends \moodleform {
                     $transcriptiontypes[] = $transcriptiontype;
                 }
             }
-            
-            $languages = [
-                '' => get_string('emptylanguageoption', 'block_opencast')
+
+            // Preparing flavors as for service types.
+            $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+            $flavors = [
+                '' => get_string('emptyflavoroption', 'block_opencast')
             ];
-            $languages = array_merge($languages, get_string_manager()->get_list_of_languages());
+            if (!empty($flavorsconfig)) {
+                $flavorsarray = json_decode($flavorsconfig);
+                foreach ($flavorsarray as $flavor) {
+                    if (!empty($flavor->key) && !empty($flavor->value)) {
+                        $flavors[$flavor->key] = format_string($flavor->value);
+                    }
+                }
+            }
 
             $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
             if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
@@ -420,53 +429,11 @@ class addvideo_form extends \moodleform {
                     $line = \html_writer::tag('hr', '');
                     $mform->addElement('html', $line);
                 }
-                $mform->addElement('select', 'transcription_lang_' . $transcriptionindex, get_string('transcriptionlangfield', 'block_opencast'), $languages);
+                $mform->addElement('select', 'transcription_flavor_' . $transcriptionindex, get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
                 $mform->addElement('filepicker', 'transcription_file_' . $transcriptionindex, get_string('transcriptionfilefield', 'block_opencast'),
                     null, ['accepted_types' => $transcriptiontypes]);
-                $mform->disabledIf('transcription_file_' . $transcriptionindex, 'transcription_lang_' . $transcriptionindex, 'eq', '');
+                $mform->disabledIf('transcription_file_' . $transcriptionindex, 'transcription_flavor_' . $transcriptionindex, 'eq', '');
             }
-
-            // $repeatarray = [];
-            // $line = \html_writer::tag('hr', '');
-            // $repeatarray[] = $mform->createElement('html', $line);
-            // $repeatarray[] = $mform->createElement('select', 'transcription_lang', get_string('transcriptionlangfield', 'block_opencast', '{no}'), $languages);
-            // $repeatarray[] = $mform->createElement('filepicker', 'transcription_file', get_string('transcriptionfilefield', 'block_opencast', '{no}'),
-            //     null, ['accepted_types' => $transcriptiontypes]);
-            // $repeatarray[] = $mform->createElement('submit', 'transcription_remove_field', get_string('transcriptiondeletebtn', 'block_opencast', '{no}'), [], false);
-            // $repeatarray[] = $mform->createElement('hidden', 'transcription_visible_set', 'visible-set');
-            // $repeateloptions = [
-            //     'transcription_visible_set' => [
-            //         'type' => PARAM_TEXT
-            //     ]
-            // ];
-
-            // $repeats = 1;
-            // $addtranscriptionfield = 1;
-            // $num = $this->repeat_elements(
-            //     $repeatarray,
-            //     $repeats,
-            //     $repeateloptions,
-            //     'transcription_repeats',
-            //     'transcription_add_fields',
-            //     $addtranscriptionfield,
-            //     get_string('transcriptionaddnewbtn', 'block_opencast'),
-            //     true,
-            //     'transcription_remove_field'
-            // );
-            // $visiblesetnum = 0;
-            // foreach ($mform->_elements as $element) {
-            //     $name = $element->getName();
-            //     $type = $element->getType();
-            //     if ($type == 'hidden' && strpos($name, 'transcription_visible_set') !== false) {
-            //         $visiblesetnum++;
-            //     }
-            // }
-            // $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
-            // $canaddmore = ($maxtranscriptionupload > $visiblesetnum) ? 1 : 0;
-            // $mform->addElement('hidden', 'can_add_more_transcription');
-            // $mform->setType('can_add_more_transcription', PARAM_INT);
-            // $mform->setDefault('can_add_more_transcription', $canaddmore);
-            // $mform->disabledIf('transcription_add_fields', 'can_add_more_transcription', 'eq', 0);
         }
 
         $mform->closeHeaderBefore('buttonar');

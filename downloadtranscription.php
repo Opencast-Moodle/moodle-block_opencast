@@ -35,6 +35,7 @@ $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $type = required_param('attachment_type', PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
+$indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $baseurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
     array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
         'video_identifier' => $identifier, 'attachement_identifier' => $attachementid));
@@ -48,7 +49,8 @@ require_login($courseid, false);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('downloadtranscription', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
-$PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
+$PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $indexurl);
+$PAGE->navbar->add(get_string('managetranscriptions', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('downloadtranscription', 'block_opencast'), $baseurl);
 
 // Capability check.

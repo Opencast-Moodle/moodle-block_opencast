@@ -165,6 +165,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}]';
 
+            $defaulttranscriptionflavors = '[{"key":"de","value":"Amberscript German"},{"key":"en","value":"Amberscript English"},' .
+                '{"key":"deu","value":"Vosk German"},{"key":"eng","value":"Vosk English"}]';
+
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams_' . $instance->id,
@@ -188,12 +191,17 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('metadataseries', 'block_opencast'),
                 get_string('metadataseriesdesc', 'block_opencast') . $dcmitermsnotice, $metadataseriesdefault);
 
+            $transcriptionflavors = new admin_setting_configtext('block_opencast/transcriptionflavors_' . $instance->id,
+                get_string('transcriptionflavors', 'block_opencast'),
+                get_string('transcriptionflavors_desc', 'block_opencast'), $defaulttranscriptionflavors);
+
             // Crashes if plugins.php is opened because css cannot be included anymore.
             if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
                 $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [
                     $rolessetting->get_id(),
                     $metadatasetting->get_id(),
                     $metadataseriessetting->get_id(),
+                    $transcriptionflavors->get_id(),
                     $instance->id
                 ]);
             }
@@ -296,6 +304,16 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('deletetranscriptionworkflow', 'block_opencast'),
                     get_string('deletetranscriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
             $generalsettings->hide_if('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $generalsettings->add($transcriptionflavors);
+            $generalsettings->add(
+                new admin_setting_configeditabletable(
+                    'block_opencast/transcriptionflavorsoptions_' . $instance->id,
+                    'transcriptionflavorsoptions_' . $instance->id,
+                    get_string('addtranscriptionflavor', 'block_opencast')));
+
+            $generalsettings->hide_if('block_opencast/transcriptionflavorsoptions_' . $instance->id,
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
 
             $generalsettings->add(new admin_setting_configtext('block_opencast/maxtranscriptionupload_' . $instance->id,

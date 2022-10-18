@@ -50,7 +50,7 @@ class attachment_helper {
     const ATTACHMENT_TYPE_TRANSCRIPTION = 'transcription';
 
      /** @var string transcription flavor */
-     const TRANSCRIPTION_FLAVOR = 'captions/vtt';
+     const TRANSCRIPTION_FLAVOR_TYPE = 'captions/vtt';
 
     /**
      * Saves the attachment upload job.
@@ -183,8 +183,8 @@ class attachment_helper {
                     mtrace('job ' . $attachmentjob->id . ':(FILE NOT FOUND) file could not be found: ' . $transcription->file_id . " ({$transcription->lang})");
                     continue;
                 }
-                // Prepare flavor based on the language code.
-                $flavor = self::TRANSCRIPTION_FLAVOR . "+{$transcription->lang}";
+                // Prepare flavor based on the flavor code.
+                $flavor = self::TRANSCRIPTION_FLAVOR_TYPE . "+{$transcription->flavor}";
 
                 // Compile and add attachment.
                 $mediapackagexml = self::perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor);
@@ -355,16 +355,16 @@ class attachment_helper {
      * Uploads a single transcription file in one.
      *
      * @param object $file transcription file
-     * @param string $language defined language
+     * @param string $flavorservice defined flavor service
      * @param int $ocinstanceid id of opencast instance
      * @param string $eventidentifier id of video
      *
      * @return boolean the result of starting workflow after upload 
      */
-    public static function upload_single_transcription($file, $language, $ocinstanceid, $eventidentifier) {
+    public static function upload_single_transcription($file, $flavorservice, $ocinstanceid, $eventidentifier) {
         $apibridge = apibridge::get_instance($ocinstanceid);
         $mediapackagexml = $apibridge->get_event_media_package($eventidentifier);
-        $flavor = self::TRANSCRIPTION_FLAVOR . "+{$language}";
+        $flavor = self::TRANSCRIPTION_FLAVOR_TYPE . "+{$flavorservice}";
         // Compile and add attachment.
         $mediapackagexml = self::perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor);
         // Finalizing the attachment upload.

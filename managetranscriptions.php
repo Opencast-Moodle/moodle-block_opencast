@@ -67,8 +67,17 @@ if (!empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinst
     $candelete = true;
 }
 
-// Languages.
-$languages = get_string_manager()->get_list_of_languages();
+// Preparing flavors as for service types.
+$flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+$flavors = [];
+if (!empty($flavorsconfig)) {
+    $flavorsarray = json_decode($flavorsconfig);
+    foreach ($flavorsarray as $flavor) {
+        if (!empty($flavor->key) && !empty($flavor->value)) {
+            $flavors[$flavor->key] = format_string($flavor->value);
+        }
+    }
+}
 
 // Extract caption from attachments.
 $list = [];
@@ -79,12 +88,12 @@ foreach ($mediapackage->attachments->attachment as $attachment) {
     $type = $attachmentarray->{'@attributes'}->type;
     if (strpos($type, 'captions/vtt') !== false) {
         // Extracting language to be displayed in the table.
-        $lang = str_replace('captions/vtt+', '', $type);
-        $langname = '';
-        if (array_key_exists($lang, $languages)) {
-            $langname = $languages[$lang];
+        $flavortype = str_replace('captions/vtt+', '', $type);
+        $flavorname = '';
+        if (array_key_exists($flavortype, $flavors)) {
+            $flavorname = $flavors[$flavortype];
         }
-        $attachmentarray->lang = !empty($langname) ? $langname : get_string('notranscriptionlanguage', 'block_opencast');
+        $attachmentarray->flavor = !empty($flavorname) ? $flavorname : get_string('notranscriptionflavor', 'block_opencast', $flavortype);
 
         // Extracting id and type from attributes.
         $attachmentarray->id = $attachmentarray->{'@attributes'}->id;

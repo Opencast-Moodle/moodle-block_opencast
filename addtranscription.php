@@ -58,7 +58,7 @@ $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-    redirect($redirecturl, get_string('unabletomanagetranscriptions', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+    redirect($redirecturl, get_string('unabletoaddnewtranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
 }
 
 $addtranscriptionform = new \block_opencast\local\addtranscription_form(null,
@@ -71,9 +71,9 @@ if ($addtranscriptionform->is_cancelled()) {
 if ($data = $addtranscriptionform->get_data()) {
     $storedfile = $addtranscriptionform->save_stored_file('transcription_file', $coursecontext->id,
                         'block_opencast', attachment_helper::OC_FILEAREA_ATTACHMENT, $data->transcription_file);
-    $language = $data->transcription_lang;
-    if (isset($storedfile) && $storedfile && !empty($language)) {
-        $success = attachment_helper::upload_single_transcription($storedfile, $language, $ocinstanceid, $identifier);
+    $flavor = $data->transcription_flavor;
+    if (isset($storedfile) && $storedfile && !empty($flavor)) {
+        $success = attachment_helper::upload_single_transcription($storedfile, $flavor, $ocinstanceid, $identifier);
         $message = get_string('transcriptionuploadsuccessed', 'block_opencast');
         $status = \core\output\notification::NOTIFY_SUCCESS;
         if (!$success) {

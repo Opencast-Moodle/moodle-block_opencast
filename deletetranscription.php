@@ -62,7 +62,7 @@ $video = $apibridge->get_opencast_video($videoidentifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid)) ||
     empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
-    redirect($redirecturl, get_string('unabletomanagetranscriptions', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl, get_string('unabletodeletetranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
 }
 
 if (($action == 'delete') && confirm_sesskey()) {

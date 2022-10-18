@@ -760,7 +760,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022100400, 'opencast');
     }
 
-    if ($oldversion < 2022101200) {
+    if ($oldversion < 2022101800) {
         // Define table block_opencast_attachments to be created.
         $table = new xmldb_table('block_opencast_attachments');
 
@@ -781,7 +781,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2022101200, 'opencast');
+        upgrade_block_savepoint(true, 2022101800, 'opencast');
     }
 
     return true;

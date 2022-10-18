@@ -70,16 +70,25 @@ class addtranscription_form extends \moodleform {
             }
         }
         
-        $languages = [
-            '' => get_string('emptylanguageoption', 'block_opencast')
+        // Preparing flavors as for service types.
+        $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+        $flavors = [
+            '' => get_string('emptyflavoroption', 'block_opencast')
         ];
-        $languages = array_merge($languages, get_string_manager()->get_list_of_languages());
+        if (!empty($flavorsconfig)) {
+            $flavorsarray = json_decode($flavorsconfig);
+            foreach ($flavorsarray as $flavor) {
+                if (!empty($flavor->key) && !empty($flavor->value)) {
+                    $flavors[$flavor->key] = format_string($flavor->value);
+                }
+            }
+        }
 
-        $mform->addElement('select', 'transcription_lang', get_string('transcriptionlangfield', 'block_opencast'), $languages);
-        $mform->addRule('transcription_lang', get_string('required'), 'required');
+        $mform->addElement('select', 'transcription_flavor', get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
+        $mform->addRule('transcription_flavor', get_string('required'), 'required');
         $mform->addElement('filepicker', 'transcription_file', get_string('transcriptionfilefield', 'block_opencast'),
             null, ['accepted_types' => $transcriptiontypes]);
-        $mform->disabledIf('transcription_file', 'transcription_lang', 'eq', '');
+        $mform->disabledIf('transcription_file', 'transcription_flavor', 'eq', '');
         $mform->addRule('transcription_file', get_string('required'), 'required');
 
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
