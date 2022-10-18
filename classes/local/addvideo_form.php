@@ -429,10 +429,13 @@ class addvideo_form extends \moodleform {
                     $line = \html_writer::tag('hr', '');
                     $mform->addElement('html', $line);
                 }
-                $mform->addElement('select', 'transcription_flavor_' . $transcriptionindex, get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
-                $mform->addElement('filepicker', 'transcription_file_' . $transcriptionindex, get_string('transcriptionfilefield', 'block_opencast'),
+                $mform->addElement('select', 'transcription_flavor_' . $transcriptionindex,
+                    get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
+                $mform->addElement('filepicker', 'transcription_file_' . $transcriptionindex,
+                    get_string('transcriptionfilefield', 'block_opencast'),
                     null, ['accepted_types' => $transcriptiontypes]);
-                $mform->disabledIf('transcription_file_' . $transcriptionindex, 'transcription_flavor_' . $transcriptionindex, 'eq', '');
+                $mform->disabledIf('transcription_file_' . $transcriptionindex,
+                    'transcription_flavor_' . $transcriptionindex, 'eq', '');
             }
         }
 

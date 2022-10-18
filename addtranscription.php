@@ -58,7 +58,8 @@ $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-    redirect($redirecturl, get_string('unabletoaddnewtranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl,
+        get_string('unabletoaddnewtranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
 }
 
 $addtranscriptionform = new \block_opencast\local\addtranscription_form(null,
@@ -83,7 +84,8 @@ if ($data = $addtranscriptionform->get_data()) {
         attachment_helper::remove_single_transcription_file($storedfile->get_itemid());
         redirect($redirecturl, $message, null, $status);
     } else {
-        redirect($redirecturl, get_string('missingtranscriptionuploadparams', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+        redirect($redirecturl,
+            get_string('missingtranscriptionuploadparams', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
     }
 }
 

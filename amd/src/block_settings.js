@@ -447,7 +447,8 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             var value = input.val();
             if (value == '') {
                 var defaultstext = input.parent().next().text();
-                defaultstext = defaultstext != '' ? defaultstext.slice(defaultstext.indexOf('['), defaultstext.lastIndexOf(']') + 1) : '';
+                defaultstext = defaultstext != '' ?
+                    defaultstext.slice(defaultstext.indexOf('['), defaultstext.lastIndexOf(']') + 1) : '';
                 if (defaultstext != '') {
                     input.val(defaultstext);
                 }

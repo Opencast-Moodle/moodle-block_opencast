@@ -59,8 +59,7 @@ class attachment_helper {
      * @param string $type the attachment type.
      * @param array $attachemntfiles the array list of files to upload.
      */
-    public static function save_attachment_upload_job($uploadjobid, $type, $attachemntfiles)
-    {
+    public static function save_attachment_upload_job($uploadjobid, $type, $attachemntfiles) {
         global $DB;
         // Create object.
         $attachments = new \stdClass();
@@ -173,14 +172,15 @@ class attachment_helper {
         if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
             $apibridge = apibridge::get_instance($ocinstanceid);
             $mediapackagexml = $apibridge->get_event_media_package($video->identifier);
-            
+
             $transcriptionstoupload = json_decode($attachmentjob->files);
             foreach ($transcriptionstoupload as $transcription) {
                 // Get file first.
                 $fs = get_file_storage();
                 $file = $fs->get_file_by_id($transcription->file_id);
                 if ($file === false) {
-                    mtrace('job ' . $attachmentjob->id . ':(FILE NOT FOUND) file could not be found: ' . $transcription->file_id . " ({$transcription->lang})");
+                    mtrace('job ' . $attachmentjob->id . ':(FILE NOT FOUND) file could not be found: '
+                        . $transcription->file_id . " ({$transcription->lang})");
                     continue;
                 }
                 // Prepare flavor based on the flavor code.
@@ -191,7 +191,8 @@ class attachment_helper {
             }
             // Finalize the upload process.
             $transcriptionuploadworkflow = get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid);
-            $success = self::perform_finalize_upload_attachment($ocinstanceid, $eventidentifier, $transcriptionuploadworkflow, $mediapackagexml);
+            $success = self::perform_finalize_upload_attachment($ocinstanceid, $eventidentifier,
+                $transcriptionuploadworkflow, $mediapackagexml);
             if ($success) {
                 mtrace('job ' . $attachmentjob->id . ':(UPLOADED) Attachemtns are uploaded and workflow is started.');
                 self::change_job_status($attachmentjob, self::STATUS_DONE);
@@ -283,8 +284,7 @@ class attachment_helper {
      *
      * @return string mediapackage
      */
-    private static function remove_existing_flavor_from_mediapackage($mediapackagexml, $attributetype, $value)
-    {
+    private static function remove_existing_flavor_from_mediapackage($mediapackagexml, $attributetype, $value) {
         $mediapackage = simplexml_load_string($mediapackagexml);
         $i = 0;
         $toremove = [];
@@ -312,8 +312,7 @@ class attachment_helper {
      *
      * @return boolean the result of starting workflow.
      */
-    private static function perform_finalize_upload_attachment($ocinstanceid, $eventidentifier, $workflow, $mediapackage = '')
-    {
+    private static function perform_finalize_upload_attachment($ocinstanceid, $eventidentifier, $workflow, $mediapackage = '') {
         $apibridge = apibridge::get_instance($ocinstanceid);
         // If mediapackage is provided, we take a snapshot from it.
         if (!empty($mediapackage)) {
@@ -341,7 +340,8 @@ class attachment_helper {
         try {
             // Take snapshot.
             $apibridge->take_snapshot($mediapackagexml);
-            $ingested = $apibridge->ingest($mediapackagexml, get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
+            $ingested = $apibridge->ingest($mediapackagexml,
+                get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
             if (!empty($ingested)) {
                 $success = true;
             }
@@ -359,7 +359,7 @@ class attachment_helper {
      * @param int $ocinstanceid id of opencast instance
      * @param string $eventidentifier id of video
      *
-     * @return boolean the result of starting workflow after upload 
+     * @return boolean the result of starting workflow after upload
      */
     public static function upload_single_transcription($file, $flavorservice, $ocinstanceid, $eventidentifier) {
         $apibridge = apibridge::get_instance($ocinstanceid);
@@ -369,7 +369,8 @@ class attachment_helper {
         $mediapackagexml = self::perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor);
         // Finalizing the attachment upload.
         $transcriptionuploadworkflow = get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid);
-        $success = self::perform_finalize_upload_attachment($ocinstanceid, $eventidentifier, $transcriptionuploadworkflow, $mediapackagexml);
+        $success = self::perform_finalize_upload_attachment($ocinstanceid, $eventidentifier,
+            $transcriptionuploadworkflow, $mediapackagexml);
         return $success;
     }
 

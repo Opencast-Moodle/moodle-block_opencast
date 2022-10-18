@@ -244,7 +244,7 @@ if ($data = $addvideoform->get_data()) {
         $attachments->transcriptions = $transcriptions;
     }
     // Adding attachment object to the options.
-    $options->attachments =  $attachments;
+    $options->attachments = $attachments;
 
     // Prepare the visibility object.
     $visibility = new \stdClass();

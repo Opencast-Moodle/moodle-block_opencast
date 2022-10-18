@@ -165,8 +165,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}]';
 
-            $defaulttranscriptionflavors = '[{"key":"de","value":"Amberscript German"},{"key":"en","value":"Amberscript English"},' .
-                '{"key":"deu","value":"Vosk German"},{"key":"eng","value":"Vosk English"}]';
+            $defaulttranscriptionflavors = '[{"key":"de","value":"Amberscript German"},' .
+                '{"key":"en","value":"Amberscript English"},{"key":"deu","value":"Vosk German"},' .
+                '{"key":"eng","value":"Vosk English"}]';
 
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
@@ -326,7 +327,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $generalsettings->add(
                 new admin_setting_filetypes('block_opencast/transcriptionfileextensions_' . $instance->id,
                     new lang_string('transcriptionfileextensions', 'block_opencast'),
-                    get_string('transcriptionfileextensions_desc', 'block_opencast', $CFG->wwwroot . '/admin/tool/filetypes/index.php')
+                    get_string('transcriptionfileextensions_desc', 'block_opencast',
+                        $CFG->wwwroot . '/admin/tool/filetypes/index.php')
             ));
             $generalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');

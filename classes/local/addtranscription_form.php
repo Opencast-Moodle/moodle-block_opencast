@@ -69,7 +69,7 @@ class addtranscription_form extends \moodleform {
                 $transcriptiontypes[] = $transcriptiontype;
             }
         }
-        
+
         // Preparing flavors as for service types.
         $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
         $flavors = [

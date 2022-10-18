@@ -81,7 +81,7 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     }
 
     $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
-    
+
     // Make sure the endpoint is correct.
     if (strpos($endpoint, 'http') !== 0) {
         $endpoint = 'http://' . $endpoint;

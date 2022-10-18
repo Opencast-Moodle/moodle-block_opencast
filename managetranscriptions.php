@@ -54,7 +54,8 @@ $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-    redirect($redirecturl, get_string('unabletomanagetranscriptions', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+    redirect($redirecturl,
+        get_string('unabletomanagetranscriptions', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
 }
 
 // Create new url.
@@ -93,7 +94,9 @@ foreach ($mediapackage->attachments->attachment as $attachment) {
         if (array_key_exists($flavortype, $flavors)) {
             $flavorname = $flavors[$flavortype];
         }
-        $attachmentarray->flavor = !empty($flavorname) ? $flavorname : get_string('notranscriptionflavor', 'block_opencast', $flavortype);
+        $attachmentarray->flavor = !empty($flavorname) ?
+            $flavorname :
+            get_string('notranscriptionflavor', 'block_opencast', $flavortype);
 
         // Extracting id and type from attributes.
         $attachmentarray->id = $attachmentarray->{'@attributes'}->id;
