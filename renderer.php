@@ -964,7 +964,6 @@ class block_opencast_renderer extends plugin_renderer_base {
             $actionmenu->add(new action_menu_link_secondary(
                 new \moodle_url('/blocks/opencast/managetranscriptions.php',
                     array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
-                // new pix_icon('i/report', get_string('managetranscriptions', 'block_opencast')),
                 new pix_icon('caption', get_string('managetranscriptions', 'block_opencast'), 'block_opencast'),
                 get_string('managetranscriptions', 'block_opencast')
             ));
