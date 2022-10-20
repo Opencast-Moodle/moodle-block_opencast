@@ -300,7 +300,6 @@ class attachment_helper {
 
     /**
      * Performs the final touches after uploading attachment.
-     * Takes a snapshot from mediapackage if requested and runs the configured workflow.
      *
      * @param int $ocinstanceid the id of opencast instance.
      * @param string $mediapackage the mediapackage to ingest

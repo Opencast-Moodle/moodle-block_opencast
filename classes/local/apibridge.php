@@ -2774,32 +2774,6 @@ class apibridge {
     }
 
     /**
-     * Takes a snapshot of the mediapackage.
-     *
-     * @param string $mediapackage Mediapackage
-     *
-     * @return string event's mediapackage
-     * @throws \dml_exception
-     * @throws \moodle_exception
-     * @throws opencast_connection_exception
-     */
-    public function take_snapshot($mediapackage) {
-        // Without this '+' becomes ' ' (space).
-        $mediapackagexml = str_replace('+', '%2B', $mediapackage);
-        $resource = '/assets/snapshot';
-        $params['mediapackage'] = $mediapackagexml;
-
-        $api = api::get_instance($this->ocinstanceid);
-        $result = $api->oc_post($resource, $params);
-
-        if ($api->get_http_code() === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        }
-
-        return $api->get_http_code() < 400;
-    }
-
-    /**
      * The allowance of editing event's transcription
      * @param object $video Opencast video
      * @param int $courseid Course id
