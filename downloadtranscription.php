@@ -88,42 +88,40 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     $downloadwithlti = get_config('block_opencast', 'ltidownloadtranscription_' . $ocinstanceid);
     if ($downloadwithlti) {
         $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
-    
+
         // Make sure the endpoint is correct.
         if (strpos($endpoint, 'http') !== 0) {
             $endpoint = 'http://' . $endpoint;
         }
-    
+
         $consumerkey = $apibridge->get_lti_consumerkey();
         $consumersecret = $apibridge->get_lti_consumersecret();
-    
+
         if (empty($consumerkey)) {
             redirect($downloadurl);
         }
-    
+
         $ltiendpoint = rtrim($endpoint, '/') . '/lti';
-    
+
         // Create parameters.
-        $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $downloadurl);
-    
+        $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret,
+            $ltiendpoint, $downloadurl);
+
         $renderer = $PAGE->get_renderer('block_opencast');
-    
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('downloadtranscription', 'block_opencast'));
         echo $renderer->render_lti_form($ltiendpoint, $params);
-    
         $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
         echo $OUTPUT->footer();
     } else {
         ob_clean();
         $urlparts = explode('/', $downloadurl);
-        $filename = $urlparts[sizeof($urlparts) - 1];
+        $filename = $urlparts[count($urlparts) - 1];
 
         header('Content-Description: Download Transcription File');
         header('Content-Type: ' . $mimetype);
         header('Content-Disposition: attachment; filename*=UTF-8\'\'' . rawurlencode($filename));
         header('Content-Length: ' . $size);
-
 
         if (is_https()) { // HTTPS sites - watch out for IE! KB812935 and KB316431.
             header('Cache-Control: private, max-age=10, no-transform');
