@@ -45,7 +45,7 @@
                             {{flavor}}
                         </td>
                         <td width="10%">
-                            <a class="iconsmall" target="_blank" title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
+                            <a class="iconsmall" {{#downloadblanktarget}}target="_blank"{{/downloadblanktarget}} title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
                                 {{#pix}} i/down, core{{/pix}}
                             </a>
                             {{#candelete}}

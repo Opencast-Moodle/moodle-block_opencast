@@ -1227,16 +1227,18 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param array $list list of current transcriptions
      * @param string $addnewurl add new transcription url
      * @param boolean $candelete whether to provide delete feature
+     * @param boolean $downloadblanktarget whether to redirect download to a new page or not
      * @return bool|string
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $candelete = false) {
+    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $candelete = false, $downloadblanktarget = false) {
         $context = new stdClass();
         $context->list = $list;
         $context->listhascontent = !empty($list) ? true : false;
         $context->addnewurl = $addnewurl;
         $context->candelete = $candelete;
+        $context->downloadblanktarget = $downloadblanktarget;
         return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
 }

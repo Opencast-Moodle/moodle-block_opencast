@@ -751,6 +751,9 @@ $string['transcriptionsettingsheader'] = 'Settings for Transcription';
 $string['transcriptionworkflow'] = 'Workflow for transcription (speech to text)';
 $string['transcriptionworkflow_desc'] = 'This workflow is triggered when transcription files are attached to the video. If not set, uploading and managing transcriptions is not provided.<br>By setting this workflow, a new section to upload transcription files in the add video page as well as a new action menu item in overview page is provided, to upload/handle the new/current transcriptions files.';
 $string['deletetranscriptionworkflow'] = 'Workflow for delete transcription';
+$string['ltidownloadtranscription'] = 'Download transcription with LTI';
+$string['ltidownloadtranscription_desc'] = 'When enabled, the transcription download button will redirect users to a new page and performs an LTI authentification by which the users will the get the content of the transcription file.<br>
+    NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
 $string['transcription_flavor_key'] = 'Flavor key';
 $string['transcription_flavor_value'] = 'Flavor value';
 $string['transcription_flavor_delete'] = 'Delete flavor oprion pair';

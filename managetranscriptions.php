@@ -79,7 +79,8 @@ if (!empty($flavorsconfig)) {
         }
     }
 }
-
+// Check if download button should perform LTI, then we pass _blank as its target.
+$downloadblanktarget = get_config('block_opencast', 'ltidownloadtranscription_' . $ocinstanceid);
 // Extract caption from attachments.
 $list = [];
 $mediapackagexml = $apibridge->get_event_media_package($identifier);
@@ -122,5 +123,5 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managetranscriptions_header', 'block_opencast'));
-echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete);
+echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete, $downloadblanktarget);
 echo $OUTPUT->footer();
