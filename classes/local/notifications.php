@@ -356,4 +356,30 @@ class notifications {
 
         self::send_message('opencasteventstatus_notification', $touser, $subject, $body);
     }
+
+    /**
+     * Notify user about upload queue.
+     * @param int $courseid Course id
+     * @param object $touser User to which notification is sent
+     * @param string $message the message containing the status of the event.
+     */
+    public static function notify_upload_queue_status($courseid, $touser, $waitingnum, $videotitle) {
+        global $DB;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'videotitle' => $videotitle,
+            'waitingnum' => $waitingnum
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('notificationuploaduqeuestatus_subj', 'block_opencast');
+        $body = get_string('notificationuploaduqeuestatus_body', 'block_opencast', $a);
+
+        self::send_message('opencasteventstatus_notification', $touser, $subject, $body);
+    }
 }

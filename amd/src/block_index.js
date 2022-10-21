@@ -21,8 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url', 'core/notification'],
-    function($, ModalFactory, ModalEvents, str, url, Notification) {
+define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url', 'core/notification', 'core/toast', 'core/ajax'],
+    function($, ModalFactory, ModalEvents, str, url, Notification, Toast, Ajax) {
+        /**
+         * Instantiate the window variable in order to work with Intervals
+         *
+         */
+        window.liveUpdateInterval = null;
+        window.liveUpdateItemsWithError = [];
 
         var initWorkflowModal = function(ocinstanceid, courseid, langstrings) {
             if (document.getElementById('workflowsjson')) {
@@ -127,9 +133,168 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
         };
 
         /*
+         * Initialise the status live update in the overview page.
+         */
+        var initLiveUpdate = function(ocinstanceid, contextid, reloadtimeout) {
+            if (window.liveUpdateInterval != null) {
+                clearInterval(window.liveUpdateInterval);
+            }
+            window.liveUpdateItemsWithError = [];
+            var items = getLiveUpdateItems();
+            if (items.length) {
+                window.liveUpdateInterval = setInterval(function () {
+                    var processingItems = getLiveUpdateProcessingItems();
+                    var uploadingItems = getLiveUpdateUploadingItems();
+                    if (processingItems.length == 0 && uploadingItems.length == 0) {
+                        clearInterval(window.liveUpdateInterval);
+                        if (window.liveUpdateItemsWithError.length > 0) {
+                            var titles = window.liveUpdateItemsWithError.join('</li><li>');
+                            str.get_string('liveupdate_fail_notification_message', 'block_opencast', titles)
+                                .done(function(result) {
+                                    Notification.addNotification({
+                                        message: result,
+                                        type: 'error'
+                                    });
+                                })
+                                .fail(Notification.exception);
+                        }
+                        return;
+                    }
+                    for (var processingItem of processingItems) {
+                        liveUpdatePerformAjax('processing', ocinstanceid, contextid, processingItem, reloadtimeout);
+                    }
+                    for (var uploadingItem of uploadingItems) {
+                        liveUpdatePerformAjax('uploading', ocinstanceid, contextid, uploadingItem, reloadtimeout);
+                    }
+                }, 1000, ocinstanceid, contextid, url, reloadtimeout);
+            }
+        };
+
+        /*
+         * Gets all status live updates items (flags).
+         */
+        var getLiveUpdateItems = function() {
+            var processingItems = getLiveUpdateProcessingItems();
+            var uploadingItems = getLiveUpdateUploadingItems();
+            return processingItems.concat(uploadingItems);
+        };
+
+        /*
+         * Gets all status live updates items for Processing states.
+         */
+        var getLiveUpdateProcessingItems = function() {
+            var itemsNodeList = document.getElementsByName('liveupdate_processing_item');
+            return Array.from(itemsNodeList);
+        };
+
+        /*
+         * Gets all status live updates items for uploading status.
+         */
+        var getLiveUpdateUploadingItems = function() {
+            var itemsNodeList = document.getElementsByName('liveupdate_uploading_item');
+            return Array.from(itemsNodeList);
+        };
+
+        /*
+         * Perform status live update Ajax call to the backend to get the related info.
+         */
+        var liveUpdatePerformAjax = function(type, ocinstanceid, contextid, item, reloadtimeout) {
+            var identifier = item.value;
+            var title = item?.dataset?.title ? item.dataset.title : '';
+            if (identifier == undefined || title == '') {
+                window.liveUpdateItemsWithError.push(title);
+                item.remove();
+                return;
+            }
+            Ajax.call([{
+                methodname: 'block_opencast_get_liveupdate_info',
+                args: {contextid: contextid, ocinstanceid: ocinstanceid, type: type, identifier: identifier},
+                done: function(status) {
+                    if (status == '') {
+                        window.liveUpdateItemsWithError.push(title);
+                        item.remove();
+                        return;
+                    }
+                    var statusObject = JSON.parse(status);
+                    if (statusObject.replace != '') {
+                        replaceLiveUpdateInfo(item, statusObject.replace);
+                    }
+                    if (statusObject.remove == true) {
+                        item.remove();
+                        var stringparams = {
+                            timeout: reloadtimeout,
+                            title: title
+                        };
+                        str.get_string('liveupdate_toast_notification', 'block_opencast', stringparams)
+                            .done(function(result) {
+                                Toast.add(result);
+                            })
+                            .fail(Notification.exception);
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, reloadtimeout * 1000);
+                    }
+                },
+                fail: function(er) {
+                    window.liveUpdateItemsWithError.push(title);
+                    item.remove();
+                }
+            }]);
+        };
+
+        /*
+         * Replace the new live update status with the current one for both text and DOM element.
+         */
+        var replaceLiveUpdateInfo = function(item, replace) {
+            if (item == undefined || replace == '' || typeof replace != 'string') {
+                return;
+            }
+            var newDiv = document.createElement('div');
+            newDiv.innerHTML = replace.trim();
+            var replaceElm = newDiv.firstChild;
+            if (replaceElm.nodeName == '#text') {
+                var prevText = item.parentNode.firstChild;
+                prevText.remove();
+                var newText = document.createTextNode(replace.trim());
+                item.parentNode.insertBefore(newText, item);
+            } else if (item.previousElementSibling) {
+                var prevElm = item.previousElementSibling;
+                var newDiv = document.createElement('div');
+                newDiv.innerHTML = replace.trim();
+                var replaceElm = newDiv.firstChild;
+                if (!areElementsEqual(replaceElm, prevElm)) {
+                    prevElm.remove();
+                    item.parentNode.insertBefore(replaceElm, item);
+                }
+            }
+        };
+
+        /*
+         * Checks if the liev update DOM elements (new vs old) are equal. 
+         */
+        var areElementsEqual = function(baseElm, checkElm) {
+            var isEqual = true;
+            var attributes = baseElm.getAttributeNames();
+            for (var attributeName of attributes) {
+                var baseAttributeValue = baseElm.getAttribute(attributeName).trim();
+                var checkAttributeValue = '';
+                if (checkElm.hasAttribute(attributeName)) {
+                    checkAttributeValue = checkElm.getAttribute(attributeName).trim();
+                }
+                if (checkAttributeValue == '') {
+                    continue;
+                }
+                if (checkAttributeValue != baseAttributeValue) {
+                    isEqual = false;
+                }
+            }
+            return isEqual;
+        }
+
+        /*
          * Initialise all of the modules for the opencast block.
          */
-        var init = function(courseid, ocinstanceid) {
+        var init = function(courseid, ocinstanceid, contextid, liveupdate) {
             // Load strings
             var strings = [
                 {
@@ -178,6 +343,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                     $('#startWorkflowForm').submit();
                 }
             });
+            if (liveupdate.enabled) {
+                initLiveUpdate(ocinstanceid, contextid, liveupdate.timeout);
+            }
         };
 
         return {

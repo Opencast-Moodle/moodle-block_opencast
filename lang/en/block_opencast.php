@@ -484,6 +484,12 @@ $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
+$string['ingeststatecreatingmedispackage'] = 'Creating mediapackage...';
+$string['ingeststateaddingcatalog'] = 'Adding event catalog...';
+$string['ingeststateaddingfirsttrack'] = 'Adding first track...';
+$string['ingeststateaddingsecondtrack'] = 'Adding second track...';
+$string['ingeststateaddingacls'] = 'Adding rights and permissions...';
+$string['ingeststateingesting'] = 'Ingesting...';
 
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
@@ -745,6 +751,15 @@ $string['defaultssaved'] = 'Default values are saved.';
 $string['heading_defaultable'] = 'Defaultable';
 $string['descriptionmddefaultable'] = 'Defaultable';
 $string['descriptionmddefaultable_help'] = 'When enabled, users can add default value for this field.';
-
+// Strings for live update feature.
+$string['liveupdate_settingheader'] = 'Live Status Update';
+$string['liveupdate_settingenabled'] = 'Enable live status update feature';
+$string['liveupdate_settingenabled_desc'] = 'When enabled, uploading status and workflow processing states will be watched when they are in an ongoing process,<br>This is done by pulling the status information for those processes in a 1 second interval.';
+$string['liveupdate_reloadtimeout'] = 'Page reload timeout (in seconds)';
+$string['liveupdate_reloadtimeout_desc'] = 'The timeout in seconds by which the page will be reloaded, when there is an updated status identified. If empty or less than 0, a default value of 3 seconds will be considered.<br>NOTE: Before reloading the page a teachers will be notified. The reload is important, so that every required backend process take place.';
+$string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The page will be reloaded in {$a->timeout} seconds.';
+$string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
+$string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
+$string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

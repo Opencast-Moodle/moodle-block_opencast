@@ -405,4 +405,29 @@ class ingest_uploader {
 
         $DB->update_record('block_opencast_uploadjob', $job);
     }
+
+    /**
+     * Get explaination string for ingest status code
+     * @param int $statuscode Status code
+     * @return \lang_string|string Name of status code or empty if not found.
+     */
+    public static function get_status_string($statuscode) {
+
+        switch ($statuscode) {
+            case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE :
+                return get_string('ingeststatecreatingmedispackage', 'block_opencast');
+            case self::STATUS_INGEST_ADDING_EPISODE_CATALOG :
+                return get_string('ingeststateaddingcatalog', 'block_opencast');
+            case self::STATUS_INGEST_ADDING_FIRST_TRACK :
+                return get_string('ingeststateaddingfirsttrack', 'block_opencast');
+            case self::STATUS_INGEST_ADDING_SECOND_TRACK :
+                return get_string('ingeststateaddingsecondtrack', 'block_opencast');
+            case self::STATUS_INGEST_ADDING_ACL_ATTACHMENT :
+                return get_string('ingeststateaddingacls', 'block_opencast');
+            case self::STATUS_INGEST_INGESTING :
+                return get_string('ingeststateingesting', 'block_opencast');
+            default :
+                '';
+        }
+    }
 }

@@ -112,6 +112,10 @@ class eventstatus_notification_helper {
 
         // If the video is not available anymore, we just print it out.
         if (!$video) {
+            $job->status = 'FAILED';
+            $job->notified = 1;
+            // Update job for further actions and decisions.
+            $DB->update_record('block_opencast_notifications', $job);
             mtrace('job ' . $job->id . ' deleted due to unavailable video.');
             return;
         }
@@ -157,7 +161,7 @@ class eventstatus_notification_helper {
         // Initialize the user list as an empty array.
         $usertolist = [];
         // Add uploader user object to the user list.
-        $usertolist[] = \core_user::get_user($job->userid);
+        $usertolist[] = $DB->get_record('user', array('id' => $job->userid));
 
         // Get admin config to check if all teachers of the course should be notified as well.
         $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
@@ -174,7 +178,7 @@ class eventstatus_notification_helper {
                 foreach ($teachers as $teacher) {
                     // We need to make sure that the uploader is not in the teachers list.
                     if ($teacher->id != $job->userid) {
-                        $usertolist[] = $teacher;
+                        $usertolist[] = $DB->get_record('user', array('id' => $teacher->id));
                     }
                 }
             }
@@ -186,6 +190,67 @@ class eventstatus_notification_helper {
         // Notify users one by one.
         foreach ($usertolist as $userto) {
             notifications::notify_event_status($job->courseid, $userto, $statusmessage, $video);
+        }
+    }
+
+    /**
+     * Notify users about the upload process.
+     * Preparing the userlists by checking against admin setting.
+     * Preparting the message status text.
+     * Send notification using notification class.
+     *
+     * @param object $job represents the upload job.
+     * @param object $metadata represents the metadate object for the upload job.
+     *
+     */
+    public static function notify_users_upload_queue($job, $metadata) {
+        global $DB;
+        // Initialize the user list as an empty array.
+        $usertolist = [];
+        // Add uploader user object to the user list.
+        $usertolist[] = $DB->get_record('user', array('id' => $job->userid));
+
+        // Get admin config to check if all teachers of the course should be notified as well.
+        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
+        if ($notifyteachers) {
+            // Get the role of teachers.
+            $role = $DB->get_record('role', array('shortname' => 'editingteacher'));
+            // Get the course context.
+            $context = \context_course::instance($job->courseid);
+            // Get the teachers based on their role in the course context.
+            $teachers = get_role_users($role->id, $context);
+
+            // If teachers array list is not empty, we add them to the user list.
+            if (!empty($teachers)) {
+                foreach ($teachers as $teacher) {
+                    // We need to make sure that the uploader is not in the teachers list.
+                    if ($teacher->id != $job->userid) {
+                        $usertolist[] = $DB->get_record('user', array('id' => $teacher->id));
+                    }
+                }
+            }
+        }
+
+        $where = 'status <> :status';
+        $params = [
+            'status' => upload_helper::STATUS_TRANSFERRED
+        ];
+        $allqueuednum = $DB->count_records_select('block_opencast_uploadjob', $where, $params);
+        $waitingnum = 0;
+        if ($allqueuednum > 1) {
+            $waitingnum = $allqueuednum - 1;
+        }
+        $metadata = json_decode($metadata);
+        $title = '';
+        foreach ($metadata as $dbcitem) {
+            if ($dbcitem->id == 'title') {
+                $title = $dbcitem->value;
+                break;
+            }
+        }
+        // Notify users one by one.
+        foreach ($usertolist as $userto) {
+            notifications::notify_upload_queue_status($job->courseid, $userto, $waitingnum, $title);
         }
     }
 
