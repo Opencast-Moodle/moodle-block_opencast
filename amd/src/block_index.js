@@ -21,7 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/url', 'core/notification', 'core/toast', 'core/ajax'],
+define(['jquery', 'core/modal_factory', 'core/modal_events',
+    'core/str', 'core/url', 'core/notification', 'core/toast', 'core/ajax'],
     function($, ModalFactory, ModalEvents, str, url, Notification, Toast, Ajax) {
         /**
          * Instantiate the window variable in order to work with Intervals
@@ -136,13 +137,13 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
          * Initialise the status live update in the overview page.
          */
         var initLiveUpdate = function(ocinstanceid, contextid, reloadtimeout) {
-            if (window.liveUpdateInterval != null) {
+            if (window.liveUpdateInterval !== null) {
                 clearInterval(window.liveUpdateInterval);
             }
             window.liveUpdateItemsWithError = [];
             var items = getLiveUpdateItems();
             if (items.length) {
-                window.liveUpdateInterval = setInterval(function () {
+                window.liveUpdateInterval = setInterval(function() {
                     var processingItems = getLiveUpdateProcessingItems();
                     var uploadingItems = getLiveUpdateUploadingItems();
                     if (processingItems.length == 0 && uploadingItems.length == 0) {
@@ -235,7 +236,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                         }, reloadtimeout * 1000);
                     }
                 },
-                fail: function(er) {
+                fail: function() {
                     window.liveUpdateItemsWithError.push(title);
                     item.remove();
                 }
@@ -259,9 +260,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                 item.parentNode.insertBefore(newText, item);
             } else if (item.previousElementSibling) {
                 var prevElm = item.previousElementSibling;
-                var newDiv = document.createElement('div');
                 newDiv.innerHTML = replace.trim();
-                var replaceElm = newDiv.firstChild;
                 if (!areElementsEqual(replaceElm, prevElm)) {
                     prevElm.remove();
                     item.parentNode.insertBefore(replaceElm, item);
@@ -270,7 +269,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
         };
 
         /*
-         * Checks if the liev update DOM elements (new vs old) are equal. 
+         * Checks if the liev update DOM elements (new vs old) are equal.
          */
         var areElementsEqual = function(baseElm, checkElm) {
             var isEqual = true;
@@ -289,7 +288,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events', 'core/str', 'core/u
                 }
             }
             return isEqual;
-        }
+        };
 
         /*
          * Initialise all of the modules for the opencast block.

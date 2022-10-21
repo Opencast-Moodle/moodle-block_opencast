@@ -99,7 +99,7 @@ class liveupdate_helper {
 
     /**
      * Get the live update info for uploading status.
-     * It uses the block_opencast renderer to render the uploading status. 
+     * It uses the block_opencast renderer to render the uploading status.
      *
      * @param int uploadjobid the id of upload job
      * @return array|string $info the live update info or empty string if error happens.

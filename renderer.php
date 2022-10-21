@@ -580,11 +580,11 @@ class block_opencast_renderer extends plugin_renderer_base {
             $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
         }
 
-        // The status code greater than 200 is assigned for ingest upload. 
+        // The status code greater than 200 is assigned for ingest upload.
         if (intval($statuscode) >= 200) {
             $statusstring = \block_opencast\local\ingest_uploader::get_status_string($statuscode);
         }
-        
+
         // It the statusstring is still empty, we return unknown.
         if (empty($statusstring)) {
             $statusstring = get_string('mstateunknown', 'block_opencast');
@@ -703,7 +703,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid))) {
                 $status .= liveupdate_helper::get_liveupdate_uploading_hidden_input($uploadjob->id, $title);
             }
-            $row[] =  $status;
+            $row[] = $status;
             $row[] = fullname($uploadjob);
             if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);

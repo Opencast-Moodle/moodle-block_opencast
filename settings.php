@@ -677,7 +677,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_heading('block_opencast/liveupdate_settingheader_' . $instance->id,
                     get_string('liveupdate_settingheader', 'block_opencast'),
                     ''));
-            
+
             // Enables live status update here.
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/liveupdateenabled_' . $instance->id,

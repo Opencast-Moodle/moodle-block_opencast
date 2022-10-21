@@ -361,7 +361,8 @@ class notifications {
      * Notify user about upload queue.
      * @param int $courseid Course id
      * @param object $touser User to which notification is sent
-     * @param string $message the message containing the status of the event.
+     * @param int $waitingnum the number of jobs in the queue ahead
+     * @param string $videotitle the title of the video
      */
     public static function notify_upload_queue_status($courseid, $touser, $waitingnum, $videotitle) {
         global $DB;
