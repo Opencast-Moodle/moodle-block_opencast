@@ -26,6 +26,7 @@ require_once('../../config.php');
 require_once('./renderer.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\visibility_helper;
 
 global $PAGE, $OUTPUT, $CFG;
 
@@ -58,7 +59,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $visibility = $apibridge->is_event_visible($identifier, $courseid);
-if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
+if ($visibility === \block_opencast_renderer::MIXED_VISIBILITY) {
     $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier, 'ocinstanceid' => $ocinstanceid));
     if ($groups) {
         $visibility = \block_opencast_renderer::GROUP;
@@ -66,9 +67,11 @@ if ($visibility === \block_opencast_renderer::MIXED_VISIBLITY) {
         $visibility = \block_opencast_renderer::HIDDEN;
     }
 }
+$scheduledvisibility = visibility_helper::get_event_scheduled_visibility($ocinstanceid, $courseid, $identifier);
 
 $changevisibilityform = new \block_opencast\local\visibility_form(null, array('courseid' => $courseid,
-    'identifier' => $identifier, 'visibility' => $visibility, 'ocinstanceid' => $ocinstanceid));
+    'identifier' => $identifier, 'visibility' => $visibility, 'ocinstanceid' => $ocinstanceid,
+    'scheduledvisibility' => $scheduledvisibility));
 
 // Check if video exists.
 $courseseries = $apibridge->get_course_series($courseid);
@@ -91,12 +94,16 @@ if (!$video) {
     redirect($redirecturl, $message);
 }
 
+if ($video->processing_state == 'RUNNING' || $video->processing_state == 'PAUSED') {
+    $message = get_string('worklowisrunning', 'block_opencast');
+    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
+}
+
 // Workflow is not set.
 if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "") {
     $message = get_string('workflownotdefined', 'block_opencast', $video->video);
     redirect($redirecturl, $message, null, \core\notification::ERROR);
 }
-
 
 if ($changevisibilityform->is_cancelled()) {
     redirect($redirecturl);
@@ -105,23 +112,100 @@ if ($changevisibilityform->is_cancelled()) {
 if ($data = $changevisibilityform->get_data()) {
     if (confirm_sesskey()) {
 
-        $groups = null;
-        if (property_exists($data, 'groups')) {
-            $groups = $data->groups;
+        $visibilitycode = '';
+        $requestscheduling = false;
+        if (isset($data->enableschedulingchangevisibility) && boolval($data->enableschedulingchangevisibility)) {
+            $requestscheduling = true;
         }
-        // Alter group access.
-        if ($code = $apibridge->change_visibility($identifier, $courseid, $data->visibility, $groups)) {
-            redirect($redirecturl, get_string($code, 'block_opencast', $video), null, \core\output\notification::NOTIFY_SUCCESS);
-        } else {
-            redirect($redirecturl, get_string('aclroleschangeerror', 'block_opencast', $video),
-                null, \core\output\notification::NOTIFY_ERROR);
+        // Change current visibility, if it is different from the previous visibility status.
+        if ($visibility != $data->visibility) {
+            $groups = null;
+            if (property_exists($data, 'groups')) {
+                $groups = $data->groups;
+            }
+            $visibilitycode = $apibridge->change_visibility($identifier, $courseid, $data->visibility, $groups);
+            // If there is any error, redirect with error message and skip the scheduling process.
+            if ($visibilitycode === false) {
+                $text = get_string('aclroleschangeerror', 'block_opencast', $video);
+                if ($requestscheduling) {
+                    $text .= get_string('scheduledvisibilitychangeskipped', 'block_opencast');
+                }
+                redirect($redirecturl, $text, null, \core\output\notification::NOTIFY_ERROR);
+            }
         }
+
+        $schedulingcode = '';
+        $schedulingresult = true;
+        // Check if the scheduled visibility is set, we update the record.
+        if ($requestscheduling) {
+            $initialvisibilitygroups = null;
+            if ($data->visibility == \block_opencast_renderer::GROUP
+                && !empty($data->groups)) {
+                $initialvisibilitygroups = json_encode($data->groups);
+            }
+            $scheduledvisibilitygroups = null;
+            if ($data->scheduledvisibilitystatus == \block_opencast_renderer::GROUP
+                && !empty($data->scheduledvisibilitygroups)) {
+                $scheduledvisibilitygroups = json_encode($data->scheduledvisibilitygroups);
+            }
+
+            // If the record already exists, we update it.
+            if (!empty($scheduledvisibility)) {
+                $scheduledvisibility->scheduledvisibilitytime = $data->scheduledvisibilitytime;
+                $scheduledvisibility->scheduledvisibilitystatus = $data->scheduledvisibilitystatus;
+                $scheduledvisibility->scheduledvisibilitygroups = $scheduledvisibilitygroups;
+                $schedulingresult = visibility_helper::update_visibility_job($scheduledvisibility);
+                $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangeupdated' : 'scheduledvisibilityupdatefailed';
+            } else {
+                // Otherwise, we create a new record.
+                $scheduledvisibility = new \stdClass();
+                $scheduledvisibility->initialvisibilitystatus = $data->visibility;
+                $scheduledvisibility->initialvisibilitygroups = $initialvisibilitygroups;
+                $scheduledvisibility->scheduledvisibilitytime = $data->scheduledvisibilitytime;
+                $scheduledvisibility->scheduledvisibilitystatus = $data->scheduledvisibilitystatus;
+                $scheduledvisibility->scheduledvisibilitygroups = $scheduledvisibilitygroups;
+                $scheduledvisibility->ocinstanceid = $ocinstanceid;
+                $scheduledvisibility->courseid = $courseid;
+                $scheduledvisibility->opencasteventid = $identifier;
+                $schedulingresult = visibility_helper::save_visibility_job($scheduledvisibility);
+                $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangecreated' : 'scheduledvisibilitycreatefailed';
+            }
+        } elseif (!empty($scheduledvisibility)) {
+            // If disabled and there is a scheduled visibility record, that means that it has to be removed.
+            $schedulingresult = visibility_helper::delete_visibility_job($scheduledvisibility);
+            $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangedeleted' : 'scheduledvisibilitydeletefailed';
+        }
+
+        $text = '';
+        $status = \core\output\notification::NOTIFY_SUCCESS;
+        if (!empty($visibilitycode)) {
+            $text = get_string($visibilitycode, 'block_opencast', $video);
+        }
+        if (!empty($schedulingcode)) {
+            if (!$schedulingresult) {
+                $status = empty($visibilitycode) ?  \core\output\notification::NOTIFY_ERROR :
+                    \core\output\notification::NOTIFY_WARNING;
+            }
+            $schedulingtext = get_string($schedulingcode, 'block_opencast');
+            $text = $text . (!empty($visibilitycode) ? '<br>' : '') . $schedulingtext;
+        }
+
+        // That happens when no changes are made to the visibility.
+        if (empty($text)) {
+            $text = get_string('novisibilitychange', 'block_opencast');
+            $redirecturl = $baseurl;
+            $status = \core\output\notification::NOTIFY_WARNING;
+        }
+        redirect($redirecturl, $text, null, $status);
     }
 }
 
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
+if (!empty($scheduledvisibility) && intval($scheduledvisibility->status) == visibility_helper::STATUS_FAILED) {
+    echo $OUTPUT->notification(get_string('scheduledvisibilitychangefailed', 'block_opencast'), 'error');
+}
 echo $OUTPUT->heading(get_string('changevisibility_header', 'block_opencast', $video));
 $changevisibilityform->display();
 echo $OUTPUT->footer();

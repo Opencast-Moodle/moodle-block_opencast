@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Task for processing the scheduled visibilty change jobs.
+ * Task for processing the scheduled visibility change jobs.
  * @package   block_opencast
  * @copyright  2022 Farbod Zamani Boroujeni, ELAN e.V.
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
@@ -24,7 +24,7 @@
 namespace block_opencast\task;
 
 /**
- * Task for processing the scheduled visibilty change jobs.
+ * Task for processing the scheduled visibility change jobs.
  * @package block_opencast
  */
 class process_visibility_cron extends \core\task\scheduled_task {

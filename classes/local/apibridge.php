@@ -600,7 +600,7 @@ class apibridge {
      * If $groups is empty the access is not restricted.
      * @return bool
      */
-    private function store_group_access($eventid, $groups) {
+    public function store_group_access($eventid, $groups) {
         try {
             $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid, 'ocinstanceid' => $this->ocinstanceid));
             if ($groupaccess) {
@@ -1168,22 +1168,6 @@ class apibridge {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
-        // Check if the group visibility is initialy set.
-        if (!empty($initialvisibility->groups)) {
-            $res = json_decode($result);
-            // Store group access based on event identifier.
-            $this->store_group_access($res->identifier, $initialvisibility->groups);
-        }
-
-        // Check if the visibility job is set and it has no scheduled time.
-        if (!empty($initialvisibility->visibilityjob) &&
-            empty($initialvisibility->visibilityjob->scheduledvisibilitytime)) {
-            $visibilityjob = $initialvisibility->visibilityjob;
-            // Change the status to complete, since the job finishes here.
-            $status = visibility_helper::STATUS_DONE;
-            visibility_helper::change_job_status($visibilityjob, $status);
-        }
-
         return $result;
     }
 
@@ -1394,7 +1378,7 @@ class apibridge {
         $event->set_json_acl($jsonacl);
 
         // Remove acls.
-        if ($oldvisibility === block_opencast_renderer::MIXED_VISIBLITY) {
+        if ($oldvisibility === block_opencast_renderer::MIXED_VISIBILITY) {
             $oldacls = array();
             array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
                 block_opencast_renderer::GROUP, $oldgroupsarray));
@@ -1612,7 +1596,7 @@ class apibridge {
             return \block_opencast_renderer::HIDDEN;
         } else {
             // In all other cases we have mixed visibility.
-            return \block_opencast_renderer::MIXED_VISIBLITY;
+            return \block_opencast_renderer::MIXED_VISIBILITY;
         }
     }
 
@@ -2511,7 +2495,7 @@ class apibridge {
         try {
             // Make it visible to the course does the ACL change accordingly.
             $visibilychanged = $this->change_visibility($identifier, $courseid, block_opencast_renderer::VISIBLE);
-            // In order to resolve the return result of the change_visibilty method, we assume non (false) values as true.
+            // In order to resolve the return result of the change_visibility method, we assume non (false) values as true.
             return ($visibilychanged !== false) ? true : false;
         } catch (\moodle_exception $e) {
             // It is unlikely, but who knows.

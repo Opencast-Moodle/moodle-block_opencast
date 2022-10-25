@@ -67,11 +67,11 @@ Since most operations in the upload process are done by opencast in an asynchron
 The teacher of a course wants to hide an uploaded video from the students.
 The (opencast) admin has definded student specific roles.
 
-Steps to change the visiblity:
+Steps to change the visibility:
 
 1. Go to the overview section of the block.</br>
 <img src="https://user-images.githubusercontent.com/9437254/46022814-9da8e180-c0e3-11e8-9040-848952089afe.png" width="500"></br>
-2. Click on the visiblity icon.
+2. Click on the visibility icon.
 3. In the visibility form the teacher can select the needed visibility state.</br>
 <img src="https://user-images.githubusercontent.com/9437254/46023014-01cba580-c0e4-11e8-9fe4-d8688cde1423.png" width="500"></br>
 4. The processing of the video starts:
