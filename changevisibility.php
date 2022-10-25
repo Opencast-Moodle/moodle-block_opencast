@@ -170,7 +170,7 @@ if ($data = $changevisibilityform->get_data()) {
                 $schedulingresult = visibility_helper::save_visibility_job($scheduledvisibility);
                 $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangecreated' : 'scheduledvisibilitycreatefailed';
             }
-        } elseif (!empty($scheduledvisibility)) {
+        } else if (!empty($scheduledvisibility)) {
             // If disabled and there is a scheduled visibility record, that means that it has to be removed.
             $schedulingresult = visibility_helper::delete_visibility_job($scheduledvisibility);
             $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangedeleted' : 'scheduledvisibilitydeletefailed';
@@ -183,7 +183,7 @@ if ($data = $changevisibilityform->get_data()) {
         }
         if (!empty($schedulingcode)) {
             if (!$schedulingresult) {
-                $status = empty($visibilitycode) ?  \core\output\notification::NOTIFY_ERROR :
+                $status = empty($visibilitycode) ? \core\output\notification::NOTIFY_ERROR :
                     \core\output\notification::NOTIFY_WARNING;
             }
             $schedulingtext = get_string($schedulingcode, 'block_opencast');

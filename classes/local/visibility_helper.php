@@ -146,7 +146,7 @@ class visibility_helper {
         if (!empty($job->uploadjobid) && empty($eventidentifier)) {
             mtrace('job ' . $job->id . ':(PENDING) event identifier does not exists yet.');
             return;
-        } elseif (empty($job->uploadjobid) && empty($eventidentifier)) {
+        } else if (empty($job->uploadjobid) && empty($eventidentifier)) {
             // If both eventidentifier and uploadjobid are empty, that means it is faulty and needs to be deleted.
             mtrace('job ' . $job->id . ':(ERROR) no event identifier is set.');
             self::change_job_status($job, $status);
