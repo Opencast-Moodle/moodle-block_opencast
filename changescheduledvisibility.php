@@ -28,7 +28,7 @@ require_once('./renderer.php');
 use block_opencast\local\apibridge;
 use block_opencast\local\visibility_helper;
 
-global $PAGE, $OUTPUT, $CFG;
+global $PAGE, $OUTPUT, $CFG, $DB;
 
 $uploadjobid = required_param('uploadjobid', PARAM_INT);
 $courseid = required_param('courseid', PARAM_INT);
@@ -46,7 +46,7 @@ $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('changescheduledvisibility', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('changescheduledvisibilityheader', 'block_opencast'), $baseurl);
 
 // Check if the ACL control feature is enabled.
 if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
@@ -68,7 +68,7 @@ $scheduledvisibilityform = new \block_opencast\local\scheduledvisibility_form(nu
 
 // Workflow is not set.
 if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "") {
-    $message = get_string('workflownotdefined', 'block_opencast', $video->video);
+    $message = get_string('workflownotdefined', 'block_opencast');
     redirect($redirecturl, $message, null, \core\notification::ERROR);
 }
 
@@ -97,10 +97,18 @@ if ($data = $scheduledvisibilityform->get_data()) {
         }
     }
 }
-
+// Try to extract the title from the upload job, which is stored in metadata table.
+$metadatarecord = $DB->get_record('block_opencast_metadata', ['uploadjobid' => $uploadjobid]);
+$metadata = !empty($metadatarecord->metadata) ? json_decode($metadatarecord->metadata) : array();
+$title = '';
+foreach ($metadata as $ms) {
+    if ($ms->id == 'title') {
+        $title = $ms->value;
+    }
+}
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('changescheduledvisibility', 'block_opencast'));
+echo $OUTPUT->heading(get_string('changescheduledvisibility', 'block_opencast', $title));
 $scheduledvisibilityform->display();
 echo $OUTPUT->footer();

@@ -101,7 +101,7 @@ if ($video->processing_state == 'RUNNING' || $video->processing_state == 'PAUSED
 
 // Workflow is not set.
 if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "") {
-    $message = get_string('workflownotdefined', 'block_opencast', $video->video);
+    $message = get_string('workflownotdefined', 'block_opencast');
     redirect($redirecturl, $message, null, \core\notification::ERROR);
 }
 
