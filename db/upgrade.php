@@ -21,6 +21,10 @@ use tool_opencast\local\settings_api;
  * @package   block_opencast
  * @copyright 2017 Tamara Gunkel, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * Execute opencast upgrade from the given old version
  *
  * @param int $oldversion
  * @return bool
