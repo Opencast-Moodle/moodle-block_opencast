@@ -434,9 +434,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                         ($isseriesowner && !$opencast->has_owner($video->acl)) ||
                         has_capability('block/opencast:canchangeownerforallvideos', context_system::instance())) &&
                     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
-
+                $canmanagetranscriptions = $opencast->can_edit_event_transcription($video, $courseid);
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
-                    $workflowsavailable, $coursecontext, $useeditor, $canchangeowner);
+                    $workflowsavailable, $coursecontext, $useeditor, $canchangeowner, $canmanagetranscriptions);
 
                 if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);

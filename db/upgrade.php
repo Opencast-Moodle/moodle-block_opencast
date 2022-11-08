@@ -760,5 +760,29 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022100400, 'opencast');
     }
 
+    if ($oldversion < 2022101800) {
+        // Define table block_opencast_attachments to be created.
+        $table = new xmldb_table('block_opencast_attachments');
+
+        // Adding fields to table block_opencast_attachments.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('files', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+
+        // Adding keys to table block_opencast_visibility.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('uploadjob_foreign', XMLDB_KEY_FOREIGN, ['uploadjobid'], 'block_opencast_uploadjob', ['id']);
+
+        // Conditionally launch create table for block_opencast_visibility.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2022101800, 'opencast');
+    }
+
     return true;
 }

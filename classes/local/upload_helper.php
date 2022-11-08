@@ -225,6 +225,17 @@ class upload_helper {
             visibility_helper::save_visibility_job($visibility);
         }
 
+        // Processing attachemnts.
+        if (property_exists($options, 'attachments')) {
+            // Save the transcription upload files.
+            if (property_exists($options->attachments, 'transcriptions') && !empty($options->attachments->transcriptions)) {
+                attachment_helper::save_attachment_upload_job(
+                    $uploadjobid,
+                    attachment_helper::ATTACHMENT_TYPE_TRANSCRIPTION,
+                    $options->attachments->transcriptions
+                );
+            }
+        }
         // Get admin config, whether to send notification or not.
         $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled) {
