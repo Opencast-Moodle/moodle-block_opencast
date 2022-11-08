@@ -95,6 +95,13 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             new admin_setting_configtext('block_opencast/cachevalidtime',
                 get_string('cachevalidtime', 'block_opencast'),
                 get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
+
+        // Upload timeout.
+        $sharedsettings->add(
+            new admin_setting_configtext('block_opencast/uploadtimeout',
+                get_string('uploadtimeout', 'block_opencast'),
+                get_string('uploadtimeoutdesc', 'block_opencast'), 60, PARAM_INT));
+
         $ADMIN->add('block_opencast', $sharedsettings);
 
         foreach ($ocinstances as $instance) {
@@ -678,9 +685,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/workflow_tag_' . $instance->id,
-                    get_string('workflowtag_setting', 'block_opencast'),
-                    get_string('workflowtag_settingdesc', 'block_opencast'), null));
+                new admin_setting_configtext('block_opencast/workflow_tags_' . $instance->id,
+                    get_string('workflowtags_setting', 'block_opencast'),
+                    get_string('workflowtags_settingdesc', 'block_opencast'), null));
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/support_email_' . $instance->id,
@@ -736,7 +743,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             } else {
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
-                $url = '/admin/settings.php?section=modsettinglti';
+                $url = new moodle_url('/admin/settings.php?section=modsettinglti');
                 $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
                 $description = get_string('addlti_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(
@@ -810,7 +817,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             } else {
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
-                $url = '/admin/settings.php?section=modsettinglti';
+                $url = new moodle_url('/admin/settings.php?section=modsettinglti');
                 $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
                 $description = get_string('addltiepisode_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(

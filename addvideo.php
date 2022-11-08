@@ -33,12 +33,15 @@ $courseid = required_param('courseid', PARAM_INT);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
+$baseurlparams = [
+    'ocinstanceid' => $ocinstanceid,
+    'courseid' => $courseid
+];
 if ($series) {
-    $baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid,
-        'ocinstanceid' => $ocinstanceid, 'series' => $series));
-} else {
-    $baseurl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $baseurlparams['series'] = $series;
 }
+$baseurl = new moodle_url('/blocks/opencast/addvideo.php', $baseurlparams);
+
 $PAGE->set_url($baseurl);
 
 if ($courseid == $SITE->id && $series) {
@@ -64,8 +67,7 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 if ($courseid == $SITE->id) {
     // If upload initiated from overview page, check that capability is given in specific course or ownership.
     if (!$series) {
-        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-            'series' => $series)),
+        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => null)),
             get_string('addvideonotallowed', 'block_opencast'), null,
             \core\output\notification::NOTIFY_ERROR);
     }
@@ -165,7 +167,7 @@ if ($data = $addvideoform->get_data()) {
     // Adding data into $metadata based on $metadata_catalog.
     foreach ($metadatacatalog as $field) {
         $id = $field->name;
-        if (property_exists($data, $field->name) and $data->$id) {
+        if (property_exists($data, $field->name) && $data->$id) {
             if ($field->name == 'title') { // Make sure the title is received!
                 $gettitle = false;
             }

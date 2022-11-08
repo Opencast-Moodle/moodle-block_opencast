@@ -72,7 +72,7 @@ if (!$result->error) {
 
         header('Content-Description: Download Video');
         header('Content-Type: ' . $mimetype);
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename*=UTF-8\'\'' . rawurlencode($filename));
         header('Content-Length: ' . $size);
 
 

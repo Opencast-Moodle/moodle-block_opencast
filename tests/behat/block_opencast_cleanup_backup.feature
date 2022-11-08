@@ -54,10 +54,10 @@ Feature: Restore courses as Teacher
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
     And I set the following fields to these values:
-      | Enable ”Add LTI series module"             | 1                |
+      | Enable "Add LTI series module"             | 1                |
       | Default LTI series module title            | Opencast videos  |
       | Preconfigured LTI tool for series modules  | Opencast series  |
-      | Enable ”Add LTI episode module"            | 1                |
+      | Enable "Add LTI episode module"            | 1                |
       | Preconfigured LTI tool for episode modules | Opencast episode |
     And I press "Save changes"
 
@@ -82,7 +82,7 @@ Feature: Restore courses as Teacher
       | Confirmation | Filename                                                     | test_backup.mbz |
       | Schema       | Include videos from Opencast instance Default in this course | 0               |
     And I restore "test_backup.mbz" backup into a new course using this options:
-      | Schema | Course name | Course 3 |
+      | Schema | Course name | Course 1 |
     And I click on "Go to overview..." "link"
     And I click on "Import videos" "button"
     And I click on "#import-course-1" "css_element"
@@ -94,7 +94,7 @@ Feature: Restore courses as Teacher
     When I click on "Import videos and return to overview" "button"
     Then I should see "The import of the selected videos into this course was scheduled"
     And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
-    And I click on "C1_1" "link"
+    And I am on "Course 1 copy 1" course homepage with editing mode on
     And I open "Opencast videos" actions menu
     And I choose "Edit settings" in the open action menu
     Then the field "Custom parameters" matches value "series=84bab8de-5688-46a1-9af0-5ce9122eeb6a"

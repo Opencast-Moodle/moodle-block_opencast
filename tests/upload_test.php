@@ -115,9 +115,9 @@ class upload_test extends advanced_testcase {
         ob_start();
         // Upload the file.
         $uploadhelper->cron();
-        sleep(10);
+        sleep(20);
         $uploadhelper->cron();
-        sleep(10);
+        sleep(20);
         $uploadhelper->cron();
         ob_end_clean();
 

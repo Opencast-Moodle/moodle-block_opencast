@@ -70,7 +70,7 @@ $string['addlti_settingdefaulttitle'] = 'Default LTI series module title';
 $string['addlti_settingdefaulttitle_desc'] = 'The default title to be used when a new Opencast LTI series module is added to a course.';
 $string['addlti_settingintro'] = 'Add series module intro';
 $string['addlti_settingintro_desc'] = 'If enabled, teachers can add an intro to the Opencast LTI series module. This intro will be shown on the course overview page.';
-$string['addlti_settingenabled'] = 'Enable ”Add LTI series module"';
+$string['addlti_settingenabled'] = 'Enable "Add LTI series module"';
 $string['addlti_settingenabled_desc'] = 'If enabled, teachers can add an Opencast LTI series module to a course. This LTI series module will be pointing to the course\'s Opencast series.';
 $string['addlti_settingheader'] = 'Add Opencast LTI series modules to courses';
 $string['addlti_settingpreconfiguredtool'] = 'Preconfigured LTI tool for series modules';
@@ -99,7 +99,7 @@ $string['addltiepisode_settingavailability'] = 'Set episode module availability'
 $string['addltiepisode_settingavailability_desc'] = 'If enabled, teachers can set the availability conditions when a new Opencast LTI episode module is added to a course.';
 $string['addltiepisode_settingintro'] = 'Add episode module intro';
 $string['addltiepisode_settingintro_desc'] = 'If enabled, teachers can add a intro to the Opencast LTI episode module. This intro will be shown on the course overview page.';
-$string['addltiepisode_settingenabled'] = 'Enable ”Add LTI episode module"';
+$string['addltiepisode_settingenabled'] = 'Enable "Add LTI episode module"';
 $string['addltiepisode_settingenabled_desc'] = 'If enabled, teachers can add an Opencast LTI episode module to a course. This LTI episode module will be pointing to an Opencast episode.';
 $string['addltiepisode_settingheader'] = 'Add Opencast LTI episode modules to courses';
 $string['addltiepisode_settingpreconfiguredtool'] = 'Preconfigured LTI tool for episode modules';
@@ -130,7 +130,7 @@ $string['addactivity_settingdefaulttitle'] = 'Default Opencast activity series m
 $string['addactivity_settingdefaulttitle_desc'] = 'The default title to be used when a new Opencast Video Provider activity for series is added to a course.';
 $string['addactivity_settingintro'] = 'Add series module intro';
 $string['addactivity_settingintro_desc'] = 'If enabled, teachers can add an intro to the Opencast activity series module. This intro will be shown on the course overview page.';
-$string['addactivity_settingenabled'] = 'Enable ”Add Opencast activity series module"';
+$string['addactivity_settingenabled'] = 'Enable "Add Opencast activity series module"';
 $string['addactivity_settingenabled_desc'] = 'If enabled, teachers can add an Opencast Activity series module to a course. This Activity series module will be pointing to the course\'s Opencast series.';
 $string['addactivity_settingheader'] = 'Add Opencast Activity modules to courses';
 $string['addactivity_settingsection'] = 'Choose series module section';
@@ -154,7 +154,7 @@ $string['addactivityepisode_settingavailability'] = 'Set episode module availabi
 $string['addactivityepisode_settingavailability_desc'] = 'If enabled, teachers can set the availability conditions when a new Opencast Activity episode module is added to a course.';
 $string['addactivityepisode_settingintro'] = 'Add episode module intro';
 $string['addactivityepisode_settingintro_desc'] = 'If enabled, teachers can add a intro to the Opencast Activity episode module. This intro will be shown on the course overview page.';
-$string['addactivityepisode_settingenabled'] = 'Enable ”Add Opencast Activity episode module"';
+$string['addactivityepisode_settingenabled'] = 'Enable "Add Opencast Activity episode module"';
 $string['addactivityepisode_settingenabled_desc'] = 'If enabled, teachers can add an Opencast Video Provider activity for episodes to a course. This Opencast Activity episode module will be pointing to an Opencast episode.';
 $string['addactivityepisode_settingsection'] = 'Choose episode module section';
 $string['addactivityepisode_settingsection_desc'] = 'If enabled, teachers can choose the section which the Opencast Activity episode module will be added to.';
@@ -222,7 +222,8 @@ $string['cronsettings'] = 'Settings for upload jobs';
 $string['catalogparam'] = 'Parameters in JSON-Format';
 $string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>
                                 <b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>
-                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show<br>
+                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show.
+                                <b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}No option selected{mlang}{mlang de}Keine Option ausgewählt{mlang}" or "{mlang en}English{mlang}{mlang de}Englisch{mlang}"<br>
                                 <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
                                 <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['contributor'] = 'Contributor(s)';
@@ -636,6 +637,8 @@ $string['uploadfileextensions'] = 'Allowed file extensions';
 $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type group \'video\' are allowed (again see <a href="{$a}">File types</a>).';
 $string['uploadingeventfailed'] = 'Creating of event failed';
 $string['uploadjobssaved'] = 'Video upload successful.<br />The video is scheduled to be transferred to Opencast now. You do not need to wait on this page for this transfer to finish.';
+$string['uploadtimeout'] = 'Moodle to Opencast upload timeout';
+$string['uploadtimeoutdesc'] = 'Configure the time in seconds a single video upload may take during the background uploading task.';
 $string['uploadqueuetoopencast'] = 'Videos scheduled to be transferred to Opencast';
 $string['uploadqueuetoopencastexplanation'] = 'In this section, you see the videos which have been uploaded to this Moodle course by you or some other user. These videos are scheduled to be transferred to Opencast now.<br />The transfer is happening automatically on the Moodle server in the background. You do not need to wait on this page for this transfer to finish.';
 $string['uploadrecordvideos'] = 'Upload or record videos';
@@ -684,8 +687,8 @@ $string['workflow_started_success'] = 'Workflow successfully started.';
 $string['workflow_started_failure'] = 'Starting workflow failed.';
 $string['workflow_invalid'] = 'This workflow does not exist or is not enabled.';
 $string['workflow_opencast_invalid'] = 'This workflow does not exist in Opencast or is restricted. Please contact the administrator.';
-$string['workflowtag_setting'] = 'Workflow tag';
-$string['workflowtag_settingdesc'] = 'Tag for Opencast workflows that can be configured by the admin and manually started by teachers.';
+$string['workflowtags_setting'] = 'Workflow tags';
+$string['workflowtags_settingdesc'] = 'Comma separated list of tags for Opencast workflows that can be configured by the admin and manually started by teachers.';
 $string['workflow_not_existing'] = 'This workflow does not exist in Opencast.';
 $string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
     Only video files are allowed!';

@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
 use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
 
-global $PAGE, $OUTPUT, $CFG, $DB, $USER;
+global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
@@ -46,8 +46,10 @@ $opencasterror = null;
 
 try {
     $workflows = array();
-    if (!empty(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid))) {
-        $workflows = $apibridge->get_existing_workflows(get_config('block_opencast', 'workflow_tag_' . $ocinstanceid), false);
+    if (!empty(get_config('block_opencast', 'workflow_tags_' . $ocinstanceid))) {
+        $tags = explode(',', get_config('block_opencast', 'workflow_tags_' . $ocinstanceid));
+        $tags = array_map('trim', $tags);
+        $workflows = $apibridge->get_existing_workflows($tags, false);
     }
 } catch (\block_opencast\opencast_connection_exception $e) {
     $opencasterror = $e->getMessage();
@@ -197,7 +199,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 }
 
 // Section "Upload or record videos".
-if (has_capability('block/opencast:addvideo', $coursecontext)) {
+if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $courseid) {
     // Show heading and explanation depending if Opencast Studio is enabled.
     if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         // Show heading.
@@ -231,7 +233,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
         }
 
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
-        if (empty(get_config('tool_opencast', 'lticonsumerkey_' . $ocinstanceid))) {
+        if (empty($apibridge->get_lti_consumerkey($ocinstanceid))) {
             if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
                 $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
             } else {

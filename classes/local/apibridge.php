@@ -346,7 +346,7 @@ class apibridge {
         }
 
         usort($allvideos, function ($a, $b) {
-            return $a->start < $b->start;
+            return (int)$a->start - (int)$b->start;
         });
 
         $result->count = count($allvideos);
@@ -677,9 +677,14 @@ class apibridge {
      * @return null|\stdClass series if it exists in the opencast system.
      */
     public function get_series_by_identifier($seriesid, bool $withacl = false) {
+        if (empty($seriesid)) {
+            return null;
+        }
+
         $response = $this->opencastapi->seriesApi->get($seriesid, $withacl);
         $code = $response['code'];
 
+        // If something went wrong, we return false.
         if ($code != 200) {
             return null;
         }
@@ -771,7 +776,7 @@ class apibridge {
         global $SITE;
 
         // Skip course related placeholders if courseid is site id.
-        if ($courseid === $SITE->id) {
+        if (intval($courseid) === intval($SITE->id)) {
             if (strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
                 strpos($name, '[COURSEGROUPID]') !== false) {
@@ -1139,15 +1144,30 @@ class apibridge {
             $presentation = $this->get_upload_video_file($event->get_presentation());
         }
 
-        $response = $this->opencastapi->eventsApi->create(
-            $acl,
-            $metadata,
-            $processing,
-            $scheduling,
-            $presenter,
-            $presentation,
-            null
-        );
+        $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
+        if ($uploadtimeout !== false) {
+            $timeout = intval($uploadtimeout);
+            $response = $this->opencastapi->eventsApi->setRequestTimeout($timeout)->create(
+                $acl,
+                $metadata,
+                $processing,
+                $scheduling,
+                $presenter,
+                $presentation,
+                null
+            );
+        } else {
+            $response = $this->opencastapi->eventsApi->create(
+                $acl,
+                $metadata,
+                $processing,
+                $scheduling,
+                $presenter,
+                $presentation,
+                null
+            );
+        }
+
         $code = $response['code'];
         $result = $response['body'];
         if ($code != 201) {
@@ -1698,8 +1718,8 @@ class apibridge {
     }
 
     /**
-     * Retrieves all workflows from the OC system and parses them to be easily processable.
-     * @param string $tag if not empty the workflows are filter according to this tag.
+     * Retrieves all workflows from the OC system and parses them to be easily processable. Multi-tags could be defined.
+     * @param array $tags if not empty the workflows are filter according to the list of tags.
      * @param bool $onlynames If only the names of the workflows should be returned
      * @param false $withconfigurations If true, the configurations are included
      * @return array of OC workflows. The keys represent the ID of the workflow,
@@ -1707,20 +1727,35 @@ class apibridge {
      * the workflows details are also included.
      * @throws \moodle_exception
      */
-    public function get_existing_workflows($tag = '', $onlynames = true, $withconfigurations = false) {
+    public function get_existing_workflows($tags = array(), $onlynames = true, $withconfigurations = false) {
         $workflows = array();
-        $params = [];
-        if (!empty($tag)) {
-            $params['filter'] = ['tag' => $tag]; 
-        }
-        if ($withconfigurations) {
-            $params['withconfigurationpanel'] = true;
+
+        // Make sure that the tags are trimmed.
+        if (!empty($tags)) {
+            $tags = array_map('trim', $tags);
         }
 
-        $response = $this->opencastapi->workflowsApi->getAllDefinitions($params);
+        $queryparams = array();
+        // If only one or no tag is defined, we pass that as a filter to the API call.
+        if (count($tags) < 2) {
+            $queryparams['filter'] = ['tag' => (isset($tags[0]) ? $tags[0] : '')]; 
+        }
+
+        if ($withconfigurations) {
+            $queryparams['withconfigurationpanel'] = true;
+        }
+
+        $response = $this->opencastapi->workflowsApi->getAllDefinitions($queryparams);
         $code = $response['code'];
         if ($code === 200) {
             $returnedworkflows = $response['body'];
+
+            // Lookup and filter workflow definitions by tags.
+            if (count($tags) > 1) {
+                $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
+                    return !empty(array_intersect($wd->tags, $tags));
+                });
+            }
 
             if (!$onlynames) {
                 return $returnedworkflows;
@@ -1738,7 +1773,7 @@ class apibridge {
         } else if ($code == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $api->get_http_code());
         }
     }
 
@@ -1773,7 +1808,11 @@ class apibridge {
      */
     public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
         // Get the workflow list.
-        $workflows = $this->get_existing_workflows($tag);
+        $tags = array();
+        if (!empty($tag)) {
+            $tags[] = $tag;
+        }
+        $workflows = $this->get_existing_workflows($tags);
 
         // If requested, add the 'no workflow' item to the list of workflows.
         if ($withnoworkflow == true) {
@@ -1888,7 +1927,7 @@ class apibridge {
         foreach ($this->get_course_series($courseid) as $series) {
             $result = $this->get_series_videos($series->series);
 
-            if ($result and $result->error == 0) {
+            if ($result && $result->error == 0) {
                 $videosforbackup = [];
                 foreach ($result->videos as $video) {
                     if (in_array($video->processing_state, $processingstates)) {
@@ -2671,5 +2710,31 @@ class apibridge {
 
         // Finally, we return boolean if series' new acls are in place.
         return ($response['code'] == 200);
+    }
+
+    /**
+     * Returns lti consumer key base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumerkey
+     */
+    public function get_lti_consumerkey() {
+        $configname = 'lticonsumerkey';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
+    }
+
+    /**
+     * Returns lti consumer secret base on ocinstance id from tool_opencast config.
+     *
+     * @return string the lticonsumersecret
+     */
+    public function get_lti_consumersecret() {
+        $configname = 'lticonsumersecret';
+        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
+            $configname .= "_{$this->ocinstanceid}";
+        }
+        return get_config('tool_opencast', $configname);
     }
 }

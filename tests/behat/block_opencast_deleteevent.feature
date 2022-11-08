@@ -45,4 +45,3 @@ Feature: Delete videos
     And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash" "css_element"
     And I click on "Delete video permanently" "button"
     Then I should see "The video will be deleted shortly"
-
