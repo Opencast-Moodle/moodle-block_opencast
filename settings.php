@@ -731,6 +731,26 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
             // End of transcription upload settings.
+            // Live Status Update.
+            // Setting for live status update for processing as well as uploading events.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/liveupdate_settingheader_' . $instance->id,
+                    get_string('liveupdate_settingheader', 'block_opencast'),
+                    ''));
+
+            // Enables live status update here.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/liveupdateenabled_' . $instance->id,
+                    get_string('liveupdate_settingenabled', 'block_opencast'),
+                    get_string('liveupdate_settingenabled_desc', 'block_opencast'), 1));
+
+            // Setting for reload timeout after an event has new changes.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/liveupdatereloadtimeout_' . $instance->id,
+                    get_string('liveupdate_reloadtimeout', 'block_opencast'),
+                    get_string('liveupdate_reloadtimeout_desc', 'block_opencast'), 3, PARAM_INT));
+            $additionalsettings->hide_if('block_opencast/liveupdatereloadtimeout_' . $instance->id,
+                'block_opencast/liveupdateenabled_' . $instance->id, 'notchecked');
 
             // Additional Settings.
             // Terms of use. Downlaod channel. Custom workflows channel. Support email.

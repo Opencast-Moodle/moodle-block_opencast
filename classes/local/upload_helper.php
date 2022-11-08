@@ -65,7 +65,7 @@ class upload_helper {
     /**
      * Get explaination string for status code
      * @param int $statuscode Status code
-     * @return \lang_string|string Name of status code
+     * @return \lang_string|string Name of status code or empty if not found.
      */
     public static function get_status_string($statuscode) {
 
@@ -83,7 +83,7 @@ class upload_helper {
             case self::STATUS_TRANSFERRED :
                 return get_string('mstatetransferred', 'block_opencast');
             default :
-                return get_string('mstateunknown', 'block_opencast');
+                return '';
         }
     }
 
@@ -195,7 +195,7 @@ class upload_helper {
                     $job->chunkupload_presenter = $options->chunkupload_presenter;
                 }
             }
-            if (isset($options->chunkupload_presenter) && $options->chunkupload_presenter) {
+            if (isset($options->chunkupload_presentation) && $options->chunkupload_presentation) {
                 $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
                     '*', IGNORE_MISSING);
                 if ($record && $record->state == 2) {
@@ -235,6 +235,12 @@ class upload_helper {
                     $options->attachments->transcriptions
                 );
             }
+        }
+        // Get admin config, whether to send notification or not.
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
+        if ($notificationenabled) {
+            // Notify user about the upload queue.
+            eventstatus_notification_helper::notify_users_upload_queue($job, $options->metadata);
         }
 
         // Delete all jobs with status ready to transfer, where file is missing.

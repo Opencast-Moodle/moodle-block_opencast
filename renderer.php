@@ -27,6 +27,7 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 use mod_opencast\local\opencasttype;
+use block_opencast\local\liveupdate_helper;
 
 /**
  * Renderer class for block opencast.
@@ -89,7 +90,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             case 'RUNNING' :
             case 'PAUSED' :
                 $tooltip = get_string('ocstateprocessing', 'block_opencast');
-                return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast',
+                return $this->output->pix_icon('i/loading_small', get_string('ocstateprocessing', 'block_opencast'), 'moodle',
                     array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'SUCCEEDED' :
             default :
@@ -571,8 +572,22 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_status($statuscode, $countfailed = 0) {
-        // Get understandable status string.
-        $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
+        $statusstring = '';
+        // The status code less than 200 is assigned for api upload.
+        if (intval($statuscode) < 200) {
+            // Get understandable status string from normal upload process.
+            $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
+        }
+
+        // The status code greater than 200 is assigned for ingest upload.
+        if (intval($statuscode) >= 200) {
+            $statusstring = \block_opencast\local\ingest_uploader::get_status_string($statuscode);
+        }
+
+        // It the statusstring is still empty, we return unknown.
+        if (empty($statusstring)) {
+            $statusstring = get_string('mstateunknown', 'block_opencast');
+        }
 
         // If needed, add the number of failed uploads.
         if ($countfailed > 1) {
@@ -682,7 +697,12 @@ class block_opencast_renderer extends plugin_renderer_base {
             } else {
                 $row[] = '&mdash;';
             }
-            $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
+            $status = $this->render_status($uploadjob->status, $uploadjob->countfailed);
+            // Add live update flag item (hidden input) to the upload status column, if it is enabled.
+            if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid))) {
+                $status .= liveupdate_helper::get_liveupdate_uploading_hidden_input($uploadjob->id, $title);
+            }
+            $row[] = $status;
             $row[] = fullname($uploadjob);
             if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);

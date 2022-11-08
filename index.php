@@ -25,6 +25,7 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\liveupdate_helper;
 use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
@@ -63,8 +64,18 @@ foreach ($workflows as $workflow) {
         $workflowsjs[$workflow->identifier] = array('title' => $workflow->title, 'description' => $workflow->description);
     }
 }
-
-$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid]);
+// Get live update config settings.
+$liveupdateenabled = boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid));
+$liveupdatereloadtimeout = intval(get_config('block_opencast', 'liveupdatereloadtimeout_' . $ocinstanceid));
+// Apply the default of 3 seconds for the reload timeout, if not set or incorrect.
+if ($liveupdatereloadtimeout < 0) {
+    $liveupdatereloadtimeout = 3;
+}
+$liveupdate = [
+    'enabled' => $liveupdateenabled,
+    'timeout' => $liveupdatereloadtimeout
+];
+$PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid, $coursecontext->id, $liveupdate]);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
@@ -392,7 +403,12 @@ foreach ($seriesvideodata as $series => $videodata) {
 
             } else {
                 // Workflow state column.
-                $row[] = $renderer->render_processing_state_icon($video->processing_state);
+                $icon = $renderer->render_processing_state_icon($video->processing_state);
+                // Add live update flag item (hidden input) to the workflow state column.
+                if ($liveupdateenabled && $video->processing_state == 'RUNNING') {
+                    $icon .= liveupdate_helper::get_liveupdate_processing_hidden_input($video->identifier, $video->title);
+                }
+                $row[] = $icon;
 
                 // Visibility column.
                 if ($toggleaclroles) {
