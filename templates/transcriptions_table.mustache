@@ -1,0 +1,70 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_opencast/transcriptions_table
+
+    This template renders the transcriptions table.
+
+    Example context (json):
+    {
+        "list": null,
+        "listhascontent": false
+    }
+}}
+<div class="p-1">
+    {{#listhascontent}}
+        <table class="table table-striped" id="transcriptionstable">
+            <thead>
+                <tr>
+                    <th>
+                        {{# str}}transcriptionflavor_thead, block_opencast {{/ str}}
+                    </th>
+                    <th>
+                        {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#list}}
+                    <tr>
+                        <td>
+                            {{flavor}}
+                        </td>
+                        <td width="10%">
+                            <a class="iconsmall" {{#downloadblanktarget}}target="_blank"{{/downloadblanktarget}} title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
+                                {{#pix}} i/down, core{{/pix}}
+                            </a>
+                            {{#candelete}}
+                                <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}" href="{{deleteurl}}">
+                                    {{#pix}} i/delete, core{{/pix}}
+                                </a>
+                            {{/candelete}}
+                        </td>
+                    </tr>
+                {{/list}}
+            </tbody>
+        </table>
+    {{/listhascontent}}
+    {{^listhascontent}}
+        {{# str}}notranscription, block_opencast {{/ str}}
+    {{/listhascontent}}
+</div>
+{{#addnewurl}}
+<a type="button" class="btn btn-primary mt-3" id="createnewtranscription" href="{{addnewurl}}">
+    {{# str}}addnewtranscription, block_opencast {{/ str}}
+</a>
+{{/addnewurl}}

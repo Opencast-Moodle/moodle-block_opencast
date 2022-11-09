@@ -381,6 +381,64 @@ class addvideo_form extends \moodleform {
         $mform->addElement('hidden', 'courseid', $this->_customdata['courseid']);
         $mform->setType('courseid', PARAM_INT);
 
+        // Upload transcription.
+        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+            $mform->closeHeaderBefore('uploadtranscription_header');
+
+            $mform->addElement('header', 'uploadtranscription_header', get_string('transcriptionheader', 'block_opencast'));
+            $mform->setExpanded('uploadtranscription_header', false);
+
+            $explanation = \html_writer::tag('p', get_string('transcriptionheaderexplanation', 'block_opencast'));
+            $mform->addElement('html', $explanation);
+
+            $transcriptiontypescfg = get_config('block_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
+            if (empty($transcriptiontypescfg)) {
+                // Fallback. Use Moodle defined html_track file types.
+                $transcriptiontypes = ['html_track'];
+            } else {
+                $transcriptiontypes = [];
+                foreach (explode(',', $transcriptiontypescfg) as $transcriptiontype) {
+                    if (empty($transcriptiontype)) {
+                        continue;
+                    }
+                    $transcriptiontypes[] = $transcriptiontype;
+                }
+            }
+
+            // Preparing flavors as for service types.
+            $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+            $flavors = [
+                '' => get_string('emptyflavoroption', 'block_opencast')
+            ];
+            if (!empty($flavorsconfig)) {
+                $flavorsarray = json_decode($flavorsconfig);
+                foreach ($flavorsarray as $flavor) {
+                    if (!empty($flavor->key) && !empty($flavor->value)) {
+                        $flavors[$flavor->key] = format_string($flavor->value);
+                    }
+                }
+            }
+
+            $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
+            if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
+                $maxtranscriptionupload = 1;
+            }
+
+            for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
+                if ($transcriptionindex > 0) {
+                    $line = \html_writer::tag('hr', '');
+                    $mform->addElement('html', $line);
+                }
+                $mform->addElement('select', 'transcription_flavor_' . $transcriptionindex,
+                    get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
+                $mform->addElement('filepicker', 'transcription_file_' . $transcriptionindex,
+                    get_string('transcriptionfilefield', 'block_opencast'),
+                    null, ['accepted_types' => $transcriptiontypes]);
+                $mform->disabledIf('transcription_file_' . $transcriptionindex,
+                    'transcription_flavor_' . $transcriptionindex, 'eq', '');
+            }
+        }
+
         $mform->closeHeaderBefore('buttonar');
 
         $this->add_action_buttons(true, get_string('addvideo', 'block_opencast'));

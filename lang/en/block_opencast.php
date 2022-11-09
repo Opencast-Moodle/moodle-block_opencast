@@ -484,6 +484,12 @@ $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['mstatetransferred'] = 'Transferred';
 $string['mstateunknown'] = 'State unknown';
+$string['ingeststatecreatingmedispackage'] = 'Creating mediapackage...';
+$string['ingeststateaddingcatalog'] = 'Adding event catalog...';
+$string['ingeststateaddingfirsttrack'] = 'Adding first track...';
+$string['ingeststateaddingsecondtrack'] = 'Adding second track...';
+$string['ingeststateaddingacls'] = 'Adding rights and permissions...';
+$string['ingeststateingesting'] = 'Ingesting...';
 
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
@@ -746,5 +752,69 @@ $string['heading_defaultable'] = 'Defaultable';
 $string['descriptionmddefaultable'] = 'Defaultable';
 $string['descriptionmddefaultable_help'] = 'When enabled, users can add default value for this field.';
 $string['morethanonedefaultserieserror'] = 'This course has more than one default series. Please contact your system administrator.';
+
+// String for attachments.
+$string['transcriptionsettingsheader'] = 'Settings for Transcription';
+$string['transcriptionworkflow'] = 'Workflow for transcription (speech to text)';
+$string['transcriptionworkflow_desc'] = 'This workflow is triggered when transcription files are attached to the video. If not set, uploading and managing transcriptions is not provided.<br>By setting this workflow, a new section to upload transcription files in the add video page as well as a new action menu item in overview page is provided, to upload/handle the new/current transcriptions files.';
+$string['deletetranscriptionworkflow'] = 'Workflow for delete transcription';
+$string['ltidownloadtranscription'] = 'Download transcription with LTI';
+$string['ltidownloadtranscription_desc'] = 'When enabled, the transcription download button will redirect users to a new page and performs an LTI authentification by which the users will the get the content of the transcription file.<br>
+    NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
+$string['transcription_flavor_key'] = 'Flavor key';
+$string['transcription_flavor_value'] = 'Flavor value';
+$string['transcription_flavor_delete'] = 'Delete flavor oprion pair';
+$string['transcription_flavor_confirm_delete'] = 'Are you sure you want to delete this flavor option pair?';
+$string['addtranscriptionflavor'] = 'Add new flavor option';
+$string['transcriptionflavors'] = 'Transcription Service Types (Flavors)';
+$string['transcriptionflavors_desc'] = 'These service type (flavors) will be presented as a select (dropdown) options to select from when uploading transcriptions.
+    It is a key-value pair of information by which the keys are consumed by opencast and values are human readable information that describe the type of transcription service.<br>
+    <b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}Amberscript German{mlang}{mlang de}Amberscript Deutsch{mlang}"';
+$string['deletetranscriptionworkflow_desc'] = 'This workflow is triggered when a transcription is deleted, it is required to provide deletion feature in order for event to be processed correctly.<br>NOTE: If empty, the feature will be disabled.';
+$string['maxtranscriptionupload'] = 'Maximum number of sets to upload';
+$string['maxtranscriptionupload_desc'] = 'Specify how many transcription box should be provided to teachers to upload. In case it is not correctly set, only 1 field set will be provided.';
+$string['transcriptionfileextensions'] = 'Allowed transcription file extensions';
+$string['transcriptionfileextensions_desc'] = 'Comma separated list of allowed transcription file extensions (extensions must exist in Moodle\'s <a href="{$a}">File types</a> list). If left blank all extensions with type \'HTML track files\' are allowed (again see <a href="{$a}">File types</a>).';
+$string['transcriptionheader'] = 'Upload Transcription Files';
+$string['transcriptionheaderexplanation'] = 'In this section you are able to upload a transcription file for each service type, with specified file extension, which then will be uploaded alongside the video and be processed accordingly to provide the (speech to text) capability.';
+$string['transcriptionaddnewbtn'] = 'Add more transcription set';
+$string['transcriptiondeletebtn'] = 'Delete transcription set';
+$string['transcriptionflavorfield'] = 'Transcription service type';
+$string['transcriptionfilefield'] = 'Transcription file';
+$string['emptyflavoroption'] = 'Please select a service type';
+$string['processattachment'] = 'Process attachment upload jobs';
+$string['managetranscriptions'] = 'Manage Transcriptions';
+$string['managetranscriptions_header'] = 'Manage Event\'s Transcriptions';
+$string['unabletomanagetranscriptions'] = 'Due to an active processing state or an ongoing workflow, managing the event\'s transcriptions is not possible at the moment.';
+$string['addnewtranscription'] = 'Add new transcription';
+$string['unabletoaddnewtranscription'] = 'Unable to add new transcription';
+$string['addnewtranscription_desc'] = 'Please select a service type in which your transcription should be represented, and then upload the file with requiured extensions.<br>
+    NOTE: Uploading a new transcription with an already uploaded service type results in replacing that transcription, which might be useful for editing the current ones.';
+$string['uploadtranscritpion'] = 'Upload transcription set';
+$string['missingtranscriptionuploadparams'] = 'Required parameters to upload transcription are missing.';
+$string['transcriptionuploadsuccessed'] = 'Transcription is uploaded.';
+$string['transcriptionuploadfailed'] = 'Transcription upload failed!';
+$string['notranscription'] = 'This video has no transcription yet.';
+$string['transcriptionflavor_thead'] = 'Service Type';
+$string['notranscriptionflavor'] = 'Unknown Service type: {$a}';
+$string['transcriptionaction_thead'] = 'Actions';
+$string['downloadtranscription'] = 'Download transcription';
+$string['deletetranscription'] = 'Delete transcription';
+$string['unabletodeletetranscription'] = 'Unable to delete transcription';
+$string['transcriptiondeletionsucceeded'] = 'Transcription deleted successfully.';
+$string['transcriptiondeletionfailed'] = 'Failed to delete transcription';
+$string['deletetranscription_desc'] = 'You are about to delete the transcription.<br>Are you sure you would like to delete it?';
+$string['downloadtranscription'] = 'Download transcription';
+$string['unabletodownloadtranscription'] = 'Unable to download transcription';
+// Strings for live update feature.
+$string['liveupdate_settingheader'] = 'Live Status Update';
+$string['liveupdate_settingenabled'] = 'Enable live status update feature';
+$string['liveupdate_settingenabled_desc'] = 'When enabled, uploading status and workflow processing states will be watched when they are in an ongoing process,<br>This is done by pulling the status information for those processes in a 1 second interval.';
+$string['liveupdate_reloadtimeout'] = 'Page reload timeout (in seconds)';
+$string['liveupdate_reloadtimeout_desc'] = 'The timeout in seconds by which the page will be reloaded, when there is an updated status identified. If empty or less than 0, a default value of 3 seconds will be considered.<br>NOTE: Before reloading the page a teachers will be notified. The reload is important, so that every required backend process take place.';
+$string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The page will be reloaded in {$a->timeout} seconds.';
+$string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
+$string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
+$string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
