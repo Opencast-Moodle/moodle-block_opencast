@@ -259,19 +259,24 @@ class apibridge {
     /**
      * Ingests a mediapackage.
      * @param string $mediapackage Mediapackage
+     * @param string $workflow workflow definition is to start after ingest
      * @return string Workflow instance that was started
      * @throws \dml_exception
      * @throws \moodle_exception
      * @throws opencast_connection_exception
      */
-    public function ingest($mediapackage) {
+    public function ingest($mediapackage, $workflow = '') {
         $api = $this->get_ingest_api();
         $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = 1000 * intval($uploadtimeout);
             $api->set_timeout($timeout);
         }
-        $workflow = $api->oc_post('/ingest/' . get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid), array(
+
+        if (empty($workflow)) {
+            $workflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
+        }
+        $workflow = $api->oc_post('/ingest/' . $workflow, array(
             'mediaPackage' => $mediapackage));
 
         if ($api->get_http_code() === 0) {
@@ -748,15 +753,41 @@ class apibridge {
     }
 
     /**
-     * Returns the default series of a course.
+     * Returns the record list of the course series.
      * @param int $courseid
      * @return array
      * @throws \dml_exception
      */
     public function get_course_series($courseid) {
         global $DB;
-        return $DB->get_records('tool_opencast_series',
+        // We do an intense look-up into the series records, to avoid redundancy.
+        $allcourseseries = $DB->get_records('tool_opencast_series',
             array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
+        $tempholder = array();
+        $defaultseriesnum = 0;
+        foreach ($allcourseseries as $courseserie) {
+            if (empty($courseserie->series)) {
+                continue;
+            }
+            if (!array_key_exists($courseserie->series, $tempholder)) {
+                $tempholder[$courseserie->series] = $courseserie;
+                if (boolval($courseserie->isdefault)) {
+                    $defaultseriesnum++;
+                }
+            } else {
+                // This is the place, where should not happen, namely having 2 identical series.
+                // We replace swap them if the new one is default and old one isn't.
+                if (boolval($courseserie->isdefault) && !boolval($tempholder[$courseserie->series]->isdefault)) {
+                    $tempholder[$courseserie->series] = $courseserie;
+                    $defaultseriesnum++;
+                }
+            }
+        }
+        // We throw an exception, if there are more than one default series.
+        if ($defaultseriesnum > 1) {
+            throw new \moodle_exception('morethanonedefaultserieserror', 'block_opencast');
+        }
+        return !empty($tempholder) ? array_values($tempholder) : array();
     }
 
     /**
@@ -2727,5 +2758,46 @@ class apibridge {
             $configname .= "_{$this->ocinstanceid}";
         }
         return get_config('tool_opencast', $configname);
+    }
+
+    /**
+     * Gets the event mediapackage.
+     *
+     * @param string $eventid event id in the opencast system.
+     *
+     * @return string event's mediapackage
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     * @throws opencast_connection_exception
+     */
+    public function get_event_media_package($eventid) {
+        $api = api::get_instance($this->ocinstanceid);
+        $mediapackage = $api->oc_get("/api/episode/{$eventid}");
+
+        if ($api->get_http_code() === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($api->get_http_code() != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+
+        return $mediapackage;
+    }
+
+    /**
+     * The allowance of editing event's transcription
+     * @param object $video Opencast video
+     * @param int $courseid Course id
+     * @return bool the capability of editing transcription!
+     */
+    public function can_edit_event_transcription($video, $courseid) {
+        // To edit transcriptions, we need that the video processing to be in succeeded state to avoid any conflict in workflows.
+        // We would also need to make sure that workflow for transcription is configured.
+        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
+            isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
+            $context = \context_course::instance($courseid);
+            return has_capability('block/opencast:addvideo', $context);
+        }
+
+        return false;
     }
 }

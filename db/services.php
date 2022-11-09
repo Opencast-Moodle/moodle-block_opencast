@@ -69,5 +69,14 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'block/opencast:manageseriesforcourse'
+    ),
+    'block_opencast_get_liveupdate_info' => array(
+        'classname' => 'block_opencast_external',
+        'methodname' => 'get_liveupdate_info',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Gets the latest live update information.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:viewunpublishedvideos'
     )
 );
