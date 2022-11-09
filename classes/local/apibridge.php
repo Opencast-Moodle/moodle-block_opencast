@@ -753,15 +753,41 @@ class apibridge {
     }
 
     /**
-     * Returns the default series of a course.
+     * Returns the record list of the course series.
      * @param int $courseid
      * @return array
      * @throws \dml_exception
      */
     public function get_course_series($courseid) {
         global $DB;
-        return $DB->get_records('tool_opencast_series',
+        // We do an intense look-up into the series records, to avoid redundancy.
+        $allcourseseries = $DB->get_records('tool_opencast_series',
             array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
+        $tempholder = array();
+        $defaultseriesnum = 0;
+        foreach ($allcourseseries as $courseserie) {
+            if (empty($courseserie->series)) {
+                continue;
+            }
+            if (!array_key_exists($courseserie->series, $tempholder)) {
+                $tempholder[$courseserie->series] = $courseserie;
+                if (boolval($courseserie->isdefault)) {
+                    $defaultseriesnum++;
+                }
+            } else {
+                // This is the place, where should not happen, namely having 2 identical series.
+                // We replace swap them if the new one is default and old one isn't.
+                if (boolval($courseserie->isdefault) && !boolval($tempholder[$courseserie->series]->isdefault)) {
+                    $tempholder[$courseserie->series] = $courseserie;
+                    $defaultseriesnum++;
+                }
+            }
+        }
+        // We throw an exception, if there are more than one default series.
+        if ($defaultseriesnum > 1) {
+            throw new \moodle_exception('morethanonedefaultserieserror', 'block_opencast');
+        }
+        return !empty($tempholder) ? array_values($tempholder) : array();
     }
 
     /**

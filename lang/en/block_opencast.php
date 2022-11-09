@@ -751,6 +751,7 @@ $string['defaultssaved'] = 'Default values are saved.';
 $string['heading_defaultable'] = 'Defaultable';
 $string['descriptionmddefaultable'] = 'Defaultable';
 $string['descriptionmddefaultable_help'] = 'When enabled, users can add default value for this field.';
+$string['morethanonedefaultserieserror'] = 'This course has more than one default series. Please contact your system administrator.';
 
 // String for attachments.
 $string['transcriptionsettingsheader'] = 'Settings for Transcription';
