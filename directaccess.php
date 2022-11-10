@@ -36,7 +36,8 @@ $mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/directaccess.php',
-    array('courseid' => $courseid, 'video_identifier' => $videoid, 'ocinstanceid' => $ocinstanceid));
+    array('courseid' => $courseid, 'video_identifier' => $videoid,
+        'mediaid' => $mediaid, 'ocinstanceid' => $ocinstanceid));
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
