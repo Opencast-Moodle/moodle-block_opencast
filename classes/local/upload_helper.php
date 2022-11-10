@@ -321,6 +321,7 @@ class upload_helper {
     protected function upload_succeeded($job, $eventidentifier) {
         global $DB;
 
+        $apibridge = apibridge::get_instance($job->ocinstanceid);
         $job->opencasteventid = $eventidentifier;
         $job->timesucceeded = time();
         $job->timemodified = $job->timesucceeded;
@@ -379,6 +380,21 @@ class upload_helper {
             // Add the uploaded video for the event status notification job.
             eventstatus_notification_helper::save_notification_jobs($job->ocinstanceid,
                 $eventidentifier, $job->courseid, $job->userid);
+        }
+
+        // Change visibility record status to done and perform the post upload visibility stuff.
+        $visibilityjob = $DB->get_record('block_opencast_visibility', array('uploadjobid' => $job->id));
+        if (!empty($visibilityjob)) {
+            if (empty($visibilityjob->scheduledvisibilitytime)) {
+                // Change the status to complete, since the job finishes here and has no scheduling any more.
+                $status = visibility_helper::STATUS_DONE;
+                visibility_helper::change_job_status($visibilityjob, $status);
+            }
+            // Get the initial groups if exists.
+            if (!empty($visibilityjob->initialvisibilitygroups)) {
+                $groups = json_decode($visibilityjob->initialvisibilitygroups, true);
+                $apibridge->store_group_access($eventidentifier, $groups);
+            }
         }
     }
 

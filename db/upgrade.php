@@ -784,5 +784,48 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022101800, 'opencast');
     }
 
+    if ($oldversion < 2022111000) {
+        // Here to change the visibility table structure to handle the edit/delete/add new operations.
+        $table = new xmldb_table('block_opencast_visibility');
+        // Define key uploadjob_foreign (foreign) to be dropped form block_opencast_visibility.
+        $key = new xmldb_key('uploadjob_foreign', XMLDB_KEY_FOREIGN, ['uploadjobid'], 'block_opencast_uploadjob', ['id']);
+
+        // Launch drop key uploadjob_foreign.
+        $dbman->drop_key($table, $key);
+
+        // Changing nullability of field uploadjobid on table block_opencast_visibility to null.
+        $field = new xmldb_field('uploadjobid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+
+        // Launch change of nullability for field uploadjobid.
+        $dbman->change_field_notnull($table, $field);
+
+        // Define field opencasteventid to be added to block_opencast_visibility.
+        $field = new xmldb_field('opencasteventid', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'uploadjobid');
+
+        // Conditionally launch add field opencasteventid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field ocinstanceid to be added to block_opencast_visibility.
+        $field = new xmldb_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'opencasteventid');
+
+        // Conditionally launch add field ocinstanceid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field courseid to be added to block_opencast_visibility.
+        $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'ocinstanceid');
+
+        // Conditionally launch add field courseid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2022111000, 'opencast');
+    }
+
     return true;
 }

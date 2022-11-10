@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/opencast/db" VERSION="20221018" COMMENT="XMLDB file for Moodle blocks/opencast"
+<XMLDB PATH="blocks/opencast/db" VERSION="20221111" COMMENT="XMLDB file for Moodle blocks/opencast"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -151,7 +151,10 @@
     <TABLE NAME="block_opencast_visibility" COMMENT="this table contains the initial and scheduled visibility related to the event">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="uploadjobid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="uploadjobid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="opencasteventid" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="ocinstanceid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="initialvisibilitystatus" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="initialvisibilitygroups" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="scheduledvisibilitytime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
@@ -161,7 +164,6 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="uploadjob_foreign" TYPE="foreign" FIELDS="uploadjobid" REFTABLE="block_opencast_uploadjob" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="block_opencast_user_default" COMMENT="This table contains the user preferred default values.">

@@ -40,7 +40,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /** @var int Video is visible for students */
     const VISIBLE = 1;
     /** @var int Video is visible for some students */
-    const MIXED_VISIBLITY = 3;
+    const MIXED_VISIBILITY = 3;
     /** @var int Video is hidden for students */
     const HIDDEN = 0;
     /** @var int Video is visible for groups of students. */
@@ -610,7 +610,12 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true,
                                        $redirectpage = null, $seriesid = null) {
-
+        // Set if visibility change is enabled.
+        $canchangescheduledvisibility = false;
+        if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) &&
+            !empty(get_config('block_opencast', 'workflow_roles_' . $ocinstanceid))) {
+            $canchangescheduledvisibility = true;
+        }
         $table = new html_table();
         $table->head = array(
             get_string('hstart_date', 'block_opencast'),
@@ -620,6 +625,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presentationfile', 'block_opencast'),
             get_string('status'),
             get_string('createdby', 'block_opencast'));
+        if ($canchangescheduledvisibility) {
+            $table->head[] = get_string('hscheduledvisibility', 'block_opencast');
+        }
         if ($showdeletebutton) {
             $table->head[] = '';
         }
@@ -704,6 +712,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             $row[] = $status;
             $row[] = fullname($uploadjob);
+            if ($canchangescheduledvisibility) {
+                $row[] = $this->render_scheduled_visibility_icon($uploadjob);
+            }
             if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);
                 // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
@@ -717,6 +728,26 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($table);
+    }
+
+    /**
+     * Returns the icon string or a dash - to be presented in the upload job table.
+     *
+     * @param object $uploadjob the upload job object
+     * @return string the icon string or a dash - to be presented in the upload job table
+     */
+    private function render_scheduled_visibility_icon($uploadjob) {
+        $scheduledvisibility = \block_opencast\local\visibility_helper::get_uploadjob_scheduled_visibility($uploadjob->id);
+        $coursecontext = context_course::instance($uploadjob->courseid);
+        if (!empty($scheduledvisibility) && has_capability('block/opencast:addvideo', $coursecontext)) {
+            $url = new \moodle_url('/blocks/opencast/changescheduledvisibility.php',
+                array('uploadjobid' => $uploadjob->id, 'courseid' => $uploadjob->courseid,
+                    'ocinstanceid' => $uploadjob->ocinstanceid));
+            $text = get_string('scheduledvisibilityicontitle', 'block_opencast');
+            $icon = $this->output->pix_icon('i/scheduled', $text);
+            return \html_writer::link($url, $icon);
+        }
+        return '&mdash;';
     }
 
     /**
@@ -756,7 +787,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('changevisibility_visible', 'block_opencast');
                 $icon = $this->output->pix_icon('t/hide', $text);
                 break;
-            case self::MIXED_VISIBLITY:
+            case self::MIXED_VISIBILITY:
                 $text = get_string('changevisibility_mixed', 'block_opencast');
                 $icon = $this->output->pix_icon('i/warning', $text);
                 break;

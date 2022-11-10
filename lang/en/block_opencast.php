@@ -205,7 +205,7 @@ $string['changevisibility_hidden'] = 'The video is visible to no student. Click 
 $string['legendvisibility_hidden'] = 'Hidden';
 $string['legendvisibility_hiddendesc'] = 'The video is not visible to any student.';
 $string['changevisibility_group'] = 'The video is visible to all student belonging to selected groups. Click to alter visibility.';
-$string['legendvisibility_group'] = 'Group Visibilty';
+$string['legendvisibility_group'] = 'Group Visibility';
 $string['legendvisibility_groupdesc'] = 'The video is visible to all student belonging to selected groups.';
 $string['changeowner'] = 'Change owner';
 $string['changeowner_explanation'] = 'Currently, you are the owner of the video {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the video.';
@@ -319,7 +319,7 @@ $string['errorrestoremissingseriesid_body'] = 'There was a problem in the restor
     Series id could not be found.';
 $string['errorrestorefailedeventsaclchange_subj'] = 'Opencast error during restore process';
 $string['errorrestorefailedeventsaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The visibilty of the video(s) with the following identifier(s) could not be changed. This video(s) will not be accessible in the new course:';
+    The visibility of the video(s) with the following identifier(s) could not be changed. This video(s) will not be accessible in the new course:';
 $string['errorrestorefailedseriesaclchange_subj'] = 'Opencast error during restore process';
 $string['errorrestorefailedseriesaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
     The series ACL could not be changed (series: {$a->seriesid}).';
@@ -726,14 +726,32 @@ $string['visibilityheader'] = 'Event Visibility';
 $string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
 $string['scheduledvisibilitytime'] = 'Change video visibility on';
 $string['scheduledvisibilitytimehi'] = 'Scheduling date';
-$string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least 20 minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
+$string['scheduledvisibilitytimehi_help'] = 'This date must be set in the near future and as recommended at least {$a} minutes after the current date time, however the faster your opencast server processes the video the nearer this date could be set.';
 $string['scheduledvisibilitytime'] = 'Change video visibility on';
-$string['scheduledvisibilitytimeerror'] = 'The scheduled date to change visibility must be set at least 20 minutes after the current data and time.';
+$string['scheduledvisibilitytimeerror'] = 'The scheduled date to change visibility must be set at least {$a} minutes after the current data and time.';
+$string['scheduledvisibilitystatuserror'] = 'The scheduled visibiliy and inital visibility must be different.';
 $string['initialvisibilitystatus'] = 'Initial visibility of the video';
 $string['scheduledvisibilitystatus'] = 'Change video visibility to';
+$string['scheduledvisibilitychangefailed'] = 'Scheduling a visibility change was not successful. You can schedule a new one or disable it to remove its task.';
 $string['enableschedulingchangevisibility'] = 'Schedule a visibility change';
 $string['enableschedulingchangevisibilitydesc'] = 'Set a date and a visibility status for the event in future, which will be performed using a scheduled task.';
 $string['processvisibility'] = 'Process scheduled visibility change jobs';
+$string['hscheduledvisibility'] = 'Scheduled Visibility';
+$string['scheduledvisibilityicontitle'] = 'Click here to alter the scheduled visibility change for this event';
+$string['novisibilityrecordfound'] = 'Visibility record could not be found.';
+$string['changescheduledvisibility'] = 'Change scheduled visibility for {$a}';
+$string['changescheduledvisibilityheader'] = 'Scheduled visibility change';
+$string['changescheduledvisibilitysuccess'] = 'Scheduled visibility successfully changed';
+$string['changescheduledvisibilityfailed'] = 'Unabale to change scheduled visibility';
+$string['scheduledvisibilitychangeskipped'] = '<br>NOTE: The task to schedule visibility change is skipped and would not take place.';
+$string['scheduledvisibilitychangeupdated'] = 'The scheduled visibility change is updated.';
+$string['scheduledvisibilityupdatefailed'] = 'Unable to update scheduled visibility change.';
+$string['scheduledvisibilitychangecreated'] = 'A new visibility change is scheduled';
+$string['scheduledvisibilitycreatefailed'] = 'Unable to schedule a visibility change.';
+$string['scheduledvisibilitychangedeleted'] = 'The scheduled visibility change has been deleted';
+$string['scheduledvisibilitydeletefailed'] = 'Unable to delete the scheduled visibility change.';
+$string['emptyvisibilitygroups'] = 'At least one group must be selected.';
+$string['novisibilitychange'] = 'No changes are identified, please make sure everything is correct.';
 
 // Strings for DCMI metadata field.
 $string['dcmitermsnotice'] = '<br /><strong>IMPORTANT</strong>: Opencast supports standardized Dublin Core metadata set, therefore all metadata fields should follow DCMI terms,
