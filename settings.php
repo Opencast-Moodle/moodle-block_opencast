@@ -95,6 +95,13 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             new admin_setting_configtext('block_opencast/cachevalidtime',
                 get_string('cachevalidtime', 'block_opencast'),
                 get_string('cachevalidtime_desc', 'block_opencast'), 500, PARAM_INT));
+
+        // Upload timeout.
+        $sharedsettings->add(
+            new admin_setting_configtext('block_opencast/uploadtimeout',
+                get_string('uploadtimeout', 'block_opencast'),
+                get_string('uploadtimeoutdesc', 'block_opencast'), 60, PARAM_INT));
+
         $ADMIN->add('block_opencast', $sharedsettings);
 
         foreach ($ocinstances as $instance) {
@@ -158,6 +165,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
                 '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0}]';
 
+            $defaulttranscriptionflavors = '[{"key":"de","value":"Amberscript German"},' .
+                '{"key":"en","value":"Amberscript English"},{"key":"deu","value":"Vosk German"},' .
+                '{"key":"eng","value":"Vosk English"}]';
+
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpparams_' . $instance->id,
@@ -181,12 +192,17 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('metadataseries', 'block_opencast'),
                 get_string('metadataseriesdesc', 'block_opencast') . $dcmitermsnotice, $metadataseriesdefault);
 
+            $transcriptionflavors = new admin_setting_configtext('block_opencast/transcriptionflavors_' . $instance->id,
+                get_string('transcriptionflavors', 'block_opencast'),
+                get_string('transcriptionflavors_desc', 'block_opencast'), $defaulttranscriptionflavors);
+
             // Crashes if plugins.php is opened because css cannot be included anymore.
             if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
                 $PAGE->requires->js_call_amd('block_opencast/block_settings', 'init', [
                     $rolessetting->get_id(),
                     $metadatasetting->get_id(),
                     $metadataseriessetting->get_id(),
+                    $transcriptionflavors->get_id(),
                     $instance->id
                 ]);
             }
@@ -663,6 +679,78 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         'block_opencast/addactivityepisodeenabled_' . $instance->id, 'notchecked');
                 }
             }
+
+            // Transcription upload settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/transcription_header_' . $instance->id,
+                    get_string('transcriptionsettingsheader', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/transcriptionworkflow_' . $instance->id,
+                    get_string('transcriptionworkflow', 'block_opencast'),
+                    get_string('transcriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                    get_string('deletetranscriptionworkflow', 'block_opencast'),
+                    get_string('deletetranscriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
+            $additionalsettings->hide_if('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/ltidownloadtranscription_' . $instance->id,
+                    get_string('ltidownloadtranscription', 'block_opencast'),
+                    get_string('ltidownloadtranscription_desc', 'block_opencast'), 0));
+            $additionalsettings->hide_if('block_opencast/ltidownloadtranscription_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add($transcriptionflavors);
+            $additionalsettings->add(
+                new admin_setting_configeditabletable(
+                    'block_opencast/transcriptionflavorsoptions_' . $instance->id,
+                    'transcriptionflavorsoptions_' . $instance->id,
+                    get_string('addtranscriptionflavor', 'block_opencast')));
+
+            $additionalsettings->hide_if('block_opencast/transcriptionflavorsoptions_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(new admin_setting_configtext('block_opencast/maxtranscriptionupload_' . $instance->id,
+                new lang_string('maxtranscriptionupload', 'block_opencast'),
+                get_string('maxtranscriptionupload_desc', 'block_opencast'), 3, PARAM_INT
+            ));
+            $additionalsettings->hide_if('block_opencast/maxtranscriptionupload_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(
+                new admin_setting_filetypes('block_opencast/transcriptionfileextensions_' . $instance->id,
+                    new lang_string('transcriptionfileextensions', 'block_opencast'),
+                    get_string('transcriptionfileextensions_desc', 'block_opencast',
+                        $CFG->wwwroot . '/admin/tool/filetypes/index.php')
+            ));
+            $additionalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
+                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+            // End of transcription upload settings.
+            // Live Status Update.
+            // Setting for live status update for processing as well as uploading events.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/liveupdate_settingheader_' . $instance->id,
+                    get_string('liveupdate_settingheader', 'block_opencast'),
+                    ''));
+
+            // Enables live status update here.
+            $additionalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/liveupdateenabled_' . $instance->id,
+                    get_string('liveupdate_settingenabled', 'block_opencast'),
+                    get_string('liveupdate_settingenabled_desc', 'block_opencast'), 1));
+
+            // Setting for reload timeout after an event has new changes.
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/liveupdatereloadtimeout_' . $instance->id,
+                    get_string('liveupdate_reloadtimeout', 'block_opencast'),
+                    get_string('liveupdate_reloadtimeout_desc', 'block_opencast'), 3, PARAM_INT));
+            $additionalsettings->hide_if('block_opencast/liveupdatereloadtimeout_' . $instance->id,
+                'block_opencast/liveupdateenabled_' . $instance->id, 'notchecked');
 
             // Additional Settings.
             // Terms of use. Downlaod channel. Custom workflows channel. Support email.

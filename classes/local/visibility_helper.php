@@ -72,6 +72,25 @@ class visibility_helper {
                 mtrace('Event change visibility job failed due to: ' . $e);
             }
         }
+
+        // Cleanup the visibility jobs.
+        $sql = "SELECT * FROM {block_opencast_visibility}".
+            " WHERE status = :status";
+        $params = [];
+        $params['status'] = self::STATUS_DONE;
+        $alldonevisibilityjobs = $DB->get_records_sql($sql, $params);
+        if (empty($alldonevisibilityjobs)) {
+            mtrace('...no visibility jobs to cleanup');
+        }
+
+        foreach ($alldonevisibilityjobs as $job) {
+            mtrace('cleaning-up: ' . $job->id);
+            try {
+                $this->cleanup_visibility_job($job);
+            } catch (\moodle_exception $e) {
+                mtrace('Cleanup visibility job failed due to: ' . $e);
+            }
+        }
     }
 
     /**
@@ -83,14 +102,17 @@ class visibility_helper {
      * @throws \moodle_exception
      */
     protected function process_scheduled_change_visibility_job($job) {
-        global $DB;
         $status = self::STATUS_FAILED;
 
-        // Prepare all the required variables to perform the change_visibility function.
-        $uploadjob = $DB->get_record('block_opencast_uploadjob', ['id' => $job->uploadjobid]);
-        $ocinstanceid = $uploadjob->ocinstanceid;
-        $courseid = $uploadjob->courseid;
-        $eventidentifier = $uploadjob->opencasteventid;
+        // Extract all the required parameters to perform the change_visibility function.
+        list($ocinstanceid, $courseid, $eventidentifier) = $this->extract_job_params($job);
+        // We check if there is any empty param.
+        if (empty($ocinstanceid) || empty($courseid)) {
+            mtrace('job ' . $job->id . ':(ERROR) Invalid parameters to perfomr the job.');
+            self::change_job_status($job, $status);
+            return;
+        }
+
         $visibility = intval($job->scheduledvisibilitystatus);
         $groups = json_decode($job->scheduledvisibilitygroups);
         $apibridge = apibridge::get_instance($ocinstanceid);
@@ -120,6 +142,31 @@ class visibility_helper {
             return;
         }
 
+        // Check if eventidentifier is not empty, if so, that means it is not yet uploaded.
+        if (!empty($job->uploadjobid) && empty($eventidentifier)) {
+            mtrace('job ' . $job->id . ':(PENDING) event identifier does not exists yet.');
+            return;
+        } else if (empty($job->uploadjobid) && empty($eventidentifier)) {
+            // If both eventidentifier and uploadjobid are empty, that means it is faulty and needs to be deleted.
+            mtrace('job ' . $job->id . ':(ERROR) no event identifier is set.');
+            self::change_job_status($job, $status);
+            return;
+        }
+
+        // Check if the video is still in processing mode.
+        $eventobject = $apibridge->get_opencast_video($eventidentifier);
+        if ($eventobject->error) {
+            mtrace('job ' . $job->id . ':(ERROR) unable to find video.');
+            self::change_job_status($job, $status);
+            return;
+        }
+        $video = $eventobject->video;
+        // We postpone the visibility change because an active workflow.
+        if ($video->processing_state == 'RUNNING' || $video->processing_state == 'PAUSED') {
+            mtrace('job ' . $job->id . ':(PENDING) there is an ongoning workflow processing.');
+            return;
+        }
+
         $visibilitychanged = $apibridge->change_visibility($eventidentifier, $courseid, $visibility, $groups);
 
         $jobmessage = '(ERROR) Changing visibility failed!';
@@ -135,14 +182,82 @@ class visibility_helper {
     /**
      * Saves the change visibility job into db.
      *
-     * @param object $visibility Visibility object
+     * @param object $visibility Visibility job object
+     *
+     * @return boolean the status creating the job.
      */
     public static function save_visibility_job($visibility) {
         global $DB;
         // Set the pending status.
         $visibility->status = self::STATUS_PENDING;
+        if (!self::validate_job($visibility)) {
+            return false;
+        }
         // Save into db.
-        $DB->insert_record('block_opencast_visibility', $visibility);
+        return $DB->insert_record('block_opencast_visibility', $visibility);
+    }
+
+    /**
+     * Updates the change visibility job in db.
+     *
+     * @param object $visibility Visibility job object
+     *
+     * @return boolean the status updating the job.
+     */
+    public static function update_visibility_job($visibility) {
+        global $DB;
+        // Set the pending status.
+        $visibility->status = self::STATUS_PENDING;
+        if (!self::validate_job($visibility)) {
+            return false;
+        }
+        // Update the record in db.
+        return $DB->update_record('block_opencast_visibility', $visibility);
+    }
+
+    /**
+     * Deletes the change visibility job from db.
+     *
+     * @param object $visibility Visibility job object
+     *
+     * @return boolean the status deleting the job.
+     */
+    public static function delete_visibility_job($visibility) {
+        global $DB;
+        // Delete the visibility record.
+        return $DB->delete_records('block_opencast_visibility', array('id' => $visibility->id));
+    }
+
+    /**
+     * Validates the visibility job.
+     *
+     * @param object $visibility Visibility job object
+     *
+     * @return boolean whether the visibility is validated.
+     */
+    private static function validate_job($visibility) {
+        $isvalid = true;
+
+        // Make sure that, either uploadjobid exists or the other required params are set.
+        if (empty($visibility->uploadjobid)) {
+            if (empty($visibility->opencasteventid) || empty($visibility->ocinstanceid) || empty($visibility->courseid)) {
+                $isvalid = false;
+            }
+        }
+
+        // Make sure initialvisibilitystatus is set.
+        if (!property_exists($visibility, 'initialvisibilitystatus')) {
+            $isvalid = false;
+        }
+
+        // Make sure that scheduledvisibilitystatus is set, when the schedule time exists.
+        if (!empty($visibility->scheduledvisibilitytime)) {
+            if (!property_exists($visibility, 'scheduledvisibilitystatus')) {
+                $isvalid = false;
+            }
+        }
+
+        return $isvalid;
     }
 
     /**
@@ -181,7 +296,6 @@ class visibility_helper {
 
         // Prepare the variables to be used throughout the process.
         $groups = null;
-        $visibilityjob = null;
 
         // If the visibility record is available, we get the data from it.
         if ($visibilityrecord) {
@@ -200,9 +314,6 @@ class visibility_helper {
             if (!in_array($visibility, $allowedvisibilitystates)) {
                 throw new \coding_exception('Invalid visibility state.');
             }
-
-            // Providing the visibility job record to be used later on.
-            $visibilityjob = $visibilityrecord;
         }
 
         // Get all related acls.
@@ -210,8 +321,6 @@ class visibility_helper {
         // Create an object to be consumed later.
         $initialvisibility = new \stdClass();
         $initialvisibility->roles = $acls;
-        $initialvisibility->groups = $groups;
-        $initialvisibility->visibilityjob = $visibilityjob;
 
         return $initialvisibility;
     }
@@ -278,5 +387,160 @@ class visibility_helper {
         }
 
         return $acls;
+    }
+
+    /**
+     * Performs a cleanup operation on the visibility job.
+     *
+     * @param object $job represents the visibility job.
+     * @throws \moodle_exception
+     */
+    protected function cleanup_visibility_job($job) {
+        global $DB;
+        // We will change back the status if the job got a date in future.
+        if (!empty($job->scheduledvisibilitytime) && intval($job->scheduledvisibilitytime) >= time()) {
+            mtrace('job ' . $job->id . ":(ERROR) The job has been scheduled in future and cannot be cleaned." .
+                " Setting status back to pending.");
+            self::change_job_status($job, self::STATUS_PENDING);
+            return;
+        }
+
+        // Delete the visibility record otherwise.
+        $DB->delete_records('block_opencast_visibility', array('id' => $job->id));
+        mtrace('job ' . $job->id . ' removed');
+    }
+
+    /**
+     * Get the required parameters for performing scheduled visibility changes.
+     * Assuming that the visibility job now handles both uploadjobs and normal events,
+     * therefore to extract all required parameters when need to check for both!
+     *
+     * @param object $job Visibility job object
+     * @return array the parameters for performing scheduled visibility changes
+     */
+    private function extract_job_params($job) {
+        global $DB;
+        $ocinstanceid = null;
+        $courseid = null;
+        $opencasteventid = null;
+        // First, we look for the uploadjobid, if it is set it means the visibility job is from uploading process.
+        if (!empty($job->uploadjobid)) {
+            $uploadjob = $DB->get_record('block_opencast_uploadjob', ['id' => $job->uploadjobid]);
+            $ocinstanceid = $uploadjob->ocinstanceid;
+            $courseid = $uploadjob->courseid;
+            $opencasteventid = $uploadjob->opencasteventid;
+        }
+
+        // Next, we look for the ocinstanceid, if it is not set yet and this job has it, we take it.
+        if (empty($ocinstanceid) && !empty($job->ocinstanceid)) {
+            $ocinstanceid = $job->ocinstanceid;
+        }
+        // Next, we look for the courseid, if it is not set yet and this job has it, we take it.
+        if (empty($courseid) && !empty($job->courseid)) {
+            $courseid = $job->courseid;
+        }
+         // Next, we look for the eventidentifier, if it is not set yet and this job has it, we take it.
+        if (empty($opencasteventid) && !empty($job->opencasteventid)) {
+            $opencasteventid = $job->opencasteventid;
+        }
+
+        // Finally, we return the array of parameters.
+        return array($ocinstanceid, $courseid, $opencasteventid);
+    }
+
+    /**
+     * Returns scheduled change visibility waiting time.
+     *
+     * @param int $ocinstanceid The opencast instance id.
+     * @param array $customminutes Custome minutes to be added or deducted on demand.
+     * @return int
+     */
+    public static function get_waiting_time($ocinstanceid, $customminutes = []) {
+        $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
+        if (empty($configwaitingtime)) {
+            $configwaitingtime = self::DEFAULT_WAITING_TIME;
+        }
+        $waitingtime = time() + (intval($configwaitingtime) * 60);
+        // Apply custom minute difference.
+        if (isset($customminutes['minutes']) && $customminutes['minutes']) {
+            $minutes = $customminutes['minutes'];
+            $action = isset($customminutes['action']) ? $customminutes['action'] : 'plus';
+            switch ($action) {
+                case 'minus':
+                    $waitingtime -= ($minutes * 60);
+                    break;
+                case 'plus':
+                default:
+                    $waitingtime += ($minutes * 60);
+            }
+        }
+        return array($waitingtime, $configwaitingtime);
+    }
+
+    /**
+     * Get the current scheduled visibility info for an event if any.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid Course id
+     * @param string $opencasteventid event identifier
+     *
+     * @return ?object The current scheduled visibility info, or null if not found.
+     */
+    public static function get_event_scheduled_visibility($ocinstanceid, $courseid, $opencasteventid) {
+        global $DB;
+        // Now that we have two different options in visibility table, we need to prepare a comprehensive sql.
+        // Assuming that the visibility was requested by changevisibility form, not the addvideo (not uploadjob).
+        $select = "SELECT * FROM {block_opencast_visibility}";
+        $params = array(
+            'ocinstanceid' => $ocinstanceid,
+            'courseid' => $courseid,
+            'opencasteventid' => $opencasteventid,
+        );
+        $where = array(
+            'ocinstanceid = :ocinstanceid',
+            'courseid = :courseid',
+            'opencasteventid = :opencasteventid',
+        );
+        $sql = $select . ' WHERE ' . implode(' AND ', $where);
+        $visibility = $DB->get_record_sql($sql, $params);
+        // If the record exists already, we return it. Otherwise, we will give it another chance with uploadjobid.
+        if (!empty($visibility)) {
+            return $visibility;
+        }
+        // However, here we look to see if the uploadjob for that event exists.
+        $uploadjob = $DB->get_record('block_opencast_uploadjob', $params);
+        if (!empty($uploadjob)) {
+            $params = array(
+                'uploadjobid' => intval($uploadjob->id),
+            );
+            $where = array(
+                'uploadjobid = :uploadjobid',
+            );
+        }
+        $sql = $select . ' WHERE ' . implode(' AND ', $where);
+        $visibility = $DB->get_record_sql($sql, $params);
+        return !empty($visibility) ? $visibility : null;
+    }
+
+    /**
+     * Get the current scheduled visibility info for an uploadjob if any.
+     *
+     * @param int $uploadjobid the upload job id
+     * @param boolean $onlyscheduled whether to only for scheduled visibility.
+     *
+     * @return ?object The current scheduled visibility job info, or null if not found.
+     */
+    public static function get_uploadjob_scheduled_visibility($uploadjobid, $onlyscheduled = true) {
+        global $DB;
+        $sql = "SELECT * FROM {block_opencast_visibility}" .
+            " WHERE uploadjobid = :uploadjobid";
+        $params = array(
+            'uploadjobid' => intval($uploadjobid),
+        );
+        if ($onlyscheduled) {
+            $sql .= " AND scheduledvisibilitytime IS NOT NULL";
+        }
+        $visibility = $DB->get_record_sql($sql, $params);
+        return !empty($visibility) ? $visibility : null;
     }
 }

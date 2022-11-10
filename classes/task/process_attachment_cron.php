@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Task for processing the scheduled visibility change jobs.
- * @package   block_opencast
+ * Task for processing event's attachment upload jobs.
+ * @package    block_opencast
  * @copyright  2022 Farbod Zamani Boroujeni, ELAN e.V.
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace block_opencast\task;
 
 /**
- * Task for processing the scheduled visibility change jobs.
+ * Task for processing event's attachment upload jobs.
  * @package block_opencast
  */
-class process_visibility_cron extends \core\task\scheduled_task {
+class process_attachment_cron extends \core\task\scheduled_task {
 
     /**
      * Get the name of the task.
@@ -35,7 +35,7 @@ class process_visibility_cron extends \core\task\scheduled_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('processvisibility', 'block_opencast');
+        return get_string('processattachment', 'block_opencast');
     }
 
     /**
@@ -43,7 +43,7 @@ class process_visibility_cron extends \core\task\scheduled_task {
      * @throws \dml_exception
      */
     public function execute() {
-        $visibilityhelper = new \block_opencast\local\visibility_helper();
-        $visibilityhelper->cron();
+        $attachmenthelper = new \block_opencast\local\attachment_helper();
+        $attachmenthelper->cron();
     }
 }

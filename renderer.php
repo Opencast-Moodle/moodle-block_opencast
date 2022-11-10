@@ -27,6 +27,7 @@ use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
 use mod_opencast\local\opencasttype;
+use block_opencast\local\liveupdate_helper;
 
 /**
  * Renderer class for block opencast.
@@ -39,7 +40,7 @@ class block_opencast_renderer extends plugin_renderer_base {
     /** @var int Video is visible for students */
     const VISIBLE = 1;
     /** @var int Video is visible for some students */
-    const MIXED_VISIBLITY = 3;
+    const MIXED_VISIBILITY = 3;
     /** @var int Video is hidden for students */
     const HIDDEN = 0;
     /** @var int Video is visible for groups of students. */
@@ -89,7 +90,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             case 'RUNNING' :
             case 'PAUSED' :
                 $tooltip = get_string('ocstateprocessing', 'block_opencast');
-                return $this->output->pix_icon('processing', get_string('ocstateprocessing', 'block_opencast'), 'block_opencast',
+                return $this->output->pix_icon('i/loading_small', get_string('ocstateprocessing', 'block_opencast'), 'moodle',
                     array('data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip));
             case 'SUCCEEDED' :
             default :
@@ -427,8 +428,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
-                    false, null, false, false,
-                    'overview', $video->is_part_of);
+                    false, null, false, false, false, 'overview', $video->is_part_of);
             }
 
             if ($hasdownloadpermission && $video->is_downloadable) {
@@ -577,8 +577,22 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_status($statuscode, $countfailed = 0) {
-        // Get understandable status string.
-        $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
+        $statusstring = '';
+        // The status code less than 200 is assigned for api upload.
+        if (intval($statuscode) < 200) {
+            // Get understandable status string from normal upload process.
+            $statusstring = \block_opencast\local\upload_helper::get_status_string($statuscode);
+        }
+
+        // The status code greater than 200 is assigned for ingest upload.
+        if (intval($statuscode) >= 200) {
+            $statusstring = \block_opencast\local\ingest_uploader::get_status_string($statuscode);
+        }
+
+        // It the statusstring is still empty, we return unknown.
+        if (empty($statusstring)) {
+            $statusstring = get_string('mstateunknown', 'block_opencast');
+        }
 
         // If needed, add the number of failed uploads.
         if ($countfailed > 1) {
@@ -601,7 +615,12 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true,
                                        $redirectpage = null, $seriesid = null) {
-
+        // Set if visibility change is enabled.
+        $canchangescheduledvisibility = false;
+        if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) &&
+            !empty(get_config('block_opencast', 'workflow_roles_' . $ocinstanceid))) {
+            $canchangescheduledvisibility = true;
+        }
         $table = new html_table();
         $table->head = array(
             get_string('hstart_date', 'block_opencast'),
@@ -611,6 +630,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             get_string('presentationfile', 'block_opencast'),
             get_string('status'),
             get_string('createdby', 'block_opencast'));
+        if ($canchangescheduledvisibility) {
+            $table->head[] = get_string('hscheduledvisibility', 'block_opencast');
+        }
         if ($showdeletebutton) {
             $table->head[] = '';
         }
@@ -688,8 +710,16 @@ class block_opencast_renderer extends plugin_renderer_base {
             } else {
                 $row[] = '&mdash;';
             }
-            $row[] = $this->render_status($uploadjob->status, $uploadjob->countfailed);
+            $status = $this->render_status($uploadjob->status, $uploadjob->countfailed);
+            // Add live update flag item (hidden input) to the upload status column, if it is enabled.
+            if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid))) {
+                $status .= liveupdate_helper::get_liveupdate_uploading_hidden_input($uploadjob->id, $title);
+            }
+            $row[] = $status;
             $row[] = fullname($uploadjob);
+            if ($canchangescheduledvisibility) {
+                $row[] = $this->render_scheduled_visibility_icon($uploadjob);
+            }
             if ($showdeletebutton) {
                 $coursecontext = context_course::instance($uploadjob->courseid);
                 // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
@@ -703,6 +733,26 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
 
         return html_writer::table($table);
+    }
+
+    /**
+     * Returns the icon string or a dash - to be presented in the upload job table.
+     *
+     * @param object $uploadjob the upload job object
+     * @return string the icon string or a dash - to be presented in the upload job table
+     */
+    private function render_scheduled_visibility_icon($uploadjob) {
+        $scheduledvisibility = \block_opencast\local\visibility_helper::get_uploadjob_scheduled_visibility($uploadjob->id);
+        $coursecontext = context_course::instance($uploadjob->courseid);
+        if (!empty($scheduledvisibility) && has_capability('block/opencast:addvideo', $coursecontext)) {
+            $url = new \moodle_url('/blocks/opencast/changescheduledvisibility.php',
+                array('uploadjobid' => $uploadjob->id, 'courseid' => $uploadjob->courseid,
+                    'ocinstanceid' => $uploadjob->ocinstanceid));
+            $text = get_string('scheduledvisibilityicontitle', 'block_opencast');
+            $icon = $this->output->pix_icon('i/scheduled', $text);
+            return \html_writer::link($url, $icon);
+        }
+        return '&mdash;';
     }
 
     /**
@@ -742,7 +792,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $text = get_string('changevisibility_visible', 'block_opencast');
                 $icon = $this->output->pix_icon('t/hide', $text);
                 break;
-            case self::MIXED_VISIBLITY:
+            case self::MIXED_VISIBILITY:
                 $text = get_string('changevisibility_mixed', 'block_opencast');
                 $icon = $this->output->pix_icon('i/warning', $text);
                 break;
@@ -932,6 +982,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param \stdClass $coursecontext
      * @param bool $useeditor
      * @param bool $canchangeowner
+     * @param bool $canmanagetranscriptions
      * @param string $redirectpage
      * @param string $series
      * @return bool|string
@@ -940,7 +991,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_edit_functions($ocinstanceid, $courseid, $videoidentifier, $updatemetadata,
                                           $startworkflows, $coursecontext, $useeditor, $canchangeowner,
-                                          $redirectpage = null, $series = null) {
+                                          $canmanagetranscriptions, $redirectpage = null, $series = null) {
         global $CFG;
 
         // Get the action menu options.
@@ -961,6 +1012,16 @@ class block_opencast_renderer extends plugin_renderer_base {
                         'redirectpage' => $redirectpage, 'series' => $series)),
                 new pix_icon('t/editstring', get_string('updatemetadata_short', 'block_opencast')),
                 get_string('updatemetadata_short', 'block_opencast')
+            ));
+        }
+
+        if ($canmanagetranscriptions) {
+            // Event's transcriptions menu.
+            $actionmenu->add(new action_menu_link_secondary(
+                new \moodle_url('/blocks/opencast/managetranscriptions.php',
+                    array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)),
+                new pix_icon('caption', get_string('managetranscriptions', 'block_opencast'), 'block_opencast'),
+                get_string('managetranscriptions', 'block_opencast')
             ));
         }
 
@@ -1259,5 +1320,25 @@ class block_opencast_renderer extends plugin_renderer_base {
         $context->text = format_text($content);
 
         return $this->output->render_from_template('core/help_icon', $context);
+    }
+
+    /**
+     * Render transcription table for "manage transcription" page.
+     * @param array $list list of current transcriptions
+     * @param string $addnewurl add new transcription url
+     * @param boolean $candelete whether to provide delete feature
+     * @param boolean $downloadblanktarget whether to redirect download to a new page or not
+     * @return bool|string
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $candelete = false, $downloadblanktarget = false) {
+        $context = new stdClass();
+        $context->list = $list;
+        $context->listhascontent = !empty($list) ? true : false;
+        $context->addnewurl = $addnewurl;
+        $context->candelete = $candelete;
+        $context->downloadblanktarget = $downloadblanktarget;
+        return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
 }
