@@ -116,8 +116,8 @@ $customtoolparams[] = 'upload.seriesId=' . $seriesid;
 $customtool = '/studio?' . implode('&', $customtoolparams);
 // Create parameters.
 
-$consumerkey = $api->get_lti_consumerkey();
-$consumersecret = $api->get_lti_consumersecret();
+$consumerkey = $apibridge->get_lti_consumerkey();
+$consumersecret = $apibridge->get_lti_consumersecret();
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
 
 $renderer = $PAGE->get_renderer('block_opencast');

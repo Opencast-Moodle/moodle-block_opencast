@@ -200,7 +200,7 @@ class apibridge {
      */
     public function ingest_add_track($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
-        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_video_file($file));
+        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file));
         $code = $response['code'];
         $newmediapackage = $response['body'];
 
@@ -241,17 +241,17 @@ class apibridge {
     /**
      * Ingests a mediapackage.
      * @param string $mediapackage Mediapackage
-     * @param string $workflow workflow definition is to start after ingest
+     * @param string $uploadworkflow workflow definition is to start after ingest
      * @return string Workflow instance that was started
      * @throws \dml_exception
      * @throws \moodle_exception
      * @throws opencast_connection_exception
      */
-    public function ingest($mediapackage, $workflow = '') {
+    public function ingest($mediapackage, $uploadworkflow = '') {
         $ingestapi = $this->get_ingest_api();
 
-        if (empty($workflow)) {
-            $workflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
+        if (empty($uploadworkflow)) {
+            $uploadworkflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
         }
 
         $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
@@ -1174,10 +1174,10 @@ class apibridge {
         $presenter = null;
         $presentation = null;
         if ($event->get_presenter()) {
-            $presenter = $this->get_upload_video_file($event->get_presenter());
+            $presenter = $this->get_upload_filestream($event->get_presenter());
         }
         if ($event->get_presentation()) {
-            $presentation = $this->get_upload_video_file($event->get_presentation());
+            $presentation = $this->get_upload_filestream($event->get_presentation());
         }
 
         $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
@@ -1226,9 +1226,10 @@ class apibridge {
      * @param stored_file|chunkupload_file $file the file to convert.
      * @return resource|false the file pointer resource.
      */
-    private function get_upload_video_file($file)
+    public function get_upload_filestream($file, $type = 'video')
     {
-        $tempdir = make_temp_directory('videotoupload');
+        $tempdirname = "oc{$type}toupload";
+        $tempdir = make_temp_directory($tempdirname);
         $tempfilepath = tempnam($tempdir, 'tempup_') . $file->get_filename();
         $filestream = null;
         if ($file instanceof \stored_file) {
@@ -1794,7 +1795,7 @@ class apibridge {
         } else if ($code == 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
         } else {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $api->get_http_code());
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $code);
         }
     }
 
@@ -2770,15 +2771,14 @@ class apibridge {
      * @throws opencast_connection_exception
      */
     public function get_event_media_package($eventid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $mediapackage = $api->oc_get("/api/episode/{$eventid}");
-
-        if ($api->get_http_code() === 0) {
+        $response = $this->toolapi->opencastrestclient->performGet("/api/episode/{$eventid}");
+        $code = $response['code'];
+        if ($code === 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($api->get_http_code() != 200) {
+        } else if ($code != 200) {
             throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
         }
-
+        $mediapackage = $response['body'];
         return $mediapackage;
     }
 

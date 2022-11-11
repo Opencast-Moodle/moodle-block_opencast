@@ -268,7 +268,8 @@ class attachment_helper {
         $mediapackagexml = self::remove_existing_flavor_from_mediapackage($mediapackagexml, 'type', $flavor);
         // Add attachment via ingest.
         $apibridge = apibridge::get_instance($ocinstanceid);
-        $mediapackagexml = $apibridge->ingest_add_attachment($mediapackagexml, $flavor, $file);
+        $filestream = $apibridge->get_upload_filestream($file, 'file');
+        $mediapackagexml = $apibridge->ingest_add_attachment($mediapackagexml, $flavor, $filestream);
         return  $mediapackagexml;
     }
 
