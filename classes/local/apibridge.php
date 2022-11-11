@@ -55,11 +55,13 @@ class apibridge {
     /** @var string[] Placeholders related to users. */
     private static $userplaceholders = ['[USERNAME]', '[USERNAME_LOW]', '[USERNAME_UP]', '[USER_EMAIL]', '[USER_EXTERNAL_ID]'];
 
-
     /** @var bool True for tests */
     private static $testing = false;
 
+    /** @var Opencast the opencast endpoints instance */
     public $opencastapi;
+
+    /** @var api the tool_opencast instance */
     private $toolapi;
 
     /**
@@ -282,8 +284,7 @@ class apibridge {
      * @param string $filedata the filedata to convert.
      * @return resource|false the file pointer resource.
      */
-    public function get_upload_xml_file($filename, $filedata)
-    {
+    public function get_upload_xml_file($filename, $filedata) {
         $filedata = (string) $filedata;
         $tempdir = make_temp_directory('xmlfiletoupload');
         $tempfilepath = tempnam($tempdir, 'tempup_') . $filename;
@@ -578,7 +579,7 @@ class apibridge {
 
         $response = $this->opencastapi->groupsApi->create($name, $description, $roles);
         $code = $response['code'];
-        
+
         if ($code >= 400) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
         }
@@ -1224,10 +1225,10 @@ class apibridge {
      * and then perform the fopen. After all it deletes the temp file and returns the stream file.
      *
      * @param stored_file|chunkupload_file $file the file to convert.
+     * @param string $type the type of the file to get filestream for.
      * @return resource|false the file pointer resource.
      */
-    public function get_upload_filestream($file, $type = 'video')
-    {
+    public function get_upload_filestream($file, $type = 'video') {
         $tempdirname = "oc{$type}toupload";
         $tempdir = make_temp_directory($tempdirname);
         $tempfilepath = tempnam($tempdir, 'tempup_') . $file->get_filename();
@@ -1296,7 +1297,6 @@ class apibridge {
             throw new opencast_state_exception('uploadingeventfailed', 'block_opencast');
         }
 
-        // $event = json_decode($event);
         // Flag as newly created.
         $event->newlycreated = true;
 
@@ -1760,7 +1760,7 @@ class apibridge {
         $queryparams = array();
         // If only one or no tag is defined, we pass that as a filter to the API call.
         if (count($tags) < 2) {
-            $queryparams['filter'] = ['tag' => (isset($tags[0]) ? $tags[0] : '')]; 
+            $queryparams['filter'] = ['tag' => (isset($tags[0]) ? $tags[0] : '')];
         }
 
         if ($withconfigurations) {
@@ -2154,7 +2154,6 @@ class apibridge {
         if ($acltoupdate == json_encode(array_values($jsonacl))) {
             return true;
         }
-
 
         if ($isseries) {
             $response = $this->opencastapi->seriesApi->updateAcl($eventidentifier, $acltoupdate);
@@ -2667,7 +2666,7 @@ class apibridge {
             return true;
         }
 
-        //Update acls.
+        // Update acls.
         $response = $this->opencastapi->eventsApi->updateAcl($eventidentifier, $acl);
 
         if ($response['code'] >= 400) {
