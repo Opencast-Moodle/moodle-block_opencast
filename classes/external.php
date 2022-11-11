@@ -25,6 +25,7 @@
 
 use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
+use block_opencast\local\liveupdate_helper;
 use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die;
@@ -102,6 +103,20 @@ class block_opencast_external extends external_api {
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be set as default')
+        ]);
+    }
+
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function get_liveupdate_info_parameters() {
+        return new external_function_parameters([
+            'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'type' => new external_value(PARAM_TEXT, 'The type of domain to check the status from'),
+            'identifier' => new external_value(PARAM_ALPHANUMEXT, 'Event id to observe its processing state')
         ]);
     }
 
@@ -353,6 +368,49 @@ class block_opencast_external extends external_api {
         throw new moodle_exception('setdefaultseriesfailed', 'block_opencast');
     }
 
+    /**
+     * Returns the live update info for:
+     * - Workflow processing state.
+     * - Upload status.
+     *
+     * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
+     * @param string $type the type of live update to check against
+     * @param string $identifier the identifier to get records for
+     *
+     * @return string Latest update state info
+     */
+    public static function get_liveupdate_info(int $contextid, int $ocinstanceid, string $type, string $identifier) {
+        $params = self::validate_parameters(self::get_liveupdate_info_parameters(), [
+            'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
+            'type' => $type,
+            'identifier' => $identifier
+        ]);
+
+        $context = context::instance_by_id($params['contextid']);
+        self::validate_context($context);
+        require_capability('block/opencast:viewunpublishedvideos', $context);
+
+        // Initialise the live update info as an empty array.
+        $liveupdateinfo = [];
+        // Get processing state info.
+        if ($params['type'] == 'processing') {
+            $liveupdateinfo = liveupdate_helper::get_processing_state_info($params['ocinstanceid'], $params['identifier']);
+        } else if ($type == 'uploading') {
+             // Get uploading status.
+            $liveupdateinfo = liveupdate_helper::get_uploading_info($params['identifier']);
+        }
+
+        // Force to have replace and remove params, otherwise empty must be returned.
+        if (!isset($liveupdateinfo['replace']) || !isset($liveupdateinfo['remove'])) {
+            // Returning empty string helps to remove the item in the javascript, that results in cleaning the interval.
+            $liveupdateinfo = '';
+        }
+
+        // Finally, we return info as json encoded string.
+        return json_encode($liveupdateinfo);
+    }
 
     /**
      * Returns description of method result value
@@ -397,5 +455,14 @@ class block_opencast_external extends external_api {
      */
     public static function set_default_series_returns() {
         return new external_value(PARAM_BOOL, 'True if successful');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function get_liveupdate_info_returns() {
+        return new external_value(PARAM_RAW, 'Json live update info');
     }
 }

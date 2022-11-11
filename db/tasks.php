@@ -77,5 +77,14 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'block_opencast\task\process_attachment_cron',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
     )
 );
