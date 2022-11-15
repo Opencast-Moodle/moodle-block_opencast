@@ -57,7 +57,7 @@ class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
 
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \dml_exception('dmlreadexception', NULL,
+            throw new \dml_exception('dmlreadexception', null,
                 "No Opencast instances are defined.");
         }
 

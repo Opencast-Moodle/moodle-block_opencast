@@ -69,7 +69,7 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_settings() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \dml_exception('dmlreadexception', NULL,
+            throw new \dml_exception('dmlreadexception', null,
                 "No Opencast instances are defined.");
         }
 
@@ -96,7 +96,7 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_steps() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \dml_exception('dmlreadexception', NULL,
+            throw new \dml_exception('dmlreadexception', null,
                 "No Opencast instances are defined.");
         }
 
