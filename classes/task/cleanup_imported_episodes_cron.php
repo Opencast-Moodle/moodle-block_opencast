@@ -50,14 +50,15 @@ class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
      * Do the job.
      * Throw exceptions on errors (the job will be retried).
      *
-     * @throws \Exception
+     * @throws \dml_exception
      */
     public function execute() {
         global $DB;
 
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \Exception("No Opencast instances are defined.");
+            throw new \dml_exception('dmlreadexception', NULL,
+                "No Opencast instances are defined.");
         }
 
         foreach ($ocinstances as $ocinstance) {
