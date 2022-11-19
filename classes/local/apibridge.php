@@ -59,7 +59,7 @@ class apibridge {
     private static $testing = false;
 
     /** @var Opencast the opencast endpoints instance */
-    public $opencastapi;
+    private $opencastapi;
 
     /** @var api the tool_opencast instance */
     private $toolapi;
@@ -97,6 +97,9 @@ class apibridge {
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
+            $toolapi = api::get_instance($apibridge->ocinstanceid);
+            $apibridge->set_toolapi($toolapi);
+            $apibridge->set_opencastapi($toolapi->opencastapi);
             $apibridges[1] = $apibridge;
             return $apibridge;
         }
