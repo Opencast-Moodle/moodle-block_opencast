@@ -2736,27 +2736,25 @@ class apibridge {
     /**
      * Returns lti consumer key base on ocinstance id from tool_opencast config.
      *
-     * @return string the lticonsumerkey
+     * @return string|bool
+     * The requested config as string or false, if the corresponding config was not found.
+     *
+     * @throws \dml_exception
      */
     public function get_lti_consumerkey() {
-        $configname = 'lticonsumerkey';
-        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
-            $configname .= "_{$this->ocinstanceid}";
-        }
-        return get_config('tool_opencast', $configname);
+        return settings_api::get_lticonsumerkey($this->ocinstanceid);
     }
 
     /**
      * Returns lti consumer secret base on ocinstance id from tool_opencast config.
      *
-     * @return string the lticonsumersecret
+     * @return string|bool
+     * The requested config as string or false, if the corresponding config was not found.
+     *
+     * @throws \dml_exception
      */
     public function get_lti_consumersecret() {
-        $configname = 'lticonsumersecret';
-        if (settings_api::get_default_ocinstance()->id != $this->ocinstanceid) {
-            $configname .= "_{$this->ocinstanceid}";
-        }
-        return get_config('tool_opencast', $configname);
+        return settings_api::get_lticonsumersecret($this->ocinstanceid);
     }
 
     /**

@@ -76,9 +76,9 @@ class upload_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
 
         // Test api bridge.
-        set_config('apiurl', $this->apiurl, 'tool_opencast');
-        set_config('apiusername', $this->apiusername, 'tool_opencast');
-        set_config('apipassword', $this->apipassword, 'tool_opencast');
+        set_config('apiurl_1', $this->apiurl, 'tool_opencast');
+        set_config('apiusername_1', $this->apiusername, 'tool_opencast');
+        set_config('apipassword_1', $this->apipassword, 'tool_opencast');
         set_config('limituploadjobs_1', 2, 'block_opencast');
         set_config('series_name_1', '[COURSENAME]', 'block_opencast');
 
@@ -115,9 +115,9 @@ class upload_test extends advanced_testcase {
         ob_start();
         // Upload the file.
         $uploadhelper->cron();
-        sleep(20);
+        sleep(25);
         $uploadhelper->cron();
-        sleep(20);
+        sleep(25);
         $uploadhelper->cron();
         ob_end_clean();
 
