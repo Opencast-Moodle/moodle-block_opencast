@@ -43,6 +43,24 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
     }
 
     /**
+     * Sets toolapi value.
+     *
+     * @param \tool_opencast\local\api $toolapi the api tool class instance
+     */
+    public function set_toolapi($toolapi) {
+        $this->toolapi = $toolapi;
+    }
+
+    /**
+     * Sets opencastapi value.
+     *
+     * @param \OpencastApi\Opencast $opencastapi the api tool class instance
+     */
+    public function set_opencastapi($opencastapi) {
+        $this->opencastapi = $opencastapi;
+    }
+
+    /**
      * Test access for the protected getroles function.
      * @return array
      * @throws dml_exception
