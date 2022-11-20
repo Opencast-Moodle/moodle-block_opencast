@@ -35,6 +35,7 @@ use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
 use block_opencast\opencast_state_exception;
+use tool_opencast\empty_configuration_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
@@ -70,9 +71,16 @@ class apibridge {
      */
     private function __construct($ocinstanceid) {
         $this->ocinstanceid = $ocinstanceid;
-        $toolapi = api::get_instance($this->ocinstanceid);
-        $this->toolapi = $toolapi;
-        $this->opencastapi = $toolapi->opencastapi;
+        try {
+            $toolapi = api::get_instance($this->ocinstanceid);
+            $this->toolapi = $toolapi;
+            $this->opencastapi = $toolapi->opencastapi;
+        } catch (\moodle_exception $e) {
+            // We re-throw the exception if it is not during testing or the exception is not something related.
+            if (!$testing || !($e instanceof empty_configuration_exception)) {
+                throw $e;
+            }
+        }
     }
 
     /**
