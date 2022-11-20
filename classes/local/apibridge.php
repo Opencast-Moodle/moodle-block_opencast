@@ -77,7 +77,7 @@ class apibridge {
             $this->opencastapi = $toolapi->opencastapi;
         } catch (\moodle_exception $e) {
             // We re-throw the exception if it is not during testing or the exception is not something related.
-            if (!$testing || !($e instanceof empty_configuration_exception)) {
+            if (!self::$testing || !($e instanceof empty_configuration_exception)) {
                 throw $e;
             }
         }
