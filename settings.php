@@ -84,7 +84,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         }
 
         // Create full settings page structure only if really needed.
-    } else if ($ADMIN->fulltree) {
+        // Because we are using the calls to get workflows activiely in the setting, therefore we need to narrow it down only
+        // when needed. So we check if this setting page is currently requested.
+    } else if ($ADMIN->fulltree && strpos($PAGE->pagetype, 'block_opencast') !== false) {
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
