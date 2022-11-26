@@ -52,6 +52,10 @@ class backup_test extends advanced_testcase {
 
     /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
+    /** @var string Test api username. */
+    private $apiusername = 'admin';
+    /** @var string Test api password. */
+    private $apipassword = 'opencast';
 
     public function setUp(): void {
         parent::setUp();
@@ -213,8 +217,11 @@ class backup_test extends advanced_testcase {
 
         // Configure all necessary plugin configuration to allow video backups.
         // If this is not done, video backups are not offered by the backup wizard at all.
-        $apibridge = \block_opencast\local\apibridge::get_instance(1);
         set_config('apiurl_1', $this->apiurl, 'tool_opencast');
+        set_config('apiusername_1', $this->apiusername, 'tool_opencast');
+        set_config('apipassword_1', $this->apipassword, 'tool_opencast');
+        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+
         set_config('keeptempdirectoriesonbackup', true);
         set_config('importvideosenabled_1', true, 'block_opencast');
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
