@@ -122,10 +122,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $opencasterror = false;
 
             // Setup JS.
-            $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
-                '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
-                '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
-                '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
+            $rolesdefault = setting_helper::get_default_roles();
 
             $metadatadefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .

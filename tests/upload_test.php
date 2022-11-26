@@ -81,6 +81,7 @@ class upload_test extends advanced_testcase {
         set_config('apipassword_1', $this->apipassword, 'tool_opencast');
         set_config('limituploadjobs_1', 2, 'block_opencast');
         set_config('series_name_1', '[COURSENAME]', 'block_opencast');
+        set_config('roles_1', \block_opencast\setting_helper::get_default_roles(), 'block_opencast');
 
         // Upload file.
         $plugingenerator = $this->getDataGenerator()->get_plugin_generator('block_opencast');
