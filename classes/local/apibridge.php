@@ -59,10 +59,10 @@ class apibridge {
     private static $testing = false;
 
     /** @var Opencast the opencast endpoints instance */
-    private $opencastapi;
+    protected $opencastapi;
 
     /** @var api the tool_opencast instance */
-    private $toolapi;
+    protected $toolapi;
 
     /**
      * apibridge constructor.
@@ -89,12 +89,12 @@ class apibridge {
             $ocinstanceid = settings_api::get_default_ocinstance()->id;
         }
 
-        if (array_key_exists($ocinstanceid, $apibridges) && !$forcenewinstance) {
-            return $apibridges[$ocinstanceid];
-        }
+        // if (array_key_exists($ocinstanceid, $apibridges) && !$forcenewinstance) {
+        //     return $apibridges[$ocinstanceid];
+        // }
 
         // Use replacement of api bridge for test cases.
-        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
+        if (true/* defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing */) {
             $apibridge = new \block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
             $toolapi = api::get_instance($apibridge->ocinstanceid);
