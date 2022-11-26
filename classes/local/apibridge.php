@@ -59,10 +59,10 @@ class apibridge {
     private static $testing = false;
 
     /** @var Opencast the opencast endpoints instance */
-    private $opencastapi;
+    protected $opencastapi;
 
     /** @var api the tool_opencast instance */
-    private $toolapi;
+    protected $toolapi;
 
     /**
      * apibridge constructor.
