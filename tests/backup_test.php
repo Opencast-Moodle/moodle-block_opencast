@@ -205,6 +205,11 @@ class backup_test extends advanced_testcase {
         $this->assertEquals($expectedfailedcount, $customdata->countfailed);
     }
 
+    /**
+     * Test the execution of backup and restore adhoc tasks with block_opencast.
+     * 
+     * @covers \restore_controller \backup_controller
+     */
     public function test_adhoctask_execution() {
         global $USER, $DB;
 
