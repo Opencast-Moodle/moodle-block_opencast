@@ -145,16 +145,4 @@ class setting_helper {
 
         return true;
     }
-
-    /**
-     * Get default roles json string
-     *
-     * @return string default roles json string
-     */
-    public static function get_default_roles() {
-        return '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
-            '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
-            '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
-            '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
-    }
 }

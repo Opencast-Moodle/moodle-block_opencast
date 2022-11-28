@@ -83,7 +83,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $ADMIN->add($category, $settingspage);
         }
 
-        // Create full settings page structure only if really needed.
         // Because we are using the calls to get workflows activiely in the setting, therefore we need to narrow it down only
         // when needed. So we check if this setting page is currently requested.
     } else if ($ADMIN->fulltree && strpos($PAGE->pagetype, 'block_opencast') !== false) {
@@ -122,7 +121,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $opencasterror = false;
 
             // Setup JS.
-            $rolesdefault = setting_helper::get_default_roles();
+            $rolesdefault = '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
+                '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
+                '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
+                '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]';
 
             $metadatadefault = '[' .
                 '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
