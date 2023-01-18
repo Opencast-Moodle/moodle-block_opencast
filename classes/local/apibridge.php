@@ -2062,6 +2062,14 @@ class apibridge {
     public function update_event_metadata($eventidentifier, $metadata) {
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
+        // Walking through metadata items to apply required changes.
+        array_walk($metadata, function (&$item) {
+            // Here we need to urlencode title and description, to be processed appropriately.
+            if ($item['id'] === 'title' || $item['id'] === 'description') {
+                $item['value'] = urlencode($item['value']);
+            }
+            $item = $item;
+        });
         $params['metadata'] = json_encode($metadata);
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
