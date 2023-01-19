@@ -177,6 +177,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'helpbtndescription_' . $instance->id, 'descriptionmdfd', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpdefaultable_' . $instance->id,
                 'helpbtndefaultable_' . $instance->id, 'descriptionmddefaultable', 'block_opencast'));
+            $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpreadonly_' . $instance->id,
+                'helpbtnreadonly_' . $instance->id, 'descriptionmdreadonly', 'block_opencast'));
 
             $rolessetting = new admin_setting_configtext('block_opencast/roles_' . $instance->id,
                 get_string('aclrolesname', 'block_opencast'),

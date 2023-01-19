@@ -50,7 +50,8 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'transcription_flavor_key', component: 'block_opencast'},
         {key: 'transcription_flavor_value', component: 'block_opencast'},
         {key: 'transcription_flavor_delete', component: 'block_opencast'},
-        {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'}
+        {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'},
+        {key: 'readonly_disabled_tooltip_text', component: 'block_opencast'},
     ];
     str.get_strings(strings).then(function(jsstrings) {
         // Style hidden input.
@@ -104,6 +105,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     formatter: function(cell) {
                         var input = document.createElement('input');
                         input.type = 'checkbox';
+                        input.style.cursor = 'pointer';
                         input.checked = cell.getValue();
                         input.addEventListener('click', function() {
                             cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
@@ -198,23 +200,62 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                                var checked = $(this).prop('checked');
+                                cell.getRow().update({'required': checked ? 1 : 0});
+                                // Make readonly disabled if this item is required.
+                                var readonlyelm = cell.getRow().getCell("readonly").getElement();
+                                var nodelist = readonlyelm.querySelectorAll('.readonly-checkbox');
+                                if (checked && nodelist.length) {
+                                    if (cell.getRow().getData()?.readonly) {
+                                        nodelist[0].click();
+                                    }
+                                    nodelist[0].setAttribute('title', jsstrings[19]);
+                                    nodelist[0].style.cursor = 'not-allowed';
+                                    nodelist[0].disabled = true;
+                                } else {
+                                    nodelist[0].removeAttribute('title');
+                                    nodelist[0].style.cursor = 'pointer';
+                                    nodelist[0].disabled = false;
+                                }
                             });
 
                             return input;
                         }
                 },
                 {
-                    title: jsstrings[11],
+                    title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return;
+                            }
+                            var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
                             input.type = 'checkbox';
-                            input.checked = cell.getValue();
+                            input.style.cursor = 'pointer';
+                            input.classList.add('readonly-checkbox');
+                            input.checked = isrequired ? false : cell.getValue();
+                            if (isrequired) {
+                                input.setAttribute('title', jsstrings[19]);
+                                input.style.cursor = 'not-allowed';
+                                input.disabled = true;
+                            } else {
+                                input.removeAttribute('title');
+                                input.style.cursor = 'pointer';
+                                input.disabled = false;
+                            }
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                // Check if required is enabled.
+                                if (cell.getRow().getData()?.required) {
+                                    // If required is enabled, we disable this checkbox.
+                                    $(this).prop('checked', false);
+                                } else {
+                                    // Otherwise, we provide the checkbox with normal input.
+                                    cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                }
                             });
 
                             return input;
@@ -236,10 +277,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
+
+                            return input;
                         }
                 },
                 {
@@ -320,23 +364,62 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                                var checked = $(this).prop('checked');
+                                cell.getRow().update({'required': checked ? 1 : 0});
+                                // Make readonly disabled if this item is required.
+                                var readonlyelm = cell.getRow().getCell("readonly").getElement();
+                                var nodelist = readonlyelm.querySelectorAll('.readonly-checkbox');
+                                if (checked && nodelist.length) {
+                                    if (cell.getRow().getData()?.readonly) {
+                                        nodelist[0].click();
+                                    }
+                                    nodelist[0].setAttribute('title', jsstrings[19]);
+                                    nodelist[0].style.cursor = 'not-allowed';
+                                    nodelist[0].disabled = true;
+                                } else {
+                                    nodelist[0].removeAttribute('title');
+                                    nodelist[0].style.cursor = 'pointer';
+                                    nodelist[0].disabled = false;
+                                }
                             });
 
                             return input;
                         }
                 },
                 {
-                    title: jsstrings[11],
+                    title: jsstrings[11]  + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return;
+                            }
+                            var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
                             input.type = 'checkbox';
-                            input.checked = cell.getValue();
+                            input.style.cursor = 'pointer';
+                            input.classList.add('readonly-checkbox');
+                            input.checked = isrequired ? false : cell.getValue();
+                            if (isrequired) {
+                                input.setAttribute('title', jsstrings[19]);
+                                input.style.cursor = 'not-allowed';
+                                input.disabled = true;
+                            } else {
+                                input.removeAttribute('title');
+                                input.style.cursor = 'pointer';
+                                input.disabled = false;
+                            }
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                // Check if required is enabled.
+                                if (cell.getRow().getData()?.required) {
+                                    // If required is enabled, we disable this checkbox.
+                                    $(this).prop('checked', false);
+                                } else {
+                                    // Otherwise, we provide the checkbox with normal input.
+                                    cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                }
                             });
 
                             return input;
@@ -358,10 +441,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
+
+                            return input;
                         }
                 },
                 {
