@@ -2843,7 +2843,7 @@ class apibridge {
     /**
      * Removes the stored file after the single upload is completed no matter what the status is.
      *
-     * @param \stored_file stored file object.
+     * @param \stored_file $storedfile stored file object.
      */
     public static function remove_single_stored_file($storedfile) {
         global $DB;
