@@ -230,7 +230,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
@@ -273,7 +273,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
@@ -390,11 +390,11 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         }
                 },
                 {
-                    title: jsstrings[11]  + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
+                    title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
@@ -437,7 +437,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
