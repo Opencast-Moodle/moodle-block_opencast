@@ -194,7 +194,7 @@ class apibridge {
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
-        
+
         if ($file instanceof \stored_file) {
             $this->remove_single_stored_file($file);
         }
