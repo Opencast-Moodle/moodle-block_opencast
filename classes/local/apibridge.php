@@ -194,6 +194,10 @@ class apibridge {
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
+        
+        if ($file instanceof \stored_file) {
+            $this->remove_single_stored_file($file);
+        }
 
         if ($api->get_http_code() === 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
@@ -246,6 +250,10 @@ class apibridge {
             'mediaPackage' => $mediapackage,
             'flavor' => $flavor,
             'Body' => $file));
+
+        if ($file instanceof \stored_file) {
+            $this->remove_single_stored_file($file);
+        }
 
         if ($api->get_http_code() === 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
@@ -2797,5 +2805,59 @@ class apibridge {
         }
 
         return false;
+    }
+
+    /**
+     * Create a temporary file from the xml string and stores it into the moodle file storage and returns stored_file object
+     * It cleans up the temporary file after the stored file is created.
+     *
+     * @param string $filename the filename to store.
+     * @param string $filedata the filedata to store.
+     * @return \stored_file stored file object.
+     */
+    public function get_xml_stored_file($filename, $filedata) {
+        global $COURSE;
+        $filedata = (string) $filedata;
+        $tempdir = make_temp_directory('xmlfiletoupload');
+        $tempfilepath = tempnam($tempdir, 'tempup_') . $filename;
+        file_put_contents($tempfilepath,  $filedata);
+        $coursecontext = \context_course::instance($COURSE->id);
+        $filerecord = [
+            'component' => 'block_opencast',
+            'filearea' => \block_opencast\local\upload_helper::OC_XMLFILEAREA,
+            'itemid' => file_get_unused_draft_itemid(),
+            'contextid' => $coursecontext->id,
+            'filepath' => '/',
+            'filename' => $filename
+        ];
+
+        $fs = get_file_storage();
+
+        $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
+        if (file_exists($tempfilepath)) {
+            unlink($tempfilepath);
+        }
+        return $storedfile;
+    }
+
+    /**
+     * Removes the stored file after the single upload is completed no matter what the status is.
+     *
+     * @param \stored_file stored file object.
+     */
+    public static function remove_single_stored_file($storedfile) {
+        global $DB;
+        // Delete the file and everything related to it.
+        $files = $DB->get_recordset('files', [
+            'component' => $storedfile->get_component(),
+            'filearea' => $storedfile->get_filearea(),
+            'itemid' => $storedfile->get_itemid(),
+        ]);
+        $fs = get_file_storage();
+        foreach ($files as $filer) {
+            $file = $fs->get_file_instance($filer);
+            $file->delete();
+        }
+        $files->close();
     }
 }

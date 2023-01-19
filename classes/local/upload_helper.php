@@ -44,6 +44,9 @@ class upload_helper {
     /** @var string File area id where videos are uploaded */
     const OC_FILEAREA = 'videotoupload';
 
+    /** @var string File area id where xml file are uploaded */
+    const OC_XMLFILEAREA = 'xmlfiletoupload';
+
     /** @var int Video is ready to be uploaded */
     const STATUS_READY_TO_UPLOAD = 10;
 
