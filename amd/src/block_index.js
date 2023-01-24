@@ -54,7 +54,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     select += '</select>';
 
-                    privacynoticediv = '';
+                    var privacynoticediv = '';
                     if (hasprivacyinfo) {
                         privacynoticediv = '<div id="privacynoticediv" class="w-100 mb-2 d-none">';
                         privacynoticediv += '<strong>' + privacytitle + '</strong>';
@@ -62,7 +62,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         privacynoticediv += '</div>';
                     }
 
-                    var workflowdescdiv =  '<div id="workflowdescdiv" class="mb-2 d-none"><strong>' + langstrings[7] +
+                    var workflowdescdiv = '<div id="workflowdescdiv" class="mb-2 d-none"><strong>' + langstrings[7] +
                         '</strong><p class="pl-1 pr-1" id="workflowdesc"></p></div>';
 
                     var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv">' +
@@ -121,6 +121,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
         /**
          * Helper function to display the privacy notice in workflow modal dialog.
+         * @param Array privacyworkflows
+         * @param String workflowid
          */
         var displayWorkflowPrivacyNotice = function(privacyworkflows, workflowid) {
             if (Array.isArray(privacyworkflows) && (privacyworkflows.length === 0 || privacyworkflows.includes(workflowid))) {
@@ -132,6 +134,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
         /**
          * Helper function to display the description of the workflow.
+         * @param Object workflowobj
          */
         var displayWorkflowDescription = function(workflowobj) {
             if (workflowobj?.description) {
@@ -144,6 +147,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
         /**
          * Helper function to display Workflow configurration panel.
+         * @param Number ocinstanceid
+         * @param Number courseid
+         * @param String workflowid
          */
         var displayWorkflowConfigPanel = function(ocinstanceid, courseid, workflowid) {
             var configpanelsrc = url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
