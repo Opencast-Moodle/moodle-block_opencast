@@ -34,7 +34,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         var initWorkflowModal = function(ocinstanceid, courseid, langstrings) {
             if (document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
-                var privacyinfohtml, privacytitle, privacyworkflows = null;
+                var privacyinfohtml = null;
+                var privacytitle = null;
+                var privacyworkflows = null;
                 var hasprivacyinfo = false;
                 if (document.getElementById('workflowprivacynotice')) {
                     hasprivacyinfo = true;
