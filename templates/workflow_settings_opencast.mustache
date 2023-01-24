@@ -38,7 +38,12 @@
 <!-- Security risk: Do not directly open this page in a browser!
 If you do, the external JavaScript code from the Opencast server can access moodle sites and cookies. -->
 <div id="configForm">
+{{#config_panel}}
 {{{config_panel}}}
+{{/config_panel}}
+{{^config_panel}}
+{{#str}}workflow_no_config_panel, block_opencast{{/str}}
+{{/config_panel}}
 </div>
 <script>
     window.onload = function(){

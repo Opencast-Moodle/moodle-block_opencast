@@ -34,6 +34,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         var initWorkflowModal = function(ocinstanceid, courseid, langstrings) {
             if (document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
+                var privacyinfohtml, privacytitle, privacyworkflows = null;
+                var hasprivacyinfo = false;
+                if (document.getElementById('workflowprivacynotice')) {
+                    hasprivacyinfo = true;
+                    privacyinfohtml = $('#swprivacynoticeinfotext').html();
+                    privacytitle = $('#swprivacynoticetitle').text();
+                    privacyworkflows = JSON.parse($('#swprivacynoticewfds').text());
+                }
 
                 $('.start-workflow').on('click', function(e) {
                     e.preventDefault();
@@ -46,6 +54,22 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     select += '</select>';
 
+                    privacynoticediv = '';
+                    if (hasprivacyinfo) {
+                        privacynoticediv = '<div id="privacynoticediv" class="w-100 mb-2 d-none">';
+                        privacynoticediv += '<strong>' + privacytitle + '</strong>';
+                        privacynoticediv += '<div class="pl-1 pr-1">' + privacyinfohtml + '</div>';
+                        privacynoticediv += '</div>';
+                    }
+
+                    var workflowdescdiv =  '<div id="workflowdescdiv" class="mb-2 d-none"><strong>' + langstrings[7] +
+                        '</strong><p class="pl-1 pr-1" id="workflowdesc"></p></div>';
+
+                    var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv">' +
+                        '<strong>' + langstrings[8] + '</strong>' +
+                        '<iframe id="config-frame" class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts" src="">' +
+                        '</iframe><input type="hidden" name="configparams" id="configparams"></form></div>';
+
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
                         title: langstrings[5],
@@ -55,9 +79,11 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 'courseid': courseid,
                                 'videoid': clickedVideo.data('id')
                             }) + '"><div class="form-group">' +
-                            '<p>' + langstrings[6] + '</p>' + select + '<div id="workflowdesc"></div>' +
-                            '<iframe id="config-frame" class="w-100 mh-100 border-0" sandbox="allow-forms allow-scripts" src="">' +
-                            '</iframe><input type="hidden" name="configparams" id="configparams"></form>'
+                            '<p>' + langstrings[6] + '</p>' +
+                            select +
+                            workflowdescdiv +
+                            privacynoticediv +
+                            workflowconfigpaneldiv
                     }, undefined)
                         .then(function(modal) {
                             modal.setSaveButtonText(langstrings[5]);
@@ -71,22 +97,19 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             // Show description for initial value.
                             modal.show().then(function() {
                                 const workflowselect = $('#workflowselect');
-                                $('#workflowdesc').html(workflows[workflowselect.val()].description);
-                                $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
-                                    'ocinstanceid': ocinstanceid,
-                                    'courseid': courseid,
-                                    'workflowid': workflowselect.val()
-                                }));
+                                let workflowid = workflowselect.val();
+                                displayWorkflowDescription(workflows[workflowid]);
+                                displayWorkflowConfigPanel(ocinstanceid, courseid, workflowid);
+                                // The first time to check if the privacy notice must be displayed.
+                                displayWorkflowPrivacyNotice(privacyworkflows, workflowid);
 
                                 // Show workflow description when selected.
                                 workflowselect.change(function() {
                                     let workflowid = $(this).val();
-                                    $('#workflowdesc').html(workflows[workflowid].description);
-                                    $('#config-frame').attr('src', url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
-                                        'ocinstanceid': ocinstanceid,
-                                        'courseid': courseid,
-                                        'workflowid': workflowid
-                                    }));
+                                    displayWorkflowDescription(workflows[workflowid]);
+                                    displayWorkflowConfigPanel(ocinstanceid, courseid, workflowid);
+                                    // After each change, check if the selected workflow has to be displayed.
+                                    displayWorkflowPrivacyNotice(privacyworkflows, workflowid);
                                 });
                                 return;
                             }).catch(Notification.exception);
@@ -94,6 +117,41 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         }).catch(Notification.exception);
                 });
             }
+        };
+
+        /**
+         * Helper function to display the privacy notice in workflow modal dialog.
+         */
+        var displayWorkflowPrivacyNotice = function(privacyworkflows, workflowid) {
+            if (Array.isArray(privacyworkflows) && (privacyworkflows.length === 0 || privacyworkflows.includes(workflowid))) {
+                $('#privacynoticediv').removeClass('d-none');
+            } else {
+                $('#privacynoticediv').addClass('d-none');
+            }
+        };
+
+        /**
+         * Helper function to display the description of the workflow.
+         */
+        var displayWorkflowDescription = function(workflowobj) {
+            if (workflowobj?.description) {
+                $('#workflowdescdiv').removeClass('d-none');
+                $('#workflowdesc').html(workflowobj.description);
+            } else {
+                $('#workflowdescdiv').addClass('d-none');
+            }
+        };
+
+        /**
+         * Helper function to display Workflow configurration panel.
+         */
+        var displayWorkflowConfigPanel = function(ocinstanceid, courseid, workflowid) {
+            var configpanelsrc = url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
+                'ocinstanceid': ocinstanceid,
+                'courseid': courseid,
+                'workflowid': workflowid
+            });
+            $('#config-frame').attr('src', configpanelsrc);
         };
 
         var initReportModal = function(ocinstanceid, courseid, langstrings) {
@@ -322,6 +380,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 },
                 {
                     key: 'startworkflow_modal_body',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'startworkflow_modal_description_title',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'startworkflow_modal_configpanel_title',
                     component: 'block_opencast'
                 }
             ];

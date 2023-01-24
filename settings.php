@@ -752,6 +752,34 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->hide_if('block_opencast/liveupdatereloadtimeout_' . $instance->id,
                 'block_opencast/liveupdateenabled_' . $instance->id, 'notchecked');
 
+            // Privacy notice display additional settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/swprivacynotice_header_' . $instance->id,
+                    get_string('swprivacynotice_settingheader', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_confightmleditor('block_opencast/swprivacynoticeinfotext_' . $instance->id,
+                    get_string('swprivacynotice_settinginfotext', 'block_opencast'),
+                    get_string('swprivacynotice_settinginfotext_desc', 'block_opencast'), null));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/swprivacynoticewfds_' . $instance->id,
+                    get_string('swprivacynotice_settingwfds', 'block_opencast'),
+                    get_string('swprivacynotice_settingwfds_desc', 'block_opencast'), null));
+            // Providing hide_if for this setting.
+            $additionalsettings->hide_if('block_opencast/swprivacynoticewfds_' . $instance->id,
+                'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/swprivacynoticetitle_' . $instance->id,
+                    get_string('swprivacynotice_settingtitle', 'block_opencast'),
+                    get_string('swprivacynotice_settingtitle_desc', 'block_opencast'), null));
+            // Providing hide_if for this setting.
+            $additionalsettings->hide_if('block_opencast/swprivacynoticetitle_' . $instance->id,
+                    'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
+            // End of privacy notice.
+
             // Additional Settings.
             // Terms of use. Downlaod channel. Custom workflows channel. Support email.
             $additionalsettings->add(

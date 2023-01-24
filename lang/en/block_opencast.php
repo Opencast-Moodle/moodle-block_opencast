@@ -834,5 +834,17 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// String for privacy notice.
+$string['swprivacynoticedefaulttitle'] = 'Privacy Notice';
+$string['swprivacynotice_settingheader'] = 'Workflows Privacy Notice';
+$string['swprivacynotice_settingtitle'] = 'Workflow Privacy Notice Title';
+$string['swprivacynotice_settingtitle_desc'] = 'A title to be displayed in start workflow dialog. It is intended to be configurable in order to be adjusted by the users. When empty, default string is used.';
+$string['swprivacynotice_settinginfotext'] = 'Workflow Privacy Notice Info Text';
+$string['swprivacynotice_settinginfotext_desc'] = 'This input is used to provide information about privacy notice for workflows in start workflow dialog.<br><strong>NOTE:</strong> If empty, no notice will be displayed.';
+$string['swprivacynotice_settingwfds'] = 'Workflows Definition List';
+$string['swprivacynotice_settingwfds_desc'] = 'A comma separated list of workflow definitions, by which the privacy notice is displayed. When empty, the privacy notice will be displayed for all workflows.';
+$string['startworkflow_modal_description_title'] = 'Workflow Description';
+$string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel';
+$string['workflow_no_config_panel'] = 'There is no configuration panel for this workflow.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
