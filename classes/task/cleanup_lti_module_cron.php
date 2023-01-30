@@ -41,7 +41,7 @@ class cleanup_lti_module_cron extends \core\task\scheduled_task {
 
     /**
      * Get the task name.
-     * @retunr string description.
+     * @return string description.
      */
     public function get_name() {
         return get_string('processltimodulecleanup', 'block_opencast');
