@@ -24,6 +24,7 @@
 
 namespace block_opencast\local;
 
+use tool_opencast\local\settings_api;
 /**
  * LTI module management for block_opencast.
  *
@@ -1045,5 +1046,277 @@ class ltimodulemanager {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Gets the manually added course lti modules and sync them with the existing opencast lti module entries.
+     * It will loop through all the moodle lti modules and check if they are using the preconfigured opencast lti tools.
+     * The concept is to get all preconfigured opencast lti tools based on all opencast instances and then make a sql to check which
+     * course module is there that uses any of the preconfigured opencast lti tools and its record does not exists in the entries
+     * of both block_opencast_ltiepisode and block_opencast_ltimodule tables.
+     * This function is intended to be called by the \block_opencast\task\cleanup_lti_module_cron scheduled task.
+     *
+     * @return int The number of unrecorded lti modules.
+     */
+    public static function record_manually_added_lti_modules() {
+        global $DB;
+        // Get all available opencast instances to get all the configured tool ids.
+        $ocinstances = settings_api::get_ocinstances();
+
+        // Getting preconfigured lti tools.
+        $toolids = array();
+        foreach ($ocinstances as $ocinstance) {
+            $episodetoolid = self::get_preconfigured_tool_for_episode($ocinstance->id);
+            if (!empty($episodetoolid) && !in_array($episodetoolid, $toolids)) {
+                $toolids[] = ['id' => $episodetoolid, 'ocinstanceid' => $ocinstance->id];
+            }
+            $seriestoolid = self::get_preconfigured_tool_for_series($ocinstance->id);
+            if (!empty($seriestoolid) && !in_array($seriestoolid, $toolids)) {
+                $toolids[] = ['id' => $seriestoolid, 'ocinstanceid' => $ocinstance->id];
+            }
+        }
+
+        // Getting all the opencast entries of both episode and series lti modules.
+        $existingcms = array();
+        $existingepisodecms = $DB->get_fieldset_sql('SELECT cmid FROM {block_opencast_ltiepisode}');
+        $existingseriescms = $DB->get_fieldset_sql('SELECT cmid FROM {block_opencast_ltimodule}');
+        $existingcms = array_merge($existingepisodecms, $existingseriescms);
+
+        // Get the id of the installed LTI plugin.
+        $pluginid = $DB->get_field('modules', 'id', array('name' => 'lti'));
+
+        // Preparing the sql and params to get the manually added opencast LTI modules in course, which should be also recorded.
+        list($insqlcms, $inparamscms) = $DB->get_in_or_equal($existingcms);
+        list($insqltoolids, $inparamstoolids) = $DB->get_in_or_equal(array_column($toolids, 'id'));
+
+        $params = array($pluginid);
+        $params = array_merge($params, $inparamscms, $inparamstoolids);
+        $sql = 'SELECT cm.id, cm.course, cm.module, l.instructorcustomparameters FROM {course_modules} cm' .
+            ' JOIN {lti} l ON cm.instance = l.id' .
+            ' WHERE cm.module = ? AND cm.id NOT ' . $insqlcms . ' AND l.typeid ' . $insqltoolids .
+            ' ORDER BY cm.added ASC';
+        $unrecordedmodules = $DB->get_records_sql($sql, $params);
+
+        // When there are manually added modules, we loop through them to make a record entry in respective DB tables. 
+        foreach ($unrecordedmodules as $unrecordedmodule) {
+            $customparam = $unrecordedmodule->instructorcustomparameters;
+            $toolid = $unrecordedmodule->module;
+            // Extract the ocinstance from the toolids array.
+            $ocinstanceid = $toolids[array_search($toolid, array_column($toolids, 'id'))]['ocinstanceid'];
+
+            // Get an apibridge instance based on the ocinstance.
+            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+            if (empty($apibridge)) {
+                continue;
+            }
+
+            // First, we get all the series in the course.
+            $courseseries = $apibridge->get_course_series($unrecordedmodule->course);
+            // We check if the customtool param of this module contains any of the course series ids.
+            $targeteditem = array_filter($courseseries, function ($seriesobj) use ($customparam) {
+                return (strpos($customparam, $seriesobj->series) !== false);
+            });
+            $isepisode = false;
+            // If it is empty, that means the module is an episode LTI module.
+            if (empty($targeteditem)) {
+                $isepisode = true;
+                // Then, we get all the opencast videos in the course, to determine if the module is an episode LTI module.
+                $coursevideos = $apibridge->get_course_videos($unrecordedmodule->course);
+                if ($coursevideos->error === 0 && !empty($coursevideos->videos)) {
+                    // We check if the customtool param of this module contains any of the course episode ids.
+                    $targeteditem = array_filter($coursevideos->videos, function ($episodeobj) use ($customparam) {
+                        return (strpos($customparam, $episodeobj->identifier) !== false);
+                    });
+                }
+            }
+
+            // After checking again both course opencast videos and episodes, the item is now more likely to have value.
+            if (!empty($targeteditem)) {
+                // If so, we will insert a new record to the targeted table.
+                $item = reset($targeteditem);
+                $record = new \stdClass();
+                $record->cmid = $unrecordedmodule->id;
+                $record->ocinstanceid = $ocinstanceid;
+                $record->courseid = $unrecordedmodule->course;
+                // If it is episode LTI Module.
+                if ($isepisode) {
+                    $record->episodeuuid = $item->identifier;
+                    $DB->insert_record('block_opencast_ltiepisode', $record);
+                } else {
+                    // If it is series LTI Module.
+                    $record->seriesid = $item->series;
+                    $DB->insert_record('block_opencast_ltimodule', $record);
+                }
+            }
+        }
+        // Finally, we return the number of unrecorded modules.
+        return count($unrecordedmodules);
+    }
+
+    /**
+     * Helper function to clean up the LTI module entries, which are not valid anymore.
+     * The concept is, to loop through the lti module entries and cleans up abandoned or invalid records.
+     * The validation is applied to course, module, opencast instance and opencast series or episode.
+     * Targeted tables are: {block_opencast_ltiepisode} and {block_opencast_ltimodule}
+     * This function is intended to be called by the \block_opencast\task\cleanup_lti_module_cron scheduled task.
+     *
+     * @return int number of deleted modules.
+     */
+    public static function cleanup_lti_module_entries() {
+        global $DB;
+
+        $deletedrecordsnum = 0;
+        // Episode modules.
+        $targettable = 'block_opencast_ltiepisode';
+        $allepisodemodules = $DB->get_records($targettable);
+        foreach ($allepisodemodules as $episodemodule) {
+            $isvalid = true;
+            // Check if course is there.
+            if (!self::check_course($episodemodule->courseid)) {
+                $isvalid = false;
+            }
+            // Check if module exists.
+            if (!self::check_module($episodemodule->cmid, $episodemodule->courseid)) {
+                $isvalid = false;
+            }
+            // Check if ocinstance is there.
+            if (!self::check_opencast_config($episodemodule->ocinstanceid)) {
+                $isvalid = false;
+            }
+            // Check if episode exists in Opencast.
+            if (!self::check_opencast_episode($episodemodule->episodeuuid, $episodemodule->ocinstanceid)) {
+                $isvalid = false;
+            }
+            // If the lti module is faulty.
+            if (!$isvalid) {
+                try {
+                    // We delete the record from the database.
+                    $DB->delete_records($targettable, ['id' => $episodemodule->id]);
+                    // Delete the module.
+                    course_delete_module($episodemodule->cmid);
+                    // Increament the num to return as an info.
+                    $deletedrecordsnum++;
+                } catch (\moodle_exception $e) {
+                    throw new \moodle_exception(get_string('processltimodulecleanup_error', 'block_opencast', $e->getMessage()));
+                }
+            }
+        }
+
+        // Series modules.
+        $targettable = 'block_opencast_ltimodule';
+        $allseriesmodules = $DB->get_records($targettable);
+        foreach ($allseriesmodules as $seriesmodule) {
+            $isvalid = true;
+            // Check if course is there.
+            if (!self::check_course($seriesmodule->courseid)) {
+                $isvalid = false;
+            }
+            // Check if module exists.
+            if (!self::check_module($seriesmodule->cmid, $seriesmodule->courseid)) {
+                $isvalid = false;
+            }
+            // Check if ocinstance is there.
+            if (!self::check_opencast_config($seriesmodule->ocinstanceid)) {
+                $isvalid = false;
+            }
+            // Check if episode exists in Opencast.
+            if (!self::check_opencast_series($seriesmodule->seriesid, $seriesmodule->ocinstanceid)) {
+                $isvalid = false;
+            }
+            // If the lti module is faulty.
+            if (!$isvalid) {
+                try {
+                    // We delete the record from the database.
+                    $DB->delete_records($targettable, ['id' => $seriesmodule->id]);
+                    // Delete the module.
+                    course_delete_module($seriesmodule->cmid);
+                    // Increament the num to return as an info.
+                    $deletedrecordsnum++;
+                } catch (\moodle_exception $e) {
+                    throw new \moodle_exception(get_string('processltimodulecleanup_error', 'block_opencast', $e->getMessage()));
+                }
+            }
+        }
+        // Finally, we return the number of deleted records.
+        return $deletedrecordsnum;
+    }
+
+    /**
+     * Checks if the course is valid and running.
+     *
+     * @param int $courseid course id
+     * @return boolean
+     */
+    private static function check_course($courseid) {
+        global $DB;
+        // Get the course.
+        $course = $DB->get_record('course', array('id' => $courseid));
+        return !empty($course);
+    }
+
+    /**
+     * Checks if the opencast configuration is valid. THis applies to opencast instance as well as the api configurations.
+     *
+     * @param int $ocinstanceid opencast instance id
+     * @return boolean
+     */
+    private static function check_opencast_config($ocinstanceid) {
+        $isvalid = true;
+        try {
+            $ocinstance = settings_api::get_ocinstance($ocinstanceid);
+            if (!empty($ocinstance)) {
+                $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+                $apibridgeworking = $apibridge->check_api_configuration();
+                if (!$apibridgeworking) {
+                    $isvalid = false;
+                }
+            } else {
+                $isvalid = false;
+            }
+        } catch (\moodle_exception $e) {
+            $isvalid = false;
+        }
+        return $isvalid;
+    }
+
+    /**
+     * Checks if the course module is valid.
+     *
+     * @param int $cmid course module id
+     * @param int $courseid course id
+     * @return boolean
+     */
+    private static function check_module($cmid, $courseid) {
+        $cm = get_coursemodule_from_id('lti', $cmid, $courseid);
+        if ($cm == false || $cm->deletioninprogress == 1) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the episode exists in opencast.
+     *
+     * @param string $identifier epidsode id
+     * @param int $ocinstanceid opencast instance id
+     * @return boolean
+     */
+    private static function check_opencast_episode($identifier, $ocinstanceid) {
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $video = $apibridge->get_opencast_video($identifier);
+        return !empty($video) && $video->error == 0;
+    }
+
+    /**
+     * Checks if the series exists in opencast.
+     *
+     * @param string $identifier series id
+     * @param int $ocinstanceid opencast instance id
+     * @return boolean
+     */
+    private static function check_opencast_series($identifier, $ocinstanceid) {
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $series = $apibridge->get_series_by_identifier($identifier);
+        return !empty($series);
     }
 }
