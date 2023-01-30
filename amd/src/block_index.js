@@ -67,11 +67,13 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     var workflowdescdiv = '<div id="workflowdescdiv" class="mb-2 d-none"><strong>' + langstrings[7] +
                         '</strong><p class="pl-1 pr-1" id="workflowdesc"></p></div>';
 
-                    var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv">' +
+                    var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv" class="d-none">' +
                         '<strong>' + langstrings[8] + '</strong>' +
+                        '<div id="workflowconfigpanelloading">' +
+                        '<i class="icon fa fa-circle-o-notch fa-spin fa-fw " aria-hidden="true"></i></div>' + 
                         '<iframe id="config-frame" ' +
                         'class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts" src="">' +
-                        '</iframe><input type="hidden" name="configparams" id="configparams"></form></div>';
+                        '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
 
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
@@ -86,7 +88,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             select +
                             workflowdescdiv +
                             privacynoticediv +
-                            workflowconfigpaneldiv
+                            workflowconfigpaneldiv +
+                            '</form>'
                     }, undefined)
                         .then(function(modal) {
                             modal.setSaveButtonText(langstrings[5]);
@@ -155,12 +158,27 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
          * @param {string} workflowid workflow def id
          */
         var displayWorkflowConfigPanel = function(ocinstanceid, courseid, workflowid) {
+            $('#workflowconfigpaneldiv').addClass('d-none');
+            $('#workflowconfigpanelloading').removeClass('d-none');
+            $('#config-frame').attr('src', '');
             var configpanelsrc = url.relativeUrl('blocks/opencast/serveworkflowconfigpanel.php', {
                 'ocinstanceid': ocinstanceid,
                 'courseid': courseid,
                 'workflowid': workflowid
             });
-            $('#config-frame').attr('src', configpanelsrc);
+            fetch(configpanelsrc).then(function(response) {
+                return response.text();
+            }).then(function(text) {
+                if (text.trim() !== '') {
+                    $('#workflowconfigpaneldiv').removeClass('d-none');
+                    setTimeout(() => {
+                        $('#workflowconfigpanelloading').addClass('d-none');
+                        $('#config-frame').attr('src', configpanelsrc);
+                    }, 300);
+                } else {
+                    $('#workflowconfigpanelloading').removeClass('d-none');
+                }
+            }).catch(Notification.exception);
         };
 
         var initReportModal = function(ocinstanceid, courseid, langstrings) {

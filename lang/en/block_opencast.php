@@ -845,6 +845,5 @@ $string['swprivacynotice_settingwfds'] = 'Workflows Definition List';
 $string['swprivacynotice_settingwfds_desc'] = 'A comma separated list of workflow definitions, by which the privacy notice is displayed. When empty, the privacy notice will be displayed for all workflows.';
 $string['startworkflow_modal_description_title'] = 'Workflow Description';
 $string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel';
-$string['workflow_no_config_panel'] = 'There is no configuration panel for this workflow.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
