@@ -1097,7 +1097,7 @@ class ltimodulemanager {
             ' ORDER BY cm.added ASC';
         $unrecordedmodules = $DB->get_records_sql($sql, $params);
 
-        // When there are manually added modules, we loop through them to make a record entry in respective DB tables. 
+        // When there are manually added modules, we loop through them to make a record entry in respective DB tables.
         foreach ($unrecordedmodules as $unrecordedmodule) {
             $customparam = $unrecordedmodule->instructorcustomparameters;
             $toolid = $unrecordedmodule->module;
