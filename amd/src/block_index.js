@@ -70,7 +70,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv" class="d-none">' +
                         '<strong>' + langstrings[8] + '</strong>' +
                         '<div id="workflowconfigpanelloading">' +
-                        '<i class="icon fa fa-circle-o-notch fa-spin fa-fw " aria-hidden="true"></i></div>' + 
+                        '<i class="icon fa fa-circle-o-notch fa-spin fa-fw " aria-hidden="true"></i></div>' +
                         '<iframe id="config-frame" ' +
                         'class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts" src="">' +
                         '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
@@ -178,6 +178,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 } else {
                     $('#workflowconfigpanelloading').removeClass('d-none');
                 }
+                return text;
             }).catch(Notification.exception);
         };
 
