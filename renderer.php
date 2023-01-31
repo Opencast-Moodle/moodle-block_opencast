@@ -1299,7 +1299,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * It is a sanity check and correction to ensure that a html string has all tags closed correctly.
      *
      * @param string $html The html string
-     * @return string The html string 
+     * @return string The html string
      */
     public function close_tags_in_html_string($html) {
         preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
@@ -1313,7 +1313,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $openedtags = array_reverse($openedtags);
         // Close tags.
         for ($i = 0; $i < $lenopened; $i++) {
-            if (!in_array($openedtags[$i], $closedtags)){
+            if (!in_array($openedtags[$i], $closedtags)) {
                 $html .= '</'.$openedtags[$i].'>';
             } else {
                 unset($closedtags[array_search($openedtags[$i], $closedtags)]);
