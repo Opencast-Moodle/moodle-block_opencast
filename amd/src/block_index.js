@@ -69,8 +69,6 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv" class="d-none">' +
                         '<strong>' + langstrings[8] + '</strong>' +
-                        '<div id="workflowconfigpanelloading">' +
-                        '<i class="icon fa fa-circle-o-notch fa-spin fa-fw " aria-hidden="true"></i></div>' +
                         '<iframe id="config-frame" ' +
                         'class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts" src="">' +
                         '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
@@ -166,20 +164,16 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 'courseid': courseid,
                 'workflowid': workflowid
             });
-            fetch(configpanelsrc).then(function(response) {
-                return response.text();
-            }).then(function(text) {
-                if (text.trim() !== '') {
-                    $('#workflowconfigpaneldiv').removeClass('d-none');
-                    setTimeout(() => {
-                        $('#workflowconfigpanelloading').addClass('d-none');
+            $.ajax({
+                url: configpanelsrc,
+                success: (data) => {
+                    if (data.trim() !== '') {
+                        $('#workflowconfigpaneldiv').removeClass('d-none');
                         $('#config-frame').attr('src', configpanelsrc);
-                    }, 300);
-                } else {
-                    $('#workflowconfigpanelloading').removeClass('d-none');
-                }
-                return text;
-            }).catch(Notification.exception);
+                    }
+                },
+                async: false
+            });
         };
 
         var initReportModal = function(ocinstanceid, courseid, langstrings) {

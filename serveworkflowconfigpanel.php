@@ -37,14 +37,16 @@ require_capability('block/opencast:startworkflow', $coursecontext);
 
 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 $workflow = $apibridge->get_workflow_definition($workflowid);
+/** @var block_opencast_renderer $renderer */
+$renderer = $PAGE->get_renderer('block_opencast');
 if ($workflow) {
     // Display form.
     $context = new \stdClass();
     $context->language = $CFG->lang;
-    $context->config_panel = !empty($workflow->configuration_panel) ? $workflow->configuration_panel : false;
+    $context->has_config_panel = !empty($workflow->configuration_panel);
+    $context->config_panel = $renderer->close_tags_in_html_string($workflow->configuration_panel);
     $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
     $context->parent_origin = $CFG->wwwroot;
 
     echo $OUTPUT->render_from_template('block_opencast/workflow_settings_opencast', $context);
 }
-
