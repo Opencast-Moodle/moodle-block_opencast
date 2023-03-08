@@ -315,7 +315,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
 
-            $generalsettings->add(new admin_setting_selectdelete('block_opencast/workflow_roles_' . $instance->id,
+            $generalsettings->add(new admin_setting_workflowselect('block_opencast/workflow_roles_' . $instance->id,
                     get_string('workflowrolesname', 'block_opencast'),
                     get_string('workflowrolesdesc', 'block_opencast'),
                     null, 'load_workflow_choices',array($instance->id,'archive'))
@@ -965,7 +965,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
 
-            $select = new admin_setting_selectdelete('block_opencast/duplicateworkflow_' . $instance->id,
+            $select = new admin_setting_workflowselect('block_opencast/duplicateworkflow_' . $instance->id,
             get_string('duplicateworkflow', 'block_opencast'),
             get_string('duplicateworkflowdesc', 'block_opencast'),
             null, 'load_workflow_choices',array($instance->id,'api'));
