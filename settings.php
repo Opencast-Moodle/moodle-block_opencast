@@ -1037,10 +1037,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     'block_opencast/importvideosmanualenabled_' . $instance->id, 'notchecked');
             }
 
-            // Don't spam other setting pages with error messages just because the tree was built.
-            if ($opencasterror && $PAGE->pagetype == 'admin-setting-block_opencast') {
-                \core\notification::error($opencasterror);
-            }
         }
     }
 }
