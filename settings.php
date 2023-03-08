@@ -24,6 +24,7 @@
 
 use block_opencast\admin_setting_configeditabletable;
 use block_opencast\admin_setting_configtextvalidate;
+use block_opencast\admin_setting_workflowselect;
 use block_opencast\admin_setting_hiddenhelpbtn;
 use block_opencast\setting_helper;
 
@@ -219,18 +220,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('limituploadjobs', 'block_opencast'),
                     get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'upload');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
-                $opencasterror = $workflowchoices->getMessage();
-                $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
-            }
+            $generalsettings-> add(new admin_setting_workflowselect('block_opencast/uploadworkflow_' . $instance->id,
+            get_string('uploadworkflow', 'block_opencast'),
+            get_string('uploadworkflowdesc', 'block_opencast'),
+            'ng-schedule-and-upload','load_workflow_choices',array($instance->id,'upload'))
+            );
 
-            $generalsettings->add(new admin_setting_configselect('block_opencast/uploadworkflow_' . $instance->id,
-                get_string('uploadworkflow', 'block_opencast'),
-                get_string('uploadworkflowdesc', 'block_opencast'),
-                'ng-schedule-and-upload', $workflowchoices
-            ));
 
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/publishtoengage_' . $instance->id,
                 get_string('publishtoengage', 'block_opencast'),
@@ -260,18 +255,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             ));
 
 
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'delete');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
-                $opencasterror = $workflowchoices->getMessage();
-                $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
-            }
+            $generalsettings->add(new admin_setting_workflowselect('block_opencast/deleteworkflow_' . $instance->id,
+            get_string('deleteworkflow', 'block_opencast'),
+            get_string('deleteworkflowdesc', 'block_opencast'),
+            null, 'load_workflow_choices',array($instance->id,'delete'))
+    );
 
-            $generalsettings->add(new admin_setting_configselect('block_opencast/deleteworkflow_' . $instance->id,
-                    get_string('deleteworkflow', 'block_opencast'),
-                    get_string('deleteworkflowdesc', 'block_opencast'),
-                    null, $workflowchoices)
-            );
 
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/adhocfiledeletion_' . $instance->id,
                 get_string('adhocfiledeletion', 'block_opencast'),
@@ -326,16 +315,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
 
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'archive');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
-                $opencasterror = $workflowchoices->getMessage();
-                $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
-            }
-            $generalsettings->add(new admin_setting_configselect('block_opencast/workflow_roles_' . $instance->id,
+            $generalsettings->add(new admin_setting_selectdelete('block_opencast/workflow_roles_' . $instance->id,
                     get_string('workflowrolesname', 'block_opencast'),
                     get_string('workflowrolesdesc', 'block_opencast'),
-                    null, $workflowchoices)
+                    null, 'load_workflow_choices',array($instance->id,'archive'))
             );
 
             $generalsettings->add($rolessetting);
@@ -981,17 +964,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
             }
 
-            // Import videos: Duplicate workflow.
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
-                $opencasterror = $workflowchoices->getMessage();
-                $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
-            }
-            $select = new admin_setting_configselect('block_opencast/duplicateworkflow_' . $instance->id,
-                get_string('duplicateworkflow', 'block_opencast'),
-                get_string('duplicateworkflowdesc', 'block_opencast'),
-                null, $workflowchoices);
+
+            $select = new admin_setting_selectdelete('block_opencast/duplicateworkflow_' . $instance->id,
+            get_string('duplicateworkflow', 'block_opencast'),
+            get_string('duplicateworkflowdesc', 'block_opencast'),
+            null, 'load_workflow_choices',array($instance->id,'api'));
 
             if ($CFG->branch >= 310) { // The validation functionality for admin settings is not available before Moodle 3.10.
                 $select->set_validate_function([setting_helper::class, 'validate_workflow_setting']);

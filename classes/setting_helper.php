@@ -79,17 +79,23 @@ class setting_helper {
         if (during_initial_install()) {
             return null;
         }
-
+        global $SESSION;
         // Get the available workflows.
         $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
 
         // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
         try {
             return $apibridge->get_available_workflows_for_menu($workflowtag, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
-        } catch (opencast_connection_exception | empty_configuration_exception $e) {
-            return $e;
+        } catch (opencast_connection_exception | empty_configuration_exception $e) {      
+            
+            if(!$SESSION->notifications){
+            $opencasterror = $e->getMessage();
+                \core\notification::error($opencasterror);
+            }
+            return [null => get_string('adminchoice_noconnection', 'block_opencast')];
         }
     }
 
