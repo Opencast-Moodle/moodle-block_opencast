@@ -170,4 +170,26 @@ class block_opencast extends block_base {
 
         return $success;
     }
+
+    /**
+     * Do any additional initialization you may need at the time a new block instance is created
+     * @return boolean
+     */
+    function instance_create() {
+        global $DB;
+
+        if ($this->instance_allow_multiple() === false) {
+            $ocblockinstances = $DB->get_records('block_instances',
+                    ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]);
+            if (count($ocblockinstances) > 1) {
+                $idstoremove = array_keys($ocblockinstances);
+                sort($idstoremove);
+                array_shift($idstoremove);
+                foreach ($idstoremove as $id) {
+                    $DB->delete_records('block_instances', ['id' => $id]);
+                }
+            }
+        }
+        return true;
+    }
 }
