@@ -170,4 +170,27 @@ class block_opencast extends block_base {
 
         return $success;
     }
+
+    /**
+     * Do any additional initialization you may need at the time a new block instance is created:
+     * If the multiple is not allowed, we only allow one (first) block instance in a context. Others will be deleted.
+     * @return boolean
+     */
+    public function instance_create() {
+        global $DB;
+
+        if ($this->instance_allow_multiple() === false) {
+            $ocblockinstances = $DB->get_records('block_instances',
+                    ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]);
+            if (count($ocblockinstances) > 1) {
+                $idstoremove = array_keys($ocblockinstances);
+                sort($idstoremove);
+                array_shift($idstoremove);
+                foreach ($idstoremove as $id) {
+                    blocks_delete_instance($ocblockinstances[$id]);
+                }
+            }
+        }
+        return true;
+    }
 }
