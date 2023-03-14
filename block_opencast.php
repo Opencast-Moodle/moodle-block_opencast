@@ -172,10 +172,11 @@ class block_opencast extends block_base {
     }
 
     /**
-     * Do any additional initialization you may need at the time a new block instance is created
+     * Do any additional initialization you may need at the time a new block instance is created:
+     * If the multiple is not allowed, we only allow one (first) block instance in a context. Others will be deleted.
      * @return boolean
      */
-    function instance_create() {
+    public function instance_create() {
         global $DB;
 
         if ($this->instance_allow_multiple() === false) {
@@ -186,7 +187,7 @@ class block_opencast extends block_base {
                 sort($idstoremove);
                 array_shift($idstoremove);
                 foreach ($idstoremove as $id) {
-                    $DB->delete_records('block_instances', ['id' => $id]);
+                    blocks_delete_instance($ocblockinstances[$id]);
                 }
             }
         }
