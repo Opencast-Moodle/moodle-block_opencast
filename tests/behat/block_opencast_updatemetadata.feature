@@ -16,9 +16,9 @@ Feature: Update video metadata as Teacher
       | teacher1 | C1     | editingteacher |
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
-      | apiurl              | http://testapi:8080                                           | tool_opencast  |
-      | apipassword         | opencast                                                      | tool_opencast  |
-      | apiusername         | admin                                                         | tool_opencast  |
+      | apiurl_1            | http://testapi:8080                                           | tool_opencast  |
+      | apipassword_1       | opencast                                                      | tool_opencast  |
+      | apiusername_1       | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
       | limituploadjobs_1   | 0                                                             | block_opencast |
       | group_creation_1    | 0                                                             | block_opencast |

@@ -21,6 +21,9 @@
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use tool_opencast\local\settings_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -64,7 +67,12 @@ class restore_opencast_block_task extends restore_block_task {
      *   2. target course has not yet an assigned series.
      */
     protected function define_my_settings() {
-        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+        $ocinstances = settings_api::get_ocinstances();
+        if (empty($ocinstances)) {
+            throw new \dml_exception('dmlreadexception', null,
+                "No Opencast instances are defined.");
+        }
+
         foreach ($ocinstances as $ocinstance) {
             if (!file_exists($this->get_taskbasepath() . '/opencast_' . $ocinstance->id . '.xml')) {
                 continue;
@@ -86,8 +94,11 @@ class restore_opencast_block_task extends restore_block_task {
      * Add a restore step, when required.
      */
     protected function define_my_steps() {
-
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = settings_api::get_ocinstances();
+        if (empty($ocinstances)) {
+            throw new \dml_exception('dmlreadexception', null,
+                "No Opencast instances are defined.");
+        }
 
         foreach ($ocinstances as $ocinstance) {
             // Settings, does not exists, if opencast system does not support copying workflow.

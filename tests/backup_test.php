@@ -205,6 +205,11 @@ class backup_test extends advanced_testcase {
         $this->assertEquals($expectedfailedcount, $customdata->countfailed);
     }
 
+    /**
+     * Test the execution of backup and restore adhoc tasks with block_opencast.
+     *
+     * @covers \restore_controller \backup_controller
+     */
     public function test_adhoctask_execution() {
         global $USER, $DB;
 
@@ -214,7 +219,7 @@ class backup_test extends advanced_testcase {
         // Configure all necessary plugin configuration to allow video backups.
         // If this is not done, video backups are not offered by the backup wizard at all.
         $apibridge = \block_opencast\local\apibridge::get_instance(1);
-        set_config('apiurl', $this->apiurl, 'tool_opencast');
+        set_config('apiurl_1', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
         set_config('importvideosenabled_1', true, 'block_opencast');
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
@@ -352,7 +357,7 @@ class backup_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        set_config('apiurl', $this->apiurl, 'tool_opencast');
+        set_config('apiurl_1', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
 
         // Setup course with block, groups and users.
@@ -434,7 +439,7 @@ class backup_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        set_config('apiurl', $this->apiurl, 'tool_opencast');
+        set_config('apiurl_1', $this->apiurl, 'tool_opencast');
 
         // Setup course with block, groups and users.
         $generator = $this->getDataGenerator();

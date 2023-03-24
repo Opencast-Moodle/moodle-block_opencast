@@ -27,6 +27,7 @@ namespace block_opencast\task;
 use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
+use tool_opencast\local\settings_api;
 
 /**
  * Scheduled task to clean up Opencast Video Provider/LTI episode modules after a video import
@@ -48,11 +49,18 @@ class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
     /**
      * Do the job.
      * Throw exceptions on errors (the job will be retried).
+     *
+     * @throws \dml_exception
      */
     public function execute() {
         global $DB;
 
-        $ocinstances = json_decode(get_config('tool_opencast', 'ocinstances'));
+        $ocinstances = settings_api::get_ocinstances();
+        if (empty($ocinstances)) {
+            throw new \dml_exception('dmlreadexception', null,
+                "No Opencast instances are defined.");
+        }
+
         foreach ($ocinstances as $ocinstance) {
 
             // If the import feature is disabled but the scheduled task is not, we are already done.

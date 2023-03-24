@@ -21,6 +21,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_opencast\local\settings_api;
+
 /**
  * Execute opencast upgrade from the given old version
  *
@@ -617,7 +619,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021073101) {
-        if (get_config('tool_opencast', 'version') < 2021091200) {
+        if (settings_api::get_plugin_version() < 2021091200) {
             // Required version is not fulfilled. Extra check needed because moodle does not do it sufficiently.
             throw new moodle_exception('tool_requirement_not_fulfilled', 'block_opencast');
         }
