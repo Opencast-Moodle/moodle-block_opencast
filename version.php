@@ -23,9 +23,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023012200;
-$plugin->requires = 2020061500; // Requires Moodle 3.9+.
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v4.0-r1';
 $plugin->component = 'block_opencast';
-$plugin->dependencies = array('tool_opencast' => 2022111900);
+$plugin->release = 'development-version';
+$plugin->version = 2023030100;
+$plugin->requires = 2020061500; // Requires Moodle 3.9+.
+$plugin->maturity = MATURITY_ALPHA;
+$plugin->dependencies = array(
+    'tool_opencast' => 2023030100
+);
