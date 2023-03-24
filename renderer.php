@@ -591,7 +591,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         // If needed, add the number of failed uploads.
         if ($countfailed > 1) {
-            $statusstring .= '<br />' . get_string('failedtransferattempts', 'block_opencast', $countfailed);
+            $statusstring .= ' (' . get_string('failedtransferattempts', 'block_opencast', $countfailed) . ')';
         }
 
         // Return string.
