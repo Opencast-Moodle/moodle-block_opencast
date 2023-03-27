@@ -591,7 +591,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         // If needed, add the number of failed uploads.
         if ($countfailed > 1) {
-            $statusstring .= '<br />' . get_string('failedtransferattempts', 'block_opencast', $countfailed);
+            $statusstring .= ' (' . get_string('failedtransferattempts', 'block_opencast', $countfailed) . ')';
         }
 
         // Return string.
@@ -1283,7 +1283,8 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $candelete = false, $downloadblanktarget = false) {
+    public function render_manage_transcriptions_table($list = [], $addnewurl = '',
+                                                        $candelete = false, $downloadblanktarget = false) {
         $context = new stdClass();
         $context->list = $list;
         $context->listhascontent = !empty($list) ? true : false;

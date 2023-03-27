@@ -41,6 +41,8 @@ class delete_file_test extends advanced_testcase {
 
     /**
      * Test how trash deletion works.
+     *
+     * @covers \block_opencast\local\file_deletionmanager
      */
     public function test_delete_files() {
         global $DB;

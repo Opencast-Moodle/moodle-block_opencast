@@ -57,6 +57,8 @@ class upload_test extends advanced_testcase {
 
     /**
      * Uploads a file to the opencast server and checks if it was transmitted.
+     *
+     * @covers \block_opencast\local\upload_helper
      * @throws \coding_exception
      * @throws \dml_exception
      */

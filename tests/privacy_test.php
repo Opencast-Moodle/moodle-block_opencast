@@ -49,6 +49,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::get_metadata().
+     *
+     * @covers \block_opencast\privacy\provider
      */
     public function test_get_metadata() {
         $collection = new collection('block_opencast');
@@ -81,6 +83,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::get_contexts_for_userid().
+     *
+     * @covers \block_opencast\privacy\provider::get_contexts_for_userid
      */
     public function test_get_contexts_for_userid() {
         global $DB;
@@ -152,6 +156,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::export_user_data().
+     *
+     * @covers \block_opencast\privacy\provider::export_user_data
      */
     public function test_export_user_data() {
         global $DB;
@@ -208,6 +214,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::delete_data_for_all_users_in_context().
+     *
+     * @covers \block_opencast\privacy\provider::delete_data_for_all_users_in_context
      */
     public function test_delete_data_for_all_users_in_context() {
         global $DB;
@@ -253,6 +261,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::delete_data_for_user().
+     *
+     * @covers \block_opencast\privacy\provider::delete_data_for_user
      */
     public function test_delete_data_for_user() {
         global $DB;
@@ -341,6 +351,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::get_users_in_context().
+     *
+     * @covers \block_opencast\privacy\provider::get_users_in_context
      */
     public function test_get_users_in_context() {
         global $DB;
@@ -444,6 +456,8 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
     /**
      * Test for provider::delete_data_for_users().
+     *
+     * @covers \block_opencast\privacy\provider::delete_data_for_users
      */
     public function test_delete_data_for_users() {
         global $DB;
