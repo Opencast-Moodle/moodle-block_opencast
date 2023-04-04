@@ -124,7 +124,7 @@ $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
-echo $renderer->render_lti_form($ltiendpoint, $params);
+echo $renderer->render_lti_form($endpoint . $customtool, $params);
 
 $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
 echo $OUTPUT->footer();
