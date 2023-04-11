@@ -225,6 +225,7 @@ class backup_test extends advanced_testcase {
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
         set_config('importvideoscoreenabled_1', true, 'block_opencast');
+        set_config('importmode_1', 'duplication', 'block_opencast');
 
         // Create a course with block opencast.
         $generator = $this->getDataGenerator();
