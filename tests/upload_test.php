@@ -40,11 +40,15 @@ global $CFG;
 class upload_test extends advanced_testcase {
 
     /** @var string Test api url. */
-    private $apiurl = 'http://localhost:8080';
+    private $apiurl = 'http://127.0.0.1:8080';
     /** @var string Test api username. */
     private $apiusername = 'admin';
     /** @var string Test api password. */
     private $apipassword = 'opencast';
+    /** @var int the curl timeout in milliseconds */
+    private $apitimeout = 2000;
+    /** @var int the curl connecttimeout in milliseconds */
+    private $apiconnecttimeout = 1000;
 
     /**
      * Test, whether the plugin is properly installed.
@@ -81,8 +85,16 @@ class upload_test extends advanced_testcase {
         set_config('apiurl_1', $this->apiurl, 'tool_opencast');
         set_config('apiusername_1', $this->apiusername, 'tool_opencast');
         set_config('apipassword_1', $this->apipassword, 'tool_opencast');
+        set_config('apitimeout_1', $this->apitimeout, 'tool_opencast');
+        set_config('apiconnecttimeout_1', $this->apiconnecttimeout, 'tool_opencast');
         set_config('limituploadjobs_1', 2, 'block_opencast');
         set_config('series_name_1', '[COURSENAME]', 'block_opencast');
+        set_config('roles_1',
+            '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
+            '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]',
+            'block_opencast');
 
         // Upload file.
         $plugingenerator = $this->getDataGenerator()->get_plugin_generator('block_opencast');

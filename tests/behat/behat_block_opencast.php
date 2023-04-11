@@ -96,7 +96,7 @@ class behat_block_opencast extends behat_base {
                             $apicall = file_get_contents($methoddir . "/" . $callfile);
                             $apicall = json_decode($apicall);
                             $method = strtoupper($method);
-                            $status = property_exists($apicall->status) ? intval($apicall->status) : 200;
+                            $status = !empty($apicall->status) ? intval($apicall->status) : 200;
                             $body = !empty($apicall->body) ? json_encode($apicall->body) : null;
                             $params = !empty($apicall->params) ? json_encode($apicall->params) : '';
                             $headers = !empty($apicall->headers) ? json_encode($apicall->headers) : [];
