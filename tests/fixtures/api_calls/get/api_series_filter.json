@@ -1,6 +1,7 @@
 {
   "resource": "/api/series?filter=identifier:1234-1234-1234-1234-1234",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "identifier": "1234-1234-1234-1234-1234",
       "license": "",

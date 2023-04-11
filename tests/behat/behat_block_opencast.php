@@ -44,18 +44,7 @@ class behat_block_opencast extends behat_base {
      */
     public function i_setup_the_opencast_test_api() {
         set_config('api_testable_responses', '[]', 'block_opencast');
-
-        $files = ['init_api_events.json', 'init_api_workflow_definitions.json',
-            'init_api_workflow_definitions_duplicate_event.json', 'api_events_filter_seriesimport.json',
-            'api_events_filter_seriesimport_overview.json',
-            'api_events_acl_secondvideo.json', 'api_series_acl.json', 'api_series_acl2.json',
-            'api_workflow_definitions_all.json', 'api_series_three.json', 'api_events_filter_newseries.json'];
-        $apitestable = new api_testable();
-        foreach ($files as $file) {
-            $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
-            $apicall = json_decode($apicall);
-            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
-        }
+        $apitestable = $this->get_apitestable_with_loaded_calls();
     }
 
     /**
@@ -71,28 +60,7 @@ class behat_block_opencast extends behat_base {
         $mapping->set('isdefault', '1');
         $mapping->set('ocinstanceid', 1);
         $mapping->create();
-
-        $newdata = ['api_events.json', 'api_events_secondvideo.json', 'api_events_acl.json',
-            'api_events_detailpage.json', 'api_series.json',
-            'api_series_metadata.json', 'api_series_two.json', 'api_events_with_publication.json',
-            'api_series_filter.json', 'api_events_metadata.json', 'api_events_single_event.json',
-            'api_events_nolimit.json', 'api_events_only_basic_infos.json'];
-        $apitestable = new api_testable();
-        foreach ($newdata as $file) {
-            $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
-            $apicall = json_decode($apicall);
-            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
-        }
-
-        // Add post request.
-        $files = ['api_series_createseries.json', 'api_workflows_updatemetadata.json', 'api_workflows_startworkflow.json',
-            'api_workflows_updatemetadata_import.json'];
-        $apitestable = new api_testable();
-        foreach ($files as $file) {
-            $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/post/" . $file);
-            $apicall = json_decode($apicall);
-            $apitestable->add_json_response($apicall->resource, 'post', json_encode($apicall->response));
-        }
+        $apitestable = $this->get_apitestable_with_loaded_calls();
     }
 
     /**
@@ -108,13 +76,38 @@ class behat_block_opencast extends behat_base {
         $mapping->set('isdefault', '0');
         $mapping->set('ocinstanceid', 1);
         $mapping->create();
+        $apitestable = $this->get_apitestable_with_loaded_calls();
+    }
 
-        $newdata = ['api_series_filter_two.json'];
+    /**
+     * Gets an apitestable instance after loading all mock responses.
+     * @return \tool_opencast\local\api_testable apitestable instance
+     */
+    protected function get_apitestable_with_loaded_calls() {
         $apitestable = new api_testable();
-        foreach ($newdata as $file) {
-            $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
-            $apicall = json_decode($apicall);
-            $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
+        if (empty($apitestable->get_json_responses())) {
+            $apicallsdir = __DIR__ . "/../fixtures/api_calls";
+            $excludes = ['.', '..'];
+            foreach (scandir($apicallsdir) as $method) {
+                if (!in_array($method, $excludes)) {
+                    $methoddir = $apicallsdir . "/" . $method;
+                    foreach (scandir($methoddir) as $callfile) {
+                        if (!in_array($callfile, $excludes)) {
+                            $apicall = file_get_contents($methoddir . "/" . $callfile);
+                            $apicall = json_decode($apicall);
+                            $method = strtoupper($method);
+                            $status = property_exists($apicall->status) ? intval($apicall->status) : 200;
+                            $body = !empty($apicall->body) ? json_encode($apicall->body) : null;
+                            $params = !empty($apicall->params) ? json_encode($apicall->params) : '';
+                            $headers = !empty($apicall->headers) ? json_encode($apicall->headers) : [];
+                            $apitestable->add_json_response($apicall->resource, $method, $status, $body, $params, $headers);
+                        }
+                    }
+                }
+            }
         }
+        // This method from apitestable class must be called after all responses are added.
+        $apitestable->set_opencastapi_mock_responses();
+        return $apitestable;
     }
 }

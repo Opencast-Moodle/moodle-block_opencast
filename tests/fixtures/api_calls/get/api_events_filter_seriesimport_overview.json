@@ -1,6 +1,7 @@
 {
-  "resource": "/api/events?sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=series%3A1111-1111-1111-1111-1111&limit=6",
-  "response": [
+  "resource": "/api/events?sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=series:1111-1111-1111-1111-1111&limit=6",
+  "status": 200,
+  "body": [
     {
       "identifier": "bbbb-bbbb-bbbb-bbbb",
       "creator": "",

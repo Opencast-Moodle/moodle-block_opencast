@@ -1,6 +1,7 @@
 {
   "resource": "/api/events/bbbb-bbbb-bbbb-bbbb?withpublications=false&withacl=false",
-  "response": {
+  "status": 200,
+  "body": {
     "identifier": "bbbb-bbbb-bbbb-bbbb",
     "creator": "",
     "presenter": [],

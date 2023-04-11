@@ -1,6 +1,7 @@
 {
   "resource": "/api/events/bbbb-bbbb-bbbb-bbbb/acl",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "allow": true,
       "role": "ROLE_ADMIN",

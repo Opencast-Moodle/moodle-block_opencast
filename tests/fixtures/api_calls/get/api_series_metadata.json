@@ -1,6 +1,7 @@
 {
   "resource": "/api/series/1234-1234-1234-1234-1234/metadata?type=dublincore/series",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "readOnly": false,
       "id": "title",

@@ -1,6 +1,7 @@
 {
   "resource": "/api/series/1111-1111-1111-1111-1111/acl",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "allow": true,
       "role": "ROLE_ADMIN",

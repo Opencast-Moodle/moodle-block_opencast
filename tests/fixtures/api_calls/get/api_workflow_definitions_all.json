@@ -1,6 +1,7 @@
 {
   "resource": "/api/workflow-definitions?filter=tag:",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "identifier": "delete",
       "description": "This workflow is used by the Admin UI to retract all publications of an event upon deletion",

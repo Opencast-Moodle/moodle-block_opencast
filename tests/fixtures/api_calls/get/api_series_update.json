@@ -1,6 +1,7 @@
 {
   "resource": "/api/series/1234-1234-1234-1234-1234",
-  "response": {
+  "status": 200,
+  "body": {
     "identifier": "1234-1234-1234-1234-1234",
     "creator": "",
     "opt_out": false,

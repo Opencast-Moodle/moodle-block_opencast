@@ -1,6 +1,7 @@
 {
   "resource": "/api/events/abcd-abcd-abcd-abcd?withpublications=true",
-  "response": {
+  "status": 200,
+  "body": {
     "identifier": "abcd-abcd-abcd-abcd",
     "creator": "",
     "presenter": [],
