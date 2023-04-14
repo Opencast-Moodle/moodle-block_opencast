@@ -137,8 +137,7 @@ class behat_block_opencast extends behat_base {
      * stops the execution until you hit enter in the console
      * @Then /^breakpoint/
      */
-    public function breakpoint()
-    {
+    public function breakpoint() {
         fwrite(STDOUT, "\033[s    \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
         while (fgets(STDIN, 1024) == '') {
         }
