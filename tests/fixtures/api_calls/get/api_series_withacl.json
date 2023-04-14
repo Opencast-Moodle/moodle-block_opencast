@@ -1,16 +1,23 @@
 {
-  "resource": "/api/series/84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+  "resource": "/api/series/1234-1234-1234-1234-1234?withacl=true",
   "status": 200,
   "body": {
-    "identifier": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+    "identifier": "1234-1234-1234-1234-1234",
     "creator": "",
     "opt_out": false,
     "created": "2021-07-28T08:16:35Z",
     "subjects": [],
     "description": "",
     "language": "",
-    "title": "Series for import",
+    "title": "Test series",
     "license": "",
+    "acl": [
+      {
+        "allow": true,
+        "role": "ROLE_ANONYMOUS",
+        "action": "read"
+      }
+    ],
     "organization": "mh_default_org",
     "organizers": [],
     "publishers": [],

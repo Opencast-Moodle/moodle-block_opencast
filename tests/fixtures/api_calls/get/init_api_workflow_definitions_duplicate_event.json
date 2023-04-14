@@ -1,5 +1,5 @@
 {
-  "resource": "/api/workflow-definitions/duplicate-event?withconfigurationpanel=true",
+  "resource": "/api/workflow-definitions/duplicate-event?withoperations=false&withconfigurationpanel=true",
   "status": 200,
   "body": {
     "identifier": "duplicate-event",

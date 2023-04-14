@@ -1,16 +1,23 @@
 {
-  "resource": "/api/series/1234-1234-1234-1234-1234",
+  "resource": "/api/series/1111-1111-1111-1111-1111?withacl=true",
   "status": 200,
   "body": {
-    "identifier": "1234-1234-1234-1234-1234",
+    "identifier": "1111-1111-1111-1111-1111",
     "creator": "",
     "opt_out": false,
     "created": "2021-07-28T08:16:35Z",
     "subjects": [],
     "description": "",
     "language": "",
-    "title": "Test series",
+    "title": "Another series",
     "license": "",
+    "acl": [
+      {
+        "allow": true,
+        "role": "ROLE_ANONYMOUS",
+        "action": "read"
+      }
+    ],
     "organization": "mh_default_org",
     "organizers": [],
     "publishers": [],

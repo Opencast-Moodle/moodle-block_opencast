@@ -1,5 +1,5 @@
 {
-  "resource": "/api/series/1234-1234-1234-1234-1234",
+  "resource": "/api/series/1234-1234-1234-1234-1234?withacl=false",
   "status": 200,
   "body": {
     "identifier": "1234-1234-1234-1234-1234",
@@ -9,7 +9,7 @@
     "subjects": [],
     "description": "",
     "language": "",
-    "title": "Another series title",
+    "title": "Test series",
     "license": "",
     "organization": "mh_default_org",
     "organizers": [],

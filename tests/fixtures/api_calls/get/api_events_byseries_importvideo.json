@@ -1,5 +1,5 @@
 {
-    "resource": "/api/events?filter=is_part_of:1234-1234-1234-1234-1234&sort=start_date:DESC&sign=true&withacl=true&withmetadata=true&withpublications=true&limit=6",
+    "resource": "/api/events?filter=is_part_of:1111-1111-1111-1111-1111&sign=true&withacl=true&withmetadata=true&withpublications=true",
     "status": 200,
     "body": [
         {
@@ -7,13 +7,13 @@
             "creator": "",
             "presenter": [],
             "created": "2021-08-11T09:32:00Z",
-            "is_part_of": "1234-1234-1234-1234-1234",
+            "is_part_of": "1111-1111-1111-1111-1111",
             "subjects": [],
             "start": "2021-08-11T09:32:00Z",
             "description": "",
             "language": "",
             "source": "",
-            "title": "Test video",
+            "title": "My video",
             "processing_state": "SUCCEEDED",
             "duration": 0,
             "license": "",

@@ -1,5 +1,5 @@
 {
-    "resource": "/api/events?filter=is_part_of:1234-1234-1234-1234-1234&sort=start_date:DESC&sign=true&withacl=true&withmetadata=true&withpublications=true&limit=6",
+    "resource": "/api/events?filter=is_part_of:1234-1234-1234-1234-1234&sign=true&withacl=true&withmetadata=true&withpublications=true",
     "status": 200,
     "body": [
         {

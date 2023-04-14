@@ -1,0 +1,87 @@
+{
+  "resource": "/api/workflow-definitions?filter=tag:api",
+  "status": 200,
+  "body": [
+    {
+      "identifier": "republish-metadata-and-captions",
+      "operations": [
+        {
+          "configuration": {
+            "source-tags": "archive"
+          },
+          "unless": "",
+          "max_attempts": 1,
+          "description": "Archive current captions",
+          "operation": "snapshot",
+          "if": "",
+          "fail_workflow_on_error": true,
+          "retry_strategy": "none",
+          "error_handler_workflow": ""
+        },
+        {
+          "configuration": {
+            "source-flavors": "captions/*",
+            "target-tags": "+archive"
+          },
+          "unless": "",
+          "max_attempts": 1,
+          "description": "Tagging Captions",
+          "operation": "tag",
+          "if": "",
+          "fail_workflow_on_error": true,
+          "retry_strategy": "none",
+          "error_handler_workflow": ""
+        },
+        {
+          "configuration": {
+            "source-tags": "archive"
+          },
+          "unless": "",
+          "max_attempts": 1,
+          "description": "Archive current captions",
+          "operation": "snapshot",
+          "if": "",
+          "fail_workflow_on_error": true,
+          "retry_strategy": "none",
+          "error_handler_workflow": ""
+        },
+        {
+          "configuration": {
+            "merge-force-flavors": "dublincore/*,security/*,captions/*",
+            "strategy": "merge",
+            "download-source-flavors": "dublincore/*,security/*,captions/*",
+            "check-availability": "false"
+          },
+          "unless": "",
+          "max_attempts": 1,
+          "description": "Update recording in Opencast Media Module",
+          "operation": "publish-engage",
+          "if": "",
+          "fail_workflow_on_error": true,
+          "retry_strategy": "none",
+          "error_handler_workflow": "partial-error"
+        },
+        {
+          "configuration": {
+            "preserve-flavors": "security/*",
+            "delete-external": "true"
+          },
+          "unless": "",
+          "max_attempts": 1,
+          "description": "Remove temporary processing artifacts",
+          "operation": "cleanup",
+          "if": "",
+          "fail_workflow_on_error": false,
+          "retry_strategy": "none",
+          "error_handler_workflow": ""
+        }
+      ],
+      "configuration_panel": "",
+      "description": "",
+      "title": "Republish metadata and captions",
+      "tags": [
+        "api"
+      ]
+    }
+  ]
+}

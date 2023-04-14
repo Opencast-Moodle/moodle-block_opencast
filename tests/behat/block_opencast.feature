@@ -12,6 +12,7 @@ Feature: Add Opencast block as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
       | apiurl_1            | http://172.17.0.1:8080                                        | tool_opencast  |

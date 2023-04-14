@@ -1,0 +1,42 @@
+{
+  "resource": "/api/workflow-definitions?filter=tag:upload",
+  "status": 200,
+  "body": [
+    {
+      "identifier": "fasthls",
+      "description": "\n    A minimal workflow that transcodes the media into serverless HLS distribution formats, then\n    sends the resulting distribution files, along with their associated metadata,\n    to the distribution channels.\n  ",
+      "title": "Fast HLS Testing Workflow",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "fast",
+      "description": "\n    A minimal workflow that transcodes the media into distribution formats, then\n    sends the resulting distribution files, along with their associated metadata,\n    to the distribution channels.\n  ",
+      "title": "Fast Testing Workflow",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "schedule-and-upload",
+      "description": "\n    A complex workflow, showcasing most of Opencast's features.\n  ",
+      "title": "Process upon upload and schedule",
+      "tags": [
+        "schedule",
+        "upload"
+      ]
+    },
+    {
+      "identifier": "studio-upload",
+      "description": "\n    A simple and fast workflow for publishing videos created by Opencast Studio.\n  ",
+      "title": "Studio Upload",
+      "tags": [
+        "archive",
+        "upload"
+      ]
+    }
+  ]
+}

@@ -43,8 +43,8 @@ class behat_block_opencast extends behat_base {
      * @Given /^I setup the opencast test api$/
      */
     public function i_setup_the_opencast_test_api() {
-        set_config('api_testable_responses', '[]', 'block_opencast');
-        $apitestable = $this->get_apitestable_with_loaded_calls();
+        set_config('api_testable_responses', '[]', 'tool_opencast');
+        $this->load_apitestable_json_responses();
     }
 
     /**
@@ -60,7 +60,6 @@ class behat_block_opencast extends behat_base {
         $mapping->set('isdefault', '1');
         $mapping->set('ocinstanceid', 1);
         $mapping->create();
-        $apitestable = $this->get_apitestable_with_loaded_calls();
     }
 
     /**
@@ -76,38 +75,98 @@ class behat_block_opencast extends behat_base {
         $mapping->set('isdefault', '0');
         $mapping->set('ocinstanceid', 1);
         $mapping->create();
-        $apitestable = $this->get_apitestable_with_loaded_calls();
     }
 
     /**
-     * Gets an apitestable instance after loading all mock responses.
-     * @return \tool_opencast\local\api_testable apitestable instance
+     * Setup default settings for the block
+     * @Given /^I setup the default settigns for opencast plugins$/
      */
-    protected function get_apitestable_with_loaded_calls() {
-        $apitestable = new api_testable();
-        if (empty($apitestable->get_json_responses())) {
-            $apicallsdir = __DIR__ . "/../fixtures/api_calls";
-            $excludes = ['.', '..'];
-            foreach (scandir($apicallsdir) as $method) {
-                if (!in_array($method, $excludes)) {
-                    $methoddir = $apicallsdir . "/" . $method;
-                    foreach (scandir($methoddir) as $callfile) {
-                        if (!in_array($callfile, $excludes)) {
-                            $apicall = file_get_contents($methoddir . "/" . $callfile);
-                            $apicall = json_decode($apicall);
-                            $method = strtoupper($method);
-                            $status = !empty($apicall->status) ? intval($apicall->status) : 200;
-                            $body = !empty($apicall->body) ? json_encode($apicall->body) : null;
-                            $params = !empty($apicall->params) ? json_encode($apicall->params) : '';
-                            $headers = !empty($apicall->headers) ? json_encode($apicall->headers) : [];
-                            $apitestable->add_json_response($apicall->resource, $method, $status, $body, $params, $headers);
-                        }
+    public function i_setup_the_default_settings_for_opencast_plugins() {
+        set_config('roles_1',
+            '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
+            '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
+            '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]',
+            'block_opencast');
+        set_config('metadata_1',
+            '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":1},' .
+            '{"name":"description","datatype":"textarea","required":0,"readonly":0,' .
+            '"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":1},{"name":"language","datatype":"select",' .
+            '"required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",' .
+            '\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",' .
+            '\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",' .
+            '\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",' .
+            '\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0}' .
+            ',{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"' .
+            ',"defaultable":0},{"name":"license","datatype":"select","required":0,"readonly":0,' .
+            '"param_json":"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",' .
+            '\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",' .
+            '\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}","defaultable":0},' .
+            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":"","defaultable":0},' .
+            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":"","defaultable":0}]',
+            'block_opencast');
+        set_config('metadataseries_1',
+            '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
+            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
+            '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
+            '"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":0},{"name":"language","datatype":"select","required":0,' .
+            '"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\"' .
+            ':\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\"' .
+            ',\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",' .
+            '\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",\"tur\":\"Turkish\",' .
+            '\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0},' .
+            '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}",' .
+            '"defaultable":0},{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":' .
+            '"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",' .
+            '\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":' .
+            '\"CC BY-NC\",\"CC-BY\":\"CC BY\"}","defaultable":0},{"name":"creator","datatype":"autocomplete","required":0,' .
+            '"readonly":0,"param_json":null,"defaultable":0},{"name":"contributor","datatype":"autocomplete","required":0,' .
+            '"readonly":0,"param_json":null,"defaultable":0}]',
+            'block_opencast');
+        set_config('transcriptionflavors_1',
+            '[{"key":"de","value":"Amberscript German"},{"key":"en","value":"Amberscript English"},' .
+            '{"key":"deu","value":"Vosk German"},{"key":"eng","value":"Vosk English"},{"key":"prf","value":"Persian"}]',
+            'block_opencast');
+        set_config('maxseries_1', 3, 'block_opencast');
+        set_config('limitvideos_1', 5, 'block_opencast');
+    }
+
+    /**
+     * adds a breakpoints
+     * stops the execution until you hit enter in the console
+     * @Then /^breakpoint/
+     */
+    public function breakpoint()
+    {
+        fwrite(STDOUT, "\033[s    \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
+        while (fgets(STDIN, 1024) == '') {}
+        fwrite(STDOUT, "\033[u");
+        return;
+    }
+
+    /**
+     * Loads the json responses taken from fixtures dir into apitestable config.
+     */
+    protected function load_apitestable_json_responses() {
+        $apicallsdir = __DIR__ . "/../fixtures/api_calls";
+        $excludes = ['.', '..'];
+        foreach (scandir($apicallsdir) as $method) {
+            if (!in_array($method, $excludes)) {
+                $methoddir = $apicallsdir . "/" . $method;
+                foreach (scandir($methoddir) as $callfile) {
+                    if (!in_array($callfile, $excludes)) {
+                        $apicall = file_get_contents($methoddir . "/" . $callfile);
+                        $apicall = json_decode($apicall);
+                        $method = strtoupper($method);
+                        $status = !empty($apicall->status) ? intval($apicall->status) : 200;
+                        $body = !empty($apicall->body) ? json_encode($apicall->body) : null;
+                        $params = !empty($apicall->params) ? json_encode($apicall->params) : '';
+                        $headers = !empty($apicall->headers) ? json_encode($apicall->headers) : [];
+                        api_testable::add_json_response($apicall->resource, $method, $status, $body, $params, $headers);
                     }
                 }
             }
         }
-        // This method from apitestable class must be called after all responses are added.
-        $apitestable->set_opencastapi_mock_responses();
-        return $apitestable;
     }
 }

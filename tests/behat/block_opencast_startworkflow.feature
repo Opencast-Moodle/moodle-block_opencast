@@ -11,6 +11,7 @@ Feature: Start workflows for a video as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
       | apiurl_1            | http://testapi:8080                                           | tool_opencast  |
@@ -32,9 +33,10 @@ Feature: Start workflows for a video as Teacher
   @javascript
   Scenario: When the update metadata form is loaded, the video metadata are loaded in the form
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .c6 .action-menu a" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .cell .action-menu a" "css_element"
     And I click on "Start workflow" "link"
     Then I should see "Choose the workflow you want to start"
     When I set the field "workflow" to "duplicate-event"
+    And I wait "3" seconds
     And I click on "Start workflow" "button"
     Then I should see "Workflow successfully started"
