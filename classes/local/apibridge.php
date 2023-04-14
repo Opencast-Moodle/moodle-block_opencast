@@ -310,6 +310,7 @@ class apibridge {
             return $result;
         }
 
+        $limitvideosconfig = intval(get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
         $allvideos = [];
         $api = api::get_instance($this->ocinstanceid);
         foreach ($series as $s) {
@@ -323,9 +324,9 @@ class apibridge {
                 ],
             ];
 
-            if (get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid) > 0) {
+            if ($limitvideosconfig > 0) {
                 // Try to fetch one more to decide whether display "more link" is necessary.
-                $params['limit'] = intval(get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid)) + 1;
+                $params['limit'] = $limitvideosconfig + 1;
             }
 
             $response = $api->opencastapi->eventsApi->getBySeries($s->series, $params);
@@ -353,11 +354,11 @@ class apibridge {
         });
 
         $result->count = count($allvideos);
-        $result->more = ($result->count > get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
+        $result->more = ($result->count > $limitvideosconfig);
 
         // If we have received more than limit count of videos remove one.
-        if ($result->more) {
-            $allvideos = array_slice($allvideos, 0, get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
+        if ($result->more && $limitvideosconfig > 0) {
+            $allvideos = array_slice($allvideos, 0, $limitvideosconfig);
         }
 
         if ($result->error == 0) {
@@ -1256,6 +1257,9 @@ class apibridge {
      */
     public function getroles($permanent = null) {
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
+        if (empty($roles)) {
+            return [];
+        }
         $rolesprocessed = [];
         foreach ($roles as $role) {
             if ($permanent === null || $permanent === $role->permanent) {
