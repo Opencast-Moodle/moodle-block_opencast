@@ -40,7 +40,7 @@ Feature: Manage series as Teacher
     Then I should see "Test series"
     When I click on "Create new series" "button"
     Then I should see "Title"
-    And I should see "Required"
+    Then ".modal i.icon[title='Required']" "css_element" should be visible
     When I set the field "Title" to "My new series"
     And I set the field "Rights" to "Some user"
     And I select "ALLRIGHTS" from the "License" singleselect
