@@ -26,8 +26,6 @@ namespace block_opencast\local;
 use block_opencast\opencast_connection_exception;
 use block_opencast\opencast_state_exception;
 use local_chunkupload\local\chunkupload_file;
-use tool_opencast\local\PolyfillCURLStringFile;
-
 /**
  * Uploads videos via ingest nodes.
  * @package    block_opencast
@@ -62,7 +60,7 @@ class ingest_uploader {
      */
     public static function create_event($job) {
         global $DB;
-        $apibridge = apibridge::get_instance($job->ocinstanceid);
+        $apibridge = apibridge::get_instance($job->ocinstanceid, true, true);
 
         switch ($job->status) {
             case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE:

@@ -58,12 +58,17 @@ class apibridge {
     /** @var bool True for tests */
     private static $testing = false;
 
+    /** @var \tool_opencast\local\api the opencast tool api instance */
+    public $api;
+
     /**
      * apibridge constructor.
      * @param int $ocinstanceid Opencast instance id.
+     * @param boolean $enableingest whether to enable ingest upload.
      */
-    private function __construct($ocinstanceid) {
+    private function __construct($ocinstanceid, $enableingest) {
         $this->ocinstanceid = $ocinstanceid;
+        $this->api = api::get_instance($this->ocinstanceid, [], [], $enableingest);
     }
 
     /**
@@ -71,9 +76,10 @@ class apibridge {
      *
      * @param int $ocinstanceid Opencast instance id
      * @param boolean $forcenewinstance true, when a new instance should be created.
+     * @param boolean $enableingest whether to enable ingest upload.
      * @return apibridge
      */
-    public static function get_instance($ocinstanceid = null, $forcenewinstance = false) {
+    public static function get_instance($ocinstanceid = null, $forcenewinstance = false, $enableingest = false) {
         static $apibridges = array();
 
         if (!$ocinstanceid) {
@@ -92,7 +98,7 @@ class apibridge {
             return $apibridge;
         }
 
-        $apibridge = new apibridge($ocinstanceid);
+        $apibridge = new apibridge($ocinstanceid, $enableingest);
         $apibridges[$ocinstanceid] = $apibridge;
 
         return $apibridge;
@@ -128,11 +134,10 @@ class apibridge {
      * @throws opencast_connection_exception
      */
     private function get_ingest_api() {
-        $api = api::get_instance($this->ocinstanceid);
-        if (!property_exists($api->opencastapi, 'ingest')) {
+        if (!property_exists($this->api->opencastapi, 'ingest')) {
             throw new opencast_connection_exception('ingest_endpoint_notfound', 'block_opencast');
         }
-        return $api->opencastapi->ingest;
+        return $this->api->opencastapi->ingest;
     }
 
     /**
@@ -312,7 +317,7 @@ class apibridge {
 
         $limitvideosconfig = intval(get_config('block_opencast', 'limitvideos_' . $this->ocinstanceid));
         $allvideos = [];
-        $api = api::get_instance($this->ocinstanceid);
+
         foreach ($series as $s) {
             $params = [
                 'sign' => true,
@@ -329,7 +334,7 @@ class apibridge {
                 $params['limit'] = $limitvideosconfig + 1;
             }
 
-            $response = $api->opencastapi->eventsApi->getBySeries($s->series, $params);
+            $response = $this->api->opencastapi->eventsApi->getBySeries($s->series, $params);
             $code = $response['code'];
 
             if ($code === 0) {
@@ -421,8 +426,8 @@ class apibridge {
             }
             $params['sort'] = $sort;
         }
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getBySeries($series, $params);
+
+        $response = $this->api->opencastapi->eventsApi->getBySeries($series, $params);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -502,8 +507,8 @@ class apibridge {
             'withacl' => $withacl,
             'withpublications' => $withpublications,
         ];
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->get($identifier, $params);
+
+        $response = $this->api->opencastapi->eventsApi->get($identifier, $params);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -537,8 +542,8 @@ class apibridge {
         $groupname = $this->replace_placeholders(get_config('block_opencast',
             'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->groupsApi->get($groupidentifier);
+
+        $response = $this->api->opencastapi->groupsApi->get($groupidentifier);
         $group = $response['body'];
         return $group;
     }
@@ -569,8 +574,8 @@ class apibridge {
             'ROLE_API_SERIES_VIEW',
             'ROLE_API_EVENTS_VIEW'
         ];
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->groupsApi->create($name, $description, $roles);
+
+        $response = $this->api->opencastapi->groupsApi->create($name, $description, $roles);
         $code = $response['code'];
 
         if ($code >= 400) {
@@ -684,8 +689,8 @@ class apibridge {
         if (empty($seriesid)) {
             return null;
         }
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->get($seriesid, $withacl);
+
+        $response = $this->api->opencastapi->seriesApi->get($seriesid, $withacl);
         $code = $response['code'];
 
         // If something went wrong, we return false.
@@ -715,8 +720,8 @@ class apibridge {
         if (!empty($filter)) {
             $params['filter'] = $filter;
         }
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->getAll($params);
+
+        $response = $this->api->opencastapi->seriesApi->getAll($params);
         $code = $response['code'];
 
         if ($code === 0) {
@@ -736,10 +741,8 @@ class apibridge {
      * @return null|string id of the series id if it exists in the opencast system.
      */
     public function get_default_course_series($courseid) {
-
         if ($seriesid = $this->get_stored_seriesid($courseid)) {
-            $api = api::get_instance($this->ocinstanceid);
-            $response = $api->opencastapi->seriesApi->get($seriesid);
+            $response = $this->api->opencastapi->seriesApi->get($seriesid);
             if ($response['code'] != 200) {
                 return null;
             }
@@ -927,8 +930,7 @@ class apibridge {
 
         $aclstr = json_encode(array_values($acl));
 
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->create($metadatastr, $aclstr);
+        $response = $this->api->opencastapi->seriesApi->create($metadatastr, $aclstr);
         $code = $response['code'];
         if ($code >= 400 || $code < 200) {
             throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
@@ -1002,8 +1004,7 @@ class apibridge {
         }
 
         // Update Acl roles.
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->getAcl($seriesid);
+        $response = $this->api->opencastapi->seriesApi->getAcl($seriesid);
         $acl = $response['body'];
         $defaultaclstr = json_encode(array_values($acl));
 
@@ -1045,7 +1046,7 @@ class apibridge {
             return true;
         }
 
-        $response = $api->opencastapi->seriesApi->updateAcl($seriesid, $aclstr);
+        $response = $this->api->opencastapi->seriesApi->updateAcl($seriesid, $aclstr);
         return ($response['code'] == 204);
     }
 
@@ -1072,8 +1073,7 @@ class apibridge {
      * @throws \moodle_exception if there is no connection to the server.
      */
     public function ensure_series_is_valid($seriesid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->get($seriesid);
+        $response = $this->api->opencastapi->seriesApi->get($seriesid);
         $code = $response['code'];
 
         if ($code === 404) {
@@ -1095,10 +1095,8 @@ class apibridge {
      * @return mixed false or existing event.
      */
     public function get_already_existing_event($opencastids) {
-        $api = api::get_instance($this->ocinstanceid);
         foreach ($opencastids as $opencastid) {
-
-            $response = $api->opencastapi->eventsApi->get($opencastid);
+            $response = $this->api->opencastapi->eventsApi->get($opencastid);
             $event = $response['body'];
 
             if (isset($event) && isset($event->identifier)) {
@@ -1177,11 +1175,11 @@ class apibridge {
         if ($event->get_presentation()) {
             $presentation = $this->get_upload_filestream($event->get_presentation());
         }
-        $api = api::get_instance($this->ocinstanceid);
+
         $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
-            $response = $api->opencastapi->eventsApi->setRequestTimeout($timeout)->create(
+            $response = $this->api->opencastapi->eventsApi->setRequestTimeout($timeout)->create(
                 $acl,
                 $metadata,
                 $processing,
@@ -1191,7 +1189,7 @@ class apibridge {
                 null
             );
         } else {
-            $response = $api->opencastapi->eventsApi->create(
+            $response = $this->api->opencastapi->eventsApi->create(
                 $acl,
                 $metadata,
                 $processing,
@@ -1313,8 +1311,7 @@ class apibridge {
      * @return boolean true if succeeded
      */
     public function ensure_acl_group_assigned($eventidentifier, $courseid, $userid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
 
         $event = new \block_opencast\local\event();
@@ -1336,7 +1333,7 @@ class apibridge {
             return true;
         }
 
-        $response = $api->opencastapi->eventsApi->updateAcl($eventidentifier, $aclstr);
+        $response = $this->api->opencastapi->eventsApi->updateAcl($eventidentifier, $aclstr);
         $code = $response['code'];
         if ($code != 204) {
             return false;
@@ -1353,7 +1350,6 @@ class apibridge {
      * @return bool If acl group can be deleted
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
-
         $config = get_config('block_opencast', 'allowunassign_' . $this->ocinstanceid);
 
         if (!$config) {
@@ -1382,13 +1378,12 @@ class apibridge {
 
         $grouprole = api::get_course_acl_role($courseid);
 
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->deleteSingleAcl($eventidentifier, 'read', $grouprole);
+        $response = $this->api->opencastapi->eventsApi->deleteSingleAcl($eventidentifier, 'read', $grouprole);
         if ($response['code'] != 204) {
             return false;
         }
 
-        $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         if ($response['code'] != 200) {
             return false;
         }
@@ -1443,8 +1438,7 @@ class apibridge {
             $this->store_group_access($eventidentifier, $groups);
         }
 
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
 
         $event = new \block_opencast\local\event();
@@ -1477,7 +1471,7 @@ class apibridge {
             return 'aclnothingtobesaved';
         }
 
-        $response = $api->opencastapi->eventsApi->updateAcl($eventidentifier, $aclstoupdate);
+        $response = $this->api->opencastapi->eventsApi->updateAcl($eventidentifier, $aclstoupdate);
         if ($response['code'] >= 400) {
             return false;
         }
@@ -1505,9 +1499,8 @@ class apibridge {
      * @return boolean
      */
     public function assign_series($eventidentifier, $seriesidentifier) {
-        $api = api::get_instance($this->ocinstanceid);
         $metadata = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));
-        $response = $api->opencastapi->eventsApi->updateMetadata($eventidentifier, 'dublincore/episode', $metadata);
+        $response = $this->api->opencastapi->eventsApi->updateMetadata($eventidentifier, 'dublincore/episode', $metadata);
         return ($response['code'] == 204);
     }
 
@@ -1602,8 +1595,7 @@ class apibridge {
      * @return int state of the visibility (0 hidden, 1 mixed visibility, 2 visible)
      */
     public function is_event_visible($eventidentifier, $courseid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
         $event = new \block_opencast\local\event();
         $event->set_json_acl($jsonacl);
@@ -1706,12 +1698,11 @@ class apibridge {
         if (!$workflow) {
             return false;
         }
-        $api = api::get_instance($this->ocinstanceid);
         // Start workflow.
         $configuration = isset($params['configuration']) ? $params['configuration'] : [];
         $withoperations = isset($params['withoperations']) ? $params['withoperations'] : false;
         $withconfiguration = isset($params['withconfiguration']) ? $params['withconfiguration'] : false;
-        $response = $api->opencastapi->workflowsApi->run(
+        $response = $this->api->opencastapi->workflowsApi->run(
             $eventid,
             $workflow,
             $configuration,
@@ -1772,8 +1763,7 @@ class apibridge {
             $queryparams['withconfigurationpanel'] = true;
         }
 
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->workflowsApi->getAllDefinitions($queryparams);
+        $response = $this->api->opencastapi->workflowsApi->getAllDefinitions($queryparams);
         $code = $response['code'];
         if ($code === 200) {
             $returnedworkflows = $response['body'];
@@ -1813,8 +1803,7 @@ class apibridge {
     public function get_workflow_definition($id) {
         $withoperations = false;
         $withconfigurationpanel = true;
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->workflowsApi->getDefinition(
+        $response = $this->api->opencastapi->workflowsApi->getDefinition(
             $id,
             $withoperations,
             $withconfigurationpanel
@@ -1906,8 +1895,7 @@ class apibridge {
      * @return boolean return true when video is deleted.
      */
     public function delete_event($eventidentifier) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->delete($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->delete($eventidentifier);
         if ($response['code'] >= 400) {
             return false;
         }
@@ -1980,10 +1968,8 @@ class apibridge {
      * @return boolean
      */
     public function supports_api_level($level) {
-
         try {
-            $api = api::get_instance($this->ocinstanceid);
-            return $api->supports_api_level($level);
+            return $this->api->supports_api_level($level);
         } catch (\moodle_exception $e) {
             debugging('Api level ' . $level . ' not supported.');
             return false;
@@ -2053,8 +2039,7 @@ class apibridge {
      * @return bool|int|mixed Event metadata
      */
     public function get_event_metadata($eventidentifier, $type = '') {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getMetadata($eventidentifier, $type);
+        $response = $this->api->opencastapi->eventsApi->getMetadata($eventidentifier, $type);
         if ($response['code'] != 200) {
             return $response['code'];
         }
@@ -2068,8 +2053,7 @@ class apibridge {
      */
     public function get_series_metadata($seriesid) {
         $type = 'dublincore/series';
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->getMetadata($seriesid, $type);
+        $response = $this->api->opencastapi->seriesApi->getMetadata($seriesid, $type);
         if ($response['code'] != 200) {
             return $response['code'];
         }
@@ -2088,8 +2072,7 @@ class apibridge {
         $metadata = json_encode($metadata);
         $type = 'dublincore/episode';
 
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->updateMetadata($eventidentifier, $type, $metadata);
+        $response = $this->api->opencastapi->eventsApi->updateMetadata($eventidentifier, $type, $metadata);
 
         if ($response['code'] == 204) {
             return $this->update_metadata($eventidentifier);
@@ -2110,11 +2093,10 @@ class apibridge {
      */
     public function set_owner($courseid, $eventidentifier, $userid, $isseries) {
         $response = null;
-        $api = api::get_instance($this->ocinstanceid);
         if ($isseries) {
-            $response = $api->opencastapi->seriesApi->getAcl($eventidentifier);
+            $response = $this->api->opencastapi->seriesApi->getAcl($eventidentifier);
         } else {
-            $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+            $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         }
         if (empty($response) || $response['code'] != 200) {
             return false;
@@ -2169,9 +2151,9 @@ class apibridge {
         }
 
         if ($isseries) {
-            $response = $api->opencastapi->seriesApi->updateAcl($eventidentifier, $acltoupdate);
+            $response = $this->api->opencastapi->seriesApi->updateAcl($eventidentifier, $acltoupdate);
         } else {
-            $response = $api->opencastapi->eventsApi->updateAcl($eventidentifier, $acltoupdate);
+            $response = $this->api->opencastapi->eventsApi->updateAcl($eventidentifier, $acltoupdate);
         }
 
         if ($isseries) {
@@ -2272,8 +2254,7 @@ class apibridge {
             'withacl' => true,
             'onlyWithWriteAccess' => true,
         ];
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->runWithRoles(array($ownerrole))->getAll($params);
+        $response = $this->api->opencastapi->seriesApi->runWithRoles(array($ownerrole))->getAll($params);
         if ($response['code'] == 200) {
             $series = $response['body'];
             return array_column($series, 'identifier');
@@ -2306,8 +2287,7 @@ class apibridge {
             'withpublications' => true,
             'onlyWithWriteAccess' => true,
         ];
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->runWithRoles(array($ownerrole))->getAll($params);
+        $response = $this->api->opencastapi->eventsApi->runWithRoles(array($ownerrole))->getAll($params);
         if ($response['code'] == 200) {
             if (!$videos = $response['body']) {
                 return $result;
@@ -2340,8 +2320,7 @@ class apibridge {
      * @throws \moodle_exception
      */
     public function update_series_metadata($seriesid, $metadata) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->updateMetadata($seriesid, $metadata);
+        $response = $this->api->opencastapi->seriesApi->updateMetadata($seriesid, $metadata);
         if ($response['code'] == 200) {
             return true;
         };
@@ -2371,8 +2350,7 @@ class apibridge {
         // If the given workflow was not found, return.
         $withoperations = false;
         $withconfiguration = true;
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->workflowsApi->get($workflowid, $withoperations, $withconfiguration);
+        $response = $this->api->opencastapi->workflowsApi->get($workflowid, $withoperations, $withconfiguration);
         if ($response['code'] != 200) {
             return false;
         }
@@ -2485,10 +2463,8 @@ class apibridge {
      * @return bool
      */
     private function imported_series_acl_change($courseid, $seriesid, $userid) {
-
         // Reading acl from opencast server.
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->getAcl($seriesid);
+        $response = $this->api->opencastapi->seriesApi->getAcl($seriesid);
         $defaultacl = $response['body'];
         $acl = $defaultacl;
         // When the acl could not be retreived.
@@ -2532,7 +2508,7 @@ class apibridge {
         }
 
         // Update the acls.
-        $response = $api->opencastapi->seriesApi->updateAcl($seriesid, $acltoupdate);
+        $response = $this->api->opencastapi->seriesApi->updateAcl($seriesid, $acltoupdate);
 
         // Finally we return the result of that request to the server.
         return ($response['code'] == 200);
@@ -2663,8 +2639,7 @@ class apibridge {
         }
 
         // Get event acls.
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->eventsApi->getAcl($eventidentifier);
+        $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
 
         // Preparing dummy event to handle acls properly.
@@ -2686,7 +2661,7 @@ class apibridge {
         }
 
         // Update acls.
-        $response = $api->opencastapi->eventsApi->updateAcl($eventidentifier, $acl);
+        $response = $this->api->opencastapi->eventsApi->updateAcl($eventidentifier, $acl);
 
         if ($response['code'] >= 400) {
             return false;
@@ -2724,8 +2699,7 @@ class apibridge {
         }
 
         // Get series acls.
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastapi->seriesApi->getAcl($seriesid);
+        $response = $this->api->opencastapi->seriesApi->getAcl($seriesid);
         $jsonacl = $response['body'];
         $seriesacls = $jsonacl;
 
@@ -2747,7 +2721,7 @@ class apibridge {
         }
 
         // Update the acls.
-        $response = $api->opencastapi->seriesApi->updateAcl($seriesid, $acl);
+        $response = $this->api->opencastapi->seriesApi->updateAcl($seriesid, $acl);
 
         // Finally, we return boolean if series' new acls are in place.
         return ($response['code'] == 200);
@@ -2788,8 +2762,7 @@ class apibridge {
      * @throws opencast_connection_exception
      */
     public function get_event_media_package($eventid) {
-        $api = api::get_instance($this->ocinstanceid);
-        $response = $api->opencastrestclient->performGet("/api/episode/{$eventid}");
+        $response = $this->api->opencastrestclient->performGet("/api/episode/{$eventid}");
         $code = $response['code'];
         if ($code === 0) {
             throw new opencast_connection_exception('connection_failure', 'block_opencast');
