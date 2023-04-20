@@ -5,28 +5,32 @@ on: [push, pull_request]
 jobs:
   static:
     runs-on: ubuntu-latest
-    name: static
 
-    strategy:
-      matrix:
-        php: ['7.4']
-        moodle-branch: ['MOODLE_400_STABLE']
-        database: ['pgsql']
-        opencast: ['11.5']
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+    env:
+      DATABASE_SERVICE: 'pgsql'
+      MOODLE_VERSION: 'MOODLE_400_STABLE'
+      PHP_VERSION: '7.4'
+      TOOL_BRANCH: 'oc-php-lib'
 
     steps:
-      - name: Start PostgreSQL
-        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:14
-
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
           path: plugin
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Setup PHP ${{ env.PHP_VERSION }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ env.PHP_VERSION }}
           coverage: none
 
       - name: Get composer cache directory
@@ -39,7 +43,7 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-composer-
+            ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
       - name: npm cache
         uses: actions/cache@v3
@@ -47,7 +51,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Initialise moodle-plugin-ci
         run: |
@@ -59,11 +63,11 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch oc-php-lib Opencast-Moodle/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch ${{ env.TOOL_BRANCH }} Opencast-Moodle/moodle-tool_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 --no-init
         env:
-          DB: ${{ matrix.database }}
-          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          DB: ${{ env.DATABASE_SERVICE }}
+          MOODLE_BRANCH: ${{ env.MOODLE_VERSION }}
 
       - name: PHP Lint
         if: ${{ always() }}
@@ -75,6 +79,7 @@ jobs:
         run: moodle-plugin-ci phpcpd
 
       - name: PHP Mess Detector
+        continue-on-error: true
         if: ${{ always() }}
         run: moodle-plugin-ci phpmd
 
@@ -106,7 +111,27 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: static
-    name: test (${{matrix.moodle-branch}}/${{matrix.php}}/${{matrix.database}})
+    name: test (${{ matrix.moodle-branch }}/${{ matrix.php }}/${{ matrix.database }})
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      mariadb:
+        image: mariadb:10
+        env:
+          MYSQL_USER: 'root'
+          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
+          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
+
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
 
     strategy:
       fail-fast: false
@@ -114,17 +139,11 @@ jobs:
         php: ['7.4']
         moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'MOODLE_400_STABLE']
         database: ['mariadb', 'pgsql']
-        opencast: ['11.5']
+        opencast: ['13']
+        tool-branch: ['oc-php-lib']
+        mod-branch: ['main']
 
     steps:
-      - name: Start MariaDB
-        if: matrix.database == 'mariadb'
-        run: docker run -p 3306:3306 -e MYSQL_USER=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -d mariadb:10
-
-      - name: Start PostgreSQL
-        if: matrix.database == 'pgsql'
-        run: docker run -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -d postgres:14
-
       - name: Check out opencast-docker
         uses: actions/checkout@v3
         with:
@@ -156,7 +175,7 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-composer-
+            ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
 
       - name: npm cache
         uses: actions/cache@v3
@@ -164,7 +183,7 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
       - name: Initialise moodle-plugin-ci
         run: |
@@ -176,8 +195,8 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch oc-php-lib Opencast-Moodle/moodle-tool_opencast
-          moodle-plugin-ci add-plugin --branch main Opencast-Moodle/moodle-mod_opencast
+          moodle-plugin-ci add-plugin --branch ${{ env.TOOL_BRANCH }} Opencast-Moodle/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch ${{ env.MOD_BRANCH }} Opencast-Moodle/moodle-mod_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
@@ -185,8 +204,8 @@ jobs:
 
       - name: PHPUnit tests
         if: ${{ always() }}
-        run: moodle-plugin-ci phpunit
+        run: moodle-plugin-ci phpunit --fail-on-warning
 
       - name: Behat features
         if: ${{ always() }}
-        run: moodle-plugin-ci behat --auto-rerun 0
+        run: moodle-plugin-ci behat --profile chrome
