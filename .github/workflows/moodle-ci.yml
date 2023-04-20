@@ -195,8 +195,8 @@ jobs:
 
       - name: Install moodle-plugin-ci
         run: |
-          moodle-plugin-ci add-plugin --branch ${{ env.TOOL_BRANCH }} Opencast-Moodle/moodle-tool_opencast
-          moodle-plugin-ci add-plugin --branch ${{ env.MOD_BRANCH }} Opencast-Moodle/moodle-mod_opencast
+          moodle-plugin-ci add-plugin --branch ${{ matrix.tool-branch }} Opencast-Moodle/moodle-tool_opencast
+          moodle-plugin-ci add-plugin --branch ${{ matrix.mod-branch }} Opencast-Moodle/moodle-mod_opencast
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
