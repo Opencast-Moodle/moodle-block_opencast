@@ -982,7 +982,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Import videos: Duplicate workflow.
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api');
+            // The default duplicate-event workflow has archive tag, therefore it needs to be adjusted here as well.
+            // As this setting has used api tag for the duplicate event, it is now possible to have multiple tags in here.
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api,archive');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();

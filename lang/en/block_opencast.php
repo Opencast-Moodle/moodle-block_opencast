@@ -834,5 +834,17 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// Strings for duplicated events visibility change.
+$string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_duplicated_event_acl_change'] = 'The visibility change for the duplicated event failed.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_workflow_id'] = 'The duplicate workflow id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['errorduplicatedeventvisibilitytaskretry'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} Will try to start the workflow again by the next cron job.';
+$string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a}
+    After trying serveral time the task will be terminated now.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
