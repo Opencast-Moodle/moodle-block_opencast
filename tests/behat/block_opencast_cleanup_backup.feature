@@ -62,7 +62,7 @@ Feature: Restore courses as Teacher
     And I press "Save changes"
 
   @javascript
-  Scenario: Teachers should be able to import a series in the duplicate mode and cleanup LTI modules
+  Scenario: Teachers should be able to import a series in duplicate mode and cleanup LTI modules, Admin should be notified on errors
     Given I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
     When I click on "Go to overview..." "link"
@@ -102,3 +102,16 @@ Feature: Restore courses as Teacher
     And I open "Test video" actions menu
     And I choose "Edit settings" in the open action menu
     Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
+    And I run all adhoc tasks
+    And the following config values are set as admin:
+      | config     | value | plugin         |
+      | apiurl_1   |       | tool_opencast  |
+    And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
+    And the following config values are set as admin:
+      | config     | value                | plugin         |
+      | apiurl_1   |  http://testapi:8080 | tool_opencast  |
+    And I reload the page
+    When I click on ".popover-region-notifications" "css_element"
+    Then I should see "Opencast imported modules cleanup task notification"
+    When I click on ".all-notifications .notification" "css_element"
+    Then I should see "Cleanup job with workflow id:"
