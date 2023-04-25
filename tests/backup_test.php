@@ -157,6 +157,7 @@ class backup_test extends advanced_testcase {
      * @param \stdClass $taskrecord
      */
     private function execute_adhoc_task($taskrecord) {
+        global $CFG;
 
         $task = new \block_opencast\task\process_duplicate_event();
         $task->set_id($taskrecord->id);
@@ -170,7 +171,13 @@ class backup_test extends advanced_testcase {
 
         $this->preventResetByRollback();
         ob_start();
-        cron_run_inner_adhoc_task($task);
+        
+        // In Moodle 4.2 version cron_run_inner_adhoc_task is depricated.
+        if ($CFG->version < 2023042400) {
+            cron_run_inner_adhoc_task($task);
+        } else {
+            \core\cron::run_inner_adhoc_task($task);
+        }
         return ob_get_clean();
     }
 
