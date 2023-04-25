@@ -1,6 +1,6 @@
 name: Moodle Plugin CI Testing Moodle 4.2
 
-on: workflow_dispatch
+on: push
 
 jobs:
   static:
