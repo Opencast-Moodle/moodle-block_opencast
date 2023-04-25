@@ -171,7 +171,7 @@ class backup_test extends advanced_testcase {
 
         $this->preventResetByRollback();
         ob_start();
-        
+
         // In Moodle 4.2 version cron_run_inner_adhoc_task is depricated.
         if ($CFG->version < 2023042400) {
             cron_run_inner_adhoc_task($task);
