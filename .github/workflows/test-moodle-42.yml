@@ -18,7 +18,7 @@ jobs:
     env:
       DATABASE_SERVICE: 'pgsql'
       MOODLE_VERSION: 'MOODLE_402_STABLE'
-      PHP_VERSION: '7.4'
+      PHP_VERSION: '8.0.2'
       TOOL_BRANCH: 'oc-php-lib'
 
     steps:
@@ -136,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4']
+        php: ['8.0.2']
         moodle-branch: ['MOODLE_400_STABLE', 'MOODLE_401_STABLE', 'MOODLE_402_STABLE']
         database: ['pgsql']
         opencast: ['11.5']
