@@ -111,15 +111,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'MOODLE_400_STABLE']
+        php: ['7.4', '8.0', '8.1']
+        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'MOODLE_400_STABLE', 'MOODLE_401_STABLE']
         database: ['mariadb', 'pgsql']
         opencast: ['13.5']
-        include:
-          - php: '8.0'
-            moodle-branch: 'MOODLE_401_STABLE'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_401_STABLE'
+        exclude:
+          - moodle-branch: 'MOODLE_39_STABLE'
+            php: '8.0'
+          - moodle-branch: 'MOODLE_39_STABLE'
+            php: '8.1'
+          - moodle-branch: 'MOODLE_310_STABLE'
+            php: '8.0'
+          - moodle-branch: 'MOODLE_310_STABLE'
+            php: '8.1'
+          - moodle-branch: 'MOODLE_311_STABLE'
+            php: '8.1'
+          - moodle-branch: 'MOODLE_400_STABLE'
+            php: '8.1'
 
     steps:
       - name: Start MariaDB
