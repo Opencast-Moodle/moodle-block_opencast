@@ -9,10 +9,10 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.4']
-        moodle-branch: ['MOODLE_400_STABLE']
+        php: ['8.1']
+        moodle-branch: ['MOODLE_401_STABLE']
         database: ['pgsql']
-        opencast: ['11.5']
+        opencast: ['13.5']
 
     steps:
       - name: Start PostgreSQL
@@ -114,7 +114,12 @@ jobs:
         php: ['7.4']
         moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'MOODLE_400_STABLE']
         database: ['mariadb', 'pgsql']
-        opencast: ['11.5']
+        opencast: ['13.5']
+        include:
+          - php: '8.0'
+            moodle-branch: 'MOODLE_401_STABLE'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_401_STABLE'
 
     steps:
       - name: Start MariaDB
