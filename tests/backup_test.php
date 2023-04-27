@@ -37,7 +37,10 @@ use tool_opencast\seriesmapping;
 global $CFG;
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-require_once($CFG->dirroot . '/lib/cronlib.php');
+// In Moodle 4.2 version /lib/cronlib.php no longer exists, instead \core\cron class must be used.
+if ($CFG->version < 2023042400) {
+    require_once($CFG->dirroot . '/lib/cronlib.php');
+}
 require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
 
 /**
