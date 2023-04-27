@@ -137,7 +137,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.0', '8.1', '8.2']
+        php: ['8.0', '8.1']
         moodle-branch: ['MOODLE_401_STABLE', 'MOODLE_402_STABLE']
         database: ['pgsql']
         opencast: ['13.5']
