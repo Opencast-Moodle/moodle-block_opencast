@@ -69,7 +69,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             // and the input value is not set via an upgrade, therefore, we would need to introduce a new
             // way of extracting defaults and put it as its value.
             extractDefaults(transcriptionflavorinput);
-            // console.log(JSON.parse(transcriptionflavorinput.val()));
             var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
                 data: JSON.parse(transcriptionflavorinput.val()),
                 layout: "fitColumns",
