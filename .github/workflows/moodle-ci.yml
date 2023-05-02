@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   call-moodle-ci-workflow:
-    uses: Opencast-Moodle/moodle-block_opencast/.github/workflows/moodle-ci@master
+    uses: Opencast-Moodle/moodle-block_opencast/.github/workflows/moodle-ci.yml@master
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
