@@ -11,4 +11,6 @@ jobs:
     uses: Opencast-Moodle/moodle-workflows-opencast/.github/workflows/moodle-ci.yml@master
     with:
       requires-tool-plugin: true
+      branch-tool-plugin: 'Release_v4.0'
       requires-mod-plugin: true
+      branch-mod-plugin: 'Release_v4.0'
