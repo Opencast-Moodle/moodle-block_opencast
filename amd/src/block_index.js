@@ -30,8 +30,29 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
          */
         window.liveUpdateInterval = null;
         window.liveUpdateItemsWithError = [];
+        window.liveUpdateState = null;
 
-        var initWorkflowModal = function(ocinstanceid, courseid, langstrings) {
+        var pauseLiveUpdate = function(liveupdate) {
+            if (!liveupdate.enabled) {
+                return;
+            }
+            if (window.liveUpdateInterval !== null) {
+                clearInterval(window.liveUpdateInterval);
+                window.liveUpdateState = 'paused';
+            }
+        };
+
+        var resumeLiveUpdate = function(ocinstanceid, contextid, liveupdate) {
+            if (!liveupdate.enabled) {
+                return;
+            }
+            if (window.liveUpdateState == 'paused') {
+                initLiveUpdate(ocinstanceid, contextid, liveupdate.timeout);
+                window.liveUpdateState = 'resumed';
+            }
+        };
+
+        var initWorkflowModal = function(ocinstanceid, courseid, langstrings, contextid, liveupdate) {
             if (document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
                 var privacyinfohtml = null;
@@ -70,32 +91,48 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     var workflowconfigpaneldiv = '<div id="workflowconfigpaneldiv" class="d-none">' +
                         '<strong>' + langstrings[8] + '</strong>' +
                         '<iframe id="config-frame" ' +
-                        'class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts" src="">' +
+                        'class="w-100 mh-100 m-0 p-0 border-0" sandbox="allow-forms allow-scripts">' +
                         '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
 
+                    var body = '<form id="startWorkflowForm" method="post" action="' +
+                        url.relativeUrl('blocks/opencast/startworkflow.php', {
+                            'ocinstanceid': ocinstanceid,
+                            'courseid': courseid,
+                            'videoid': clickedVideo.data('id')
+                        }) + '"><div class="form-group">' +
+                        '<p>' + langstrings[6] + '</p>' +
+                        select +
+                        workflowdescdiv +
+                        privacynoticediv +
+                        workflowconfigpaneldiv +
+                        '</div>' +
+                        '</form>';
+    
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
                         title: langstrings[5],
-                        body: '<form id="startWorkflowForm" method="post" action="' +
-                            url.relativeUrl('blocks/opencast/startworkflow.php', {
-                                'ocinstanceid': ocinstanceid,
-                                'courseid': courseid,
-                                'videoid': clickedVideo.data('id')
-                            }) + '"><div class="form-group">' +
-                            '<p>' + langstrings[6] + '</p>' +
-                            select +
-                            workflowdescdiv +
-                            privacynoticediv +
-                            workflowconfigpaneldiv +
-                            '</form>'
+                        body: body
                     }, undefined)
                         .then(function(modal) {
+                            // Pause the live update if it is running.
+                            pauseLiveUpdate(liveupdate);
                             modal.setSaveButtonText(langstrings[5]);
                             var root = modal.getRoot();
                             root.on(ModalEvents.save, function(e) {
-                                document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
-                                // Handle form submission after receiving data.
-                                e.preventDefault();
+                                // Handle form submission after receiving data, if the workflow has config panel.
+                                if ($('#config-frame').is(':visible')) {
+                                    document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
+                                    e.preventDefault();
+                                } else {
+                                    // If the workflow has no config panel, we submit it directly.
+                                    $('#startWorkflowForm').submit();
+                                }
+                            });
+                            root.on(ModalEvents.hidden, function() {
+                                // Resume the live update if it was paused.
+                                resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
+                                // Destroy when hidden/closed.
+                                modal.destroy();
                             });
 
                             // Show description for initial value.
@@ -176,7 +213,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             });
         };
 
-        var initReportModal = function(ocinstanceid, courseid, langstrings) {
+        var initReportModal = function(ocinstanceid, courseid, langstrings, contextid, liveupdate) {
             $('.report-problem').on('click', function(e) {
                 e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
@@ -196,6 +233,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         '</div></form>'
                 })
                     .then(function(modal) {
+                        // Pause the live update if it is running.
+                        pauseLiveUpdate(liveupdate);
                         modal.setSaveButtonText(langstrings[4]);
                         var root = modal.getRoot();
                         root.on(ModalEvents.save, function(e) {
@@ -206,6 +245,12 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 $('#messageValidation').removeClass('d-none');
                             }
                             e.preventDefault();
+                        });
+                        root.on(ModalEvents.hidden, function() {
+                            // Resume the live update if it was paused.
+                            resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
+                            // Destroy when hidden/closed.
+                            modal.destroy();
                         });
                         modal.show();
                         return;
@@ -247,7 +292,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     for (var uploadingItem of uploadingItems) {
                         liveUpdatePerformAjax('uploading', ocinstanceid, contextid, uploadingItem, reloadtimeout);
                     }
-                }, 1000, ocinstanceid, contextid, url, reloadtimeout);
+                }, 5000, ocinstanceid, contextid, url, reloadtimeout);
             }
         };
 
@@ -414,8 +459,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 }
             ];
             str.get_strings(strings).then(function(results) {
-                initWorkflowModal(ocinstanceid, courseid, results);
-                initReportModal(ocinstanceid, courseid, results);
+                initWorkflowModal(ocinstanceid, courseid, results, contextid, liveupdate);
+                initReportModal(ocinstanceid, courseid, results, contextid, liveupdate);
                 return;
             }).catch(Notification.exception);
             window.addEventListener('message', function(event) {
