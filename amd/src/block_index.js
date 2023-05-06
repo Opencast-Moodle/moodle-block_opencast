@@ -107,7 +107,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         workflowconfigpaneldiv +
                         '</div>' +
                         '</form>';
-    
+
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
                         title: langstrings[5],
