@@ -305,6 +305,31 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
 } else {
     if ($workflowsavailable) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
+
+        // Workflow Privacy Notice.
+        if (!empty(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid))) {
+            $privacynoticetitle = get_config('block_opencast', 'swprivacynoticetitle_' . $ocinstanceid);
+            if (empty($privacynoticetitle)) {
+                $privacynoticetitle = get_string('privacynoticedefaulttitle', 'block_opencast');
+            }
+            $targetedworkflows = array();
+            $swprivacynoticewfds = get_config('block_opencast', 'swprivacynoticewfds_' . $ocinstanceid);
+            if (!empty($swprivacynoticewfds)) {
+                $targetedworkflows = explode(',', $swprivacynoticewfds);
+                $targetedworkflows = array_map('trim', $targetedworkflows);
+            }
+            $workflowprivacynoticediv = html_writer::start_tag('div', array('class' => 'd-none', 'id' => 'workflowprivacynotice'));
+            $workflowprivacynoticediv .= html_writer::tag('p', $privacynoticetitle, array('id' => 'swprivacynoticetitle'));
+            $workflowprivacynoticediv .= html_writer::div(
+                format_text(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid), FORMAT_HTML, []),
+                '',
+                array('id' => 'swprivacynoticeinfotext')
+            );
+            $workflowprivacynoticediv .= html_writer::tag('p',
+                json_encode($targetedworkflows), array('id' => 'swprivacynoticewfds'));
+            $workflowprivacynoticediv .= html_writer::end_tag('div');
+            echo $workflowprivacynoticediv;
+        }
     }
 }
 

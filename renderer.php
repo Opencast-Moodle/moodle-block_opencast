@@ -1293,4 +1293,32 @@ class block_opencast_renderer extends plugin_renderer_base {
         $context->downloadblanktarget = $downloadblanktarget;
         return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
+
+    /**
+     * Helper function to validate and close any missing tags in a html string.
+     * It is a sanity check and correction to ensure that a html string has all tags closed correctly.
+     *
+     * @param string $html The html string
+     * @return string The html string
+     */
+    public function close_tags_in_html_string($html) {
+        preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
+        $openedtags = $result[1];
+        preg_match_all('#</([a-z]+)>#iU', $html, $result);
+        $closedtags = $result[1];
+        $lenopened = count($openedtags);
+        if (count($closedtags) == $lenopened) {
+            return $html;
+        }
+        $openedtags = array_reverse($openedtags);
+        // Close tags.
+        for ($i = 0; $i < $lenopened; $i++) {
+            if (!in_array($openedtags[$i], $closedtags)) {
+                $html .= '</'.$openedtags[$i].'>';
+            } else {
+                unset($closedtags[array_search($openedtags[$i], $closedtags)]);
+            }
+        }
+        return $html;
+    }
 }
