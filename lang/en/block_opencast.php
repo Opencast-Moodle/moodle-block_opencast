@@ -781,7 +781,7 @@ $string['ltidownloadtranscription_desc'] = 'When enabled, the transcription down
     NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
 $string['transcription_flavor_key'] = 'Flavor key';
 $string['transcription_flavor_value'] = 'Flavor value';
-$string['transcription_flavor_delete'] = 'Delete flavor oprion pair';
+$string['transcription_flavor_delete'] = 'Delete flavor\'s option pair';
 $string['transcription_flavor_confirm_delete'] = 'Are you sure you want to delete this flavor option pair?';
 $string['addtranscriptionflavor'] = 'Add new flavor option';
 $string['transcriptionflavors'] = 'Transcription Service Types (Flavors)';
@@ -846,5 +846,23 @@ $string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing.
 $string['errorduplicatedeventvisibilitytaskretry'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} Will try to start the workflow again by the next cron job.';
 $string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a}
     After trying serveral time the task will be terminated now.';
+// New readonly metadata strings.
+$string['readonly_disabled_tooltip_text'] = 'Unable to set readonly option while it is set to be required.';
+$string['descriptionmdreadonly'] = 'Readonly';
+$string['descriptionmdreadonly_help'] = 'Please note that, if a field is set to be required, the readonly option will be disabled. That means a field can only be readonly or required at a time.';
+// String for privacy notice.
+$string['swprivacynoticedefaulttitle'] = 'Privacy Notice';
+$string['swprivacynotice_settingheader'] = 'Workflows Privacy Notice';
+$string['swprivacynotice_settingtitle'] = 'Workflow Privacy Notice Title';
+$string['swprivacynotice_settingtitle_desc'] = 'A title to be displayed in start workflow dialog. It is intended to be configurable in order to be adjusted by the users. When empty, default string is used.';
+$string['swprivacynotice_settinginfotext'] = 'Workflow Privacy Notice Info Text';
+$string['swprivacynotice_settinginfotext_desc'] = 'This input is used to provide information about privacy notice for workflows in start workflow dialog.<br><strong>NOTE:</strong> If empty, no notice will be displayed.';
+$string['swprivacynotice_settingwfds'] = 'Workflows Definition List';
+$string['swprivacynotice_settingwfds_desc'] = 'A comma separated list of workflow definitions, by which the privacy notice is displayed. When empty, the privacy notice will be displayed for all workflows.';
+$string['startworkflow_modal_description_title'] = 'Workflow Description';
+$string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel';
+// String for update metadata encoding.
+$string['updatemetadatawithoutencode'] = 'Disable extra encoding layer of event metadata during update';
+$string['updatemetadatawithoutencodedesc'] = 'During update metadata, fields including title and description will get encoded and be sent to the server in order to have a wider range of characters available.<br />When you are using older versions of Opencast like <b>verions 10.x</b> the machanism is a bit different, by selecting this setting you need to disabled the extra layer of encoding mechanism, to avoid any faulty titles and descriptions.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

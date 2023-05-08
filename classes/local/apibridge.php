@@ -2062,7 +2062,21 @@ class apibridge {
     public function update_event_metadata($eventidentifier, $metadata) {
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
-        $params['metadata'] = json_encode($metadata);
+        // Walking through metadata items to apply required changes.
+        array_walk($metadata, function (&$item) {
+            // Here we need to urlencode title and description, to be processed appropriately.
+            if ($item['id'] === 'title' || $item['id'] === 'description') {
+                $item['value'] = urlencode($item['value']);
+            }
+            $item = $item;
+        });
+        // Note that this change may not be working with Opencast 10.x versions.
+        // Therefore, we use a specific setting for this issue, to make it as backward compatible as possible.
+        $encodedmetadata = urlencode(json_encode($metadata));
+        if (get_config('block_opencast', 'updatemetadatawithoutencode_' . $this->ocinstanceid)) {
+            $encodedmetadata = json_encode($metadata);
+        }
+        $params['metadata'] = $encodedmetadata;
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
@@ -2307,6 +2321,14 @@ class apibridge {
     public function update_series_metadata($seriesid, $metadata) {
         $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
 
+        // Walking through metadata items to apply required changes.
+        array_walk($metadata, function (&$item) {
+            // Here we need to urlencode title and description, to be processed appropriately.
+            if ($item['id'] === 'title' || $item['id'] === 'description') {
+                $item['value'] = urlencode($item['value']);
+            }
+            $item = $item;
+        });
         $params['metadata'] = json_encode($metadata);
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);

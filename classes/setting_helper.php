@@ -109,7 +109,7 @@ class setting_helper {
             $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
         } else {
             $section = optional_param('section', null, PARAM_RAW);
-            $ocinstanceid = intval(ltrim($section, 'block_opencast_importvideossettings_'));
+            $ocinstanceid = intval(ltrim($section ?? '', 'block_opencast_importvideossettings_'));
         }
 
         // Do only if a workflow was set.
