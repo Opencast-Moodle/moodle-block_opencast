@@ -834,6 +834,10 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// New readonly metadata strings.
+$string['readonly_disabled_tooltip_text'] = 'Unable to set readonly option while it is set to be required.';
+$string['descriptionmdreadonly'] = 'Readonly';
+$string['descriptionmdreadonly_help'] = 'Please note that, if a field is set to be required, the readonly option will be disabled. That means a field can only be readonly or required at a time.';
 // String for privacy notice.
 $string['swprivacynoticedefaulttitle'] = 'Privacy Notice';
 $string['swprivacynotice_settingheader'] = 'Workflows Privacy Notice';

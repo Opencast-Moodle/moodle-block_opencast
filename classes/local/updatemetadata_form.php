@@ -93,7 +93,9 @@ class updatemetadata_form extends \moodleform {
                 $mform->setType($field->name, PARAM_TEXT);
             }
 
-            if ($field->required) {
+            if ($field->readonly) {
+                $mform->freeze($field->name);
+            } else if ($field->required) {
                 $mform->addRule($field->name, get_string('required'), 'required');
             }
 
