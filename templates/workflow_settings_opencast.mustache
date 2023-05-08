@@ -21,12 +21,14 @@
 
     Example context (json):
     {
+        "has_config_panel": true,
         "config_panel": "<div>...</div>",
         "parent_url": "http://mymoodle.de/blocks/opencast/workflowsettings.php",
         "parent_origin": "http://mymoodle.de",
         "language": "en"
     }
 }}
+{{#has_config_panel}}
 <!DOCTYPE html>
 <html lang="{{language}}">
 <head>
@@ -68,3 +70,4 @@ If you do, the external JavaScript code from the Opencast server can access mood
 </script>
 </body>
 </html>
+{{/has_config_panel}}
