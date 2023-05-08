@@ -781,7 +781,7 @@ $string['ltidownloadtranscription_desc'] = 'When enabled, the transcription down
     NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
 $string['transcription_flavor_key'] = 'Flavor key';
 $string['transcription_flavor_value'] = 'Flavor value';
-$string['transcription_flavor_delete'] = 'Delete flavor oprion pair';
+$string['transcription_flavor_delete'] = 'Delete flavor\'s option pair';
 $string['transcription_flavor_confirm_delete'] = 'Are you sure you want to delete this flavor option pair?';
 $string['addtranscriptionflavor'] = 'Add new flavor option';
 $string['transcriptionflavors'] = 'Transcription Service Types (Flavors)';
