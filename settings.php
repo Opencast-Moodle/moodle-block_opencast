@@ -354,6 +354,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('metadata', 'block_opencast'),
                     ''));
 
+            // Disable urlencode during metadata update for opencast v10.x compatibility.
+            $generalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/updatemetadatawithoutencode_' . $instance->id,
+                    get_string('updatemetadatawithoutencode', 'block_opencast'),
+                    get_string('updatemetadatawithoutencodedesc', 'block_opencast'), 0));
+
             $generalsettings->add($metadatasetting);
             $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' .
                 $instance->id, 'metadatatable_' . $instance->id,

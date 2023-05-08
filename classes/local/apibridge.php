@@ -2071,7 +2071,12 @@ class apibridge {
             $item = $item;
         });
         // Note that this change may not be working with Opencast 10.x versions.
-        $params['metadata'] = urlencode(json_encode($metadata));
+        // Therefore, we use a specific setting for this issue, to make it as backward compatible as possible.
+        $encodedmetadata = urlencode(json_encode($metadata));
+        if (get_config('block_opencast', 'updatemetadatawithoutencode_' . $this->ocinstanceid)) {
+            $encodedmetadata =  json_encode($metadata);
+        }
+        $params['metadata'] = $encodedmetadata;
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
