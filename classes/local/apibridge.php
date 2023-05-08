@@ -2074,7 +2074,7 @@ class apibridge {
         // Therefore, we use a specific setting for this issue, to make it as backward compatible as possible.
         $encodedmetadata = urlencode(json_encode($metadata));
         if (get_config('block_opencast', 'updatemetadatawithoutencode_' . $this->ocinstanceid)) {
-            $encodedmetadata =  json_encode($metadata);
+            $encodedmetadata = json_encode($metadata);
         }
         $params['metadata'] = $encodedmetadata;
         $api = api::get_instance($this->ocinstanceid);
