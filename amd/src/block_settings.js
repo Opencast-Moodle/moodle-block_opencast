@@ -53,6 +53,64 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'}
     ];
     str.get_strings(strings).then(function(jsstrings) {
+        // We need to check and apply the transcription section first,
+        // because it might be rendered in different sections (additional features)
+        var hastranscription = false;
+        var transcriptionflavorinput = $('#' + transcriptionflavorinputid);
+        if (transcriptionflavorinput.is(':visible')) {
+            hastranscription = true;
+            transcriptionflavorinput.parent().hide();
+            transcriptionflavorinput.parent().next().hide(); // Default value.
+        }
+        // Transcription flavor.
+        // We run this part if only the transcription is available.
+        if (hastranscription) {
+            // Because flavors are introduced in a way that it needs to take its value from the default,
+            // and the input value is not set via an upgrade, therefore, we would need to introduce a new
+            // way of extracting defaults and put it as its value.
+            extractDefaults(transcriptionflavorinput);
+            var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
+                data: JSON.parse(transcriptionflavorinput.val()),
+                layout: "fitColumns",
+                dataChanged: function(data) {
+                    data = data.filter(value => value.key && value.value);
+                    transcriptionflavorinput.val(JSON.stringify(data));
+                },
+                columns: [
+                    {title: jsstrings[15], field: "key", headerSort: false, editor: "input", widthGrow: 1},
+                    {title: jsstrings[16], field: "value", headerSort: false, editor: "input", widthGrow: 1},
+                    {
+                        title: "",
+                        width: 40,
+                        headerSort: false,
+                        hozAlign: "center",
+                        formatter: function() {
+                            return '<i class="icon fa fa-trash fa-fw"></i>';
+                        },
+                        cellClick: function(e, cell) {
+                            ModalFactory.create({
+                                type: ModalFactory.types.SAVE_CANCEL,
+                                title: jsstrings[17],
+                                body: jsstrings[18]
+                            })
+                                .then(function(modal) {
+                                    modal.setSaveButtonText(jsstrings[17]);
+                                    modal.getRoot().on(ModalEvents.save, function() {
+                                        cell.getRow().delete();
+                                    });
+                                    modal.show();
+                                    return;
+                                }).catch(Notification.exception);
+                        }
+                    }
+                ],
+            });
+
+            $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
+                transcriptionflavoroptions.addRow({'key': '', 'value': ''});
+            });
+        }
+
         // Style hidden input.
         var rolesinput = $('#' + rolesinputid);
         rolesinput.parent().hide();
@@ -70,10 +128,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         var metadataseriesinput = $('#' + metadataseriesinputid);
         metadataseriesinput.parent().hide();
         metadataseriesinput.parent().next().hide(); // Default value.
-
-        var transcriptionflavorinput = $('#' + transcriptionflavorinputid);
-        transcriptionflavorinput.parent().hide();
-        transcriptionflavorinput.parent().next().hide(); // Default value.
 
         var rolestable = new Tabulator("#rolestable_" + ocinstanceid, {
             data: JSON.parse(rolesinput.val()),
@@ -392,52 +446,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
-        // Transcription flavor.
-        // Because flavors are introduced in a way that it needs to take its value from the default,
-        // and the input value is not set via an upgrade, therefore, we would need to introduce a new
-        // way of extracting defaults and put it as its value.
-        extractDefaults(transcriptionflavorinput);
-        var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
-            data: JSON.parse(transcriptionflavorinput.val()),
-            layout: "fitColumns",
-            dataChanged: function(data) {
-                data = data.filter(value => value.key && value.value);
-                transcriptionflavorinput.val(JSON.stringify(data));
-            },
-            columns: [
-                {title: jsstrings[15], field: "key", headerSort: false, editor: "input", widthGrow: 1},
-                {title: jsstrings[16], field: "value", headerSort: false, editor: "input", widthGrow: 1},
-                {
-                    title: "",
-                    width: 40,
-                    headerSort: false,
-                    hozAlign: "center",
-                    formatter: function() {
-                        return '<i class="icon fa fa-trash fa-fw"></i>';
-                    },
-                    cellClick: function(e, cell) {
-                        ModalFactory.create({
-                            type: ModalFactory.types.SAVE_CANCEL,
-                            title: jsstrings[17],
-                            body: jsstrings[18]
-                        })
-                            .then(function(modal) {
-                                modal.setSaveButtonText(jsstrings[17]);
-                                modal.getRoot().on(ModalEvents.save, function() {
-                                    cell.getRow().delete();
-                                });
-                                modal.show();
-                                return;
-                            }).catch(Notification.exception);
-                    }
-                }
-            ],
-        });
-
-        $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
-            transcriptionflavoroptions.addRow({'key': '', 'value': ''});
-        });
-
         /**
          * Gets the default input value and replace it with actual value if it values are not initialised
          *
@@ -457,4 +465,3 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         return;
     }).catch(Notification.exception);
 };
-
