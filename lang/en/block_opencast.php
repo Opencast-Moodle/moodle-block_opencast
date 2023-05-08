@@ -845,5 +845,8 @@ $string['swprivacynotice_settingwfds'] = 'Workflows Definition List';
 $string['swprivacynotice_settingwfds_desc'] = 'A comma separated list of workflow definitions, by which the privacy notice is displayed. When empty, the privacy notice will be displayed for all workflows.';
 $string['startworkflow_modal_description_title'] = 'Workflow Description';
 $string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel';
+// String for update metadata encoding.
+$string['updatemetadatawithoutencode'] = 'Disable extra encoding layer of event metadata during update';
+$string['updatemetadatawithoutencodedesc'] = 'During update metadata, fields including title and description will get encoded and be sent to the server in order to have a wider range of characters available.<br />When you are using older versions of Opencast like <b>verions 10.x</b> the machanism is a bit different, by selecting this setting you need to disabled the extra layer of encoding mechanism, to avoid any faulty titles and descriptions.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
