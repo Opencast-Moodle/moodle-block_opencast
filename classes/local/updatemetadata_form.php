@@ -50,8 +50,14 @@ class updatemetadata_form extends \moodleform {
         $mform = $this->_form;
         $renderer = $PAGE->get_renderer('block_opencast');
 
+        $ocinstanceid = $this->_customdata['ocinstanceid'];
+
         foreach ($this->_customdata['metadata_catalog'] as $field) {
             $value = $this->extract_value($field->name);
+            // Make sure that the values are trimmed before using them.
+            if (is_array($value)) {
+                $value = array_map('trim', $value);
+            }
             $param = array();
             $attributes = array();
             if ($field->param_json) {
@@ -67,8 +73,16 @@ class updatemetadata_form extends \moodleform {
                         $this->try_get_string($field->name, 'block_opencast')),
                     'tags' => true
                 ];
+                // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
+                if ($field->name == 'creator' || $field->name == 'contributor') {
+                    // We merge param values with the suggestions, because param is already initialized.
+                    $param = array_merge($param,
+                        autocomplete_suggestion_helper::get_suggestions_for_creator_and_contributor($ocinstanceid));
+                }
                 foreach ($value as $val) {
-                    $param[$val] = $val;
+                    if (!in_array($val, $param)) {
+                        $param[$val] = $val;
+                    }
                 }
             }
 
@@ -117,7 +131,7 @@ class updatemetadata_form extends \moodleform {
         $mform->setType('courseid', PARAM_INT);
         $mform->addElement('hidden', 'video_identifier', $this->_customdata['identifier']);
         $mform->setType('video_identifier', PARAM_ALPHANUMEXT);
-        $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
+        $mform->addElement('hidden', 'ocinstanceid', $ocinstanceid);
         $mform->setType('ocinstanceid', PARAM_INT);
 
         if ($this->_customdata['redirectpage']) {
