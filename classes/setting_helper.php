@@ -70,10 +70,10 @@ class setting_helper {
     /**
      * Returns available workflows with the given tag.
      * @param int $ocinstanceid Opencast instance id.
-     * @param string $workflowtag
+     * @param string $workflowtags comma separated list of tags
      * @return array|opencast_connection_exception|\Exception|empty_configuration_exception|null
      */
-    public static function load_workflow_choices($ocinstanceid, $workflowtag) {
+    public static function load_workflow_choices($ocinstanceid, $workflowtags) {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
         if (during_initial_install()) {
@@ -85,7 +85,7 @@ class setting_helper {
 
         // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
         try {
-            return $apibridge->get_available_workflows_for_menu($workflowtag, true);
+            return $apibridge->get_available_workflows_for_menu($workflowtags, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
         } catch (opencast_connection_exception | empty_configuration_exception $e) {

@@ -382,7 +382,7 @@ $string['importvideos_settingmodeacl'] = 'ACL Change';
 $string['importvideos_errornotenabledorworking'] = 'The import videos feature is not enabled or not working';
 $string['importvideos_importbuttontitle'] = 'Import videos';
 $string['importvideos_importheading'] = 'Import videos from another course';
-$string['importvideos_importjobcreated'] = 'The import of the selected videos into this course was scheduled. This process will happen in the background. You do not need to wait on this page. As soon as the process is started, the videos will appear in the <em>Videos available in this course</em> section';
+$string['importvideos_importjobcreated'] = 'The import of the selected videos into this course was scheduled. This process will happen in the background. You do not need to wait on this page. As soon as the process is started, the videos will appear in the <em>Videos available in this course</em> section.<br><b>Notice:</b>A process of adjusting the visibility for the imported videos will also be executed right after the import process is completed, therefore it is suggested to give more time to the overall processing duration.';
 $string['importvideos_importjobaclchangedone'] = 'The import of the selected series with its videos into this course was successful. You can now access the videos from the list.';
 $string['importvideos_importjobaclchangeseriesfailed'] = 'Import failed, because the ACL change for selected series has failed.';
 $string['importvideos_importjobaclchangeseriesmappingfailed'] = 'Import failed, becasue mapping the series to the course has failed.';
@@ -834,6 +834,18 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// Strings for duplicated events visibility change.
+$string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_duplicated_event_acl_change'] = 'The visibility change for the duplicated event failed.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_workflow_id'] = 'The duplicate workflow id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['errorduplicatedeventvisibilitytaskretry'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} Will try to start the workflow again by the next cron job.';
+$string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a}
+    After trying serveral time the task will be terminated now.';
 // New readonly metadata strings.
 $string['readonly_disabled_tooltip_text'] = 'Unable to set readonly option while it is set to be required.';
 $string['descriptionmdreadonly'] = 'Readonly';

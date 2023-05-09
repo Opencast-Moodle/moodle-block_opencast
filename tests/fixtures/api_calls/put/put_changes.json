@@ -18,5 +18,8 @@
   },
   "/api/events/abcd-abcd-abcd-abcd/acl": {
     "http_code": 200
+  },
+  "/api/events/45fca7d0-c1e2-4601-bf12-6ccb3376a5f6/acl": {
+    "http_code": 204
   }
 }

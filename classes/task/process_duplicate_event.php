@@ -110,9 +110,20 @@ class process_duplicate_event extends \core\task\adhoc_task {
                 throw new \moodle_exception('error_workflow_not_exists', 'block_opencast', '', $a);
             }
 
-            // Set workflow configuration (in this case: the seriesID for the duplicated video).
+            // Set workflow configuration. It is necessary to set the following for default duplicate-event workflow.
+            $configuration['mpTitle'] = 'Duplicated Event';
+            $configuration['seriesId'] = $data->seriesid;
+            $configuration['startDateTime'] = (new \DateTime('now',
+                new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+            $configuration['numberOfEvents'] = "1";
+            $configuration['noCopySuffix'] = "false";
+            $sourcevideo = $apibridge->get_opencast_video($data->eventid);
+            if ($sourcevideo->error == false) {
+                $configuration['mpTitle'] = $sourcevideo->video->title;
+            }
+
             $params = [
-                'configuration' => json_encode((object)['seriesID' => $data->seriesid])
+                'configuration' => json_encode((object) $configuration)
             ];
 
             // Start workflow in Opencast and remember the workflow ID.
@@ -146,6 +157,20 @@ class process_duplicate_event extends \core\task\adhoc_task {
                         $DB->insert_record('block_opencast_ltiepisode_cu', $record);
                     }
                 }
+            }
+
+            // Now, we prepare and queue another adhoc task to change the visibility of the duplicated event.
+            if (is_number($ocworkflowid)) {
+                $task = new process_duplicated_event_visibility_change();
+
+                $visibiltytaskdata = (object)[
+                    'ocinstanceid' => $data->ocinstanceid,
+                    'courseid' => $course->id,
+                    'sourceeventid' => $data->eventid,
+                    'ocworkflowid' => $ocworkflowid
+                ];
+                $task->set_custom_data($visibiltytaskdata);
+                return \core\task\manager::queue_adhoc_task($task, true);
             }
 
         } catch (\Exception $e) {

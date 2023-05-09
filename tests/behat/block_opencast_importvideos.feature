@@ -84,3 +84,6 @@ Feature: Import videos as Teacher
     When I click on "Import videos and return to overview" "button"
     Then I should see "The import of the selected videos into this course was scheduled"
     And I run all adhoc tasks
+    # To run the visibility change for the duplicated video, we wait a second and the run the adhoc task again.
+    Then I wait "1" seconds
+    And I run all adhoc tasks
