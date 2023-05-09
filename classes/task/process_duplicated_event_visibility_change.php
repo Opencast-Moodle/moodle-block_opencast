@@ -36,9 +36,9 @@ namespace block_opencast\task;
 class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
 
     /** @var int max number of failed retries for one task */
-    const MAX_COUNT_FAILS = 5;
+    const MAX_COUNT_FAILS = 10;
     /** @var int max number of pending retries for one task */
-    const MAX_COUNT_PENDING = 60;
+    const MAX_COUNT_PENDING = 240;
     /** @var int max number of minutes to wait before next run */
     const WAITING_INTERVALS_MINUTES = 1;
     /** @var int task is completed */
