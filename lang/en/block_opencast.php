@@ -834,6 +834,12 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// Strings for cleanu imported modules notifications.
+$string['notificationcleanupimportedmodules_subj'] = 'Opencast imported modules cleanup task notification';
+$string['notificationcleanupimportedmodulesgeneralexception_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) failed and is removed. The exception message contains: {$a->exceptionmessage}';
+$string['notificationcleanupimportedmodulesexpired_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) has been removed, as we have waited for 5 days without success to get the duplicated episode ID from OC.';
+$string['notificationcleanupimportedmodulescleanupfailed_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) failed during the update of the episode activities and is removed.';
+$string['notificationcleanupimportedmodulesnoeposideid_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) was removed as the stored OC workflow does not exist or does not and will not hold a duplicated episode ID.';
 // Strings for duplicated events visibility change.
 $string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet.
     Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
