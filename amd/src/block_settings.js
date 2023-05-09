@@ -50,9 +50,68 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'transcription_flavor_key', component: 'block_opencast'},
         {key: 'transcription_flavor_value', component: 'block_opencast'},
         {key: 'transcription_flavor_delete', component: 'block_opencast'},
-        {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'}
+        {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'},
+        {key: 'readonly_disabled_tooltip_text', component: 'block_opencast'},
     ];
     str.get_strings(strings).then(function(jsstrings) {
+        // We need to check and apply the transcription section first,
+        // because it might be rendered in different sections (additional features)
+        var hastranscription = false;
+        var transcriptionflavorinput = $('#' + transcriptionflavorinputid);
+        if (transcriptionflavorinput.is(':visible')) {
+            hastranscription = true;
+            transcriptionflavorinput.parent().hide();
+            transcriptionflavorinput.parent().next().hide(); // Default value.
+        }
+        // Transcription flavor.
+        // We run this part if only the transcription is available.
+        if (hastranscription) {
+            // Because flavors are introduced in a way that it needs to take its value from the default,
+            // and the input value is not set via an upgrade, therefore, we would need to introduce a new
+            // way of extracting defaults and put it as its value.
+            extractDefaults(transcriptionflavorinput);
+            var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
+                data: JSON.parse(transcriptionflavorinput.val()),
+                layout: "fitColumns",
+                dataChanged: function(data) {
+                    data = data.filter(value => value.key && value.value);
+                    transcriptionflavorinput.val(JSON.stringify(data));
+                },
+                columns: [
+                    {title: jsstrings[15], field: "key", headerSort: false, editor: "input", widthGrow: 1},
+                    {title: jsstrings[16], field: "value", headerSort: false, editor: "input", widthGrow: 1},
+                    {
+                        title: "",
+                        width: 40,
+                        headerSort: false,
+                        hozAlign: "center",
+                        formatter: function() {
+                            return '<i class="icon fa fa-trash fa-fw"></i>';
+                        },
+                        cellClick: function(e, cell) {
+                            ModalFactory.create({
+                                type: ModalFactory.types.SAVE_CANCEL,
+                                title: jsstrings[17],
+                                body: jsstrings[18]
+                            })
+                                .then(function(modal) {
+                                    modal.setSaveButtonText(jsstrings[17]);
+                                    modal.getRoot().on(ModalEvents.save, function() {
+                                        cell.getRow().delete();
+                                    });
+                                    modal.show();
+                                    return;
+                                }).catch(Notification.exception);
+                        }
+                    }
+                ],
+            });
+
+            $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
+                transcriptionflavoroptions.addRow({'key': '', 'value': ''});
+            });
+        }
+
         // Style hidden input.
         var rolesinput = $('#' + rolesinputid);
         rolesinput.parent().hide();
@@ -70,10 +129,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         var metadataseriesinput = $('#' + metadataseriesinputid);
         metadataseriesinput.parent().hide();
         metadataseriesinput.parent().next().hide(); // Default value.
-
-        var transcriptionflavorinput = $('#' + transcriptionflavorinputid);
-        transcriptionflavorinput.parent().hide();
-        transcriptionflavorinput.parent().next().hide(); // Default value.
 
         var rolestable = new Tabulator("#rolestable_" + ocinstanceid, {
             data: JSON.parse(rolesinput.val()),
@@ -104,6 +159,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     formatter: function(cell) {
                         var input = document.createElement('input');
                         input.type = 'checkbox';
+                        input.style.cursor = 'pointer';
                         input.checked = cell.getValue();
                         input.addEventListener('click', function() {
                             cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
@@ -198,23 +254,62 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                                var checked = $(this).prop('checked');
+                                cell.getRow().update({'required': checked ? 1 : 0});
+                                // Make readonly disabled if this item is required.
+                                var readonlyelm = cell.getRow().getCell("readonly").getElement();
+                                var nodelist = readonlyelm.querySelectorAll('.readonly-checkbox');
+                                if (checked && nodelist.length) {
+                                    if (cell.getRow().getData()?.readonly) {
+                                        nodelist[0].click();
+                                    }
+                                    nodelist[0].setAttribute('title', jsstrings[19]);
+                                    nodelist[0].style.cursor = 'not-allowed';
+                                    nodelist[0].disabled = true;
+                                } else {
+                                    nodelist[0].removeAttribute('title');
+                                    nodelist[0].style.cursor = 'pointer';
+                                    nodelist[0].disabled = false;
+                                }
                             });
 
                             return input;
                         }
                 },
                 {
-                    title: jsstrings[11],
+                    title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return null;
+                            }
+                            var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
                             input.type = 'checkbox';
-                            input.checked = cell.getValue();
+                            input.style.cursor = 'pointer';
+                            input.classList.add('readonly-checkbox');
+                            input.checked = isrequired ? false : cell.getValue();
+                            if (isrequired) {
+                                input.setAttribute('title', jsstrings[19]);
+                                input.style.cursor = 'not-allowed';
+                                input.disabled = true;
+                            } else {
+                                input.removeAttribute('title');
+                                input.style.cursor = 'pointer';
+                                input.disabled = false;
+                            }
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                // Check if required is enabled.
+                                if (cell.getRow().getData()?.required) {
+                                    // If required is enabled, we disable this checkbox.
+                                    $(this).prop('checked', false);
+                                } else {
+                                    // Otherwise, we provide the checkbox with normal input.
+                                    cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                }
                             });
 
                             return input;
@@ -232,14 +327,17 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
+
+                            return input;
                         }
                 },
                 {
@@ -320,23 +418,62 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         function(cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'required': $(this).prop('checked') ? 1 : 0});
+                                var checked = $(this).prop('checked');
+                                cell.getRow().update({'required': checked ? 1 : 0});
+                                // Make readonly disabled if this item is required.
+                                var readonlyelm = cell.getRow().getCell("readonly").getElement();
+                                var nodelist = readonlyelm.querySelectorAll('.readonly-checkbox');
+                                if (checked && nodelist.length) {
+                                    if (cell.getRow().getData()?.readonly) {
+                                        nodelist[0].click();
+                                    }
+                                    nodelist[0].setAttribute('title', jsstrings[19]);
+                                    nodelist[0].style.cursor = 'not-allowed';
+                                    nodelist[0].disabled = true;
+                                } else {
+                                    nodelist[0].removeAttribute('title');
+                                    nodelist[0].style.cursor = 'pointer';
+                                    nodelist[0].disabled = false;
+                                }
                             });
 
                             return input;
                         }
                 },
                 {
-                    title: jsstrings[11],
+                    title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return null;
+                            }
+                            var isrequired = cell.getRow().getData()?.required;
                             var input = document.createElement('input');
                             input.type = 'checkbox';
-                            input.checked = cell.getValue();
+                            input.style.cursor = 'pointer';
+                            input.classList.add('readonly-checkbox');
+                            input.checked = isrequired ? false : cell.getValue();
+                            if (isrequired) {
+                                input.setAttribute('title', jsstrings[19]);
+                                input.style.cursor = 'not-allowed';
+                                input.disabled = true;
+                            } else {
+                                input.removeAttribute('title');
+                                input.style.cursor = 'pointer';
+                                input.disabled = false;
+                            }
                             input.addEventListener('click', function() {
-                                cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                // Check if required is enabled.
+                                if (cell.getRow().getData()?.required) {
+                                    // If required is enabled, we disable this checkbox.
+                                    $(this).prop('checked', false);
+                                } else {
+                                    // Otherwise, we provide the checkbox with normal input.
+                                    cell.getRow().update({'readonly': $(this).prop('checked') ? 1 : 0});
+                                }
                             });
 
                             return input;
@@ -354,14 +491,17 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
                         function(cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
-                                return;
+                                return null;
                             }
                             var input = document.createElement('input');
                             input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
+
+                            return input;
                         }
                 },
                 {
@@ -392,52 +532,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
-        // Transcription flavor.
-        // Because flavors are introduced in a way that it needs to take its value from the default,
-        // and the input value is not set via an upgrade, therefore, we would need to introduce a new
-        // way of extracting defaults and put it as its value.
-        extractDefaults(transcriptionflavorinput);
-        var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
-            data: JSON.parse(transcriptionflavorinput.val()),
-            layout: "fitColumns",
-            dataChanged: function(data) {
-                data = data.filter(value => value.key && value.value);
-                transcriptionflavorinput.val(JSON.stringify(data));
-            },
-            columns: [
-                {title: jsstrings[15], field: "key", headerSort: false, editor: "input", widthGrow: 1},
-                {title: jsstrings[16], field: "value", headerSort: false, editor: "input", widthGrow: 1},
-                {
-                    title: "",
-                    width: 40,
-                    headerSort: false,
-                    hozAlign: "center",
-                    formatter: function() {
-                        return '<i class="icon fa fa-trash fa-fw"></i>';
-                    },
-                    cellClick: function(e, cell) {
-                        ModalFactory.create({
-                            type: ModalFactory.types.SAVE_CANCEL,
-                            title: jsstrings[17],
-                            body: jsstrings[18]
-                        })
-                            .then(function(modal) {
-                                modal.setSaveButtonText(jsstrings[17]);
-                                modal.getRoot().on(ModalEvents.save, function() {
-                                    cell.getRow().delete();
-                                });
-                                modal.show();
-                                return;
-                            }).catch(Notification.exception);
-                    }
-                }
-            ],
-        });
-
-        $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
-            transcriptionflavoroptions.addRow({'key': '', 'value': ''});
-        });
-
         /**
          * Gets the default input value and replace it with actual value if it values are not initialised
          *
@@ -457,4 +551,3 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         return;
     }).catch(Notification.exception);
 };
-

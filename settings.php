@@ -177,6 +177,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'helpbtndescription_' . $instance->id, 'descriptionmdfd', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpdefaultable_' . $instance->id,
                 'helpbtndefaultable_' . $instance->id, 'descriptionmddefaultable', 'block_opencast'));
+            $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpreadonly_' . $instance->id,
+                'helpbtnreadonly_' . $instance->id, 'descriptionmdreadonly', 'block_opencast'));
 
             $rolessetting = new admin_setting_configtext('block_opencast/roles_' . $instance->id,
                 get_string('aclrolesname', 'block_opencast'),
@@ -353,6 +355,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_heading('block_opencast/metadata_header_' . $instance->id,
                     get_string('metadata', 'block_opencast'),
                     ''));
+
+            // Disable urlencode during metadata update for opencast v10.x compatibility.
+            $generalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/updatemetadatawithoutencode_' . $instance->id,
+                    get_string('updatemetadatawithoutencode', 'block_opencast'),
+                    get_string('updatemetadatawithoutencodedesc', 'block_opencast'), 0));
 
             $generalsettings->add($metadatasetting);
             $generalsettings->add(new admin_setting_configeditabletable('block_opencast/metadatatable_' .
@@ -752,6 +760,34 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $additionalsettings->hide_if('block_opencast/liveupdatereloadtimeout_' . $instance->id,
                 'block_opencast/liveupdateenabled_' . $instance->id, 'notchecked');
 
+            // Privacy notice display additional settings.
+            $additionalsettings->add(
+                new admin_setting_heading('block_opencast/swprivacynotice_header_' . $instance->id,
+                    get_string('swprivacynotice_settingheader', 'block_opencast'),
+                    ''));
+
+            $additionalsettings->add(
+                new admin_setting_confightmleditor('block_opencast/swprivacynoticeinfotext_' . $instance->id,
+                    get_string('swprivacynotice_settinginfotext', 'block_opencast'),
+                    get_string('swprivacynotice_settinginfotext_desc', 'block_opencast'), null));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/swprivacynoticewfds_' . $instance->id,
+                    get_string('swprivacynotice_settingwfds', 'block_opencast'),
+                    get_string('swprivacynotice_settingwfds_desc', 'block_opencast'), null));
+            // Providing hide_if for this setting.
+            $additionalsettings->hide_if('block_opencast/swprivacynoticewfds_' . $instance->id,
+                'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/swprivacynoticetitle_' . $instance->id,
+                    get_string('swprivacynotice_settingtitle', 'block_opencast'),
+                    get_string('swprivacynotice_settingtitle_desc', 'block_opencast'), null));
+            // Providing hide_if for this setting.
+            $additionalsettings->hide_if('block_opencast/swprivacynoticetitle_' . $instance->id,
+                    'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
+            // End of privacy notice.
+
             // Additional Settings.
             // Terms of use. Downlaod channel. Custom workflows channel. Support email.
             $additionalsettings->add(
@@ -982,7 +1018,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Import videos: Duplicate workflow.
-            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api');
+            // The default duplicate-event workflow has archive tag, therefore it needs to be adjusted here as well.
+            // As this setting has used api tag for the duplicate event, it is now possible to have multiple tags in here.
+            $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api,archive');
             if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
                 $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
