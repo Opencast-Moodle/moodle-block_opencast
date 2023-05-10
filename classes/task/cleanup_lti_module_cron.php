@@ -53,17 +53,28 @@ class cleanup_lti_module_cron extends \core\task\scheduled_task {
      */
     public function execute() {
         try {
-            // 1. Sync manually added LTI modules and add their enterie.
-            // This step is necessary to be performed first because the next step of cleaning up will take care of faulty entries.
-            mtrace('Step 1: Looking for manually added LTI modules...');
-            $unrecordedmodulesnum = ltimodulemanager::record_manually_added_lti_modules();
-            mtrace("... ($unrecordedmodulesnum) modules found and captured. ");
+            // 1. Update the existing records of LTI Modules.
+            mtrace('Step 1: Updating existing LTI modules...');
+            $updatedmodulesnum = ltimodulemanager::update_existing_lti_modules();
+            mtrace("... ($updatedmodulesnum) modules updated.");
 
             // 2. Evaluate and cleanup the existing lti module entries.
-            // This step is to check the validity of the existing lti module entries.
-            mtrace('Step 2: Cleaning up LTI modules...');
+            // This step is to cleaup existing LTI modules after update.
+            mtrace('Step 2: Cleaning up existing LTI modules...');
             $deletemodulesnum = ltimodulemanager::cleanup_lti_module_entries();
-            mtrace("... ($deletemodulesnum) modules deleted during cleanup process.");
+            mtrace("... ($deletemodulesnum) modules deleted after update.");
+            
+            // 3. Sync manually added LTI modules and add their enterie.
+            mtrace('Step 2: Looking for manually added LTI modules...');
+            $unrecordedmodulesnum = ltimodulemanager::record_manually_added_lti_modules();
+            mtrace("... ($unrecordedmodulesnum) modules found and captured.");
+
+            // 3. Evaluate and cleanup the added lti module entries.
+            // This step is to cleaup added LTI modules.
+            mtrace('Step 4: Final cleanup for the added LTI modules...');
+            $deletemodulesnum = ltimodulemanager::cleanup_lti_module_entries();
+            mtrace("... ($deletemodulesnum) modules deleted during final cleanup.");
+
         } catch (\moodle_exception $e) {
             mtrace('... cleanup process failed:');
             mtrace($e->getMessage());
