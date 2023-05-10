@@ -834,6 +834,9 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// Strings for cleanup lti modules.
+$string['processltimodulecleanup'] = 'Process Opencast Video LTI episode routine cleanup';
+$string['processltimodulecleanup_error'] = 'Something went wrong during LTI module cleanup process: {$a}';
 // Strings for cleanu imported modules notifications.
 $string['notificationcleanupimportedmodules_subj'] = 'Opencast imported modules cleanup task notification';
 $string['notificationcleanupimportedmodulesgeneralexception_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) failed and is removed. The exception message contains: {$a->exceptionmessage}';

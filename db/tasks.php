@@ -86,5 +86,14 @@ $tasks = array(
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
+    ),
+    array(
+        'classname' => 'block_opencast\task\cleanup_lti_module_cron',
+        'blocking' => 0,
+        'minute' => '59',
+        'hour' => '23',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
     )
 );
