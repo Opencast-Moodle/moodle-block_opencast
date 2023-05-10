@@ -63,7 +63,7 @@ class cleanup_lti_module_cron extends \core\task\scheduled_task {
             mtrace('Step 2: Cleaning up existing LTI modules...');
             $deletemodulesnum = ltimodulemanager::cleanup_lti_module_entries();
             mtrace("... ($deletemodulesnum) modules deleted after update.");
-            
+
             // 3. Sync manually added LTI modules and add their enterie.
             mtrace('Step 2: Looking for manually added LTI modules...');
             $unrecordedmodulesnum = ltimodulemanager::record_manually_added_lti_modules();
