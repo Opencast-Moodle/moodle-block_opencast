@@ -57,28 +57,28 @@ class autocomplete_suggestion_helper {
     }
 
     /**
-     * Get the fullname suggestions of the teachers in the course.
+     * Get the fullname suggestions of the teachers in the course based on the capabiltiy.
      *
      * @return array
      */
     private static function get_suggestions_from_course_teachers() {
-        global $COURSE, $DB;
+        global $COURSE;
+
+        // Getting the course context.
+        $context = \context_course::instance($COURSE->id);
+
+        // Getting course enrolled users (teachers) with the designated capability.
+        $teachers = get_enrolled_users($context, 'block/opencast:autocompleteteacherroles');
+
+        // If there is no teachers, we return empty array.
+        if (empty($teachers)) {
+            return [];
+        }
 
         // Initialize the array list to return.
         $suggestionlist = [];
 
-        // Get the role of teachers.
-        $role = $DB->get_record('role', array('shortname' => 'editingteacher'));
-
-        $context = \context_course::instance($COURSE->id);
-        // Get the teachers based on their role in the course context.
-        $teachers = get_role_users($role->id, $context);
-
-        // In case something went wrong, we return empty array.
-        if (!empty($teachers)) {
-            return $suggestionlist;
-        }
-
+        // Looping through the teachers list to get the fullname.
         foreach ($teachers as $teacher) {
             $teacherfullname = fullname($teacher);
             // Check if the fullname is valid or if it is not already existed.

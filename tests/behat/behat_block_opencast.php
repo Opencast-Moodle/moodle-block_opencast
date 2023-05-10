@@ -49,7 +49,9 @@ class behat_block_opencast extends behat_base {
             'init_api_workflow_definitions_duplicate_event.json', 'api_events_filter_seriesimport.json',
             'api_events_filter_seriesimport_overview.json',
             'api_events_acl_secondvideo.json', 'api_series_acl.json', 'api_series_acl2.json',
-            'api_workflow_definitions_all.json', 'api_series_three.json', 'api_events_filter_newseries.json'];
+            'api_workflow_definitions_all.json', 'api_series_three.json', 'api_events_filter_newseries.json',
+            'api_workflow_import_duplicate_with_workflowid.json', 'api_events_single_event_duplicated.json'
+        ];
         $apitestable = new api_testable();
         foreach ($files as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/get/" . $file);
@@ -86,7 +88,7 @@ class behat_block_opencast extends behat_base {
 
         // Add post request.
         $files = ['api_series_createseries.json', 'api_workflows_updatemetadata.json', 'api_workflows_startworkflow.json',
-            'api_workflows_updatemetadata_import.json'];
+            'api_workflows_updatemetadata_import.json', 'api_workflows_updatemetadata_import_change_visibility.json'];
         $apitestable = new api_testable();
         foreach ($files as $file) {
             $apicall = file_get_contents(__DIR__ . "/../fixtures/api_calls/post/" . $file);

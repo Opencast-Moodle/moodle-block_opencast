@@ -1809,17 +1809,17 @@ class apibridge {
     /**
      * Helperfunction to get the list of available workflows to be used in the plugin's settings.
      *
-     * @param string $tag If not empty the workflows are filtered according to this tag.
+     * @param string $stringtags comma separated list of tags. If not empty the workflows are filtered according to this tag.
      * @param bool $withnoworkflow Add a 'no workflow' item to the list of workflows.
      *
      * @return array Returns array of OC workflows.
      *               If the list of workflows can't be retrieved from Opencast, an array with a nice error message is returned.
      */
-    public function get_available_workflows_for_menu($tag = '', $withnoworkflow = false) {
+    public function get_available_workflows_for_menu($stringtags = '', $withnoworkflow = false) {
         // Get the workflow list.
         $tags = array();
-        if (!empty($tag)) {
-            $tags[] = $tag;
+        if (!empty($stringtags)) {
+            $tags = explode(',', $stringtags) ?? [];
         }
         $workflows = $this->get_existing_workflows($tags);
 
@@ -2076,7 +2076,21 @@ class apibridge {
     public function update_event_metadata($eventidentifier, $metadata) {
         $resource = '/api/events/' . $eventidentifier . '/metadata?type=dublincore/episode';
 
-        $params['metadata'] = json_encode($metadata);
+        // Walking through metadata items to apply required changes.
+        array_walk($metadata, function (&$item) {
+            // Here we need to urlencode title and description, to be processed appropriately.
+            if ($item['id'] === 'title' || $item['id'] === 'description') {
+                $item['value'] = urlencode($item['value']);
+            }
+            $item = $item;
+        });
+        // Note that this change may not be working with Opencast 10.x versions.
+        // Therefore, we use a specific setting for this issue, to make it as backward compatible as possible.
+        $encodedmetadata = urlencode(json_encode($metadata));
+        if (get_config('block_opencast', 'updatemetadatawithoutencode_' . $this->ocinstanceid)) {
+            $encodedmetadata = json_encode($metadata);
+        }
+        $params['metadata'] = $encodedmetadata;
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
 
@@ -2322,6 +2336,14 @@ class apibridge {
     public function update_series_metadata($seriesid, $metadata) {
         $resource = '/api/series/' . $seriesid . '/metadata?type=dublincore/series';
 
+        // Walking through metadata items to apply required changes.
+        array_walk($metadata, function (&$item) {
+            // Here we need to urlencode title and description, to be processed appropriately.
+            if ($item['id'] === 'title' || $item['id'] === 'description') {
+                $item['value'] = urlencode($item['value']);
+            }
+            $item = $item;
+        });
         $params['metadata'] = json_encode($metadata);
         $api = api::get_instance($this->ocinstanceid);
         $api->oc_put($resource, $params);
@@ -2812,5 +2834,68 @@ class apibridge {
         }
 
         return false;
+    }
+
+    /**
+     * Set the duplicated event's visiblity based on the original event's visibility.
+     * @param string $duplicatedeventid duplicated event identifier
+     * @param string $sourceeventid source event identifier
+     * @param int $courseid target course id
+     * @return bool whether the acl (visibility) is applied
+     */
+    public function set_duplicated_event_visibility($duplicatedeventid, $sourceeventid, $courseid) {
+        // Getting the duplicated video object.
+        $duplicatedvideo = $this->get_opencast_video($duplicatedeventid);
+        if ($duplicatedvideo->error || !$this->can_update_event_metadata($duplicatedvideo->video, $courseid, false)) {
+            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_PENDING;
+        }
+        // Getting the source video object.
+        $sourcevideo = $this->get_opencast_video($sourceeventid);
+        if ($sourcevideo->error || empty($sourcevideo->video->is_part_of)) {
+            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+        }
+        // Extracting source series.
+        $sourceseries = $sourcevideo->video->is_part_of;
+        // Get series mapping.
+        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
+            'series' => $sourceseries, 'isdefault' => '1'));
+        // Extracting source course id to get the inital visibiltiy of the source event.
+        if (!$mapping || !($sourcecourseid = $mapping->get('courseid'))) {
+            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+        }
+
+        // Now we decide the visibiltiy.
+        $targetvisibiltiy = \block_opencast_renderer::VISIBLE;
+        $sourcevisibility = $this->is_event_visible($sourceeventid, $sourcecourseid);
+        // Anything other than VISIBLE, we consider as HIDDEN.
+        if ($sourcevisibility !== \block_opencast_renderer::VISIBLE) {
+            $targetvisibiltiy = \block_opencast_renderer::HIDDEN;
+        }
+        // Grouping does not applying here, therefore we leave it empty.
+        $groups = [];
+        $event = new \block_opencast\local\event();
+        // Gathering acls for the duplicated event.
+        $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups);
+        $newacls = array_merge($newacls, $this->get_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups));
+        foreach ($newacls as $acl) {
+            $event->add_acl($acl->allow, $acl->action, $acl->role);
+        }
+
+        $resource = '/api/events/' . $duplicatedeventid . '/acl';
+        $params['acl'] = $event->get_json_acl();
+
+        $api = api::get_instance($this->ocinstanceid);
+        $api->oc_put($resource, $params);
+
+        if ($api->get_http_code() != 204) {
+            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_PENDING;
+        }
+
+        // Finally, when the acls are in place we run the update metadata.
+        if ($this->update_metadata($duplicatedeventid)) {
+            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_COMPLETED;
+        }
+
+        return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
     }
 }
