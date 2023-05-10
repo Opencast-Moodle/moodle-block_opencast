@@ -41,14 +41,14 @@ Feature: Cleanup and update the lti modules
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast series                 |
-      | Tool URL                 | https://moodle-opencast.opencast-niedersachsen.de/lti             |
+      | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
       | Default launch container | Embed, without blocks           |
     And I press "Save changes"
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast episode                |
-      | Tool URL                 | https://moodle-opencast.opencast-niedersachsen.de/lti             |
+      | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/player/index.html |
       | Default launch container | Embed, without blocks           |
     And I press "Save changes"
