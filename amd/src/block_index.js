@@ -423,7 +423,6 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 e.preventDefault();
                 var element = e.currentTarget;
                 var link = element.getAttribute('href');
-                console.log(link);
                 if (!link) {
                     str.get_string('directaccess_copy_no_link', 'block_opencast')
                         .done(function(result) {
@@ -441,9 +440,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 Toast.add(result);
                             })
                             .fail(Notification.exception);
-                    }
-                    ).catch();
-
+                        return;
+                    }).catch();
                     return;
                 } else {
                     str.get_string('directaccess_copytoclipboard_unavialable', 'block_opencast')
