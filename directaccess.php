@@ -115,7 +115,12 @@ if (!$result->error) {
         echo $OUTPUT->heading(get_string('directaccesstovideo', 'block_opencast'));
         echo $renderer->render_lti_form($ltiendpoint, $params);
 
-        $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
+        $waitingtime = 0;
+        if (defined('BEHAT_SITE_RUNNING')) {
+            $waitingtime = 2;
+        }
+
+        $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init', [$waitingtime]);
         echo $OUTPUT->footer();
 
     } else {

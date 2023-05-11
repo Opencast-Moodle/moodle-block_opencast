@@ -22,11 +22,13 @@
  */
 define(['jquery'], function($) {
 
-    /*
-    * Submits lti form
-    */
-    var init = function() {
-        $('#ltiLaunchForm').submit();
+    /**
+     * Submits lti form.
+     *
+     * @param {int} waitseconds The optional waiting time in seconds.
+     */
+    var init = function(waitseconds = 0) {
+        setTimeout(() => $('#ltiLaunchForm').submit(), waitseconds * 1000);
     };
     return {
         init: init
