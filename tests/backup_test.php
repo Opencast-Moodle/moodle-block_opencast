@@ -37,7 +37,10 @@ use tool_opencast\seriesmapping;
 global $CFG;
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-require_once($CFG->dirroot . '/lib/cronlib.php');
+// In Moodle 4.2 version /lib/cronlib.php no longer exists, instead \core\cron class must be used.
+if ($CFG->version < 2023042400) {
+    require_once($CFG->dirroot . '/lib/cronlib.php');
+}
 require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
 
 /**
@@ -157,6 +160,7 @@ class backup_test extends advanced_testcase {
      * @param \stdClass $taskrecord
      */
     private function execute_adhoc_task($taskrecord) {
+        global $CFG;
 
         $task = new \block_opencast\task\process_duplicate_event();
         $task->set_id($taskrecord->id);
@@ -170,7 +174,13 @@ class backup_test extends advanced_testcase {
 
         $this->preventResetByRollback();
         ob_start();
-        cron_run_inner_adhoc_task($task);
+
+        // In Moodle 4.2 version cron_run_inner_adhoc_task is depricated.
+        if ($CFG->version < 2023042400) {
+            cron_run_inner_adhoc_task($task);
+        } else {
+            \core\cron::run_inner_adhoc_task($task);
+        }
         return ob_get_clean();
     }
 
@@ -225,6 +235,7 @@ class backup_test extends advanced_testcase {
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
         set_config('importvideoscoreenabled_1', true, 'block_opencast');
+        set_config('importmode_1', 'duplication', 'block_opencast');
 
         // Create a course with block opencast.
         $generator = $this->getDataGenerator();
@@ -306,6 +317,7 @@ class backup_test extends advanced_testcase {
 
         // Setup the mockuped workflow again.
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
+        $apibridge->set_testdata('get_opencast_video', 'c0c8c98d-ad90-445c-b1be-be4944779a24', 'file');
 
         // The workflow exists now, but it is not started.
         $this->check_task_fail_with_error('error_workflow_not_started', 6);

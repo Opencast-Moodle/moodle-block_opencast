@@ -1,10 +1,12 @@
 {
-  "resource": "/api/workflows_event_identifier,workflow_definition_identifier",
+  "resource": "/api/workflows",
+  "status": 201,
   "params": {
     "event_identifier": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
-    "workflow_definition_identifier": "republish-metadata"
+    "workflow_definition_identifier": "republish-metadata",
+    "unique_request_identifier": "314922121"
   },
-  "response": {
+  "body": {
     "workflow_definition_identifier": "republish-metadata",
     "identifier": 314922121,
     "creator": "",

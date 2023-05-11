@@ -58,10 +58,10 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
-$api = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
 
 // Get series ID, create a new one if necessary.
-$seriesid = $api->get_stored_seriesid($courseid, true, $USER->id);
+$seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
 
 // Create lti customtool to redirect to Studio.
 $customtoolparams = [];
@@ -116,8 +116,8 @@ $customtoolparams[] = 'upload.seriesId=' . $seriesid;
 $customtool = '/studio?' . implode('&', $customtoolparams);
 // Create parameters.
 
-$consumerkey = $api->get_lti_consumerkey();
-$consumersecret = $api->get_lti_consumersecret();
+$consumerkey = $apibridge->get_lti_consumerkey();
+$consumersecret = $apibridge->get_lti_consumersecret();
 $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
 
 $renderer = $PAGE->get_renderer('block_opencast');

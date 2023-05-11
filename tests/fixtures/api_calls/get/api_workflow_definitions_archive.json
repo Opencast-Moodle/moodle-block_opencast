@@ -1,6 +1,7 @@
 {
   "resource": "/api/workflow-definitions?filter=tag:archive",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "identifier": "duplicate-event",
       "description": "",

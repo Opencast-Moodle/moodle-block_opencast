@@ -14,6 +14,7 @@ Feature: Add Opencast LTI series module as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config            | value                                                         | plugin         |
       | apiurl_1          | http://testapi:8080                                           | tool_opencast  |
@@ -33,6 +34,7 @@ Feature: Add Opencast LTI series module as Teacher
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast series                 |
+      # The url here is only designed for the test environment in github ci.
       | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
       | Default launch container | Embed, without blocks           |

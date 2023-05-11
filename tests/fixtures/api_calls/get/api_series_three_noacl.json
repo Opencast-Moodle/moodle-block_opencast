@@ -1,6 +1,7 @@
 {
-  "resource": "/api/series/84bab8de-5688-46a1-9af0-5ce9122eeb6a",
-  "response": {
+  "resource": "/api/series/84bab8de-5688-46a1-9af0-5ce9122eeb6a?withacl=false",
+  "status": 200,
+  "body": {
     "identifier": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
     "creator": "",
     "opt_out": false,

@@ -1,0 +1,6 @@
+{
+  "resource": "/api/events?filter=is_part_of:84bab8de-5688-46a1-9af0-5ce9122eeb6a&sort=start_date:DESC&sign=true&withacl=true&withmetadata=true&withpublications=true",
+  "status": 200,
+  "body": [
+  ]
+}

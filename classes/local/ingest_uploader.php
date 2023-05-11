@@ -26,8 +26,6 @@ namespace block_opencast\local;
 use block_opencast\opencast_connection_exception;
 use block_opencast\opencast_state_exception;
 use local_chunkupload\local\chunkupload_file;
-use tool_opencast\local\PolyfillCURLStringFile;
-
 /**
  * Uploads videos via ingest nodes.
  * @package    block_opencast
@@ -82,11 +80,7 @@ class ingest_uploader {
                     upload_helper::ensure_series_metadata($job, $apibridge);
                     $episodexml = self::create_episode_xml($job);
 
-                    if (version_compare(phpversion(), '8', '>=')) {
-                        $file = new \CURLStringFile($episodexml, 'dublincore-episode.xml', 'text/xml');
-                    } else {
-                        $file = new PolyfillCURLStringFile($episodexml, 'dublincore-episode.xml', 'text/xml');
-                    }
+                    $file = $apibridge->get_upload_xml_file('dublincore-episode.xml', $episodexml);
 
                     $mediapackage = $apibridge->ingest_add_catalog($job->mediapackage, 'dublincore/episode', $file);
                     mtrace('... added episode metadata');
@@ -194,11 +188,7 @@ class ingest_uploader {
                     $initialvisibility = visibility_helper::get_initial_visibility($job);
                     $aclxml = self::create_acl_xml($initialvisibility->roles, $job);
 
-                    if (version_compare(phpversion(), '8', '>=')) {
-                        $file = new \CURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml');
-                    } else {
-                        $file = new PolyfillCURLStringFile($aclxml, 'xacml-episode.xml', 'text/xml');
-                    }
+                    $file = $apibridge->get_upload_xml_file('xacml-episode.xml', $aclxml);
 
                     $mediapackage = $apibridge->ingest_add_attachment($job->mediapackage, 'security/xacml+episode', $file);
                     mtrace('... added acl');

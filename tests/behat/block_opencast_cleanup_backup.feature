@@ -14,6 +14,7 @@ Feature: Restore courses as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                             | value                                                         | plugin         |
       | apiurl_1                           | http://testapi:8080                                           | tool_opencast  |
@@ -27,6 +28,7 @@ Feature: Restore courses as Teacher
       | enablechunkupload_1                | 0                                                             | block_opencast |
       | workflow_roles_1                   | republish-metadata                                            | block_opencast |
       | importvideosenabled_1              | 1                                                             | block_opencast |
+      | importvideoscoreenabled_1          | 1                                                             | block_opencast |
       | importvideosmanualenabled_1        | 1                                                             | block_opencast |
       | importmode_1                       | duplication                                                   | block_opencast |
       | duplicateworkflow_1                | duplicate-event                                               | block_opencast |
@@ -41,6 +43,7 @@ Feature: Restore courses as Teacher
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast series                 |
+      # The url here is only designed for the test environment in github ci.
       | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
       | Default launch container | Embed, without blocks           |
@@ -48,6 +51,7 @@ Feature: Restore courses as Teacher
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast episode                |
+      # The url here is only designed for the test environment in github ci.
       | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/player/index.html |
       | Default launch container | Embed, without blocks           |

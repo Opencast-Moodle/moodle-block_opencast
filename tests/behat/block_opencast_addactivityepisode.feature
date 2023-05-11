@@ -14,6 +14,7 @@ Feature: Add Opencast Video Provider episode module as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                           | value                                                         | plugin         |
       | apiurl_1                         | http://testapi:8080                                           | tool_opencast  |

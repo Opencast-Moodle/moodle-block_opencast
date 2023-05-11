@@ -1,6 +1,7 @@
 {
-  "resource": "/api/workflow-definitions/duplicate-event?withconfigurationpanel=true",
-  "response": {
+  "resource": "/api/workflow-definitions/duplicate-event?withoperations=false&withconfigurationpanel=true",
+  "status": 200,
+  "body": {
     "identifier": "duplicate-event",
     "configuration_panel": "\n    \n      <div id=\"workflow-configuration\">\n        <fieldset>\n          <input\n            id=\"numberOfEvents\"\n            name=\"numberOfEvents\"\n            type=\"number\"\n            class=\"configField\"\n            onkeypress=\"return event.charCode > 47\"\n            oninput=\"checkValueInBounds()\"\n            min=\"1\"\n            value=\"1\"\n            max=\"25\"\n            \/>\n          <label for=\"numberOfEvents\">Number of Events<\/label>\n        <\/fieldset>\n      <\/div>\n\n      <script type=\"text\/javascript\">\n        function checkValueInBounds() {\n          var value = $('#numberOfEvents').val();\n          var max = $('#numberOfEvents').attr('max');\n          var min = $('#numberOfEvents').attr('min');\n          if (parseInt(value) < parseInt(min)) $('#numberOfEvents').val(min);\n          if (parseInt(value) > parseInt(max)) $('#numberOfEvents').val(max);\n        }\n      <\/script>\n    \n  ",
     "description": "",

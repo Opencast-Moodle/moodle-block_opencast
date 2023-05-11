@@ -128,7 +128,12 @@ class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
                 }
 
                 try {
-                    $apibridge = apibridge::get_instance($ocinstance->id);
+                    // We need to have a fresh apibridge instance when performing behat test, because we it to throw exceptions.
+                    $forcerenew = false;
+                    if (defined('BEHAT_SITE_RUNNING')) {
+                        $forcerenew = true;
+                    }
+                    $apibridge = apibridge::get_instance($ocinstance->id, $forcerenew);
                     $episodeid = $apibridge->get_duplicated_episodeid($workflow->ocworkflowid);
 
                     // If we have no chance to get an episode ID - not now and not if we postpone the job.
@@ -208,7 +213,7 @@ class cleanup_imported_episodes_cron extends \core\task\scheduled_task {
                         mtrace('  Cleanup job(s) for workflow ' . $workflow->ocworkflowid . ' finished successfully.');
                         continue;
                     }
-                } catch (\moodle_exception $e) {
+                } catch (\Exception $e) { // Exception throw must be of the generic type, because of using third party libraries.
                     mtrace('  Cleanup job(s) failed with an exception: ' . $e->getMessage());
                     // Remove the cleanup job.
                     $DB->delete_records('block_opencast_ltiepisode_cu',

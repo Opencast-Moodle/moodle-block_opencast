@@ -16,6 +16,7 @@ Feature: Import videos as Teacher
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | teacher1 | C2     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                      | value                                                         | plugin         |
       | apiurl_1                    | http://testapi:8080                                           | tool_opencast  |

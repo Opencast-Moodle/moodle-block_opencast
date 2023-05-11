@@ -139,6 +139,26 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
     }
 
     /**
+     * Simulate a call retrieves a video from Opencast.
+     * @param string $identifier Event id
+     * @param bool $withpublications If true, publications are included
+     * @param bool $withacl If true, ACLs are included
+     * @return \stdClass Video
+     */
+    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false) {
+        $result = new \stdClass();
+        $result->video = false;
+        $result->error = 0;
+
+        if (!$value = $this->get_testdata('get_opencast_video', $identifier)) {
+            return $result;
+        }
+
+        $result->video = json_decode($value);
+        return $result;
+    }
+
+    /**
      * Returns test videos of a series.
      * @param string $series
      * @param null $sortcolumns

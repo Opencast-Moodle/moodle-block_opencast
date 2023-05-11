@@ -20,6 +20,7 @@ Feature: Check and set autocompletion suggestions
       | teacher2 | C1     | teacher        |
       | student1 | C1     | student        |
       | manager1 | C1     | manager        |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
       | apiurl_1            | http://testapi:8080                                           | tool_opencast  |
@@ -43,7 +44,7 @@ Feature: Check and set autocompletion suggestions
   @javascript
   Scenario: Autocomplete suggestions for Presentors must be extracted from the access capabilities and only show teacher and editingteacher enroled users.
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .c7 .action-menu a" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .c3 .action-menu a" "css_element"
     And I click on "Update metadata" "link"
     Then I should see "Update metadata"
     When I expand the "Presenter(s)" autocomplete

@@ -137,12 +137,13 @@ class event {
     /**
      * Set the acl data for this event.
      *
-     * @param string $jsonacl acl string as received from opencast.
+     * @param string|array $jsonacl acl arry or string as received from opencast.
      * @throws \moodle_exception
      */
     public function set_json_acl($jsonacl) {
 
-        $this->acl = json_decode($jsonacl);
+        $jsonacl = is_string($jsonacl) ? json_decode($jsonacl) : $jsonacl;
+        $this->acl = $jsonacl;
 
         if (!is_array($this->acl)) {
             throw new \moodle_exception('invalidacldata', 'block_opencast');

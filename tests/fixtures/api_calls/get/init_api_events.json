@@ -1,4 +1,0 @@
-{
-  "resource": "/api/events?sign=1&withacl=1&withmetadata=1&withpublications=1&sort=start_date:DESC&filter=series%3A1234-1234-1234-1234-1234&limit=6",
-  "response": []
-}

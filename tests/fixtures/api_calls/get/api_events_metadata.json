@@ -1,6 +1,7 @@
 {
   "resource": "/api/events/abcd-abcd-abcd-abcd/metadata?type=dublincore/episode",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "readOnly": false,
       "id": "title",

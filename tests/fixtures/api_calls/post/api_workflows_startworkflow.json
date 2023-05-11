@@ -1,13 +1,15 @@
 {
-  "resource": "/api/workflows_configuration,workflow_definition_identifier,event_identifier",
+  "resource": "/api/workflows",
+  "status": 201,
   "params": {
     "workflow_definition_identifier": "republish-metadata",
     "event_identifier": "abcd-abcd-abcd-abcd",
     "configuration": {
       "publishToEngage": "true"
-    }
+    },
+    "unique_request_identifier": "1119"
   },
-  "response": {
+  "body": {
     "workflow_definition_identifier": "republish-metadata",
     "identifier": 1119,
     "creator": "admin",

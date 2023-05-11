@@ -14,6 +14,7 @@ Feature: Manage series as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
       | apiurl_1            | http://testapi:8080                                           | tool_opencast  |
@@ -39,8 +40,7 @@ Feature: Manage series as Teacher
     Then I should see "Test series"
     When I click on "Create new series" "button"
     Then I should see "Title"
-    When I click on "Create new series" "button" in the ".modal" "css_element"
-    Then I should see "Required"
+    Then ".modal i.icon[title='Required']" "css_element" should be visible
     When I set the field "Title" to "My new series"
     And I set the field "Rights" to "Some user"
     And I select "ALLRIGHTS" from the "License" singleselect

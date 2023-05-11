@@ -1,6 +1,7 @@
 {
   "resource": "/api/events/abcd-abcd-abcd-abcd/acl",
-  "response": [
+  "status": 200,
+  "body": [
     {
       "allow": true,
       "role": "ROLE_ADMIN",
