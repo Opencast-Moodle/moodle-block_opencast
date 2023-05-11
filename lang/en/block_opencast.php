@@ -493,6 +493,7 @@ $string['ingeststateingesting'] = 'Ingesting...';
 
 $string['noconnectedseries'] = 'No series is defined yet.';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
+$string['ingest_endpoint_notfound'] = 'The ingets endpoint is not available, this has to be fix by the system administrator.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
 $string['nouserselected'] = 'You must select a user.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';

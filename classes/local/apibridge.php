@@ -64,11 +64,10 @@ class apibridge {
     /**
      * apibridge constructor.
      * @param int $ocinstanceid Opencast instance id.
-     * @param boolean $enableingest whether to enable ingest upload.
      */
-    private function __construct($ocinstanceid, $enableingest) {
+    private function __construct($ocinstanceid) {
         $this->ocinstanceid = $ocinstanceid;
-        $this->api = api::get_instance($this->ocinstanceid, [], [], $enableingest);
+        $this->api = api::get_instance($this->ocinstanceid);
     }
 
     /**
@@ -76,10 +75,9 @@ class apibridge {
      *
      * @param int $ocinstanceid Opencast instance id
      * @param boolean $forcenewinstance true, when a new instance should be created.
-     * @param boolean $enableingest whether to enable ingest upload.
      * @return apibridge
      */
-    public static function get_instance($ocinstanceid = null, $forcenewinstance = false, $enableingest = false) {
+    public static function get_instance($ocinstanceid = null, $forcenewinstance = false) {
         static $apibridges = array();
 
         if (!$ocinstanceid) {
@@ -98,7 +96,7 @@ class apibridge {
             return $apibridge;
         }
 
-        $apibridge = new apibridge($ocinstanceid, $enableingest);
+        $apibridge = new apibridge($ocinstanceid);
         $apibridges[$ocinstanceid] = $apibridge;
 
         return $apibridge;
@@ -134,6 +132,7 @@ class apibridge {
      * @throws opencast_connection_exception
      */
     private function get_ingest_api() {
+        $this->api = api::get_instance($this->ocinstanceid, [], [], true);
         if (!property_exists($this->api->opencastapi, 'ingest')) {
             throw new opencast_connection_exception('ingest_endpoint_notfound', 'block_opencast');
         }

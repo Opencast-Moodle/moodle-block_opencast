@@ -60,7 +60,7 @@ class ingest_uploader {
      */
     public static function create_event($job) {
         global $DB;
-        $apibridge = apibridge::get_instance($job->ocinstanceid, true, true);
+        $apibridge = apibridge::get_instance($job->ocinstanceid);
 
         switch ($job->status) {
             case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE:
