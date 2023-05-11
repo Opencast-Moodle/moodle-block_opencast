@@ -142,7 +142,7 @@ jobs:
         database: ['pgsql']
         opencast: ['13.5']
         tool-branch: ['oc-php-lib']
-        mod-branch: ['main']
+        mod-branch: ['master']
 
     steps:
       - name: Check out opencast-docker
