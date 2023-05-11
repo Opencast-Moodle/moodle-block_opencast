@@ -1259,14 +1259,16 @@ class block_opencast_renderer extends plugin_renderer_base {
             if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
-                    $actionmenu->add(new action_menu_link_secondary(
-                        new \moodle_url('/blocks/opencast/directaccess.php',
-                            array('video_identifier' => $video->identifier, 'courseid' => $courseid,
-                                'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid)),
-                        null,
+                    $url = new \moodle_url('/blocks/opencast/directaccess.php',
+                        array('video_identifier' => $video->identifier, 'courseid' => $courseid,
+                            'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid));
+
+                    $accesslink = new action_menu_link_secondary($url,
+                        new \pix_icon('t/copy', get_string('directaccesscopylink', 'block_opencast')),
                         $name,
-                        ['target' => '_blank']
-                    ));
+                        array('title' => get_string('directaccesscopylink', 'block_opencast')));
+                    $accesslink->attributes['class'] .= ' access-link-copytoclipboard';
+                    $actionmenu->add($accesslink);
                 }
             }
         }

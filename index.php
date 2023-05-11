@@ -467,7 +467,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);
                 }
 
-                if (has_capability('block/opencast:directaccessvideo', $coursecontext) && $video->is_accessible) {
+                if (has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext) && $video->is_accessible) {
                     $actions .= $renderer->render_direct_link_event_icon($ocinstanceid, $courseid, $video);
                 }
 

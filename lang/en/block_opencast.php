@@ -262,9 +262,6 @@ $string['downloadvideo'] = 'Download video';
 $string['download_settingheader'] = 'Download videos';
 $string['download_setting'] = 'Download channel';
 $string['download_settingdesc'] = 'Opencast publication channel from which the videos are served when downloading them.';
-$string['directaccesstovideo'] = 'Direct access to video';
-$string['directaccess_setting'] = 'Direct access channel';
-$string['directaccess_settingdesc'] = 'Opencast publication channel from which the videos are served when accessing them directly.';
 $string['duplicateworkflow'] = 'Workflow for duplicating events';
 $string['duplicateworkflowdesc'] = 'This workflow is needed for importing opencast events from one course into another. If not set, it is not possible to import Opencast events.';
 
@@ -877,5 +874,15 @@ $string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel
 // String for update metadata encoding.
 $string['updatemetadatawithoutencode'] = 'Disable extra encoding layer of event metadata during update';
 $string['updatemetadatawithoutencodedesc'] = 'During update metadata, fields including title and description will get encoded and be sent to the server in order to have a wider range of characters available.<br />When you are using older versions of Opencast like <b>verions 10.x</b> the machanism is a bit different, by selecting this setting you need to disabled the extra layer of encoding mechanism, to avoid any faulty titles and descriptions.';
+// Direct access video.
+$string['directaccesstovideo'] = 'Direct access to video';
+$string['directaccess_setting'] = 'Direct access channel';
+$string['directaccess_settingdesc'] = 'Opencast publication channel from which the videos are served when accessing them directly. Leaving this option empty will disable the feature.<br/><strong>Notice:</strong> It is recommended to take further caution using this feature, since it reveals the direct video data on the Opencast server upon accessing the link.';
+$string['opencast:sharedirectaccessvideolink'] = 'Share direct access link to video';
+$string['opencast:directaccessvideolink'] = 'Direct access to video via shared link';
+$string['directaccesscopylink'] = 'Copy video direct access link';
+$string['directaccess_copy_no_link'] = 'Invalid direct access link';
+$string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
+$string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

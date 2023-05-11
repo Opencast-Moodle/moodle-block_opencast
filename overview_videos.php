@@ -81,7 +81,7 @@ if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
             if (has_capability('block/opencast:deleteevent', $coursecontext)) {
                 $hasdeletepermission = true;
             }
-            if (has_capability('block/opencast:directaccessvideo', $coursecontext)) {
+            if (has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext)) {
                 $hasaccesspermission = true;
             }
         }

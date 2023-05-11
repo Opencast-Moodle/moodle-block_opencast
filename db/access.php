@@ -136,12 +136,22 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-    'block/opencast:directaccessvideo' => array(
-        'captype' => 'read',
+    'block/opencast:sharedirectaccessvideolink' => array(
+        'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
+            'manager' => CAP_ALLOW,
+        )
+    ),
+    'block/opencast:directaccessvideolink' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         )
     ),
     'block/opencast:createseriesforcourse' => array(

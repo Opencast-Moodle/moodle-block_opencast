@@ -416,6 +416,46 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         };
 
         /*
+         * Copies the direct access link into the clipboard.
+         */
+        var initCopyAccessLinkToClipboard = function() {
+            $('.access-link-copytoclipboard').on('click', function(e) {
+                e.preventDefault();
+                var element = e.currentTarget;
+                var link = element.getAttribute('href');
+                console.log(link);
+                if (!link) {
+                    str.get_string('directaccess_copy_no_link', 'block_opencast')
+                        .done(function(result) {
+                            Toast.add(result, {type: 'warning'});
+                        })
+                        .fail(Notification.exception);
+                    return;
+                }
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(link)
+                    .then(() => {
+                        str.get_string('directaccess_copy_success', 'block_opencast')
+                            .done(function(result) {
+                                Toast.add(result);
+                            })
+                            .fail(Notification.exception);
+                    }
+                    ).catch();
+
+                    return;
+                } else {
+                    str.get_string('directaccess_copytoclipboard_unavialable', 'block_opencast')
+                        .done(function(result) {
+                            Toast.add(result, {type: 'danger', autohide: false, closeButton: true});
+                        })
+                        .fail(Notification.exception);
+                }
+            });
+        };
+
+        /*
          * Initialise all of the modules for the opencast block.
          */
         var init = function(courseid, ocinstanceid, contextid, liveupdate) {
@@ -478,6 +518,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             if (liveupdate.enabled) {
                 initLiveUpdate(ocinstanceid, contextid, liveupdate.timeout);
             }
+            initCopyAccessLinkToClipboard();
         };
 
         return {
