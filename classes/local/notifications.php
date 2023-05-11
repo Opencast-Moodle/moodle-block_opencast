@@ -383,4 +383,45 @@ class notifications {
 
         self::send_message('opencasteventstatus_notification', $touser, $subject, $body);
     }
+
+    /**
+     * Notify admin that imported modules cleanup task is removed, not in its normal way.
+     * @param int $courseid Course id
+     * @param int $workflowid The workflow id
+     * @param string $notificationtype the type of the notification to determine the suitable message.
+     * @param string $exceptionmessage extra exception message to pass along the normal message.
+     */
+    public static function notify_cleanup_imported_modules_force_deletion($courseid, $workflowid, $notificationtype,
+                                                                            $exceptionmessage = '') {
+        global $DB;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'workflowid' => $workflowid,
+            'exceptionmessage' => $exceptionmessage
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('notificationcleanupimportedmodules_subj', 'block_opencast');
+        $body = get_string('notificationcleanupimportedmodulesgeneralexception_body', 'block_opencast', $a);
+
+        switch ($notificationtype) {
+            case 'expired':
+                $body = get_string('notificationcleanupimportedmodulesexpired_body', 'block_opencast', $a);
+                break;
+            case 'cleanupfailed':
+                $body = get_string('notificationcleanupimportedmodulescleanupfailed_body', 'block_opencast', $a);
+                break;
+            case 'noepisodeid':
+                $body = get_string('notificationcleanupimportedmodulesnoeposideid_body', 'block_opencast', $a);
+                break;
+        }
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
 }

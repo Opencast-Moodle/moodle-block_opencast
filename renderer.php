@@ -359,6 +359,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $hasdownloadpermission
      * @param bool $hasdeletepermission
      * @param string $redirectpage
+     * @param bool $hasaccesspermission
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -366,9 +367,9 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function create_overview_videos_rows($videos, $apibridge, $ocinstanceid, $activityinstalled,
                                                 $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
-                                                $hasaddvideopermissions = false,
-                                                $hasdownloadpermission = false, $hasdeletepermission = false,
-                                                $redirectpage = 'overviewvideos') {
+                                                $hasaddvideopermissions = false, $hasdownloadpermission = false,
+                                                $hasdeletepermission = false,
+                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false) {
         global $USER, $SITE, $DB;
         $rows = array();
 
@@ -432,6 +433,10 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             if ($hasdownloadpermission && $video->is_downloadable) {
                 $actions .= $this->render_download_event_icon($ocinstanceid, $SITE->id, $video);
+            }
+
+            if ($hasaccesspermission && $video->is_accessible) {
+                $actions .= $this->render_direct_link_event_icon($ocinstanceid, $SITE->id, $video);
             }
 
             if ($hasdeletepermission && isset($video->processing_state) &&
@@ -1226,6 +1231,52 @@ class block_opencast_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render share icon for a video.
+     * @param int $ocinstanceid
+     * @param int $courseid
+     * @param \stdClass $video
+     * @return bool|string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_direct_link_event_icon($ocinstanceid, $courseid, $video) {
+        global $CFG;
+
+        // Get the action menu options.
+        $actionmenu = new action_menu();
+        if ($CFG->branch >= 400) {
+            $actionmenu->set_menu_left();
+        } else {
+            $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
+        }
+        $actionmenu->prioritise = true;
+        $actionmenu->actionicon = new pix_icon('e/anchor', get_string('directaccesstovideo', 'block_opencast'), 'moodle');
+        $actionmenu->set_menu_trigger(' ');
+        $actionmenu->attributes['class'] .= ' access-action-menu';
+
+        foreach ($video->publications as $publication) {
+            if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
+                foreach ($publication->media as $media) {
+                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
+                    $url = new \moodle_url('/blocks/opencast/directaccess.php',
+                        array('video_identifier' => $video->identifier, 'courseid' => $courseid,
+                            'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid));
+
+                    $accesslink = new action_menu_link_secondary($url,
+                        new \pix_icon('t/copy', get_string('directaccesscopylink', 'block_opencast')),
+                        $name,
+                        array('title' => get_string('directaccesscopylink', 'block_opencast')));
+                    $accesslink->attributes['class'] .= ' access-link-copytoclipboard';
+                    $actionmenu->add($accesslink);
+                }
+            }
+        }
+
+        return $this->render($actionmenu);
+    }
+
+    /**
      * Render report problem icon for a video.
      * @param string $identifier
      * @return string
@@ -1292,5 +1343,33 @@ class block_opencast_renderer extends plugin_renderer_base {
         $context->candelete = $candelete;
         $context->downloadblanktarget = $downloadblanktarget;
         return $this->render_from_template('block_opencast/transcriptions_table', $context);
+    }
+
+    /**
+     * Helper function to validate and close any missing tags in a html string.
+     * It is a sanity check and correction to ensure that a html string has all tags closed correctly.
+     *
+     * @param string $html The html string
+     * @return string The html string
+     */
+    public function close_tags_in_html_string($html) {
+        preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
+        $openedtags = $result[1];
+        preg_match_all('#</([a-z]+)>#iU', $html, $result);
+        $closedtags = $result[1];
+        $lenopened = count($openedtags);
+        if (count($closedtags) == $lenopened) {
+            return $html;
+        }
+        $openedtags = array_reverse($openedtags);
+        // Close tags.
+        for ($i = 0; $i < $lenopened; $i++) {
+            if (!in_array($openedtags[$i], $closedtags)) {
+                $html .= '</'.$openedtags[$i].'>';
+            } else {
+                unset($closedtags[array_search($openedtags[$i], $closedtags)]);
+            }
+        }
+        return $html;
     }
 }

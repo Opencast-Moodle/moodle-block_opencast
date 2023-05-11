@@ -382,7 +382,7 @@ $string['importvideos_settingmodeacl'] = 'ACL Change';
 $string['importvideos_errornotenabledorworking'] = 'The import videos feature is not enabled or not working';
 $string['importvideos_importbuttontitle'] = 'Import videos';
 $string['importvideos_importheading'] = 'Import videos from another course';
-$string['importvideos_importjobcreated'] = 'The import of the selected videos into this course was scheduled. This process will happen in the background. You do not need to wait on this page. As soon as the process is started, the videos will appear in the <em>Videos available in this course</em> section';
+$string['importvideos_importjobcreated'] = 'The import of the selected videos into this course was scheduled. This process will happen in the background. You do not need to wait on this page. As soon as the process is started, the videos will appear in the <em>Videos available in this course</em> section.<br><b>Notice:</b>A process of adjusting the visibility for the imported videos will also be executed right after the import process is completed, therefore it is suggested to give more time to the overall processing duration.';
 $string['importvideos_importjobaclchangedone'] = 'The import of the selected series with its videos into this course was successful. You can now access the videos from the list.';
 $string['importvideos_importjobaclchangeseriesfailed'] = 'Import failed, because the ACL change for selected series has failed.';
 $string['importvideos_importjobaclchangeseriesmappingfailed'] = 'Import failed, becasue mapping the series to the course has failed.';
@@ -677,6 +677,7 @@ $string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before 
 $string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
 $string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
 $string['video_not_downloadable'] = 'This video was not published in the download channel.';
+$string['video_not_accessible'] = 'This video was not published in the direct access channel.';
 $string['videostoupload'] = 'Videos to upload to opencast';
 $string['videosoverviewexplanation'] = 'Here you can see in which courses the videos are provided as activity to the students.<br>The second column shows the activities of the courses where the series is managed by the Opencast block. The third column shows courses where the video is embedded without the series being managed by the block.';
 $string['visibility'] = 'Visibility of the video';
@@ -781,7 +782,7 @@ $string['ltidownloadtranscription_desc'] = 'When enabled, the transcription down
     NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
 $string['transcription_flavor_key'] = 'Flavor key';
 $string['transcription_flavor_value'] = 'Flavor value';
-$string['transcription_flavor_delete'] = 'Delete flavor oprion pair';
+$string['transcription_flavor_delete'] = 'Delete flavor\'s option pair';
 $string['transcription_flavor_confirm_delete'] = 'Are you sure you want to delete this flavor option pair?';
 $string['addtranscriptionflavor'] = 'Add new flavor option';
 $string['transcriptionflavors'] = 'Transcription Service Types (Flavors)';
@@ -834,5 +835,54 @@ $string['liveupdate_toast_notification'] = 'Event: ({$a->title}) is updated. The
 $string['liveupdate_fail_notification_message'] = 'Unable to perform live status update for the following event(s):<br> <ul><li>{$a}</li></ul>';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
+// Strings for cleanup lti modules.
+$string['processltimodulecleanup'] = 'Process Opencast Video LTI episode routine cleanup';
+$string['processltimodulecleanup_error'] = 'Something went wrong during LTI module cleanup process: {$a}';
+// Strings for cleanu imported modules notifications.
+$string['notificationcleanupimportedmodules_subj'] = 'Opencast imported modules cleanup task notification';
+$string['notificationcleanupimportedmodulesgeneralexception_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) failed and is removed. The exception message contains: {$a->exceptionmessage}';
+$string['notificationcleanupimportedmodulesexpired_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) has been removed, as we have waited for 5 days without success to get the duplicated episode ID from OC.';
+$string['notificationcleanupimportedmodulescleanupfailed_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) failed during the update of the episode activities and is removed.';
+$string['notificationcleanupimportedmodulesnoeposideid_body'] = 'Cleanup job with workflow id: ({$a->workflowid}) for course {$a->coursefullname} (ID: {$a->courseid}) was removed as the stored OC workflow does not exist or does not and will not hold a duplicated episode ID.';
+// Strings for duplicated events visibility change.
+$string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_duplicated_event_acl_change'] = 'The visibility change for the duplicated event failed.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_workflow_id'] = 'The duplicate workflow id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing.
+    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['errorduplicatedeventvisibilitytaskretry'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} Will try to start the workflow again by the next cron job.';
+$string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a}
+    After trying serveral time the task will be terminated now.';
+// New readonly metadata strings.
+$string['readonly_disabled_tooltip_text'] = 'Unable to set readonly option while it is set to be required.';
+$string['descriptionmdreadonly'] = 'Readonly';
+$string['descriptionmdreadonly_help'] = 'Please note that, if a field is set to be required, the readonly option will be disabled. That means a field can only be readonly or required at a time.';
+// String for privacy notice.
+$string['swprivacynoticedefaulttitle'] = 'Privacy Notice';
+$string['swprivacynotice_settingheader'] = 'Workflows Privacy Notice';
+$string['swprivacynotice_settingtitle'] = 'Workflow Privacy Notice Title';
+$string['swprivacynotice_settingtitle_desc'] = 'A title to be displayed in start workflow dialog. It is intended to be configurable in order to be adjusted by the users. When empty, default string is used.';
+$string['swprivacynotice_settinginfotext'] = 'Workflow Privacy Notice Info Text';
+$string['swprivacynotice_settinginfotext_desc'] = 'This input is used to provide information about privacy notice for workflows in start workflow dialog.<br><strong>NOTE:</strong> If empty, no notice will be displayed.';
+$string['swprivacynotice_settingwfds'] = 'Workflows Definition List';
+$string['swprivacynotice_settingwfds_desc'] = 'A comma separated list of workflow definitions, by which the privacy notice is displayed. When empty, the privacy notice will be displayed for all workflows.';
+$string['startworkflow_modal_description_title'] = 'Workflow Description';
+$string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel';
+// String for update metadata encoding.
+$string['updatemetadatawithoutencode'] = 'Disable extra encoding layer of event metadata during update';
+$string['updatemetadatawithoutencodedesc'] = 'During update metadata, fields including title and description will get encoded and be sent to the server in order to have a wider range of characters available.<br />When you are using older versions of Opencast like <b>verions 10.x</b> the machanism is a bit different, by selecting this setting you need to disabled the extra layer of encoding mechanism, to avoid any faulty titles and descriptions.';
+// Direct access video.
+$string['directaccesstovideo'] = 'Direct access to video';
+$string['directaccess_setting'] = 'Direct access channel';
+$string['directaccess_settingdesc'] = 'Opencast publication channel from which the videos are served when accessing them directly. Leaving this option empty will disable the feature.<br/><strong>Notice:</strong> It is recommended to take further caution using this feature, since it reveals the direct video data on the Opencast server upon accessing the link.';
+$string['opencast:sharedirectaccessvideolink'] = 'Share direct access link to video';
+$string['opencast:directaccessvideolink'] = 'Direct access to video via shared link';
+$string['directaccesscopylink'] = 'Copy video direct access link';
+$string['directaccess_copy_no_link'] = 'Invalid direct access link';
+$string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
+$string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

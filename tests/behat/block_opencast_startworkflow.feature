@@ -13,17 +13,20 @@ Feature: Start workflows for a video as Teacher
       | teacher1 | C1     | editingteacher |
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
-      | config              | value                                                         | plugin         |
-      | apiurl_1            | http://testapi:8080                                           | tool_opencast  |
-      | apipassword_1       | opencast                                                      | tool_opencast  |
-      | apiusername_1       | admin                                                         | tool_opencast  |
-      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1   | 0                                                             | block_opencast |
-      | group_creation_1    | 0                                                             | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1 | 0                                                             | block_opencast |
-      | workflow_tags_1     | archive                                                       | block_opencast |
+      | config                    | value                                                         | plugin         |
+      | apiurl_1                  | http://testapi:8080                                           | tool_opencast  |
+      | apipassword_1             | opencast                                                      | tool_opencast  |
+      | apiusername_1             | admin                                                         | tool_opencast  |
+      | ocinstances               | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
+      | limituploadjobs_1         | 0                                                             | block_opencast |
+      | group_creation_1          | 0                                                             | block_opencast |
+      | group_name_1              | Moodle_course_[COURSEID]                                      | block_opencast |
+      | series_name_1             | Course_Series_[COURSEID]                                      | block_opencast |
+      | enablechunkupload_1       | 0                                                             | block_opencast |
+      | workflow_tags_1           | archive                                                       | block_opencast |
+      | swprivacynoticeinfotext_1 | Privacy Notice Info Text                                      | block_opencast |
+      | swprivacynoticewfds_1     | duplicate-event                                               | block_opencast |
+      | swprivacynoticetitle_1    | Privacy Notice                                                | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -36,7 +39,11 @@ Feature: Start workflows for a video as Teacher
     And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .cell .action-menu a" "css_element"
     And I click on "Start workflow" "link"
     Then I should see "Choose the workflow you want to start"
+    And I wait "1" seconds
     When I set the field "workflow" to "duplicate-event"
-    And I wait "3" seconds
-    And I click on "Start workflow" "button"
+    And I wait "2" seconds
+    Then I should see "Privacy Notice"
+    And I should see "Privacy Notice Info Text"
+    When I click on "Start workflow" "button"
+    And I wait "2" seconds
     Then I should see "Workflow successfully started"

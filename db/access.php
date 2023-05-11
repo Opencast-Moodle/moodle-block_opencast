@@ -136,6 +136,24 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'block/opencast:sharedirectaccessvideolink' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        )
+    ),
+    'block/opencast:directaccessvideolink' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        )
+    ),
     'block/opencast:createseriesforcourse' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
@@ -190,6 +208,14 @@ $capabilities = array(
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
+        )
+    ),
+    'block/opencast:autocompleteteacherroles' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
         )
     ),
 );

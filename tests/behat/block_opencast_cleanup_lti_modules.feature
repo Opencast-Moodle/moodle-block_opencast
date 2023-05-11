@@ -1,8 +1,8 @@
 @block @block_opencast @block_opencast_cleanup
-Feature: Restore courses as Teacher
-  In order to reuse courses in the next semester
+Feature: Cleanup and update the lti modules
+  In order to cleanup the manually created lti modules
   As teacher
-  I need to be able to backup Opencast videos, import them and fix LTI modules
+  I need to be able to create LTI modules manually
 
   Background:
     Given the following "users" exist:
@@ -14,7 +14,6 @@ Feature: Restore courses as Teacher
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
-    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                             | value                                                         | plugin         |
       | apiurl_1                           | http://testapi:8080                                           | tool_opencast  |
@@ -28,7 +27,6 @@ Feature: Restore courses as Teacher
       | enablechunkupload_1                | 0                                                             | block_opencast |
       | workflow_roles_1                   | republish-metadata                                            | block_opencast |
       | importvideosenabled_1              | 1                                                             | block_opencast |
-      | importvideoscoreenabled_1          | 1                                                             | block_opencast |
       | importvideosmanualenabled_1        | 1                                                             | block_opencast |
       | importmode_1                       | duplication                                                   | block_opencast |
       | duplicateworkflow_1                | duplicate-event                                               | block_opencast |
@@ -43,7 +41,6 @@ Feature: Restore courses as Teacher
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast series                 |
-      # The url here is only designed for the test environment in github ci.
       | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
       | Default launch container | Embed, without blocks           |
@@ -51,7 +48,6 @@ Feature: Restore courses as Teacher
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast episode                |
-      # The url here is only designed for the test environment in github ci.
       | Tool URL                 | 172.17.0.1:8080/lti             |
       | Custom parameters        | tool=ltitools/player/index.html |
       | Default launch container | Embed, without blocks           |
@@ -66,56 +62,58 @@ Feature: Restore courses as Teacher
     And I press "Save changes"
 
   @javascript
-  Scenario: Teachers should be able to import a series in duplicate mode and cleanup LTI modules, Admin should be notified on errors
+  Scenario: Teacher should be able to add LTI module manually and the record should be captured and cleaup must be executed when faulty entry recognized
     Given I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
-    When I click on "Go to overview..." "link"
-    And I click on "Add Opencast LTI series module to course" "link"
-    And I click on "Add module and return to overview" "button"
-    And I click on "Add Opencast episode module to course" "link"
-    And I click on "Add module and return to course" "button"
-    And I open "Opencast videos" actions menu
+    And I add a "External tool" to section "1"
+    And I set the field "Activity name" to "Opencast episode Manual Faulty"
+    And I expand all fieldsets
+    And I set the field "Preconfigured tool" to "Opencast episode"
+    And I set the field "Custom parameters" to "id=abcd"
+    And I press "Save and return to course"
+    And I add a "External tool" to section "1"
+    And I set the field "Activity name" to "Opencast episode Manual Correct"
+    And I expand all fieldsets
+    And I set the field "Preconfigured tool" to "Opencast episode"
+    And I set the field "Custom parameters" to "id=abcd-abcd-abcd-abcd"
+    And I press "Save and return to course"
+    And I add a "External tool" to section "1"
+    And I set the field "Activity name" to "Opencast series Manual Faulty"
+    And I expand all fieldsets
+    And I set the field "Preconfigured tool" to "Opencast series"
+    And I set the field "Custom parameters" to "series=1234"
+    And I press "Save and return to course"
+    And I add a "External tool" to section "1"
+    And I set the field "Activity name" to "Opencast series Manual Correct"
+    And I expand all fieldsets
+    And I set the field "Preconfigured tool" to "Opencast series"
+    And I set the field "Custom parameters" to "series=1234-1234-1234-1234-1234"
+    And I press "Save and return to course"
+    Then I should see "Opencast episode Manual Faulty"
+    And I should see "Opencast episode Manual Correct"
+    And I should see "Opencast series Manual Correct"
+    And I should see "Opencast series Manual Faulty"
+    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    When I reload the page
+    Then I should not see "Opencast episode Manual Faulty"
+    And I should not see "Opencast series Manual Faulty"
+    And I should see "Opencast episode Manual Correct"
+    And I should see "Opencast series Manual Correct"
+    When I open "Opencast episode Manual Correct" actions menu
     And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "series=1234-1234-1234-1234-1234"
-    When I click on "Cancel" "button"
-    And I open "Test video" actions menu
+    Then I set the field "Activity name" to "Opencast episode Manual Correct Edited Faulty"
+    And I expand all fieldsets
+    And I set the field "Custom parameters" to "id=abcd"
+    And I press "Save and return to course"
+    When I open "Opencast series Manual Correct" actions menu
     And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
-    When I click on "Cancel" "button"
-    When I backup "Course 1" course using this options:
-      | Confirmation | Filename                                                     | test_backup.mbz |
-      | Schema       | Include videos from Opencast instance Default in this course | 0               |
-    And I restore "test_backup.mbz" backup into a new course using this options:
-      | Schema | Course name | Course 1 |
-    And I click on "Go to overview..." "link"
-    And I click on "Import videos" "button"
-    And I click on "#import-course-1" "css_element"
-    And I click on "Continue" "button"
-    And I click on "Continue" "button"
-    Then I should see "Yes, clean up the Opencast series modules related to this import"
-    And I should see "Yes, clean up the Opencast episode module(s) related to this import"
-    And I click on "Continue" "button"
-    When I click on "Import videos and return to overview" "button"
-    Then I should see "The import of the selected videos into this course was scheduled"
-    And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
-    And I am on "Course 1 copy 1" course homepage with editing mode on
-    And I open "Opencast videos" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "series=84bab8de-5688-46a1-9af0-5ce9122eeb6a"
-    When I click on "Cancel" "button"
-    And I open "Test video" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
-    And I run all adhoc tasks
-    And the following config values are set as admin:
-      | config     | value | plugin         |
-      | apiurl_1   |       | tool_opencast  |
-    And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
-    And the following config values are set as admin:
-      | config     | value                | plugin         |
-      | apiurl_1   |  http://testapi:8080 | tool_opencast  |
-    And I reload the page
-    When I click on ".popover-region-notifications" "css_element"
-    Then I should see "Opencast imported modules cleanup task notification"
-    When I click on ".all-notifications .notification" "css_element"
-    Then I should see "Cleanup job with workflow id:"
+    Then I set the field "Activity name" to "Opencast series Manual Correct Edited"
+    And I expand all fieldsets
+    And I set the field "Custom parameters" to "series=1234-1234-1234-1234-1234"
+    When I press "Save and return to course"
+    Then I should see "Opencast episode Manual Correct Edited Faulty"
+    And I should see "Opencast series Manual Correct Edited"
+    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    When I reload the page
+    Then I should not see "Opencast episode Manual Correct Edited Faulty"
+    And I should see "Opencast series Manual Correct Edited"
