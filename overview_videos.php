@@ -60,6 +60,7 @@ $hasaddvideopermission = false;
 $hasviewpermission = false;
 $hasdownloadpermission = false;
 $hasdeletepermission = false;
+$hasaccesspermission = false;
 
 // Verify that user has permission to view series.
 if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
@@ -80,6 +81,9 @@ if (!$ocseries || !$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
             if (has_capability('block/opencast:deleteevent', $coursecontext)) {
                 $hasdeletepermission = true;
             }
+            if (has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext)) {
+                $hasaccesspermission = true;
+            }
         }
     }
 
@@ -95,6 +99,7 @@ if ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
     $hasaddvideopermission = true;
     $hasdownloadpermission = true;
     $hasdeletepermission = true;
+    $hasaccesspermission = true;
 }
 
 $isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id) ||
@@ -153,7 +158,7 @@ $showchangeownerlink = has_capability('block/opencast:viewusers', context_system
 
 foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
     $activityinstalled, $showchangeownerlink, false, $isseriesowner, $hasaddvideopermission,
-    $hasdownloadpermission, $hasdeletepermission) as $row) {
+    $hasdownloadpermission, $hasdeletepermission, '', $hasaccesspermission) as $row) {
     $table->add_data($row);
 }
 

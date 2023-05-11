@@ -430,6 +430,7 @@ class apibridge {
             foreach ($videos as $video) {
                 $this->extend_video_status($video);
                 $this->set_download_state($video);
+                $this->set_access_state($video);
             }
         }
 
@@ -475,6 +476,18 @@ class apibridge {
     }
 
     /**
+     * Checks if a video can be accessed directly and saves this state.
+     * @param \stdClass $video Video to be updated
+     */
+    private function set_access_state(&$video) {
+        if (in_array(get_config('block_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
+            $video->is_accessible = true;
+        } else {
+            $video->is_accessible = false;
+        }
+    }
+
+    /**
      * Retrieves a video from Opencast.
      * @param string $identifier Event id
      * @param bool $withpublications If true, publications are included
@@ -510,6 +523,7 @@ class apibridge {
         // Enrich processing state.
         $this->extend_video_status($video);
         $this->set_download_state($video);
+        $this->set_access_state($video);
 
         $result->video = $video;
 
@@ -2298,6 +2312,7 @@ class apibridge {
                 foreach ($videos as $video) {
                     $this->extend_video_status($video);
                     $this->set_download_state($video);
+                    $this->set_access_state($video);
                 }
             }
 

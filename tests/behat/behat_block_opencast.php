@@ -119,4 +119,38 @@ class behat_block_opencast extends behat_base {
             $apitestable->add_json_response($apicall->resource, 'get', json_encode($apicall->response));
         }
     }
+
+    /**
+     * Opens the video's direct access link
+     * @Given /^I go to direct access link$/
+     */
+    public function i_go_to_direct_access_link() {
+        $courses = core_course_category::search_courses(array('search' => 'Course 1'));
+        $directaccesslink = '/blocks/opencast/directaccess.php?video_identifier=ID-coffee-run' .
+            '&mediaid=34010ca7-374d-4cd9-91e1-51c49df195f7&ocinstanceid=1&courseid=' . reset($courses)->id;
+        $this->execute('behat_general::i_visit', [$directaccesslink]);
+    }
+
+    /**
+     * Makes sure that opencast video is available in opencast
+     * @Given /^I should watch the video in opencast$/
+     */
+    public function i_should_watch_the_video_in_opencast() {
+        $xpath = "//video";
+        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+    }
+
+    /**
+     * adds a breakpoints
+     * stops the execution until you hit enter in the console
+     * @Then /^breakpoint in ocblock/
+     */
+    public function breakpoint_in_ocblock() {
+        fwrite(STDOUT, "\033[s    \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
+        while (fgets(STDIN, 1024) == '') {
+            continue;
+        }
+        fwrite(STDOUT, "\033[u");
+        return;
+    }
 }

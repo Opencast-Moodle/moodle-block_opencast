@@ -677,6 +677,7 @@ $string['videodraftnotdeletable'] = 'The video cannot be deleted anymore before 
 $string['videodraftdeletionsucceeded'] = 'The video is deleted successfully';
 $string['video_retrieval_failed'] = 'Video could not be retrieved. Please check the connection to the Opencast server.';
 $string['video_not_downloadable'] = 'This video was not published in the download channel.';
+$string['video_not_accessible'] = 'This video was not published in the direct access channel.';
 $string['videostoupload'] = 'Videos to upload to opencast';
 $string['videosoverviewexplanation'] = 'Here you can see in which courses the videos are provided as activity to the students.<br>The second column shows the activities of the courses where the series is managed by the Opencast block. The third column shows courses where the video is embedded without the series being managed by the block.';
 $string['visibility'] = 'Visibility of the video';
@@ -873,5 +874,15 @@ $string['startworkflow_modal_configpanel_title'] = 'Workflow Configuration Panel
 // String for update metadata encoding.
 $string['updatemetadatawithoutencode'] = 'Disable extra encoding layer of event metadata during update';
 $string['updatemetadatawithoutencodedesc'] = 'During update metadata, fields including title and description will get encoded and be sent to the server in order to have a wider range of characters available.<br />When you are using older versions of Opencast like <b>verions 10.x</b> the machanism is a bit different, by selecting this setting you need to disabled the extra layer of encoding mechanism, to avoid any faulty titles and descriptions.';
+// Direct access video.
+$string['directaccesstovideo'] = 'Direct access to video';
+$string['directaccess_setting'] = 'Direct access channel';
+$string['directaccess_settingdesc'] = 'Opencast publication channel from which the videos are served when accessing them directly. Leaving this option empty will disable the feature.<br/><strong>Notice:</strong> It is recommended to take further caution using this feature, since it reveals the direct video data on the Opencast server upon accessing the link.';
+$string['opencast:sharedirectaccessvideolink'] = 'Share direct access link to video';
+$string['opencast:directaccessvideolink'] = 'Direct access to video via shared link';
+$string['directaccesscopylink'] = 'Copy video direct access link';
+$string['directaccess_copy_no_link'] = 'Invalid direct access link';
+$string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
+$string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

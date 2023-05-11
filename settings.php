@@ -800,6 +800,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('download_setting', 'block_opencast'),
                     get_string('download_settingdesc', 'block_opencast'), "api"));
 
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/direct_access_channel_' . $instance->id,
+                    get_string('directaccess_setting', 'block_opencast'),
+                    get_string('directaccess_settingdesc', 'block_opencast'), ''));
 
             $additionalsettings->add(
                 new admin_setting_configtext('block_opencast/workflow_tags_' . $instance->id,
