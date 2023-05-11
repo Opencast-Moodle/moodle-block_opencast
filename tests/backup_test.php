@@ -317,6 +317,7 @@ class backup_test extends advanced_testcase {
 
         // Setup the mockuped workflow again.
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
+        $apibridge->set_testdata('get_opencast_video', 'c0c8c98d-ad90-445c-b1be-be4944779a24', 'file');
 
         // The workflow exists now, but it is not started.
         $this->check_task_fail_with_error('error_workflow_not_started', 6);

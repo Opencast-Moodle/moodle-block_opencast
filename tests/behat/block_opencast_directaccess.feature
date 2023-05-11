@@ -14,6 +14,7 @@ Feature: Direct Access via shared link
       | teacher1      | C1     | editingteacher |
       | student1      | C1     | student        |
       | gueststudent1 | C1     | guest          |
+    And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                  | value                                                         | plugin         |
       # Because we want to get the advantage of the using LTI we need to use the stable.opencast.org
@@ -49,9 +50,9 @@ Feature: Direct Access via shared link
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-ID-blender-foundation_r0 .c7 .access-action-menu a" "css_element"
+    And I click on "#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a" "css_element"
     Then I should see "Presenter"
-    When I click on "#opencast-videos-table-ID-blender-foundation_r0 .c7 .access-action-menu a.access-link-copytoclipboard" "css_element"
+    When I click on "#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a.access-link-copytoclipboard" "css_element"
     Then I should see "The direct access link has been successfully copied to clipboard."
     When I go to direct access link
     And I wait "1" seconds

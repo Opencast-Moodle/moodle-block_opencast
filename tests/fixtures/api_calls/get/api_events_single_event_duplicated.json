@@ -1,6 +1,6 @@
 {
   "resource": "/api/events/45fca7d0-c1e2-4601-bf12-6ccb3376a5f6?withpublications=false&withacl=false",
-  "response": {
+  "body": {
     "identifier": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
     "creator": "",
     "presenter": [],

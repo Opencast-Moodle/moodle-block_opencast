@@ -12,5 +12,5 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: master
+      branch-tool-plugin: oc-php-lib
       branch-mod-plugin: master

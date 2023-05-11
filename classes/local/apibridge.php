@@ -2851,13 +2851,11 @@ class apibridge {
             $event->add_acl($acl->allow, $acl->action, $acl->role);
         }
 
-        $resource = '/api/events/' . $duplicatedeventid . '/acl';
-        $params['acl'] = $event->get_json_acl();
+        $acl = $event->get_json_acl();
+        // Update acls.
+        $response = $this->api->opencastapi->eventsApi->updateAcl($duplicatedeventid, $acl);
 
-        $api = api::get_instance($this->ocinstanceid);
-        $api->oc_put($resource, $params);
-
-        if ($api->get_http_code() != 204) {
+        if ($response['code'] != 204) {
             return \block_opencast\task\process_duplicated_event_visibility_change::TASK_PENDING;
         }
 

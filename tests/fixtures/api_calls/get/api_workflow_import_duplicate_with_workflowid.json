@@ -1,6 +1,6 @@
 {
-    "resource": "/api/workflows/1119?withconfiguration=true",
-    "response": {
+    "resource": "/api/workflows/1119?withoperations=false&withconfiguration=true",
+    "body": {
         "workflow_definition_identifier": "duplicate-event",
         "identifier": 1119,
         "creator": "admin",
