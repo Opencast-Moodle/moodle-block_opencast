@@ -68,5 +68,3 @@ Feature: Direct Access via shared link
     And I go to direct access link
     And I wait until the page is ready
     Then I should see "Sorry, but you do not currently have permissions to do that (Direct access to video via shared link)"
-    # Then I should see ""
-    # Then I should <expect> "Sorry, but you do not currently have permissions to do that (Direct access to video via shared link)"

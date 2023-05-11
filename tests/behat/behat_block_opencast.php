@@ -125,8 +125,9 @@ class behat_block_opencast extends behat_base {
      * @Given /^I go to direct access link$/
      */
     public function i_go_to_direct_access_link() {
+        $courses = core_course_category::search_courses(array('search' => 'Course 1'));
         $directaccesslink = '/blocks/opencast/directaccess.php?video_identifier=ID-coffee-run' .
-            '&courseid=205000&mediaid=34010ca7-374d-4cd9-91e1-51c49df195f7&ocinstanceid=1';
+            '&mediaid=34010ca7-374d-4cd9-91e1-51c49df195f7&ocinstanceid=1&courseid=' . reset($courses)->id;
         $this->execute('behat_general::i_visit', [$directaccesslink]);
     }
 
