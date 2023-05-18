@@ -41,8 +41,7 @@ Feature: Direct Access via shared link
     And I click on "Import series" "button" in the ".modal" "css_element"
     And I wait "2" seconds
     And I click on "Opencast Videos" "link"
-    # Waiting for the republish metadata workflow to be finished.
-    And I wait "20" seconds
+    And I wait until no video is being processed
     And I log out
 
   @javascript

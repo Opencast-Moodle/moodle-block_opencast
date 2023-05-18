@@ -27,6 +27,10 @@
 
 use tool_opencast\local\api_testable;
 use tool_opencast\seriesmapping;
+use block_opencast\local\apibridge;
+use block_opencast\setting_default_manager;
+use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Exception\ExpectationException;
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
@@ -37,6 +41,12 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_block_opencast extends behat_base {
+
+    /**
+     * @var $directaccesslink string direct access link to be saved temporarily, and then be used when needed. (i.e. in the step
+     * where student wants to access that link).
+     */
+    private $directaccesslink;
 
     /**
      * Setup test opencast API.
@@ -82,54 +92,7 @@ class behat_block_opencast extends behat_base {
      * @Given /^I setup the default settigns for opencast plugins$/
      */
     public function i_setup_the_default_settings_for_opencast_plugins() {
-        set_config('roles_1',
-            '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
-            '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
-            '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
-            '{"rolename":"[COURSEGROUPID]_Learner","actions":"read","permanent":0}]',
-            'block_opencast');
-        set_config('metadata_1',
-            '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
-            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":1},' .
-            '{"name":"description","datatype":"textarea","required":0,"readonly":0,' .
-            '"param_json":"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":1},{"name":"language","datatype":"select",' .
-            '"required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",' .
-            '\"roh\":\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",' .
-            '\"fin\":\"Finnish\",\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",' .
-            '\"gsw\":\"Swiss German\",\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",' .
-            '\"tur\":\"Turkish\",\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0}' .
-            ',{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"' .
-            ',"defaultable":0},{"name":"license","datatype":"select","required":0,"readonly":0,' .
-            '"param_json":"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",' .
-            '\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",' .
-            '\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}","defaultable":0},' .
-            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":"","defaultable":0},' .
-            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":"","defaultable":0}]',
-            'block_opencast');
-        set_config('metadataseries_1',
-            '[{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
-            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
-            '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
-            '"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":0},{"name":"language","datatype":"select","required":0,' .
-            '"readonly":0,"param_json":"{\"\":\"No option selected\",\"slv\":\"Slovenian\",\"por\":\"Portugese\",\"roh\"' .
-            ':\"Romansh\",\"ara\":\"Arabic\",\"pol\":\"Polish\",\"ita\":\"Italian\",\"zho\":\"Chinese\",\"fin\":\"Finnish\"' .
-            ',\"dan\":\"Danish\",\"ukr\":\"Ukrainian\",\"fra\":\"French\",\"spa\":\"Spanish\",\"gsw\":\"Swiss German\",' .
-            '\"nor\":\"Norwegian\",\"rus\":\"Russian\",\"jpx\":\"Japanese\",\"nld\":\"Dutch\",\"tur\":\"Turkish\",' .
-            '\"hin\":\"Hindi\",\"swa\":\"Swedish\",\"eng\":\"English\",\"deu\":\"German\"}","defaultable":0},' .
-            '{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}",' .
-            '"defaultable":0},{"name":"license","datatype":"select","required":0,"readonly":0,"param_json":' .
-            '"{\"\":\"No option selected\",\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",' .
-            '\"CC-BY-NC-ND\":\"CC BY-NC-ND\",\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":' .
-            '\"CC BY-NC\",\"CC-BY\":\"CC BY\"}","defaultable":0},{"name":"creator","datatype":"autocomplete","required":0,' .
-            '"readonly":0,"param_json":null,"defaultable":0},{"name":"contributor","datatype":"autocomplete","required":0,' .
-            '"readonly":0,"param_json":null,"defaultable":0}]',
-            'block_opencast');
-        set_config('transcriptionflavors_1',
-            '[{"key":"de","value":"Amberscript German"},{"key":"en","value":"Amberscript English"},' .
-            '{"key":"deu","value":"Vosk German"},{"key":"eng","value":"Vosk English"},{"key":"prf","value":"Persian"}]',
-            'block_opencast');
-        set_config('maxseries_1', 3, 'block_opencast');
-        set_config('limitvideos_1', 5, 'block_opencast');
+        setting_default_manager::init_regirstered_defaults(1);
     }
 
     /**
@@ -176,10 +139,41 @@ class behat_block_opencast extends behat_base {
      * @Given /^I go to direct access link$/
      */
     public function i_go_to_direct_access_link() {
+        // get the direct access link.
+        if (empty($this->directaccesslink)) {
+            $csselement = '#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a.access-link-copytoclipboard';
+            try {
+                $this->find('css', $csselement);
+            } catch (ElementNotFoundException $e) {
+                throw new ExpectationException('Targeted Element to copy direct access link could not be found.');
+            }
+            $element = $this->find('css', $csselement);
+            $this->directaccesslink = $element->getAttribute('href');
+        }
+        $this->execute('behat_general::i_visit', [$this->directaccesslink]);
+    }
+
+    /**
+     * Checks if there is no video in processing stage (mainly used for republish-metadata workflow).
+     * @Given /^I wait until no video is being processed$/
+     */
+    public function i_wait_until_no_video_is_being_processed() {
         $courses = core_course_category::search_courses(array('search' => 'Course 1'));
-        $directaccesslink = '/blocks/opencast/directaccess.php?video_identifier=ID-coffee-run' .
-            '&mediaid=34010ca7-374d-4cd9-91e1-51c49df195f7&ocinstanceid=1&courseid=' . reset($courses)->id;
-        $this->execute('behat_general::i_visit', [$directaccesslink]);
+
+        $mappedseries = seriesmapping::get_records(array('ocinstanceid' => 1, 'courseid' => reset($courses)->id));
+        $series = reset($mappedseries)->get('series');
+        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+        do {
+            $videos = $apibridge->get_series_videos($series);
+            $hasprocessing = false;
+            foreach ($videos->videos as $video) {
+                if ($video->processing_state == 'RUNNING') {
+                    $hasprocessing = true;
+                }
+            }
+            sleep(2);
+        } while ($hasprocessing);
+        return;
     }
 
     /**
