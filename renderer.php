@@ -1402,23 +1402,23 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $subobj->flavor = !empty($flavorname) ?
                     $flavorname :
                     get_string('notranscriptionflavor', 'block_opencast', $flavortype);
-        
+
                 // Extracting id and type from attributes.
                 $subobj->id = $subobj->{'@attributes'}->id;
                 $subobj->type = $type;
-        
+
                 // Preparing delete url.
                 $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',
                 array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
                     'video_identifier' => $identifier, 'transcription_identifier' => $subobj->id));
                 $subobj->deleteurl = $deleteurl->out(false);
-        
+
                 // Preparing download url.
                 $downloadurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
                 array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'domain' => $domain,
                     'video_identifier' => $identifier, 'attachment_type' => str_replace(['/', '+'], ['-', '_'], $type)));
                 $subobj->downloadurl = $downloadurl->out(false);
-        
+
                 $items[] = $subobj;
             }
         }

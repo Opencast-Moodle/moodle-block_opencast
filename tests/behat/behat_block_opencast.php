@@ -139,7 +139,7 @@ class behat_block_opencast extends behat_base {
      * @Given /^I go to direct access link$/
      */
     public function i_go_to_direct_access_link() {
-        // get the direct access link.
+        // Get the direct access link.
         if (empty($this->directaccesslink)) {
             $csselement = '#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a.access-link-copytoclipboard';
             try {
