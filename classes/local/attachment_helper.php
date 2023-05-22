@@ -50,7 +50,7 @@ class attachment_helper {
     const ATTACHMENT_TYPE_TRANSCRIPTION = 'transcription';
 
      /** @var string transcription flavor */
-     const TRANSCRIPTION_FLAVOR_TYPE = 'captions/vtt';
+    const TRANSCRIPTION_FLAVOR_TYPE = 'captions/vtt';
 
     /**
      * Saves the attachment upload job.
@@ -170,7 +170,7 @@ class attachment_helper {
         $courseid = $uploadjob->courseid;
         if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
             $apibridge = apibridge::get_instance($ocinstanceid);
-            $mediapackagexml = $apibridge->get_event_media_package($video->identifier);
+            $mediapackagestr = $apibridge->get_event_media_package($video->identifier);
 
             $transcriptionstoupload = json_decode($attachmentjob->files);
             foreach ($transcriptionstoupload as $transcription) {
@@ -185,11 +185,12 @@ class attachment_helper {
                 // Prepare flavor based on the flavor code.
                 $flavor = self::TRANSCRIPTION_FLAVOR_TYPE . "+{$transcription->flavor}";
 
-                // Compile and add attachment.
-                $mediapackagexml = self::perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor);
+                // Compile and add attachment/track.
+                $mediapackagestr = self::perform_add_attachment($ocinstanceid, $video->identifier,
+                    $mediapackagestr, $file, $flavor);
             }
             // Finalize the upload process.
-            $success = self::perform_finalize_upload_attachment($ocinstanceid, $mediapackagexml);
+            $success = self::perform_finalize_upload_attachment($ocinstanceid, $mediapackagestr);
             if ($success) {
                 mtrace('job ' . $attachmentjob->id . ':(UPLOADED) Attachemtns are uploaded and workflow is started.');
                 self::change_job_status($attachmentjob, self::STATUS_DONE);
@@ -258,36 +259,69 @@ class attachment_helper {
      * Removes the existinf flavor from attachments and adds attachments via ingest.
      *
      * @param int $ocinstanceid the id of opencast instance.
-     * @param string $mediapackagexml the mediapackage xml as string.
+     * @param string $identifier episode identifier.
+     * @param string $mediapackagestr the mediapackage xml as string.
      * @param object $file the attachment file to upload.
      * @param string $flavor the attachment flavor.
-     * @return string $mediapackagexml newly processed mediapackage xml as string
+     * @return string $mediapackagestr newly processed mediapackage xml as string
      */
-    private static function perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor) {
-        // Remove existing attachments with the same flavor.
-        $mediapackagexml = self::remove_existing_flavor_from_mediapackage($mediapackagexml, 'type', $flavor);
-        // Add attachment via ingest.
+    private static function perform_add_attachment($ocinstanceid, $identifier, $mediapackagestr, $file, $flavor) {
+        // Remove existing attachments or media with the same flavor.
+        $mediapackagestr = self::remove_existing_flavor_from_mediapackage($ocinstanceid, $mediapackagestr, 'type', $flavor);
         $apibridge = apibridge::get_instance($ocinstanceid);
         $filestream = $apibridge->get_upload_filestream($file, 'file');
-        $mediapackagexml = $apibridge->ingest_add_attachment($mediapackagexml, $flavor, $filestream);
-        return  $mediapackagexml;
+        // We do a version check here to perform addTrack instead of addAttachment.
+        $opencastversion = $apibridge->get_opencast_version();
+        // We do a version check here to perform the add track feature specifically for transcriptions added in Opencast version 13.
+        if (version_compare($opencastversion, '13.0.0', '>=') && strpos($flavor, self::TRANSCRIPTION_FLAVOR_TYPE) !== false) {
+            $apibridge->event_add_track($identifier, $flavor, $filestream);
+            // We need to get the mediapackage again.
+            $mediapackagestr = $apibridge->get_event_media_package($identifier);
+        } else {
+            $mediapackagestr = $apibridge->ingest_add_attachment($mediapackagestr, $flavor, $filestream);
+        }
+        return $mediapackagestr;
     }
 
     /**
-     * Removes the reduntant attachments from mediapackage.
+     * Removes the reduntant attachments or media from mediapackage.
      *
-     * @param string $mediapackagexml mediapackage xml as string.
+     * @param int $ocinstanceid the id of opencast instance.
+     * @param string $mediapackagestr mediapackage xml as string.
      * @param string $attributetype the attribute type to check againts.
      * @param string $value the targeted attribute's value.
      *
      * @return string mediapackage
      */
-    private static function remove_existing_flavor_from_mediapackage($mediapackagexml, $attributetype, $value) {
-        $mediapackage = simplexml_load_string($mediapackagexml);
+    private static function remove_existing_flavor_from_mediapackage($ocinstanceid, $mediapackagestr, $attributetype, $value) {
+        $mediapackage = simplexml_load_string($mediapackagestr);
+        // We loop through the attackments, to get rid of any duplicates.
+        self::remove_attachment_from_xml($mediapackage, $attributetype, $value);
+
+        // Get the opencast version to make sure everything gets removed.
+        $apibridge = apibridge::get_instance($ocinstanceid);
+        $opencastversion = $apibridge->get_opencast_version();
+        // As of opencast 13 we need to check the media for transcriptions as well.
+        if (version_compare($opencastversion, '13.0.0', '>=')) {
+            // We loop through the media tracks, to get rid of any duplicates.
+            self::remove_media_from_xml($mediapackage, $attributetype, $value);
+        }
+
+        return $mediapackage->asXML();
+    }
+
+    /**
+     * Removes the specified attachments from the mediapackage xml object.
+     *
+     * @param \SimpleXMLElement $mediapackage the mediapackage XML object.
+     * @param string $attributetype the type of attribute to check against.
+     * @param string $value the value of attribute to match with.
+     */
+    private static function remove_attachment_from_xml(&$mediapackage, $attributetype, $value) {
         $i = 0;
         $toremove = [];
-        foreach ($mediapackage->attachments->attachment as $attachment) {
-            if ($attachment->attributes()[$attributetype] == $value) {
+        foreach ($mediapackage->attachments->attachment as $item) {
+            if ($item->attributes()[$attributetype] == $value) {
                 $toremove[] = $i;
             }
             $i++;
@@ -296,18 +330,40 @@ class attachment_helper {
         foreach ($toremove as $i) {
             unset($mediapackage->attachments->attachment[$i]);
         }
-        return $mediapackage->asXML();
     }
 
     /**
-     * Performs the final touches after uploading attachment.
+     * Removes the specified media track from the mediapackage xml object.
+     *
+     * @param \SimpleXMLElement $mediapackage the mediapackage XML object.
+     * @param string $attributetype the type of attribute to check against.
+     * @param string $value the value of attribute to match with.
+     */
+    private static function remove_media_from_xml(&$mediapackage, $attributetype, $value) {
+        $i = 0;
+        $toremove = [];
+        foreach ($mediapackage->media->track as $item) {
+            if ($item->attributes()[$attributetype] == $value) {
+                $toremove[] = $i;
+            }
+            $i++;
+        }
+        $toremove = array_reverse($toremove);
+        foreach ($toremove as $i) {
+            unset($mediapackage->media->track[$i]);
+        }
+    }
+
+    /**
+     * Performs the final touches after uploading attachment/media.
+     * In case a media is added by add track endpoint, we still need to perform ingest in order to get rid of redundant records.
      *
      * @param int $ocinstanceid the id of opencast instance.
-     * @param string $mediapackage the mediapackage to ingest
+     * @param string $mediapackagestr the mediapackage xml as string to ingest
      *
      * @return boolean the result of starting workflow.
      */
-    private static function perform_finalize_upload_attachment($ocinstanceid, $mediapackage) {
+    private static function perform_finalize_upload_attachment($ocinstanceid, $mediapackagestr) {
         try {
             $apibridge = apibridge::get_instance($ocinstanceid);
             // Get the transcription upload workflow.
@@ -317,7 +373,7 @@ class attachment_helper {
                 return false;
             }
             // Ingest the mediapackage.
-            $workflow = $apibridge->ingest($mediapackage, $transcriptionuploadworkflow);
+            $workflow = $apibridge->ingest($mediapackagestr, $transcriptionuploadworkflow);
             return !empty($workflow);
         } catch (\Throwable $th) {
             return false;
@@ -325,7 +381,7 @@ class attachment_helper {
     }
 
     /**
-     * Deletes a single transcription from the attachments and perform ingest with configured workflow.
+     * Deletes a single transcription from the attachments or media and perform ingest with configured workflow.
      *
      * @param string $ocinstanceid id of opencast instance
      * @param string $eventidentifier id of the video
@@ -336,10 +392,11 @@ class attachment_helper {
     public static function delete_transcription($ocinstanceid, $eventidentifier, $transcriptionidentifier) {
         $success = false;
         $apibridge = apibridge::get_instance($ocinstanceid);
-        $mediapackagexml = $apibridge->get_event_media_package($eventidentifier);
-        $mediapackagexml = self::remove_existing_flavor_from_mediapackage($mediapackagexml, 'id', $transcriptionidentifier);
+        $mediapackagestr = $apibridge->get_event_media_package($eventidentifier);
+        $mediapackagestr = self::remove_existing_flavor_from_mediapackage($ocinstanceid,
+            $mediapackagestr, 'id', $transcriptionidentifier);
         try {
-            $ingested = $apibridge->ingest($mediapackagexml,
+            $ingested = $apibridge->ingest($mediapackagestr,
                 get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
             if (!empty($ingested)) {
                 $success = true;
@@ -362,12 +419,12 @@ class attachment_helper {
      */
     public static function upload_single_transcription($file, $flavorservice, $ocinstanceid, $eventidentifier) {
         $apibridge = apibridge::get_instance($ocinstanceid);
-        $mediapackagexml = $apibridge->get_event_media_package($eventidentifier);
+        $mediapackagestr = $apibridge->get_event_media_package($eventidentifier);
         $flavor = self::TRANSCRIPTION_FLAVOR_TYPE . "+{$flavorservice}";
         // Compile and add attachment.
-        $mediapackagexml = self::perform_add_attachment($ocinstanceid, $mediapackagexml, $file, $flavor);
+        $mediapackagestr = self::perform_add_attachment($ocinstanceid, $eventidentifier, $mediapackagestr, $file, $flavor);
         // Finalizing the attachment upload.
-        $success = self::perform_finalize_upload_attachment($ocinstanceid, $mediapackagexml);
+        $success = self::perform_finalize_upload_attachment($ocinstanceid, $mediapackagestr);
         return $success;
     }
 

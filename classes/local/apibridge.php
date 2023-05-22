@@ -508,9 +508,11 @@ class apibridge {
      * @param string $identifier Event id
      * @param bool $withpublications If true, publications are included
      * @param bool $withacl If true, ACLs are included
+     * @param bool $includingmedia If true, media files are included
      * @return \stdClass Video
      */
-    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false) {
+    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
+                                        bool $includingmedia = false) {
         $result = new \stdClass();
         $result->video = false;
         $result->error = 0;
@@ -538,6 +540,16 @@ class apibridge {
         $this->extend_video_status($video);
         $this->set_download_state($video);
         $this->set_access_state($video);
+        // Including media into the video object.
+        if ($includingmedia) {
+            $media = null;
+            $response = $this->api->opencastapi->eventsApi->getMedia($identifier);
+            $code = $response['code'];
+            if ($code === 200) {
+                $media = $response['body'];
+            }
+            $video->media = $media;
+        }
 
         $result->video = $video;
 
@@ -1239,7 +1251,7 @@ class apibridge {
     public function get_upload_filestream($file, $type = 'video') {
         $tempdirname = "oc{$type}toupload";
         $tempdir = make_temp_directory($tempdirname);
-        $tempfilepath = tempnam($tempdir, 'tempup_') . $file->get_filename();
+        $tempfilepath = tempnam($tempdir, 'block_opencast_' . $type . '_upload') . '_' . $file->get_filename();
         $filestream = null;
         if ($file instanceof \stored_file) {
             if ($file->copy_content_to($tempfilepath)) {
@@ -2864,5 +2876,45 @@ class apibridge {
         }
 
         return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+    }
+
+    /**
+     * Get the opencast version.
+     *
+     * @return string semantic version number of the opencast server.
+     */
+    public function get_opencast_version() {
+        $response = $this->api->opencastapi->sysinfo->getVersion();
+        $code = $response['code'];
+        $versionobject = $response['body'];
+        if ($code === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($code != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+        return $versionobject->version;
+    }
+
+    /**
+     * Adds tracks into opencast event.
+     * This endpoint has been introduced in Opencast 13, it is recommended to check the opencast version before using this method.
+     *
+     * @param string $identifier event identifier.
+     * @param string $flavor the track flavor.
+     * @param object $file the track filestream object.
+     * @param boolean $overwrite whether to overwrite the existing one.
+     *
+     * @return boolean true, if the track is added.
+     * @throws opencast_connection_exception
+     */
+    public function event_add_track($identifier, $flavor, $file, $overwrite = true) {
+        $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite);
+        $code = $response['code'];
+        if ($code === 0) {
+            throw new opencast_connection_exception('connection_failure', 'block_opencast');
+        } else if ($code != 200) {
+            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        }
+        return true;
     }
 }

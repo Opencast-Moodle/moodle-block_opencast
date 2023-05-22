@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $type = required_param('attachment_type', PARAM_ALPHANUMEXT);
+$domain = optional_param('domain', '', PARAM_ALPHA);
 $ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -57,8 +58,17 @@ $PAGE->navbar->add(get_string('downloadtranscription', 'block_opencast'), $baseu
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
+// Make sure downlaod is enabled.
+$downloadenabled = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
+if (empty($downloadenabled)) {
+    redirect($redirecturl,
+        get_string('unabletodownloadtranscription', 'block_opencast'),
+        null,
+        \core\output\notification::NOTIFY_ERROR);
+}
+
 $apibridge = apibridge::get_instance($ocinstanceid);
-$result = $apibridge->get_opencast_video($identifier, true);
+$result = $apibridge->get_opencast_video($identifier, true, false, true);
 if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     $video = $result->video;
@@ -66,13 +76,24 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     $size = 0;
     $mimetype = 'text/vtt';
     $type = str_replace(['-', '_'], ['/', '+'], $type);
-    foreach ($video->publications as $publication) {
-        foreach ($publication->attachments as $attachment) {
-            if ($attachment->flavor == $type) {
-                $downloadurl = $attachment->url;
-                $size = $attachment->size;
-                $mimetype = $attachment->mediatype;
-                break 2;
+    if ($domain === 'media' && !empty($video->media)) {
+        foreach ($video->media as $track) {
+            if ($track->flavor == $type) {
+                $downloadurl = $track->uri;
+                $size = $track->size;
+                $mimetype = $track->mimetype;
+                break;
+            }
+        }
+    } else {
+        foreach ($video->publications as $publication) {
+            foreach ($publication->attachments as $attachment) {
+                if ($attachment->flavor == $type) {
+                    $downloadurl = $attachment->url;
+                    $size = $attachment->size;
+                    $mimetype = $attachment->mediatype;
+                    break 2;
+                }
             }
         }
     }
@@ -84,21 +105,23 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
             \core\output\notification::NOTIFY_ERROR);
     }
 
-    // Check if download button should perform LTI.
-    $downloadwithlti = get_config('block_opencast', 'ltidownloadtranscription_' . $ocinstanceid);
-    if ($downloadwithlti) {
+    // Get the LTI required credentials.
+    $consumerkey = $apibridge->get_lti_consumerkey();
+    $consumersecret = $apibridge->get_lti_consumersecret();
+
+    // We set a flag to determine whether we should perform LTI authentication.
+    $performlti = true;
+    // If no key is provided, we proceed with no LTI authentication.
+    if (empty($consumerkey)) {
+        $performlti = false;
+    }
+
+    if ($performlti) {
         $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
 
         // Make sure the endpoint is correct.
         if (strpos($endpoint, 'http') !== 0) {
             $endpoint = 'http://' . $endpoint;
-        }
-
-        $consumerkey = $apibridge->get_lti_consumerkey();
-        $consumersecret = $apibridge->get_lti_consumersecret();
-
-        if (empty($consumerkey)) {
-            redirect($downloadurl);
         }
 
         $ltiendpoint = rtrim($endpoint, '/') . '/lti';
@@ -112,6 +135,8 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
         echo $OUTPUT->heading(get_string('downloadtranscription', 'block_opencast'));
         echo $renderer->render_lti_form($ltiendpoint, $params);
         $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
+        $htmlreturnlink = html_writer::link($redirecturl,  get_string('transcriptionreturntomanagement', 'block_opencast'));
+        echo html_writer::tag('p', get_string('transcriptionltidownloadcompleted', 'block_opencast', $htmlreturnlink));
         echo $OUTPUT->footer();
     } else {
         ob_clean();

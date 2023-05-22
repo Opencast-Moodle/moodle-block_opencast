@@ -664,10 +664,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
 
             $additionalsettings->add(
-                new admin_setting_configcheckbox('block_opencast/ltidownloadtranscription_' . $instance->id,
-                    get_string('ltidownloadtranscription', 'block_opencast'),
-                    get_string('ltidownloadtranscription_desc', 'block_opencast'), 0));
-            $additionalsettings->hide_if('block_opencast/ltidownloadtranscription_' . $instance->id,
+                new admin_setting_configcheckbox('block_opencast/allowdownloadtranscription_' . $instance->id,
+                    get_string('allowdownloadtranscriptionsetting', 'block_opencast'),
+                    get_string('allowdownloadtranscriptionsetting_desc', 'block_opencast'), 1));
+            $additionalsettings->hide_if('block_opencast/allowdownloadtranscription_' . $instance->id,
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
 
             $additionalsettings->add($transcriptionflavors);

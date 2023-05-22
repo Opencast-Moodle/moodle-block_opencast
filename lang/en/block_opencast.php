@@ -778,9 +778,9 @@ $string['transcriptionsettingsheader'] = 'Settings for Transcription';
 $string['transcriptionworkflow'] = 'Workflow for transcription (speech to text)';
 $string['transcriptionworkflow_desc'] = 'This workflow is triggered when transcription files are attached to the video. If not set, uploading and managing transcriptions is not provided.<br>By setting this workflow, a new section to upload transcription files in the add video page as well as a new action menu item in overview page is provided, to upload/handle the new/current transcriptions files.';
 $string['deletetranscriptionworkflow'] = 'Workflow for delete transcription';
-$string['ltidownloadtranscription'] = 'Download transcription with LTI';
-$string['ltidownloadtranscription_desc'] = 'When enabled, the transcription download button will redirect users to a new page and performs an LTI authentification by which the users will the get the content of the transcription file.<br>
-    NOTE: This configuration is meant to be used for those opencast systems that have Secure Static Files enabled.';
+$string['allowdownloadtranscriptionsetting'] = 'Allow download transcriptions';
+$string['allowdownloadtranscriptionsetting_desc'] = 'When enabled, the transcription download button will be displayed in the manage transcriptions page, by which teachers are able to download the transcription\'s file.<br>
+    <b>Notice:</b> In case you are using Opencast 13 or later, you need to make sure that all prerequisites including LTI features and permissions to access /assets/ endpoint for LTI users, are set correctly as it is mandatory to perform LTI call.';
 $string['transcription_flavor_key'] = 'Flavor key';
 $string['transcription_flavor_value'] = 'Flavor value';
 $string['transcription_flavor_delete'] = 'Delete flavor\'s option pair';
@@ -824,8 +824,9 @@ $string['unabletodeletetranscription'] = 'Unable to delete transcription';
 $string['transcriptiondeletionsucceeded'] = 'Transcription deleted successfully.';
 $string['transcriptiondeletionfailed'] = 'Failed to delete transcription';
 $string['deletetranscription_desc'] = 'You are about to delete the transcription.<br>Are you sure you would like to delete it?';
-$string['downloadtranscription'] = 'Download transcription';
 $string['unabletodownloadtranscription'] = 'Unable to download transcription';
+$string['transcriptionltidownloadcompleted'] = 'The transcription is successfully downloaded. {$a}';
+$string['transcriptionreturntomanagement'] = 'Go back to transcription management page';
 // Strings for live update feature.
 $string['liveupdate_settingheader'] = 'Live Status Update';
 $string['liveupdate_settingenabled'] = 'Enable live status update feature';

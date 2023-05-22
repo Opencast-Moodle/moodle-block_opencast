@@ -1329,19 +1329,20 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param array $list list of current transcriptions
      * @param string $addnewurl add new transcription url
      * @param boolean $candelete whether to provide delete feature
-     * @param boolean $downloadblanktarget whether to redirect download to a new page or not
+     * @param boolean $allowdownload whether to redirect download to a new page or not
      * @return bool|string
      * @throws dml_exception
      * @throws moodle_exception
      */
     public function render_manage_transcriptions_table($list = [], $addnewurl = '',
-                                                        $candelete = false, $downloadblanktarget = false) {
+                                                        $candelete = false, $allowdownload = false) {
         $context = new stdClass();
         $context->list = $list;
         $context->listhascontent = !empty($list) ? true : false;
         $context->addnewurl = $addnewurl;
         $context->candelete = $candelete;
-        $context->downloadblanktarget = $downloadblanktarget;
+        $context->allowdownload = $allowdownload;
+        $context->hasactions = ($candelete || $allowdownload);
         return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
 
@@ -1371,5 +1372,56 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
         }
         return $html;
+    }
+
+    /**
+     * Gts and prepares the items to be displayed in transcription management page.
+     *
+     * @param array $mediapackagesubs the array of mediapackages subcategory containing \SimpleXMLElement.
+     * @param int $courseid course id.
+     * @param int $ocinstanceid opencast instance id.
+     * @param string $identifier event identifier.
+     * @param string $domain a flag to determine where that mediapackage subcategory belongs to (attachments or media).
+     * @param array $flavors a list of pre-defined transcriptions flavors.
+     *
+     * @return array a list of items to display.
+     */
+    public function prepare_transcription_items_for_the_menu($mediapackagesubs, $courseid, $ocinstanceid, $identifier,
+                                                                $domain, $flavors) {
+        $items = [];
+        foreach ($mediapackagesubs as $sub) {
+            $subobj = json_decode(json_encode((array) $sub));
+            $type = $subobj->{'@attributes'}->type;
+            if (strpos($type, \block_opencast\local\attachment_helper::TRANSCRIPTION_FLAVOR_TYPE) !== false) {
+                // Extracting language to be displayed in the table.
+                $flavortype = str_replace(\block_opencast\local\attachment_helper::TRANSCRIPTION_FLAVOR_TYPE . '+', '', $type);
+                $flavorname = '';
+                if (array_key_exists($flavortype, $flavors)) {
+                    $flavorname = $flavors[$flavortype];
+                }
+                $subobj->flavor = !empty($flavorname) ?
+                    $flavorname :
+                    get_string('notranscriptionflavor', 'block_opencast', $flavortype);
+        
+                // Extracting id and type from attributes.
+                $subobj->id = $subobj->{'@attributes'}->id;
+                $subobj->type = $type;
+        
+                // Preparing delete url.
+                $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',
+                array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+                    'video_identifier' => $identifier, 'transcription_identifier' => $subobj->id));
+                $subobj->deleteurl = $deleteurl->out(false);
+        
+                // Preparing download url.
+                $downloadurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
+                array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'domain' => $domain,
+                    'video_identifier' => $identifier, 'attachment_type' => str_replace(['/', '+'], ['-', '_'], $type)));
+                $subobj->downloadurl = $downloadurl->out(false);
+        
+                $items[] = $subobj;
+            }
+        }
+        return $items;
     }
 }

@@ -79,49 +79,43 @@ if (!empty($flavorsconfig)) {
         }
     }
 }
-// Check if download button should perform LTI, then we pass _blank as its target.
-$downloadblanktarget = get_config('block_opencast', 'ltidownloadtranscription_' . $ocinstanceid);
-// Extract caption from attachments.
-$list = [];
-$mediapackagexml = $apibridge->get_event_media_package($identifier);
-$mediapackage = simplexml_load_string($mediapackagexml);
-foreach ($mediapackage->attachments->attachment as $attachment) {
-    $attachmentarray = json_decode(json_encode((array) $attachment));
-    $type = $attachmentarray->{'@attributes'}->type;
-    if (strpos($type, 'captions/vtt') !== false) {
-        // Extracting language to be displayed in the table.
-        $flavortype = str_replace('captions/vtt+', '', $type);
-        $flavorname = '';
-        if (array_key_exists($flavortype, $flavors)) {
-            $flavorname = $flavors[$flavortype];
-        }
-        $attachmentarray->flavor = !empty($flavorname) ?
-            $flavorname :
-            get_string('notranscriptionflavor', 'block_opencast', $flavortype);
-
-        // Extracting id and type from attributes.
-        $attachmentarray->id = $attachmentarray->{'@attributes'}->id;
-        $attachmentarray->type = $type;
-
-        // Preparing delete url.
-        $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',
-        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-            'video_identifier' => $identifier, 'transcription_identifier' => $attachmentarray->id));
-        $attachmentarray->deleteurl = $deleteurl->out(false);
-
-        // Preparing download url.
-        $downloadurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
-        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-            'video_identifier' => $identifier, 'attachment_type' => str_replace(['/', '+'], ['-', '_'], $type)));
-        $attachmentarray->downloadurl = $downloadurl->out(false);
-
-        $list[] = $attachmentarray;
-    }
-}
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 
+// Check if download is enabled.
+$allowdownload = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
+
+// Extract caption from attachments/media.
+$list = [];
+$mediapackagestring = $apibridge->get_event_media_package($identifier);
+$mediapackagexml = simplexml_load_string($mediapackagestring);
+
+// First try to get attachments.
+$attachmentitems = [];
+if (property_exists($mediapackagexml, 'attachments')) {
+    $attachments = [];
+    foreach ($mediapackagexml->attachments->attachment as $attachment) {
+        $attachments[] = $attachment;
+    }
+    $attachmentitems = $renderer->prepare_transcription_items_for_the_menu($attachments, $courseid, $ocinstanceid, $identifier,
+        'attachments', $flavors);
+}
+
+// Then try to get media.
+$mediaitems = [];
+if (property_exists($mediapackagexml, 'media')) {
+    $mediatracks = [];
+    foreach ($mediapackagexml->media->track as $track) {
+        $mediatracks[] = $track;
+    }
+    $mediaitems = $renderer->prepare_transcription_items_for_the_menu($mediatracks, $courseid, $ocinstanceid, $identifier,
+        'media', $flavors);
+}
+
+// After that, we merge everything together.
+$list = array_merge($mediaitems, $attachmentitems);
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managetranscriptions_header', 'block_opencast'));
-echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete, $downloadblanktarget);
+echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete, $allowdownload);
 echo $OUTPUT->footer();

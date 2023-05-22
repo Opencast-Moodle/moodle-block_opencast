@@ -33,9 +33,11 @@
                     <th>
                         {{# str}}transcriptionflavor_thead, block_opencast {{/ str}}
                     </th>
-                    <th>
-                        {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
-                    </th>
+                    {{#hasactions}}
+                        <th>
+                            {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
+                        </th>
+                    {{/hasactions}}
                 </tr>
             </thead>
             <tbody>
@@ -44,16 +46,20 @@
                         <td>
                             {{flavor}}
                         </td>
-                        <td width="10%">
-                            <a class="iconsmall" {{#downloadblanktarget}}target="_blank"{{/downloadblanktarget}} title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
-                                {{#pix}} i/down, core{{/pix}}
-                            </a>
-                            {{#candelete}}
-                                <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}" href="{{deleteurl}}">
-                                    {{#pix}} i/delete, core{{/pix}}
-                                </a>
-                            {{/candelete}}
-                        </td>
+                        {{#hasactions}}
+                            <td width="10%">
+                                {{#allowdownload}}
+                                    <a class="iconsmall" target="_blank" title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
+                                        {{#pix}} i/down, core{{/pix}}
+                                    </a>
+                                {{/allowdownload}}
+                                {{#candelete}}
+                                    <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}" href="{{deleteurl}}">
+                                        {{#pix}} i/delete, core{{/pix}}
+                                    </a>
+                                {{/candelete}}
+                            </td>
+                        {{/hasactions}}
                     </tr>
                 {{/list}}
             </tbody>
