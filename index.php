@@ -463,11 +463,11 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
                     $workflowsavailable, $coursecontext, $useeditor, $canchangeowner, $canmanagetranscriptions);
 
-                if (has_capability('block/opencast:downloadvideo', $coursecontext) && $video->is_downloadable) {
+                if ($opencast->can_show_download_button($video, $courseid)) {
                     $actions .= $renderer->render_download_event_icon($ocinstanceid, $courseid, $video);
                 }
 
-                if (has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext) && $video->is_accessible) {
+                if ($opencast->can_show_directaccess_link($video, $courseid)) {
                     $actions .= $renderer->render_direct_link_event_icon($ocinstanceid, $courseid, $video);
                 }
 

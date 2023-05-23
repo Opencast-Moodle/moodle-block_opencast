@@ -2917,4 +2917,44 @@ class apibridge {
         }
         return true;
     }
+
+    /**
+     * The allowance of providing download video button
+     * @param object $video Opencast video
+     * @param int $courseid Course id
+     * @param bool $capabilitycheck
+     * @return bool whether to provide the download button
+     */
+    public function can_show_download_button($video, $courseid, $capabilitycheck = true) {
+        // Only when the video processing is SUCCEEDED, to avoid any misunderstanding.
+        if ($video->is_downloadable && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
+            if ($capabilitycheck) {
+                $coursecontext = \context_course::instance($courseid);
+                return has_capability('block/opencast:downloadvideo', $coursecontext);
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The allowance of providing direct access link button
+     * @param object $video Opencast video
+     * @param int $courseid Course id
+     * @param bool $capabilitycheck
+     * @return bool whether to provide the download button
+     */
+    public function can_show_directaccess_link($video, $courseid, $capabilitycheck = true) {
+        // Only when the video processing is SUCCEEDED, to avoid any misunderstanding.
+        if ($video->is_accessible && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
+            if ($capabilitycheck) {
+                $coursecontext = \context_course::instance($courseid);
+                return has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext);
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -431,11 +431,11 @@ class block_opencast_renderer extends plugin_renderer_base {
                     false, null, false, false, false, 'overview', $video->is_part_of);
             }
 
-            if ($hasdownloadpermission && $video->is_downloadable) {
+            if ($hasdownloadpermission && $apibridge->can_show_download_button($video, $SITE->id, false)) {
                 $actions .= $this->render_download_event_icon($ocinstanceid, $SITE->id, $video);
             }
 
-            if ($hasaccesspermission && $video->is_accessible) {
+            if ($hasaccesspermission && $apibridge->can_show_directaccess_link($video, $SITE->id, false)) {
                 $actions .= $this->render_direct_link_event_icon($ocinstanceid, $SITE->id, $video);
             }
 
@@ -1215,7 +1215,9 @@ class block_opencast_renderer extends plugin_renderer_base {
         foreach ($video->publications as $publication) {
             if ($publication->channel == get_config('block_opencast', 'download_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
-                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
+                    $width = property_exists($media, 'width') ? $media->width : 0;
+                    $height = property_exists($media, 'height') ? $media->height : 0;
+                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $width . 'x' . $height . ')';
                     $actionmenu->add(new action_menu_link_secondary(
                         new \moodle_url('/blocks/opencast/downloadvideo.php',
                             array('video_identifier' => $video->identifier, 'courseid' => $courseid,
@@ -1258,7 +1260,9 @@ class block_opencast_renderer extends plugin_renderer_base {
         foreach ($video->publications as $publication) {
             if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
-                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $media->width . 'x' . $media->height . ')';
+                    $width = property_exists($media, 'width') ? $media->width : 0;
+                    $height = property_exists($media, 'height') ? $media->height : 0;
+                    $name = ucwords(explode('/', $media->flavor)[0]) . ' (' . $width . 'x' . $height . ')';
                     $url = new \moodle_url('/blocks/opencast/directaccess.php',
                         array('video_identifier' => $video->identifier, 'courseid' => $courseid,
                             'mediaid' => $media->id, 'ocinstanceid' => $ocinstanceid));
