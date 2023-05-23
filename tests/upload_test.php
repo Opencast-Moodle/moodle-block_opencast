@@ -40,14 +40,11 @@ global $CFG;
 class upload_test extends advanced_testcase {
 
     /** @var string Test api url. */
-    // private $apiurl = 'http://127.0.0.1:8080';
-    private $apiurl = 'https://moodle-opencast.opencast-niedersachsen.de';
+    private $apiurl = 'http://127.0.0.1:8080';
     /** @var string Test api username. */
-    // private $apiusername = 'admin';
-    private $apiusername = 'moodle';
+    private $apiusername = 'admin';
     /** @var string Test api password. */
-    // private $apipassword = 'opencast';
-    private $apipassword = '6dwt5qbuXEBkvsu';
+    private $apipassword = 'opencast';
     /** @var int the curl timeout in milliseconds */
     private $apitimeout = 2000;
     /** @var int the curl connecttimeout in milliseconds */
