@@ -151,7 +151,7 @@ class upload_test extends advanced_testcase {
      *
      * @return bool true if the video is avialable, false otherwise.
      */
-    private function notest_check_uploaded_video($courseid, \block_opencast\local\apibridge $apibridge) {
+    private function notest_check_uploaded_video($courseid, $apibridge) {
         $uploadhelper = new \block_opencast\local\upload_helper();
         // Prevent mtrace output, which would be considered risky.
         ob_start();
