@@ -147,7 +147,7 @@ class upload_test extends advanced_testcase {
      * Checks, if the video is available after upload, by running cron first to make sure upload video took place successfully.
      *
      * @param int $courseid Course ID
-     * @param \block_opencast\local\apibridge the apibridge instance
+     * @param \block_opencast\local\apibridge $apibridge the apibridge instance
      *
      * @return bool true if the video is avialable, false otherwise.
      */
