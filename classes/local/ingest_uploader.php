@@ -293,9 +293,14 @@ class ingest_uploader {
      * @throws \dml_exception
      */
     protected static function create_acl_xml($roles, $job) {
+        $mediapackageid = 'mediapackage-1';
+        if (!empty($job->mediapackage)) {
+            $mediapackagexml = new \SimpleXMLElement($job->mediapackage);
+            $mediapackageid = (string) $mediapackagexml['id'];
+        }
         $dom = new \DOMDocument('1.0', 'utf-8');
         $root = $dom->createElement('Policy');
-        $root->setAttributeNode(new \DOMAttr('PolicyId', 'mediapackage-1'));
+        $root->setAttributeNode(new \DOMAttr('PolicyId', $mediapackageid));
         $root->setAttributeNode(new \DOMAttr('Version', '2.0'));
         $root->setAttributeNode(new \DOMAttr('RuleCombiningAlgId',
             'urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides'));
@@ -306,7 +311,7 @@ class ingest_uploader {
             $rolename = $acl->role;
             $roleaction = $acl->action;
 
-            $el = $dom->createElement('RULE');
+            $el = $dom->createElement('Rule');
             $el->setAttributeNode(new \DOMAttr('RuleId', $rolename . '_' . $roleaction . '_PERMIT'));
             $el->setAttributeNode(new \DOMAttr('Effect', 'Permit'));
             $root->appendChild($el);
@@ -356,7 +361,7 @@ class ingest_uploader {
         }
 
         // Add deny rule.
-        $el = $dom->createElement('RULE');
+        $el = $dom->createElement('Rule');
         $el->setAttributeNode(new \DOMAttr('RuleId', 'DenyRule'));
         $el->setAttributeNode(new \DOMAttr('Effect', 'Deny'));
         $root->appendChild($el);
