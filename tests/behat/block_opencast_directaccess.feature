@@ -31,6 +31,7 @@ Feature: Direct Access via shared link
       | enablechunkupload_1     | 0                                                             | block_opencast |
       | workflow_roles_1        | republish-metadata                                            | block_opencast |
       | direct_access_channel_1 | engage-player                                                 | block_opencast |
+      | liveupdateenabled_1     | 0                                                             | block_opencast |
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
@@ -42,6 +43,8 @@ Feature: Direct Access via shared link
     And I wait "2" seconds
     And I click on "Opencast Videos" "link"
     And I wait until no video is being processed
+    And I wait "1" seconds
+    And I reload the page
     And I log out
 
   @javascript

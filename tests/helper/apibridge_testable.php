@@ -143,9 +143,11 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param string $identifier Event id
      * @param bool $withpublications If true, publications are included
      * @param bool $withacl If true, ACLs are included
+     * @param bool $includingmedia If true, media files are included
      * @return \stdClass Video
      */
-    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false) {
+    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
+                                        bool $includingmedia = false) {
         $result = new \stdClass();
         $result->video = false;
         $result->error = 0;

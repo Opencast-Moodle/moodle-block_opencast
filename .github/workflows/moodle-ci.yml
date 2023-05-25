@@ -12,3 +12,5 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
+      branch-tool-plugin: master
+      branch-mod-plugin: master
