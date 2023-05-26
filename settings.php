@@ -1016,6 +1016,22 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     'block_opencast/importvideosenabled_' . $instance->id, 'notchecked');
             }
 
+            // Import videos: Define a pre-defined configuration to enabled the import core settings.
+            // This setting depends on the importvideoscoreenabled setting.
+            $importvideoscorevaluechioces = array(
+                0 => get_string('importvideos_settingcoredefaultvalue_false', 'block_opencast'),
+                1 => get_string('importvideos_settingcoredefaultvalue_true', 'block_opencast'));
+            $defaultvaluechioce = 0;
+            $importvideossettings->add(
+                new admin_setting_configselect('block_opencast/importvideoscoredefaultvalue_' . $instance->id,
+                    get_string('importvideos_settingcoredefaultvalue', 'block_opencast'),
+                    get_string('importvideos_settingcoredefaultvalue_desc', 'block_opencast'),
+                    $defaultvaluechioce, $importvideoscorevaluechioces));
+            if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
+                $importvideossettings->hide_if('block_opencast/importvideoscoredefaultvalue_' . $instance->id,
+                    'block_opencast/importvideoscoreenabled_' . $instance->id, 'notchecked');
+            }
+
             // Import videos: Enable manual import videos feature.
             // This setting applies to both of import modes, therefore hide_if is only limited to importvideosenabled.
             $importvideossettings->add(

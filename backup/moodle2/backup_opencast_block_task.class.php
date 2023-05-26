@@ -49,6 +49,8 @@ class backup_opencast_block_task extends backup_block_task {
             // Check whether this feature is enabled and working at all.
             if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
+                // Get default value, to include opencast video.
+                $defaultimportvalue = get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id);
                 // Check, whether there are course videos available.
                 $apibridge = \block_opencast\local\apibridge::get_instance($ocinstance->id);
                 $courseid = $this->get_courseid();
@@ -67,7 +69,7 @@ class backup_opencast_block_task extends backup_block_task {
 
                     if (count($videostobackup) > 0) {
                         $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id,
-                            base_setting::IS_BOOLEAN, false);
+                            base_setting::IS_BOOLEAN, boolval($defaultimportvalue));
                         $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
                         $this->add_setting($setting);
                         $this->plan->get_setting('blocks')->add_dependency($setting);
