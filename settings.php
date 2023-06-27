@@ -87,7 +87,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         // Because we are using the calls to get workflows actively in the setting, therefore we need to narrow it down only
         // when needed. So we check if this setting page is currently requested.
     } else if ($ADMIN->fulltree &&
-        !(property_exists($CFG, 'is_moodle_plugin_ci') && $CFG->is_moodle_plugin_ci === true)) { // When not in moodle-plugin-ci.
+        (getenv('is_moodle_plugin_ci_system') === false)) { // When not on moodle-plugin-ci system.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
