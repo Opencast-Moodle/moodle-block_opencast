@@ -85,7 +85,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         }
 
         // Because we are using the calls to get workflows actively in the setting, therefore we need to narrow it down only
-        // when needed. So we check if this setting page is currently requested.
+        // when needed. So we check, if we are on a moodle-plugin-ci system, by an environment variable.
     } else if ($ADMIN->fulltree &&
         (getenv('is_moodle_plugin_ci_system') === false)) { // When not on moodle-plugin-ci system.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
