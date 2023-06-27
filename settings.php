@@ -88,7 +88,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         // when needed. So we check if this setting page is currently requested.
     } else if ($ADMIN->fulltree &&
         (strpos($PAGE->pagetype, 'block_opencast') !== false || // When only landing on the admin settings page for block_opencast.
-        ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance'))) { // During upgrade or install.
+        ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance') || // During upgrade or install.
+        (http_response_code() === false))) { // When in a CLI application.
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
