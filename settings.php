@@ -27,6 +27,7 @@ use block_opencast\admin_setting_configtextvalidate;
 use block_opencast\admin_setting_hiddenhelpbtn;
 use block_opencast\setting_helper;
 use block_opencast\setting_default_manager;
+use tool_opencast\local\environment_util;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -89,7 +90,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     } else if ($ADMIN->fulltree &&
         (strpos($PAGE->pagetype, 'block_opencast') !== false || // When only landing on the admin settings page for block_opencast.
         ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance') || // During upgrade or install.
-        (http_response_code() === false && getenv('is_moodle_plugin_ci_workflow') === false))) { // When in a CLI application and not in moodle-plugin-ci workflow.
+        (environment_util::is_cli_application() && !environment_util::is_moodle_plugin_ci_workflow()))) {
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
