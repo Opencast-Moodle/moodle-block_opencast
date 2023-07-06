@@ -255,7 +255,9 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
                 $endpoint = 'http://' . $endpoint;
             }
 
-            $url = $endpoint . '/studio?upload.seriesId=' . $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+            $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+            $studiourlpath = $apibridge->generate_studio_url_path($courseid, $seriesid);
+            $url = $endpoint . $studiourlpath;
             $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
                 null, array('class' => 'btn btn-secondary', 'target' => $target));
             echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');

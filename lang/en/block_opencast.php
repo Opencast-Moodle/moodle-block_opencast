@@ -726,6 +726,8 @@ $string['opencaststudioreturnurl'] = 'Custom Studio return endpoint URL';
 $string['opencaststudioreturnurl_desc'] = 'When empty the return url redirects back to the same Moodle opencast block overview where the request comes from. A custom endpoint URL will then be passed to Studio as return url when configured, in this case, admin is able to use 2 placeholders including [OCINSTANCEID] and [COURSEID]. Please NOTE: the URL must be relative to wwwroot.';
 $string['opencaststudioreturnbtnlabel'] = 'Label for Studio\'s return button';
 $string['opencaststudioreturnbtnlabel_desc'] = 'This label works as a short description where the return link leads to. This label will be appended to the Studio return button text, when empty, moodle site name will be passed as label.';
+$string['opencaststudiocustomsettingsfilename'] = 'Custom Studio settings filename';
+$string['opencaststudiocustomsettingsfilename_desc'] = 'This custom settings filename will be appended to the query when redirecting to Studio, afterwards the Studio looks for this filename relative to its directory and read its settings from that file.<br><b>NOTE</b>: Requires Opencast 14.2 or later.';
 
 // Strings for new visibility feature during initail upload.
 $string['visibilityheader'] = 'Event Visibility';
