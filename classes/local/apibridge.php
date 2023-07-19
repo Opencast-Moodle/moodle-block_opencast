@@ -2621,7 +2621,7 @@ class apibridge {
                 'ocinstanceid' => $this->ocinstanceid
             ]
         );
-        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : [];
+        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : null;
 
         // Preparing all course related acls to remove.
         $aclstoremove = [];
