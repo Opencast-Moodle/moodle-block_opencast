@@ -80,11 +80,11 @@ class setting_helper {
             return null;
         }
 
-        // Get the available workflows.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
-
-        // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
         try {
+            // Get the available workflows.
+            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+            // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
             return $apibridge->get_available_workflows_for_menu($workflowtags, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
