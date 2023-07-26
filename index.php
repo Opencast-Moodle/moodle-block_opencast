@@ -363,6 +363,7 @@ foreach ($seriesvideodata as $series => $videodata) {
     }
 
     if ($videodata->error == 0) {
+        echo html_writer::start_div('position-relative');
         $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);
         $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
         $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
@@ -528,6 +529,7 @@ foreach ($seriesvideodata as $series => $videodata) {
             $table->add_data($row);
         }
         $table->finish_html();
+        echo html_writer::end_div();
     } else {
         echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');
     }
