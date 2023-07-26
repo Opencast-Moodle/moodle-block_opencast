@@ -539,6 +539,7 @@ $string['opencast:myaddinstance'] = 'Add a new opencast upload block to Dashboar
 $string['opencast:unassignevent'] = 'Unassign a video from the course, where the video was uploaded.';
 $string['opencast:viewunpublishedvideos'] = 'View all the videos from opencast server, even when they are not published';
 $string['opencast:viewusers'] = 'View all users so that the series/event owner can be changed in dashboard.';
+$string['opencast:canchangeownerforallvideos'] = 'Be able to change the owner for all videos';
 $string['opencaststudiointegration'] = 'Opencast studio integration';
 $string['opencastseries'] = 'Opencast Series';
 $string['owner'] = 'Owner';
