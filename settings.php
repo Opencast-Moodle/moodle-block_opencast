@@ -446,6 +446,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('opencaststudioreturnurl_desc', 'block_opencast'),
                     '/blocks/opencast/index.php?courseid=[COURSEID]&ocinstanceid=[OCINSTANCEID]'));
 
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/opencast_studio_custom_settings_filename_' . $instance->id,
+                    get_string('opencaststudiocustomsettingsfilename', 'block_opencast'),
+                    get_string('opencaststudiocustomsettingsfilename_desc', 'block_opencast'),
+                    ''));
+
             // Opencast Editor Integration in additional feature settings.
             $additionalsettings->add(
                 new admin_setting_heading('block_opencast/opencast_videoeditor_' . $instance->id,

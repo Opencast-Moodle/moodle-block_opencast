@@ -2957,4 +2957,84 @@ class apibridge {
         }
         return false;
     }
+
+    /**
+     * Central place to generate studio url path and its query params if applicable.
+     *
+     * @param string $courseid Course ID
+     * @param string $seriesid Series identifier
+     * @return ?string the generated studio url path or null if something went wrong.
+     */
+    public function generate_studio_url_path($courseid, $seriesid) {
+        global $SITE;
+        // Return null if the requirements are missing.
+        if (empty($courseid) || empty($seriesid)) {
+            return null;
+        }
+        $studiourlpath = '/studio';
+        $queryparams = [
+            'upload.seriesId=' . $seriesid
+        ];
+        // Check if Studio return button is enabled.
+        if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
+            // Initializing default label for studio return button.
+            $studioreturnbtnlabel = $SITE->fullname;
+            // Check if custom label is configured.
+            if (!empty(get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid))) {
+                $studioreturnbtnlabel = get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid);
+            }
+
+            // Initializing default studio return url.
+            $studioreturnurl = new \moodle_url('/blocks/opencast/index.php',
+                array('courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid));
+            // Check if custom return url is configured.
+            if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
+                // Prepare the custom url.
+                $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid);
+                // Slipt it into parts, to extract endpoint and query strings.
+                $customreturnurlarray = explode('?', $customreturnurl);
+                $customurl = $customreturnurlarray[0];
+                $customquerystring = count($customreturnurlarray) > 1 ? $customreturnurlarray[1] : null;
+
+                $customurldata = [];
+                // If there is any query string.
+                if (!empty($customquerystring)) {
+                    // Split them.
+                    $customquerystringdata = explode('&', $customquerystring);
+                    // Put them into loop to replace the placeholders and add them into the customurldata array.
+                    foreach ($customquerystringdata as $data) {
+                        $datastring = str_replace(['[COURSEID]', '[OCINSTANCEID]'], [$courseid, $this->ocinstanceid], $data);
+                        $dataarray = explode('=', $datastring);
+                        if (count($dataarray) == 2) {
+                            $customurldata[$dataarray[0]] = $dataarray[1];
+                        }
+                    }
+                }
+
+                if (!empty($customurl)) {
+                    $studioreturnurl = new \moodle_url($customurl, $customurldata);
+                }
+            }
+
+            // Appending studio return data, only when there is a url.
+            if (!empty($studioreturnurl)) {
+                $queryparams[] = 'return.label=' . urlencode($studioreturnbtnlabel);
+                $queryparams[] = 'return.target=' . urlencode($studioreturnurl->out(false));
+            }
+        }
+
+        // Checking if custom settings filename is set.
+        $customseetingsfilename = get_config('block_opencast', 'opencast_studio_custom_settings_filename_' . $this->ocinstanceid);
+        if (!empty($customseetingsfilename)) {
+            $queryparams[] = 'settingsFile=' . $customseetingsfilename;
+        }
+
+        // Append query params to the url path.
+        if (!empty($queryparams)) {
+            $studiourlpath .= '?' . implode('&', $queryparams);
+        }
+
+        // Finally we return the generate studio url path.
+        return $studiourlpath;
+    }
 }
