@@ -996,6 +996,12 @@ class block_opencast_renderer extends plugin_renderer_base {
         } else {
             $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
         }
+
+        // This is a fix for MDL-77375, following PR #339.
+        if (method_exists($actionmenu, 'set_boundary')) {
+            $actionmenu->set_boundary('window');
+        }
+
         $actionmenu->prioritise = true;
         $actionmenu->attributes['class'] .= ' inline-action-menu';
 
@@ -1202,6 +1208,12 @@ class block_opencast_renderer extends plugin_renderer_base {
         } else {
             $actionmenu->set_alignment(action_menu::TL, action_menu::BL);
         }
+
+        // This is a fix for MDL-77375, following PR #339.
+        if (method_exists($actionmenu, 'set_boundary')) {
+            $actionmenu->set_boundary('window');
+        }
+
         $actionmenu->prioritise = true;
         $actionmenu->actionicon = new pix_icon('t/down', get_string('downloadvideo', 'block_opencast'));
         $actionmenu->set_menu_trigger(' ');
