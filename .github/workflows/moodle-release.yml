@@ -13,3 +13,4 @@ jobs:
     uses: Opencast-Moodle/moodle-workflows-opencast/.github/workflows/moodle-release.yml@master
     with:
       plugin-name: 'block_opencast'
+    secrets: inherit
