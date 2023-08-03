@@ -829,5 +829,31 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022111000, 'opencast');
     }
 
+    if ($oldversion < 2023080300) {
+
+        // Define table block_opencast_errors to be created.
+        $table = new xmldb_table('block_opencast_errors');
+
+        // Adding fields to table block_opencast_errors.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('errorkind', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('errortext', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('extrajson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timehandled', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table block_opencast_errors.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_opencast_errors.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2023080300, 'opencast');
+    }
+
+
     return true;
 }
