@@ -107,7 +107,7 @@ function block_opencast_pre_course_delete(\stdClass $course) {
     foreach (settings_api::get_ocinstances() as $ocinstance) {
         $apibridge = apibridge::get_instance($ocinstance->id);
         foreach ($apibridge->get_course_series($course->id) as $courseseries) {
-            // Course was already deleted, so if there is any mapping with existing courses left, don't delete!
+            // Don't delete series if there are any other courses using it.
             if ($DB->record_exists_sql('SELECT c.id FROM {tool_opencast_series} s
                         JOIN {course} c ON s.courseid = c.id
                         WHERE series = :series AND ocinstanceid = :instance AND s.courseid != :courseid',

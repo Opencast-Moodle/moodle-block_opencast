@@ -854,6 +854,5 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2023080300, 'opencast');
     }
 
-
     return true;
 }

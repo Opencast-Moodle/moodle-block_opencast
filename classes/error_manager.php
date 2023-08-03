@@ -33,10 +33,19 @@ namespace block_opencast;
  */
 class error_manager {
 
+    /** @var int Series could not be retrieved in course deletion hook. */
     const DELETE_COURSE_COULD_NOT_RETRIEVE_SERIES = 1;
+    /** @var int Event could not be deleted in course deletion hook. */
     const DELETE_COURSE_COULD_NOT_DELETE_EVENT = 2;
 
-
+    /**
+     * Adds an error to the block_opencast_error table.
+     *
+     * @param int $errorkind Kind of error, add new constant to this class.
+     * @param string $errortext Errortext
+     * @param array|null $extradata Optional key-value array of data. Could contain just the same information as the text.
+     * Might be used for filtering errors.
+     */
     public static function add_error(int $errorkind, string $errortext, array|null $extradata): void {
         global $DB;
         $record = new \stdClass();
