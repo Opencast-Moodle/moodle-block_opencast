@@ -46,7 +46,7 @@ class error_manager {
      * @param array|null $extradata Optional key-value array of data. Could contain just the same information as the text. Might be used for filtering.
      * @return void Nothing.
      */
-    public static function add_error(int $errorkind, string $errortext, array|null $extradata): void {
+    public static function add_error(int $errorkind, string $errortext, $extradata): void {
         global $DB;
         $record = new \stdClass();
         $record->errorkind = $errorkind;
