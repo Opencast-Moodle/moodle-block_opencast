@@ -42,9 +42,9 @@ class error_manager {
      * Adds an error to the block_opencast_error table.
      *
      * @param int $errorkind Kind of error, add new constant to this class.
-     * @param string $errortext Errortext
-     * @param array|null $extradata Optional key-value array of data. Could contain just the same information as the text.
-     * Might be used for filtering errors.
+     * @param string $errortext Errortext.
+     * @param array|null $extradata Optional key-value array of data. Could contain just the same information as the text. Might be used for filtering.
+     * @return void Nothing.
      */
     public static function add_error(int $errorkind, string $errortext, array|null $extradata): void {
         global $DB;
