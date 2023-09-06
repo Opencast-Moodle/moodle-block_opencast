@@ -112,8 +112,6 @@ function block_opencast_pre_course_delete(\stdClass $course) {
                         JOIN {course} c ON s.courseid = c.id
                         WHERE series = :series AND ocinstanceid = :instance AND s.courseid != :courseid',
                     ['series' => $courseseries->series, 'instance' => $ocinstance->id, 'courseid' => $course->id])) {
-                error_manager::add_error(3, "Series $courseseries->series is in use elsewhere",
-                        ['courseid' => $course->id, 'ocid' => $ocinstance->id, 'seriesid' => $courseseries->series]);
                 continue;
             }
             $seriesvideos = $apibridge->get_series_videos($courseseries->series);
