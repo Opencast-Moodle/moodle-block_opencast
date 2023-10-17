@@ -890,5 +890,6 @@ $string['directaccesscopylink'] = 'Copy video direct access link';
 $string['directaccess_copy_no_link'] = 'Invalid direct access link';
 $string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
 $string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
+$string['opencast:autocompleteteacherroles'] = 'Teacher roles to be extracted and provided in the autocomplete list';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
