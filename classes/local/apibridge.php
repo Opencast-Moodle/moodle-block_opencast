@@ -298,10 +298,10 @@ class apibridge {
      * to display a "more videos" link.
      *
      * @param int $courseid
-     * @param bool $withmetada
+     * @param bool $withmetadata
      * @return \stdClass
      */
-    public function get_block_videos($courseid, $withmetada = true) {
+    public function get_block_videos($courseid, $withmetadata = true) {
 
         $result = new \stdClass();
         $result->count = 0;
@@ -322,7 +322,7 @@ class apibridge {
             $params = [
                 'sign' => true,
                 'withacl' => true,
-                'withmetadata' => $withmetada === true,
+                'withmetadata' => $withmetadata === true,
                 'withpublications' => true,
                 'sort' => [
                     'start_date' => 'DESC'
@@ -404,7 +404,7 @@ class apibridge {
      *
      * @param string $series
      * @param string $sortcolumns
-     * @param bool $withmetada
+     * @param bool $withmetadata
      * @return array
      */
     public function get_series_videos($series, $sortcolumns = null, $withmetadata = true) {
