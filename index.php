@@ -295,7 +295,7 @@ $seriesvideodata = array_fill_keys(array_column($courseseries, 'series'), null);
 $errors = 0;
 
 foreach ($courseseries as $series) {
-    $seriesvideodata[$series->series] = $opencast->get_series_videos($series->series, $sortcolumns);
+    $seriesvideodata[$series->series] = $opencast->get_series_videos($series->series, $sortcolumns, false);
     if ($seriesvideodata[$series->series]->error) {
         $errors += 1;
     }

@@ -151,7 +151,7 @@ $headers = array(
     get_string('heading_actions', 'block_opencast'));
 $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
-$videos = $apibridge->get_series_videos($series)->videos;
+$videos = $apibridge->get_series_videos($series, null, false)->videos;
 $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
