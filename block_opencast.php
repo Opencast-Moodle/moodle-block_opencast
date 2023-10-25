@@ -128,7 +128,7 @@ class block_opencast extends block_base {
                     try {
                         if ($instance->isvisible) {
                             $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
-                            $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
+                            $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id, false);
                         }
                     } catch (opencast_connection_exception $e) {
                         $videos[$instance->id] = new stdClass();
