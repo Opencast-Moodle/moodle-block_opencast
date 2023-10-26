@@ -302,6 +302,9 @@ class apibridge {
      * @return \stdClass
      */
     public function get_block_videos($courseid, $withmetadata = true) {
+        if (defined('BEHAT_SITE_RUNNING')) {
+            $withmetadata = true;
+        }
 
         $result = new \stdClass();
         $result->count = 0;
@@ -408,6 +411,9 @@ class apibridge {
      * @return array
      */
     public function get_series_videos($series, $sortcolumns = null, $withmetadata = true) {
+        if (defined('BEHAT_SITE_RUNNING')) {
+            $withmetadata = true;
+        }
 
         $result = new \stdClass();
         $result->videos = array();
