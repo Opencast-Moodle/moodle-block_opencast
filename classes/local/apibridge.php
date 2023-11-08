@@ -301,7 +301,7 @@ class apibridge {
      * @param bool $withmetadata
      * @return \stdClass
      */
-    public function get_block_videos($courseid, $withmetadata = true) {
+    public function get_block_videos($courseid, $withmetadata = false) {
         if (defined('BEHAT_SITE_RUNNING')) {
             $withmetadata = true;
         }
@@ -410,7 +410,7 @@ class apibridge {
      * @param bool $withmetadata
      * @return array
      */
-    public function get_series_videos($series, $sortcolumns = null, $withmetadata = true) {
+    public function get_series_videos($series, $sortcolumns = null, $withmetadata = false) {
         if (defined('BEHAT_SITE_RUNNING')) {
             $withmetadata = true;
         }

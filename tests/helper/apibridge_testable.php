@@ -167,7 +167,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param bool $withmetadata
      * @return stdClass
      */
-    public function get_series_videos($series, $sortcolumns = null, $withmetadata = true) {
+    public function get_series_videos($series, $sortcolumns = null, $withmetadata = false) {
         $result = new stdClass();
         $result->error = 0;
 
@@ -200,7 +200,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param bool $withmetadata
      * @return stdClass
      */
-    public function get_block_videos($courseid, $withmetadata = true) {
+    public function get_block_videos($courseid, $withmetadata = false) {
         // Used for behat test.
         $result = new \stdClass();
         $result->count = 0;
