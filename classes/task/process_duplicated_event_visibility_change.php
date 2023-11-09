@@ -102,6 +102,14 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
                 throw new \moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
             }
 
+            // Ensure video processing is finished and no other workflow is running.
+            $event = $apibridge->get_already_existing_event([$data->duplicatedeventid]);
+            if (!$event || !in_array($event->status, ['EVENTS.EVENTS.STATUS.PROCESSED', 'EVENTS.EVENTS.STATUS.PROCESSING_FAILURE'])
+                    || count($event->publication_status) == 0
+                    || count($event->publication_status) == 1 && $event->publication_status[0] === 'internal') {
+                throw new \moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
+            }
+
             // Adopting the visibility.
             $visiblitychangestatus = $apibridge->set_duplicated_event_visibility(
                 $data->duplicatedeventid,
