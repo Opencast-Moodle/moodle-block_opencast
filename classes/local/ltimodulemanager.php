@@ -307,8 +307,8 @@ class ltimodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'series=' . $seriesid, $introtext,
-            $introformat, $availability);
+        $moduleinfo = self::build_lti_modinfo($pluginid, $course, $title, $sectionid, $toolid, 'series=' . $seriesid,
+                $introtext, $introformat, $availability);
 
         // Add the LTI series module to the given course (this doesn't check any capabilities to add modules to courses by purpose).
         $modulecreated = \add_moduleinfo($moduleinfo, $course);
@@ -376,7 +376,7 @@ class ltimodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_lti_modinfo($pluginid, $title, $sectionid, $toolid, 'id=' . $episodeuuid, $introtext,
+        $moduleinfo = self::build_lti_modinfo($pluginid, $course, $title, $sectionid, $toolid, 'id=' . $episodeuuid, $introtext,
             $introformat, $availability);
 
         // Add the LTI episode module to the given course. This doesn't check any capabilities to add modules to courses by purpose.
@@ -397,6 +397,7 @@ class ltimodulemanager {
      * Helperfunction to create a modinfo class, holding the Opencast LTI module information.
      *
      * @param int $pluginid
+     * @param \stdClass $course
      * @param string $title
      * @param int $sectionid
      * @param int $toolid
@@ -407,9 +408,9 @@ class ltimodulemanager {
      *
      * @return object
      */
-    public static function build_lti_modinfo($pluginid, $title, $sectionid, $toolid, $instructorcustomparameters, $introtext = '',
-                                             $introformat = FORMAT_HTML, $availability = null) {
-        global $CFG;
+    public static function build_lti_modinfo($pluginid, $course, $title, $sectionid, $toolid, $instructorcustomparameters,
+                                             $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
+        global $DB;
 
         // Create standard class object.
         $moduleinfo = new \stdClass();
@@ -432,7 +433,13 @@ class ltimodulemanager {
         $moduleinfo->groupmode = NOGROUPS;
         $moduleinfo->groupingid = 0;
         $moduleinfo->availability = $availability;
-        $moduleinfo->completion = $CFG->completiondefault;
+
+        // Apply completion defaults.
+        $module = $DB->get_record('modules', array('name' => 'opencast'), '*', MUST_EXIST);
+        $defaults = \core_completion\manager::get_default_completion($course, $module);
+        foreach ($defaults as $key => $value) {
+            $moduleinfo->$key = $value;
+        }
 
         // Populate the modinfo object with LTI specific parameters.
         $moduleinfo->typeid = $toolid;
