@@ -1,0 +1,68 @@
+{
+  "resource": "/api/events/45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
+  "body": {
+    "identifier": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
+    "creator": "",
+    "presenter": [],
+    "created": "2021-08-11T09:32:00Z",
+    "is_part_of": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+    "subjects": [],
+    "start": "2021-08-11T09:32:00Z",
+    "description": "",
+    "language": "",
+    "source": "",
+    "title": "Test video (copy 1)",
+    "processing_state": "SUCCEEDED",
+    "duration": 0,
+    "license": "",
+    "archive_version": 5,
+    "contributor": [],
+    "series": "Series for import",
+    "has_previews": false,
+    "location": "",
+    "rightsholder": "",
+    "publication_status": [
+      "engage-player",
+      "api",
+      "annotation"
+    ],
+    "status": "EVENTS.EVENTS.STATUS.PROCESSED",
+    "acl": [
+      {
+        "allow": true,
+        "role": "ROLE_ADMIN",
+        "action": "read"
+      },
+      {
+        "allow": true,
+        "role": "ROLE_ADMIN",
+        "action": "write"
+      },
+      {
+        "allow": true,
+        "role": "206001_Instructor",
+        "action": "read"
+      },
+      {
+        "allow": true,
+        "role": "206001_Instructor",
+        "action": "write"
+      },
+      {
+        "allow": false,
+        "role": "206001_Learner",
+        "action": "read"
+      },
+      {
+        "allow": true,
+        "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+        "action": "read"
+      },
+      {
+        "allow": true,
+        "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+        "action": "write"
+      }
+    ]
+  }
+}
