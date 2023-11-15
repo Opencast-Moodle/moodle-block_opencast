@@ -74,14 +74,8 @@ Feature: Restore courses as Teacher
     And I click on "Add module and return to overview" "button"
     And I click on "Add Opencast episode module to course" "link"
     And I click on "Add module and return to course" "button"
-    And I open "Opencast videos" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "series=1234-1234-1234-1234-1234"
-    When I click on "Cancel" "button"
-    And I open "Test video" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
-    When I click on "Cancel" "button"
+    Then the lti tool "Opencast videos" should have the custom parameter "series=1234-1234-1234-1234-1234"
+    And the lti tool "Test video" should have the custom parameter "id=abcd-abcd-abcd-abcd"
     When I backup "Course 1" course using this options:
       | Confirmation | Filename                                                     | test_backup.mbz |
       | Schema       | Include videos from Opencast instance Default in this course | 0               |
@@ -99,13 +93,8 @@ Feature: Restore courses as Teacher
     Then I should see "The import of the selected videos into this course was scheduled"
     And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
     And I am on "Course 1 copy 1" course homepage with editing mode on
-    And I open "Opencast videos" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "series=84bab8de-5688-46a1-9af0-5ce9122eeb6a"
-    When I click on "Cancel" "button"
-    And I open "Test video" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Custom parameters" matches value "id=abcd-abcd-abcd-abcd"
+    Then the lti tool "Opencast videos" in the course "Course 1 copy 1" should have the custom parameter "series=84bab8de-5688-46a1-9af0-5ce9122eeb6a"
+    Then the lti tool "Test video" in the course "Course 1 copy 1" should have the custom parameter "id=abcd-abcd-abcd-abcd"
     And I run all adhoc tasks
     And the following config values are set as admin:
       | config     | value | plugin         |

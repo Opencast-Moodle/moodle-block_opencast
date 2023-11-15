@@ -103,8 +103,8 @@ class activitymodulemanager {
         }
 
         // Create an LTI modinfo object.
-        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $seriesid, opencasttype::SERIES,
-            $introtext, $introformat, $availability, $allowdownload);
+        $moduleinfo = self::build_activity_modinfo($pluginid, $course, $ocinstanceid, $title, $sectionid, $seriesid,
+                opencasttype::SERIES, $introtext, $introformat, $availability, $allowdownload);
 
         // Add the Opencast Activity series module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
@@ -158,7 +158,7 @@ class activitymodulemanager {
         }
 
         // Create an Opencast Activity modinfo object.
-        $moduleinfo = self::build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $episodeuuid,
+        $moduleinfo = self::build_activity_modinfo($pluginid, $course, $ocinstanceid, $title, $sectionid, $episodeuuid,
             opencasttype::EPISODE, $introtext, $introformat, $availability, $allowdownload);
 
         // Add the Opencast Activity episode module to the given course.
@@ -172,6 +172,7 @@ class activitymodulemanager {
      * Helperfunction to create a modinfo class, holding the Opencast LTI module information.
      *
      * @param int $pluginid
+     * @param \stdClass $course
      * @param int $ocinstanceid Opencast instance id
      * @param string $title
      * @param int $sectionid
@@ -184,10 +185,10 @@ class activitymodulemanager {
      *
      * @return object
      */
-    public static function build_activity_modinfo($pluginid, $ocinstanceid, $title, $sectionid, $opencastid, $type,
+    public static function build_activity_modinfo($pluginid, $course, $ocinstanceid, $title, $sectionid, $opencastid, $type,
                                                   $introtext = '', $introformat = FORMAT_HTML, $availability = null,
                                                   $allowdownload = false) {
-        global $CFG;
+        global $DB;
 
         // Create standard class object.
         $moduleinfo = new \stdClass();
@@ -211,12 +212,18 @@ class activitymodulemanager {
         $moduleinfo->groupmode = NOGROUPS;
         $moduleinfo->groupingid = 0;
         $moduleinfo->availability = $availability;
-        $moduleinfo->completion = $CFG->completiondefault;
 
         // Populate the modinfo object with opencast activity specific parameters.
         $moduleinfo->type = $type;
         $moduleinfo->opencastid = $opencastid;
         $moduleinfo->ocinstanceid = $ocinstanceid;
+
+        // Apply completion defaults.
+        $module = $DB->get_record('modules', array('name' => 'opencast'), '*', MUST_EXIST);
+        $defaults = \core_completion\manager::get_default_completion($course, $module);
+        foreach ($defaults as $key => $value) {
+            $moduleinfo->$key = $value;
+        }
 
         // Return modinfo.
         return $moduleinfo;

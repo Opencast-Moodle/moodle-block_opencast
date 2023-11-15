@@ -186,16 +186,41 @@ class behat_block_opencast extends behat_base {
     }
 
     /**
-     * adds a breakpoints
-     * stops the execution until you hit enter in the console
-     * @Then /^breakpoint in ocblock/
+     * Checks whether the given lti tool has the given custom parameter.
+     *
+     * @Then /^the lti tool "([^"]*)" should have the custom parameter "([^"]*)"$/
+     *
+     * @param string $ltitoolname
+     * @param string $customparameter
      */
-    public function breakpoint_in_ocblock() {
-        fwrite(STDOUT, "\033[s    \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
-        while (fgets(STDIN, 1024) == '') {
-            continue;
+    public function the_lti_tool_should_have_the_custom_parameter($ltitoolname, $customparameter) {
+        global $DB;
+
+        $ltitool = $DB->get_record('lti', ['name' => $ltitoolname]);
+        if ($ltitool->instructorcustomparameters !== $customparameter) {
+            throw new ExpectationException("$ltitoolname has custom parameter \"$ltitool->instructorcustomparameters\"" .
+                    " instead of expected \"$customparameter\"", $this->getSession());
         }
-        fwrite(STDOUT, "\033[u");
-        return;
+    }
+
+    /**
+     * Checks whether the given lti tool has the given custom parameter.
+     *
+     * @Then /^the lti tool "([^"]*)" in the course "([^"]*)" should have the custom parameter "([^"]*)"$/
+     *
+     * @param string $ltitoolname
+     * @param string $course
+     * @param string $customparameter
+     */
+    public function the_lti_tool_in_the_course_should_have_the_custom_parameter($ltitoolname, $course, $customparameter) {
+        global $DB;
+
+        $cid = $this->get_course_id($course);
+
+        $ltitool = $DB->get_record('lti', ['name' => $ltitoolname, 'course' => $cid]);
+        if ($ltitool->instructorcustomparameters !== $customparameter) {
+            throw new ExpectationException("$ltitoolname has custom parameter \"$ltitool->instructorcustomparameters\"".
+                    " instead of expected \"$customparameter\"", $this->getSession());
+        }
     }
 }

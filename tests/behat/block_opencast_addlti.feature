@@ -90,11 +90,7 @@ Feature: Add Opencast LTI series module as Teacher
     Then I should see "Course 1" in the "#page-header" "css_element"
     And I should see "The 'Opencast videos' series module has been added to this course."
     And I should see "Opencast videos" in the "li.activity" "css_element"
-    And I am on "Course 1" course homepage with editing mode on
-    And I open "Opencast videos" actions menu
-    And I choose "Edit settings" in the open action menu
-    Then the field "Preconfigured tool" matches value "Opencast series"
-    # Now, the field "Custom parameters" should also contain the Opencast series ID, but we can't test that with Behat
+    And the lti tool "Opencast videos" should have the custom parameter "series=1234-1234-1234-1234-1234"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     Then "View Opencast LTI series module in course" "link" should exist
