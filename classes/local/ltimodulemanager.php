@@ -1191,12 +1191,17 @@ class ltimodulemanager {
                 }
             }
             $isaddltienabled = get_config('block_opencast', 'addltienabled_' . $ocinstance->id);
-            if ($isaddltienabled) {
+            if (!empty($isaddltienabled)) {
                 $seriestoolid = self::get_preconfigured_tool_for_series($ocinstance->id);
                 if (!empty($seriestoolid) && !in_array($seriestoolid, $toolids)) {
                     $toolids[] = ['id' => $seriestoolid, 'ocinstanceid' => $ocinstance->id];
                 }
             }
+        }
+
+        // Escaping this step when there is no tool id to work with.
+        if (empty($toolids)) {
+            return 0;
         }
 
         // Getting all the opencast entries of both episode and series lti modules.
