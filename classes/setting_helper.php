@@ -43,27 +43,26 @@ class setting_helper {
      * @throws \coding_exception
      */
     public static function validate_workflow_setting($data) {
-        // Hack to get the opencast instance id.
-        $category = optional_param('category', null, PARAM_RAW);
-        if ($category) {
-            $ocinstanceid = intval(ltrim($category, 'block_opencast_instance_'));
-        } else {
-            $section = optional_param('section', null, PARAM_RAW);
-            $ocinstanceid = intval(ltrim($section, 'block_opencast_importvideossettings_'));
-        }
-
-        // Do only if a workflow was set.
-        if ($data != null) {
-            // Get an APIbridge instance.
-            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
-
-            // Verify if the given value is a valid Opencast workflow.
-            if (!$apibridge->check_if_workflow_exists($data)) {
-                return get_string('workflow_not_existing', 'block_opencast');
-            }
+        if ($data == null) {
             return false;
         }
 
+        // Hack to get the opencast instance id.
+        $category = optional_param('category', null, PARAM_RAW);
+        if ($category) {
+            $ocinstanceid = intval(str_replace('block_opencast_instance_', '', $category));
+        } else {
+            $section = optional_param('section', null, PARAM_RAW);
+            $ocinstanceid = intval(str_replace('block_opencast_importvideossettings_', '', $section));
+        }
+
+        // Get an APIbridge instance.
+        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+
+        // Verify if the given value is a valid Opencast workflow.
+        if (!$apibridge->check_if_workflow_exists($data)) {
+            return get_string('workflow_not_existing', 'block_opencast');
+        }
         return false;
     }
 
