@@ -33,6 +33,7 @@ Feature: Cleanup and update the lti modules
       | importvideoshandleseriesenabled_1  | 1                                                             | block_opencast |
       | importvideoshandleepisodeenabled_1 | 1                                                             | block_opencast |
       | addltiepisodeenabled_1             | 1                                                             | block_opencast |
+      | addltienabled_1                    | 1                                                             | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -41,28 +42,26 @@ Feature: Cleanup and update the lti modules
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast series                 |
-      | Tool URL                 | 172.17.0.1:8080/lti             |
+      | Tool URL                 | stable.opencast.org/lti             |
       | Custom parameters        | tool=ltitools/series/index.html |
       | Default launch container | Embed, without blocks           |
     And I press "Save changes"
     And I follow "Add preconfigured tool"
     And I set the following fields to these values:
       | Tool name                | Opencast episode                |
-      | Tool URL                 | 172.17.0.1:8080/lti             |
+      | Tool URL                 | stable.opencast.org/lti             |
       | Custom parameters        | tool=ltitools/player/index.html |
       | Default launch container | Embed, without blocks           |
     And I press "Save changes"
     And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
     And I set the following fields to these values:
-      | Enable "Add LTI series module"             | 1                |
       | Default LTI series module title            | Opencast videos  |
       | Preconfigured LTI tool for series modules  | Opencast series  |
-      | Enable "Add LTI episode module"            | 1                |
       | Preconfigured LTI tool for episode modules | Opencast episode |
     And I press "Save changes"
 
   @javascript
-  Scenario: Teacher should be able to add LTI module manually and the record should be captured and cleaup must be executed when faulty entry recognized
+  Scenario: Teacher should be able to add LTI module manually and the record should be captured and cleaup must be executed when faulty entry recognized and deactivating the feature should escape the process
     Given I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
     And I add a "External tool" to section "1"
@@ -117,3 +116,17 @@ Feature: Cleanup and update the lti modules
     When I reload the page
     Then I should not see "Opencast episode Manual Correct Edited Faulty"
     And I should see "Opencast series Manual Correct Edited"
+    # From here is about testing (disabling) the cleanup feature when the settings are deactivated.
+    And the following config values are set as admin:
+      | addltiepisodeenabled_1             | 0                                                             | block_opencast |
+      | addltienabled_1                    | 0                                                             | block_opencast |
+    And I reload the page
+    And I add a "External tool" to section "1"
+    And I set the field "Activity name" to "Opencast episode Manual Faulty DEACTIVATED"
+    And I expand all fieldsets
+    And I set the field "Preconfigured tool" to "Opencast episode"
+    And I set the field "Custom parameters" to "id=abcd"
+    And I press "Save and return to course"
+    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    And I reload the page
+    Then I should see "Opencast episode Manual Faulty DEACTIVATED"
