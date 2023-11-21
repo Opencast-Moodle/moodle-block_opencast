@@ -22,8 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\error_manager;
 use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
+use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
 /**
@@ -95,11 +97,42 @@ function block_opencast_output_fragment_series_form($args) {
 
 
 /**
- * Pre-delete course hook to cleanup any records with references to the deleted course.
+ * Pre-delete course hook to cleanup any records with references to the deleted course and delete unused series.
  *
  * @param stdClass $course The deleted course
  */
 function block_opencast_pre_course_delete(\stdClass $course) {
+    global $DB;
+
+    foreach (settings_api::get_ocinstances() as $ocinstance) {
+        $apibridge = apibridge::get_instance($ocinstance->id);
+        foreach ($apibridge->get_course_series($course->id) as $courseseries) {
+            // Don't delete series if there are any other courses using it.
+            if ($DB->record_exists_sql('SELECT c.id FROM {tool_opencast_series} s
+                        JOIN {course} c ON s.courseid = c.id
+                        WHERE series = :series AND ocinstanceid = :instance AND s.courseid != :courseid',
+                    ['series' => $courseseries->series, 'instance' => $ocinstance->id, 'courseid' => $course->id])) {
+                continue;
+            }
+            $seriesvideos = $apibridge->get_series_videos($courseseries->series);
+            if ($seriesvideos->error != 0) {
+                error_manager::add_error(error_manager::DELETE_COURSE_COULD_NOT_RETRIEVE_SERIES,
+                        "Could not retrieve series $courseseries->series, ocid $ocinstance->id.",
+                        ['courseid' => $course->id, 'ocid' => $ocinstance->id, 'seriesid' => $courseseries->series]);
+                mtrace("Could not retrieve series $courseseries->series, ocid $ocinstance->id.");
+                continue;
+            }
+            foreach ($seriesvideos->videos as $video) {
+                if (!$apibridge->trigger_delete_event($video->identifier)) {
+                    error_manager::add_error(error_manager::DELETE_COURSE_COULD_NOT_DELETE_EVENT,
+                            "Error deleting event $video->identifier, ocid $ocinstance->id.",
+                            ['courseid' => $course->id, 'ocid' => $ocinstance->id, 'eventid' => $video->identifier]);
+                    mtrace("Error deleting event $video->identifier, ocid $ocinstance->id.");
+                }
+            }
+        }
+    }
+
     $mappings = seriesmapping::get_records(array('courseid' => $course->id));
     foreach ($mappings as $mapping) {
         $mapping->delete();
