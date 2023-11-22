@@ -20,14 +20,14 @@
  * @copyright  2020 Farbod Zamani (zamani@elan-ev.de)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery'], function ($) {
+define(['jquery'], function($) {
 
     /**
      * Submits lti form.
      *
      * @param {int} waitseconds The optional waiting time in seconds.
      */
-    var init = function (waitseconds = 0) {
+    var init = function(waitseconds = 0) {
         setTimeout(() => $('#ltiLaunchForm').submit(), waitseconds * 1000);
     };
     return {
