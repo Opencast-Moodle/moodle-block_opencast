@@ -29,7 +29,6 @@ use core_plugin_manager;
 use course_modinfo;
 use mod_opencast\local\opencasttype;
 use stdClass;
-use function add_moduleinfo;
 
 /**
  * LTI module management for block_opencast.
@@ -114,7 +113,7 @@ class activitymodulemanager {
 
         // Add the Opencast Activity series module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
-        add_moduleinfo($moduleinfo, $course);
+        \add_moduleinfo($moduleinfo, $course);
 
         return true;
     }

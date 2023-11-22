@@ -31,8 +31,6 @@ use Exception;
 use moodle_exception;
 use stdClass;
 use tool_opencast\local\settings_api;
-use function add_moduleinfo;
-use function lti_filter_get_types;
 
 /**
  * LTI module management for block_opencast.
@@ -58,7 +56,7 @@ class ltimodulemanager {
         require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
         // Get configured tools and filter them for tools which are configured by the admin.
-        $types = lti_filter_get_types(get_site()->id);
+        $types = \lti_filter_get_types(get_site()->id);
         $configuredtools = lti_filter_tool_types($types, LTI_TOOL_STATE_CONFIGURED);
 
         // Initialize array of tool to be returned.
@@ -321,7 +319,7 @@ class ltimodulemanager {
             $introtext, $introformat, $availability);
 
         // Add the LTI series module to the given course (this doesn't check any capabilities to add modules to courses by purpose).
-        $modulecreated = add_moduleinfo($moduleinfo, $course);
+        $modulecreated = \add_moduleinfo($moduleinfo, $course);
 
         // Remember the module id.
         $record = new stdClass();
@@ -390,7 +388,7 @@ class ltimodulemanager {
             $introformat, $availability);
 
         // Add the LTI episode module to the given course. This doesn't check any capabilities to add modules to courses by purpose.
-        $modulecreated = add_moduleinfo($moduleinfo, $course);
+        $modulecreated = \add_moduleinfo($moduleinfo, $course);
 
         // Remember the module id.
         $record = new stdClass();
