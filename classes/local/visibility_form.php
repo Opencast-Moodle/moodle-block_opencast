@@ -43,14 +43,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class visibility_form extends moodleform
-{
+class visibility_form extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
         $mform = $this->_form;
 
@@ -196,8 +195,7 @@ class visibility_form extends moodleform
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         if ($data['visibility'] == block_opencast_renderer::GROUP && empty($data['groups'])) {
             $errors['visibility'] = get_string('emptyvisibilitygroups', 'block_opencast');

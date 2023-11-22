@@ -38,8 +38,8 @@ use function add_moduleinfo;
  * @copyright  2021 Justus Dieckmann WWU, 2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class activitymodulemanager
-{
+class activitymodulemanager {
+
 
     /**
      * Helperfunction to get the status of the Opencast series feature.
@@ -48,8 +48,7 @@ class activitymodulemanager
      * @param int $ocinstanceid Opencast instance id
      * @return boolean
      */
-    public static function is_enabled_and_working_for_series($ocinstanceid): bool
-    {
+    public static function is_enabled_and_working_for_series($ocinstanceid): bool {
         return get_config('block_opencast', 'addactivityenabled_' . $ocinstanceid) != false &&
             core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
@@ -61,8 +60,7 @@ class activitymodulemanager
      * @param int $ocinstanceid Opencast instance id
      * @return boolean
      */
-    public static function is_enabled_and_working_for_episodes($ocinstanceid)
-    {
+    public static function is_enabled_and_working_for_episodes($ocinstanceid) {
         return get_config('block_opencast', 'addactivityepisodeenabled_' . $ocinstanceid) != false &&
             core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
@@ -83,8 +81,7 @@ class activitymodulemanager
      * @return boolean
      */
     public static function create_module_for_series($courseid, $ocinstanceid, $title, $seriesid, $sectionid = 0, $introtext = '',
-                                                    $introformat = FORMAT_HTML, $availability = null, $allowdownload = false)
-    {
+                                                    $introformat = FORMAT_HTML, $availability = null, $allowdownload = false) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -139,8 +136,7 @@ class activitymodulemanager
      */
     public static function create_module_for_episode($courseid, $ocinstanceid, $title, $episodeuuid, $sectionid = 0,
                                                      $introtext = '', $introformat = FORMAT_HTML, $availability = null,
-                                                     $allowdownload = false)
-    {
+                                                     $allowdownload = false) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -197,8 +193,7 @@ class activitymodulemanager
      */
     public static function build_activity_modinfo($pluginid, $course, $ocinstanceid, $title, $sectionid, $opencastid, $type,
                                                   $introtext = '', $introformat = FORMAT_HTML, $availability = null,
-                                                  $allowdownload = false)
-    {
+                                                  $allowdownload = false) {
         global $DB;
 
         // Create standard class object.
@@ -250,18 +245,17 @@ class activitymodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($ocinstanceid, $courseid, $seriesid)
-    {
+    public static function get_module_for_series($ocinstanceid, $courseid, $seriesid) {
         global $DB;
 
         // Get the Opencast Activity series module id.
         if (get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
-                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid,], IGNORE_MULTIPLE);
+                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid, ], IGNORE_MULTIPLE);
         } else {
             // Ensure backwards compatibility since ocinstanceid does not exist before.
             $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
-                'type' => opencasttype::SERIES, 'opencastid' => $seriesid,], IGNORE_MULTIPLE);
+                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, ], IGNORE_MULTIPLE);
         }
 
         // If there is a Opencast Activity series module found.
@@ -292,17 +286,16 @@ class activitymodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_episode($courseid, $episodeuuid, $ocinstanceid)
-    {
+    public static function get_module_for_episode($courseid, $episodeuuid, $ocinstanceid) {
         global $DB;
 
         // Get the Opencast Activity series module id.
         if (get_config('mod_opencast', 'version') >= 2021091200) {
             $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
-                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid,], IGNORE_MULTIPLE);
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid, ], IGNORE_MULTIPLE);
         } else {
             $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
-                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE,], IGNORE_MULTIPLE);
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, ], IGNORE_MULTIPLE);
         }
 
         // If there is a Opencast Activity series module found.
@@ -331,8 +324,7 @@ class activitymodulemanager
      * @param int $ocinstanceid Opencast instance id
      * @return string
      */
-    public static function get_default_title_for_series($ocinstanceid)
-    {
+    public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
         $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_' . $ocinstanceid);
 
@@ -354,8 +346,7 @@ class activitymodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_episode($ocinstanceid, $episodeuuid)
-    {
+    public static function get_default_title_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -390,8 +381,7 @@ class activitymodulemanager
      *
      * @return string
      */
-    public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid)
-    {
+    public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -430,8 +420,7 @@ class activitymodulemanager
      *
      * @return array
      */
-    public static function get_course_sections($courseid)
-    {
+    public static function get_course_sections($courseid) {
         // Get course format.
         $courseformat = course_get_format($courseid);
 
@@ -464,8 +453,7 @@ class activitymodulemanager
      *
      * @return array of course module IDs. The course module ID is used as array key, the references series ID as array value.
      */
-    public static function get_modules_for_series_linking_to_other_course($ocinstanceid, $courseid, $referencedcourseid)
-    {
+    public static function get_modules_for_series_linking_to_other_course($ocinstanceid, $courseid, $referencedcourseid) {
         global $DB;
 
         // Get an APIbridge instance.
@@ -478,7 +466,7 @@ class activitymodulemanager
             $seriesmodules = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
                 'type' => opencasttype::SERIES,
                 'course' => $courseid,
-                'opencastid' => $series->series,]);
+                'opencastid' => $series->series, ]);
 
             // If there are any existing series modules in this course.
             if (count($seriesmodules) > 0) {
@@ -510,8 +498,7 @@ class activitymodulemanager
      * @return array
      */
     public static function get_modules_for_episodes_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid,
-                                                                            $onlytheseepisodes = null)
-    {
+                                                                            $onlytheseepisodes = null) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -554,14 +541,13 @@ class activitymodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $courseid, $referencedepisodeid)
-    {
+    public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $courseid, $referencedepisodeid) {
         global $DB;
 
         $episodemodules = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
             'course' => $courseid,
             'type' => opencasttype::EPISODE,
-            'opencastid' => $referencedepisodeid,]);
+            'opencastid' => $referencedepisodeid, ]);
 
         // Initialize modules to be returned as empty array.
         $modules = [];
@@ -592,8 +578,7 @@ class activitymodulemanager
      *
      * @return bool
      */
-    public static function cleanup_episode_modules($courseid, $episodemodules, $episodeid)
-    {
+    public static function cleanup_episode_modules($courseid, $episodemodules, $episodeid) {
         global $CFG, $DB;
 
         // If there aren't any modules to be cleaned up given, return.
@@ -621,8 +606,7 @@ class activitymodulemanager
      *
      * @return bool
      */
-    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedseries)
-    {
+    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedseries) {
         global $DB;
 
         // Get old series id.
@@ -634,7 +618,7 @@ class activitymodulemanager
         $success = true;
         foreach ($referencedseries as $series) {
             $success = $success && $DB->set_field('opencast', 'opencastid', $courseseries, ['ocinstanceid' => $ocinstanceid,
-                    'type' => opencasttype::SERIES, 'opencastid' => $series, 'course' => $modulecourseid,]);
+                    'type' => opencasttype::SERIES, 'opencastid' => $series, 'course' => $modulecourseid, ]);
         }
 
         return $success;

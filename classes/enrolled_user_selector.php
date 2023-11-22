@@ -33,8 +33,8 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
  * @copyright 2022 Tamara Gunkel, WWU
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class block_opencast_enrolled_user_selector extends user_selector_base
-{
+class block_opencast_enrolled_user_selector extends user_selector_base {
+
     /** @var bool|context|context_system|mixed|null Moodle context, usually course */
     protected $context;
 
@@ -43,8 +43,7 @@ class block_opencast_enrolled_user_selector extends user_selector_base
      * @param string $name control name
      * @param array $options should have two elements with keys groupid and courseid.
      */
-    public function __construct($name, $options)
-    {
+    public function __construct($name, $options) {
         if (isset($options['context'])) {
             $this->context = $options['context'];
         } else {
@@ -57,8 +56,7 @@ class block_opencast_enrolled_user_selector extends user_selector_base
      * Get options supported by the selector.
      * @return array
      */
-    protected function get_options()
-    {
+    protected function get_options() {
         $options = parent::get_options();
         $options['contextid'] = $this->context->id;
         return $options;
@@ -71,8 +69,7 @@ class block_opencast_enrolled_user_selector extends user_selector_base
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function find_users($search)
-    {
+    public function find_users($search) {
         global $DB;
 
         list($enrolsql, $eparams) = get_enrolled_sql($this->context);

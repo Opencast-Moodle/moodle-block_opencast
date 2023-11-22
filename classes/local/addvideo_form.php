@@ -49,13 +49,12 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addvideo_form extends moodleform
-{
+class addvideo_form extends moodleform {
+
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $CFG, $DB, $PAGE;
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -460,8 +459,7 @@ class addvideo_form extends moodleform
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
         if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
@@ -542,8 +540,7 @@ class addvideo_form extends moodleform
      * @return string
      * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null)
-    {
+    protected function try_get_string($identifier, $component = '', $a = null) {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {

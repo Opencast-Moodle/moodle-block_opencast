@@ -37,8 +37,8 @@ use tool_opencast\local\api;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class event
-{
+class event {
+
 
     /** @var array Access control list. */
     private array $acl = [];
@@ -55,8 +55,7 @@ class event
      * @param int $id
      * @param string $value
      */
-    public function add_meta_data($id, $value)
-    {
+    public function add_meta_data($id, $value) {
         $this->metadatafields[] = ['id' => $id, 'value' => $value];
     }
 
@@ -65,8 +64,7 @@ class event
      *
      * @return string json encoded metadata.
      */
-    public function get_meta_data()
-    {
+    public function get_meta_data() {
 
         $metadata = [];
         $metadata['label'] = "Opencast Series Dublincore";
@@ -81,8 +79,7 @@ class event
      *
      * @param int $fileid
      */
-    public function set_presentation($fileid)
-    {
+    public function set_presentation($fileid) {
         $fs = get_file_storage();
         $this->presentation = $fs->get_file_by_id($fileid);
     }
@@ -93,8 +90,7 @@ class event
      * @param string $chunkuploadid
      * @throws moodle_exception
      */
-    public function set_chunkupload_presenter($chunkuploadid)
-    {
+    public function set_chunkupload_presenter($chunkuploadid) {
         if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
             throw new moodle_exception("local_chunkupload is not installed. This should never happen.");
         }
@@ -107,8 +103,7 @@ class event
      * @param string $chunkuploadid
      * @throws moodle_exception
      */
-    public function set_chunkupload_presentation($chunkuploadid)
-    {
+    public function set_chunkupload_presentation($chunkuploadid) {
         if (!class_exists('\local_chunkupload\chunkupload_form_element')) {
             throw new moodle_exception("local_chunkupload is not installed. This should never happen.");
         }
@@ -120,8 +115,7 @@ class event
      *
      * @return object|null
      */
-    public function get_presentation()
-    {
+    public function get_presentation() {
         return $this->presentation;
     }
 
@@ -130,8 +124,7 @@ class event
      *
      * @param int $fileid
      */
-    public function set_presenter($fileid)
-    {
+    public function set_presenter($fileid) {
         $fs = get_file_storage();
         $this->presenter = $fs->get_file_by_id($fileid);
     }
@@ -141,8 +134,7 @@ class event
      *
      * @return object|null
      */
-    public function get_presenter()
-    {
+    public function get_presenter() {
         return $this->presenter;
     }
     // End adding presenter option.
@@ -153,8 +145,7 @@ class event
      * @param string|array $jsonacl acl arry or string as received from opencast.
      * @throws moodle_exception
      */
-    public function set_json_acl($jsonacl)
-    {
+    public function set_json_acl($jsonacl) {
 
         $jsonacl = is_string($jsonacl) ? json_decode($jsonacl) : $jsonacl;
         $this->acl = $jsonacl;
@@ -171,8 +162,7 @@ class event
      * @param string $action
      * @param string $role
      */
-    public function add_acl($allow, $action, $role)
-    {
+    public function add_acl($allow, $action, $role) {
 
         $this->remove_acl($action, $role);
         $this->acl[] = (object)['allow' => $allow, 'role' => $role, 'action' => $action];
@@ -184,8 +174,7 @@ class event
      * @param string $action Action
      * @param string $role Role name
      */
-    public function has_acl($allow, $action, $role)
-    {
+    public function has_acl($allow, $action, $role) {
         $role = (object)['allow' => $allow, 'role' => $role, 'action' => $action];
         return in_array($role, $this->acl);
     }
@@ -195,8 +184,7 @@ class event
      * @param string $action Action
      * @param string $role Role name
      */
-    public function remove_acl($action, $role)
-    {
+    public function remove_acl($action, $role) {
 
         foreach ($this->acl as $key => $acl) {
             if (($acl->action == $action) && ($acl->role == $role)) {
@@ -211,8 +199,7 @@ class event
      *
      * @return string
      */
-    public function get_next_series_courseid()
-    {
+    public function get_next_series_courseid() {
 
         if (!$this->acl) {
             return false;
@@ -234,8 +221,7 @@ class event
      * Get the acl rules as array.
      * @return array
      */
-    public function get_acl()
-    {
+    public function get_acl() {
         return $this->acl;
     }
 
@@ -244,8 +230,7 @@ class event
      *
      * @return string.
      */
-    public function get_json_acl()
-    {
+    public function get_json_acl() {
         return json_encode(array_values($this->acl));
     }
 
@@ -255,8 +240,7 @@ class event
      * @param int $ocinstanceid Opencast instance id.
      * @return string
      */
-    public function get_processing($ocinstanceid)
-    {
+    public function get_processing($ocinstanceid) {
 
         $uploadworkflow = get_config('block_opencast', 'uploadworkflow_' . $ocinstanceid);
         if (empty($uploadworkflow)) {
@@ -284,8 +268,7 @@ class event
      * @param int $ocinstanceid Opencast instance id.
      * @return array form params.
      */
-    public function get_form_params($ocinstanceid)
-    {
+    public function get_form_params($ocinstanceid) {
 
         $params = [];
         $params['acl'] = $this->get_json_acl();
@@ -314,8 +297,7 @@ class event
      * @return mixed false if task could not be created, id of inserted task otherwise.
      */
     public static function create_duplication_task($ocinstanceid, $courseid, $seriesid,
-                                                   $eventid, $modulecleanup = false, $episodemodules = null)
-    {
+                                                   $eventid, $modulecleanup = false, $episodemodules = null) {
 
         $task = new process_duplicate_event();
 

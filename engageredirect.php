@@ -37,9 +37,9 @@ $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 // Preparing the urls for the page.
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/engageredirect.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 // Check if the user is logged in.

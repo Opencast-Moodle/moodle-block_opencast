@@ -37,8 +37,8 @@ use stdClass;
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideosmanager
-{
+class importvideosmanager {
+
 
     /**
      * Helperfunction to get the status of the manual import videos feature.
@@ -47,8 +47,7 @@ class importvideosmanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_enabled_and_working_for_manualimport($ocinstanceid)
-    {
+    public static function is_enabled_and_working_for_manualimport($ocinstanceid) {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid);
 
@@ -120,8 +119,7 @@ class importvideosmanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_enabled_and_working_for_coreimport($ocinstanceid)
-    {
+    public static function is_enabled_and_working_for_coreimport($ocinstanceid) {
         // Get the status of the whole import featureset.
         $config = get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid);
 
@@ -191,8 +189,7 @@ class importvideosmanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function handle_series_modules_is_enabled_and_working($ocinstanceid)
-    {
+    public static function handle_series_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleseriesenabled_' . $ocinstanceid);
 
@@ -223,8 +220,7 @@ class importvideosmanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function handle_episode_modules_is_enabled_and_working($ocinstanceid)
-    {
+    public static function handle_episode_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'importvideoshandleepisodeenabled_' . $ocinstanceid);
 
@@ -258,8 +254,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_series_and_videos_menu($ocinstanceid, $sourcecourseid)
-    {
+    public static function get_import_source_course_series_and_videos_menu($ocinstanceid, $sourcecourseid) {
         global $PAGE;
 
         // Get renderer.
@@ -312,8 +307,7 @@ class importvideosmanager
      *
      * @return array
      */
-    public static function get_import_source_course_videos_summary($ocinstanceid, $sourcecourseid, $selectedcoursevideos)
-    {
+    public static function get_import_source_course_videos_summary($ocinstanceid, $sourcecourseid, $selectedcoursevideos) {
         global $PAGE;
 
         // Get renderer.
@@ -369,8 +363,7 @@ class importvideosmanager
      * @return array
      * @throws dml_exception
      */
-    public static function get_import_source_course_series($ocinstanceid, $sourcecourseid)
-    {
+    public static function get_import_source_course_series($ocinstanceid, $sourcecourseid) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
         $series = $apibridge->get_course_series($sourcecourseid);
@@ -396,8 +389,7 @@ class importvideosmanager
      * @return stdClass
      */
     public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid,
-                                            $coursevideos, $modulecleanup = false)
-    {
+                                            $coursevideos, $modulecleanup = false) {
         global $USER;
         $result = new stdClass();
 
@@ -502,8 +494,7 @@ class importvideosmanager
      *
      * @return string
      */
-    public static function get_import_acl_source_series_videos_summary($ocinstanceid, $seriesid)
-    {
+    public static function get_import_acl_source_series_videos_summary($ocinstanceid, $seriesid) {
         global $PAGE;
 
         // Get renderers.
@@ -554,8 +545,7 @@ class importvideosmanager
      *
      * @return object
      */
-    public static function change_acl($ocinstanceid, $sourcecourseid, $sourcecourseseries, $targetcourseid)
-    {
+    public static function change_acl($ocinstanceid, $sourcecourseid, $sourcecourseseries, $targetcourseid) {
         global $USER, $PAGE;
 
         // Initialize the result as empty object to handle it later on.

@@ -38,9 +38,9 @@ $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/videoeditor.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);

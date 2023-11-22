@@ -1189,8 +1189,8 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         // Construct html form for the launch parameters.
         foreach ($params as $key => $value) {
-            $key = htmlspecialchars($key);
-            $value = htmlspecialchars($value);
+            $key = htmlspecialchars($key, ENT_COMPAT);
+            $value = htmlspecialchars($value, ENT_COMPAT);
             $content .= "<input type=\"hidden\" name=\"{$key}\"";
             $content .= " value=\"";
             $content .= $value;

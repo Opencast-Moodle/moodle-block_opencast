@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);

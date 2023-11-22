@@ -43,14 +43,13 @@ use stdClass;
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class privacy_test extends provider_testcase
-{
+class privacy_test extends provider_testcase {
+
 
     /**
      * Overriding setUp() function to always reset after tests.
      */
-    public function setUp(): void
-    {
+    public function setUp(): void {
         $this->resetAfterTest(true);
     }
 
@@ -59,8 +58,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider
      */
-    public function test_get_metadata()
-    {
+    public function test_get_metadata() {
         $collection = new collection('block_opencast');
         $newcollection = provider::get_metadata($collection);
         $itemcollection = $newcollection->get_collection();
@@ -94,8 +92,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::get_contexts_for_userid
      */
-    public function test_get_contexts_for_userid()
-    {
+    public function test_get_contexts_for_userid() {
         global $DB;
 
         // Test setup.
@@ -168,8 +165,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::export_user_data
      */
-    public function test_export_user_data()
-    {
+    public function test_export_user_data() {
         global $DB;
 
         // Test setup.
@@ -227,8 +223,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::delete_data_for_all_users_in_context
      */
-    public function test_delete_data_for_all_users_in_context()
-    {
+    public function test_delete_data_for_all_users_in_context() {
         global $DB;
 
         // Test setup.
@@ -275,8 +270,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::delete_data_for_user
      */
-    public function test_delete_data_for_user()
-    {
+    public function test_delete_data_for_user() {
         global $DB;
 
         // Test setup.
@@ -366,8 +360,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::get_users_in_context
      */
-    public function test_get_users_in_context()
-    {
+    public function test_get_users_in_context() {
         global $DB;
 
         // Test setup.
@@ -472,8 +465,7 @@ class privacy_test extends provider_testcase
      *
      * @covers \block_opencast\privacy\provider::delete_data_for_users
      */
-    public function test_delete_data_for_users()
-    {
+    public function test_delete_data_for_users() {
         global $DB;
 
         // Test setup.

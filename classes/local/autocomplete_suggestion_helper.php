@@ -34,16 +34,15 @@ use core_user;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class autocomplete_suggestion_helper
-{
+class autocomplete_suggestion_helper {
+
 
     /**
      * Get all available suggestions for contributor and creator (Presenter) metadata field.
      * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
-    public static function get_suggestions_for_creator_and_contributor($ocinstanceid)
-    {
+    public static function get_suggestions_for_creator_and_contributor($ocinstanceid) {
         // We gather all suggestions array lists from different methods and return it as one array.
         // We use array_unique to make sure that there is no duplication.
         // We use array_filter to make sure there is no empty elements.
@@ -66,8 +65,7 @@ class autocomplete_suggestion_helper
      *
      * @return array
      */
-    private static function get_suggestions_from_course_teachers()
-    {
+    private static function get_suggestions_from_course_teachers() {
         global $COURSE;
 
         // Getting the course context.
@@ -102,8 +100,7 @@ class autocomplete_suggestion_helper
      *
      * @return array
      */
-    private static function get_suggestions_from_existing_uploadjobs()
-    {
+    private static function get_suggestions_from_existing_uploadjobs() {
         global $COURSE, $DB;
 
         // Initialize the array list to return.
@@ -182,8 +179,7 @@ class autocomplete_suggestion_helper
      * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
-    private static function get_suggestions_from_opencast_course_videos($ocinstanceid)
-    {
+    private static function get_suggestions_from_opencast_course_videos($ocinstanceid) {
         global $COURSE;
 
         // Initialize the array list to return.

@@ -43,13 +43,12 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class managedefaults_form extends moodleform
-{
+class managedefaults_form extends moodleform {
+
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $CFG, $PAGE;
         // Get the renderer to use its methods.
         $this->renderer = $PAGE->get_renderer('block_opencast');
@@ -111,8 +110,7 @@ class managedefaults_form extends moodleform
      * @return string
      * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null)
-    {
+    protected function try_get_string($identifier, $component = '', $a = null) {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -126,8 +124,7 @@ class managedefaults_form extends moodleform
      * @param string $belongsto decides which default sets the element belongs to.
      * @param string $default the default value that user has already set.
      */
-    protected function generate_element($field, $belongsto, $default = null)
-    {
+    protected function generate_element($field, $belongsto, $default = null) {
         $mform = $this->_form;
         $param = [];
         $attributes = [];

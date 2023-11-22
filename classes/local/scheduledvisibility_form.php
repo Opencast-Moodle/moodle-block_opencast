@@ -42,14 +42,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class scheduledvisibility_form extends moodleform
-{
+class scheduledvisibility_form extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
         $mform = $this->_form;
 
@@ -171,8 +170,7 @@ class scheduledvisibility_form extends moodleform
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         // Deducting 2 minutes from the time, to let teachers finish the form.
         $customminutes = [

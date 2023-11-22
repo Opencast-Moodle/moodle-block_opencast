@@ -40,8 +40,8 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @copyright 2021 Tamara Gunkel, University of Münster
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class behat_block_opencast extends behat_base
-{
+class behat_block_opencast extends behat_base {
+
 
     /**
      * @var $directaccesslink string direct access link to be saved temporarily, and then be used when needed. (i.e. in the step
@@ -53,8 +53,7 @@ class behat_block_opencast extends behat_base
      * Setup test opencast API.
      * @Given /^I setup the opencast test api$/
      */
-    public function i_setup_the_opencast_test_api()
-    {
+    public function i_setup_the_opencast_test_api() {
         set_config('api_testable_responses', '[]', 'tool_opencast');
         $this->load_apitestable_json_responses();
     }
@@ -63,8 +62,7 @@ class behat_block_opencast extends behat_base
      * Upload a testvideo.
      * @Given /^I upload a testvideo$/
      */
-    public function i_upload_a_testvideo()
-    {
+    public function i_upload_a_testvideo() {
         $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
         $mapping = new seriesmapping();
@@ -79,8 +77,7 @@ class behat_block_opencast extends behat_base
      * Create a second series.
      * @Given /^I create a second series$/
      */
-    public function i_create_a_second_series()
-    {
+    public function i_create_a_second_series() {
         $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
         $mapping = new seriesmapping();
@@ -95,8 +92,7 @@ class behat_block_opencast extends behat_base
      * Setup default settings for the block
      * @Given /^I setup the default settigns for opencast plugins$/
      */
-    public function i_setup_the_default_settings_for_opencast_plugins()
-    {
+    public function i_setup_the_default_settings_for_opencast_plugins() {
         setting_default_manager::init_regirstered_defaults(1);
     }
 
@@ -105,8 +101,7 @@ class behat_block_opencast extends behat_base
      * stops the execution until you hit enter in the console
      * @Then /^breakpoint/
      */
-    public function breakpoint()
-    {
+    public function breakpoint() {
         fwrite(STDOUT, "\033[s    \033[93m[Breakpoint] Press \033[1;93m[RETURN]\033[0;93m to continue...\033[0m");
         while (fgets(STDIN, 1024) == '') {
             continue;
@@ -118,8 +113,7 @@ class behat_block_opencast extends behat_base
     /**
      * Loads the json responses taken from fixtures dir into apitestable config.
      */
-    protected function load_apitestable_json_responses()
-    {
+    protected function load_apitestable_json_responses() {
         $apicallsdir = __DIR__ . "/../fixtures/api_calls";
         $excludes = ['.', '..'];
         foreach (scandir($apicallsdir) as $method) {
@@ -145,8 +139,7 @@ class behat_block_opencast extends behat_base
      * Opens the video's direct access link
      * @Given /^I go to direct access link$/
      */
-    public function i_go_to_direct_access_link()
-    {
+    public function i_go_to_direct_access_link() {
         // Get the direct access link.
         if (empty($this->directaccesslink)) {
             $csselement = '#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a.access-link-copytoclipboard';
@@ -165,8 +158,7 @@ class behat_block_opencast extends behat_base
      * Checks if there is no video in processing stage (mainly used for republish-metadata workflow).
      * @Given /^I wait until no video is being processed$/
      */
-    public function i_wait_until_no_video_is_being_processed()
-    {
+    public function i_wait_until_no_video_is_being_processed() {
         $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
         $mappedseries = seriesmapping::get_records(['ocinstanceid' => 1, 'courseid' => reset($courses)->id]);
@@ -189,8 +181,7 @@ class behat_block_opencast extends behat_base
      * Makes sure that opencast video is available in opencast
      * @Given /^I should watch the video in opencast$/
      */
-    public function i_should_watch_the_video_in_opencast()
-    {
+    public function i_should_watch_the_video_in_opencast() {
         $xpath = "//video";
         $this->execute('behat_general::should_exist', [$xpath, 'xpath_element']);
     }
@@ -203,8 +194,7 @@ class behat_block_opencast extends behat_base
      * @param string $ltitoolname
      * @param string $customparameter
      */
-    public function the_lti_tool_should_have_the_custom_parameter($ltitoolname, $customparameter)
-    {
+    public function the_lti_tool_should_have_the_custom_parameter($ltitoolname, $customparameter) {
         global $DB;
 
         $ltitool = $DB->get_record('lti', ['name' => $ltitoolname]);
@@ -223,8 +213,7 @@ class behat_block_opencast extends behat_base
      * @param string $course
      * @param string $customparameter
      */
-    public function the_lti_tool_in_the_course_should_have_the_custom_parameter($ltitoolname, $course, $customparameter)
-    {
+    public function the_lti_tool_in_the_course_should_have_the_custom_parameter($ltitoolname, $course, $customparameter) {
         global $DB;
 
         $cid = $this->get_course_id($course);

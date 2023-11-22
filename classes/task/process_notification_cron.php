@@ -34,16 +34,15 @@ use lang_string;
  * Task for processing the event status notification jobs.
  * @package block_opencast
  */
-class process_notification_cron extends scheduled_task
-{
+class process_notification_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
      * @return lang_string|string
      * @throws coding_exception
      */
-    public function get_name()
-    {
+    public function get_name() {
         return get_string('processnotification', 'block_opencast');
     }
 
@@ -51,8 +50,7 @@ class process_notification_cron extends scheduled_task
      * Executes the task.
      * @throws dml_exception
      */
-    public function execute()
-    {
+    public function execute() {
         $notificationhelper = new eventstatus_notification_helper();
         $notificationhelper->cron();
     }

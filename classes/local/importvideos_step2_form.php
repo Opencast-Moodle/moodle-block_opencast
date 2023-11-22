@@ -37,14 +37,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step2_form extends moodleform
-{
+class importvideos_step2_form extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
 
         // Define mform.
@@ -92,7 +91,7 @@ class importvideos_step2_form extends moodleform
             $mform->addElement('html', '<p>' . $info['title'] . '</p>');
             foreach ($info['videos'] as $videoid => $label) {
                 $mform->addElement('advcheckbox', 'coursevideos[' . $videoid . ']', $label, null,
-                    array('group' => 'coursevideocheckboxes'));
+                    ['group' => 'coursevideocheckboxes']);
             }
         }
         $this->add_checkbox_controller('coursevideocheckboxes', null, null, 1);
@@ -107,8 +106,7 @@ class importvideos_step2_form extends moodleform
      * @param array $files Form files
      * @return array Validation results
      */
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         // Ask parent class for errors first.
         $errors = parent::validation($data, $files);
 

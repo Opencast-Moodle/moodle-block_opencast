@@ -39,14 +39,13 @@ require_once($CFG->dirroot . '/backup/util/ui/import_extensions.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_coursesearch extends import_course_search
-{
+class importvideos_coursesearch extends import_course_search {
+
 
     /**
      * Sets up the access restrictions for the courses to be displayed in the search.
      */
-    protected function setup_restrictions()
-    {
+    protected function setup_restrictions() {
         $this->require_capability('block/opencast:manualimportsource');
     }
 }

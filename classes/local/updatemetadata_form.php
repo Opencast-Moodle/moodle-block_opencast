@@ -45,14 +45,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class updatemetadata_form extends moodleform
-{
+class updatemetadata_form extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
 
         $mform = $this->_form;
@@ -169,8 +168,7 @@ class updatemetadata_form extends moodleform
      * @return string
      * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null)
-    {
+    protected function try_get_string($identifier, $component = '', $a = null) {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -183,8 +181,7 @@ class updatemetadata_form extends moodleform
      * @param string $fieldname the name of the catalog field which is defined as id in metadata set
      * @return string|array $value An array or string derived from metadata
      */
-    protected function extract_value($fieldname)
-    {
+    protected function extract_value($fieldname) {
         $metadata = $this->_customdata['metadata'];
 
         foreach ($metadata as $data) {

@@ -39,14 +39,14 @@ $type = required_param('attachment_type', PARAM_ALPHANUMEXT);
 $domain = optional_param('domain', '', PARAM_ALPHA);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$indexurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'video_identifier' => $identifier, 'attachment_type' => $type));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'video_identifier' => $identifier, 'attachment_type' => $type, ]);
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 

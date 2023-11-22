@@ -38,8 +38,7 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_opencast_block_structure_step extends backup_block_structure_step
-{
+class backup_opencast_block_structure_step extends backup_block_structure_step {
 
     /**
      * Defines the structure of the backup file.
@@ -48,8 +47,7 @@ class backup_opencast_block_structure_step extends backup_block_structure_step
      * @throws base_step_exception
      * @throws dml_exception
      */
-    protected function define_structure()
-    {
+    protected function define_structure() {
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
 
         // Root.

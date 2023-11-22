@@ -34,16 +34,15 @@ use lang_string;
  * Task for processing the scheduled visibility change jobs.
  * @package block_opencast
  */
-class process_visibility_cron extends scheduled_task
-{
+class process_visibility_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
      * @return lang_string|string
      * @throws coding_exception
      */
-    public function get_name()
-    {
+    public function get_name() {
         return get_string('processvisibility', 'block_opencast');
     }
 
@@ -51,8 +50,7 @@ class process_visibility_cron extends scheduled_task
      * Executes the task.
      * @throws dml_exception
      */
-    public function execute()
-    {
+    public function execute() {
         $visibilityhelper = new visibility_helper();
         $visibilityhelper->cron();
     }

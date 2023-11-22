@@ -39,13 +39,13 @@ $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
 $seriesid = required_param('seriesid', PARAM_ALPHANUMEXT);
 
 // Set base URL.
-$baseurl = new moodle_url('/blocks/opencast/addlti.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/addlti.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 // Remember URLs for redirecting.
 $redirecturloverview = new moodle_url('/blocks/opencast/index.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-$redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
+$redirecturlcourse = new moodle_url('/course/view.php', ['id' => $courseid]);
 $redirecturlcancel = $redirecturloverview;
 
 // Require login and course membership.
@@ -77,7 +77,7 @@ if ($moduleid) {
 
 // Use Add LTI form.
 $addltiform = new addlti_form(null,
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'seriesid' => $seriesid));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'seriesid' => $seriesid]);
 
 // Get API bridge instance.
 $apibridge = apibridge::get_instance($ocinstanceid);

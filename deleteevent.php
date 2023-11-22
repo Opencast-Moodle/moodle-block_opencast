@@ -37,8 +37,8 @@ $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteevent.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'redirectpage' => $redirectpage, 'series' => $series));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series, ]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -48,12 +48,12 @@ $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 if ($redirectpage == 'overviewvideos') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-        'series' => $series));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+        'series' => $series, ]);
 } else if ($redirectpage == 'overview') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);

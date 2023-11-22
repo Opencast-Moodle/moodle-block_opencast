@@ -39,8 +39,8 @@ use moodle_exception;
  * @author      Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicated_event_visibility_change extends adhoc_task
-{
+class process_duplicated_event_visibility_change extends adhoc_task {
+
 
     /** @var int max number of failed retries for one task */
     const MAX_COUNT_FAILS = 10;
@@ -58,8 +58,7 @@ class process_duplicated_event_visibility_change extends adhoc_task
     /**
      * Create a copy event task.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->set_component('block_opencast');
     }
 
@@ -68,8 +67,7 @@ class process_duplicated_event_visibility_change extends adhoc_task
      *
      * @see \core\task\task_base::execute()
      */
-    public function execute()
-    {
+    public function execute() {
         global $DB;
 
         $data = $this->get_custom_data();

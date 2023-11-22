@@ -31,8 +31,8 @@ use oauth_helper;
  * @copyright  2022 Tamara Gunkel WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lti_helper
-{
+class lti_helper {
+
 
     /**
      * Create necessary lti parameters.
@@ -43,15 +43,14 @@ class lti_helper
      *
      * @return array lti parameters
      */
-    public static function create_lti_parameters($consumerkey, $consumersecret, $endpoint, $customtool)
-    {
+    public static function create_lti_parameters($consumerkey, $consumersecret, $endpoint, $customtool) {
         global $CFG, $COURSE, $USER;
 
-        $helper = new oauth_helper(array('oauth_consumer_key' => $consumerkey,
-            'oauth_consumer_secret' => $consumersecret));
+        $helper = new oauth_helper(['oauth_consumer_key' => $consumerkey,
+            'oauth_consumer_secret' => $consumersecret, ]);
 
         // Set all necessary parameters.
-        $params = array();
+        $params = [];
         $params['oauth_version'] = '1.0';
         $params['oauth_nonce'] = $helper->get_nonce();
         $params['oauth_timestamp'] = $helper->get_timestamp();

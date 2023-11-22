@@ -34,16 +34,15 @@ use moodle_url;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_succeeded extends base
-{
+class upload_succeeded extends base {
+
 
     /**
      * Init method.
      *
      * @return void
      */
-    protected function init()
-    {
+    protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_OTHER;
         $this->data['objecttable'] = 'block_opencast_uploadjob';
@@ -54,8 +53,7 @@ class upload_succeeded extends base
      *
      * @return string
      */
-    public static function get_name()
-    {
+    public static function get_name() {
         return get_string('eventuploadsucceeded', 'block_opencast');
     }
 
@@ -64,8 +62,7 @@ class upload_succeeded extends base
      *
      * @return string
      */
-    public function get_description()
-    {
+    public function get_description() {
         return "the upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) " .
             "to opencast instance {$this->data['other']['ocinstanceid']} was successful.";
     }
@@ -75,8 +72,7 @@ class upload_succeeded extends base
      *
      * @return moodle_url
      */
-    public function get_url()
-    {
+    public function get_url() {
         return new moodle_url('/blocks/opencast/index.php',
             ['courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['other']['ocinstanceid']]);
     }

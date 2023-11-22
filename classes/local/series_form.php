@@ -44,14 +44,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class series_form extends moodleform
-{
+class series_form extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $USER, $PAGE;
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -192,8 +191,7 @@ class series_form extends moodleform
      * @return string
      * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null)
-    {
+    protected function try_get_string($identifier, $component = '', $a = null) {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -206,8 +204,7 @@ class series_form extends moodleform
      * @param string $fieldname the name of the catalog field which is defined as id in metadata set
      * @return string|array $value An array or string derived from metadata
      */
-    protected function extract_value($fieldname)
-    {
+    protected function extract_value($fieldname) {
         if (array_key_exists('metadata', $this->_customdata)) {
             $metadata = $this->_customdata['metadata'];
 

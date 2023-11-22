@@ -35,8 +35,8 @@ require_once($CFG->dirroot . '/lib/filestorage/file_system_filedir.php');
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_system_filedir extends \file_system_filedir
-{
+class file_system_filedir extends \file_system_filedir {
+
 
     /**
      * Unlink one file in the trashdir by contenthash
@@ -44,8 +44,7 @@ class file_system_filedir extends \file_system_filedir
      * @param string $contenthash
      * @return boolean true if succeeded
      */
-    public function delete_file_from_trashdir($contenthash)
-    {
+    public function delete_file_from_trashdir($contenthash) {
 
         if (!$this->file_exists_in_trashdir($contenthash)) {
             return false;
@@ -61,8 +60,7 @@ class file_system_filedir extends \file_system_filedir
      * @param string $contenthash
      * @return boolean true, if the file exists in trashdir.
      */
-    public function file_exists_in_trashdir($contenthash)
-    {
+    public function file_exists_in_trashdir($contenthash) {
         $filepath = $this->get_trash_fullpath_from_hash($contenthash);
         return file_exists($filepath);
     }

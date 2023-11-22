@@ -33,8 +33,8 @@ use stored_file;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_deletionmanager extends \file_system_filedir
-{
+class file_deletionmanager extends \file_system_filedir {
+
 
     /**
      * Delete all the users draft file entries that belongs to a videofile within
@@ -47,8 +47,7 @@ class file_deletionmanager extends \file_system_filedir
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function delete_draft_files_by_source($contenthash, $coursecontextid, $itemid = 0)
-    {
+    public static function delete_draft_files_by_source($contenthash, $coursecontextid, $itemid = 0) {
         global $DB;
 
         $params = [
@@ -91,8 +90,7 @@ class file_deletionmanager extends \file_system_filedir
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function delete_dot_files_by_source($coursecontextid, $itemid)
-    {
+    public static function delete_dot_files_by_source($coursecontextid, $itemid) {
         global $DB;
 
         $params = [
@@ -130,8 +128,7 @@ class file_deletionmanager extends \file_system_filedir
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function track_draftitemid($coursecontextid, $itemid)
-    {
+    public static function track_draftitemid($coursecontextid, $itemid) {
         global $DB;
 
         // Do some cleanup.
@@ -164,8 +161,7 @@ class file_deletionmanager extends \file_system_filedir
      * It must be noted, that draft entries should have been removed within
      * 4 days by filestorage cron, so we can do so some save cleanup here.
      */
-    public static function cleanup_old_draftitemids()
-    {
+    public static function cleanup_old_draftitemids() {
         global $DB;
 
         $old = time() - 5 * DAYSECS;
@@ -184,8 +180,7 @@ class file_deletionmanager extends \file_system_filedir
      *
      * @param stored_file $storedfile
      */
-    public static function fulldelete_file($storedfile)
-    {
+    public static function fulldelete_file($storedfile) {
         $filedir = new file_system_filedir();
 
         // Delete .dot entry, see https://tracker.moodle.org/browse/MDL-65857.

@@ -36,8 +36,8 @@ use block_opencast\local\notifications;
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_opencast_block_structure_step extends restore_structure_step
-{
+class restore_opencast_block_structure_step extends restore_structure_step {
+
 
     /** @var array Ids of the videos included in the backup. */
     private $backupeventids = [];
@@ -57,8 +57,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
      *
      * @return array of @restore_path_element elements
      */
-    protected function define_structure()
-    {
+    protected function define_structure() {
         global $USER;
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
         $this->ocinstanceid = $ocinstanceid;
@@ -66,7 +65,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
         // Check, target series.
         $courseid = $this->get_courseid();
 
-        $paths = array();
+        $paths = [];
 
         // Get apibridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
@@ -105,8 +104,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
      * @param array $data the event identifier
      * @return void
      */
-    public function process_event($data)
-    {
+    public function process_event($data) {
         $data = (object)$data;
 
         // Collect eventids for notification.
@@ -136,8 +134,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function process_series($data)
-    {
+    public function process_series($data) {
         global $USER;
 
         $data = (object)$data;
@@ -168,8 +165,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
      * @param array $data The import data needed for ACL change mode.
      * @return void
      */
-    public function process_import($data)
-    {
+    public function process_import($data) {
 
         $data = (object)$data;
 
@@ -183,8 +179,7 @@ class restore_opencast_block_structure_step extends restore_structure_step
      *
      * @return void
      */
-    public function after_restore()
-    {
+    public function after_restore() {
 
         $courseid = $this->get_courseid();
 

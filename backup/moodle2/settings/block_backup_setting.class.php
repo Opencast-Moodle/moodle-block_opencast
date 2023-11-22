@@ -29,8 +29,8 @@
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_block_opencast_setting extends backup_setting
-{
+class backup_block_opencast_setting extends backup_setting {
+
 
     /**
      * Create an instance of this class. Note that this is used to control level and layout of this setting.
@@ -41,8 +41,7 @@ class backup_block_opencast_setting extends backup_setting
      * @param bool $visibility Is the setting visible in the UI
      * @param int $status Status of the setting with regards to the locking
      */
-    public function __construct($name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED)
-    {
+    public function __construct($name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
 
         $this->level = self::COURSE_LEVEL;
 

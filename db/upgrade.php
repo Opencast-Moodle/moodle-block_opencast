@@ -29,8 +29,7 @@ use tool_opencast\local\settings_api;
  * @param int $oldversion
  * @return bool
  */
-function xmldb_block_opencast_upgrade($oldversion)
-{
+function xmldb_block_opencast_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
@@ -581,7 +580,7 @@ function xmldb_block_opencast_upgrade($oldversion)
             'addltiintro', 'addltisection', 'addltiavailability', 'addltiepisodeenabled',
             'addltiepisodepreconfiguredtool', 'addltiepisodeintro', 'addltiepisodesection', 'addltiepisodeavailability',
             'importvideosenabled', 'duplicateworkflow', 'importvideoscoreenabled', 'importvideosmanualenabled',
-            'importvideoshandleseriesenabled', 'importvideoshandleepisodeenabled',];
+            'importvideoshandleseriesenabled', 'importvideoshandleepisodeenabled', ];
 
         $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
 
@@ -598,7 +597,7 @@ function xmldb_block_opencast_upgrade($oldversion)
             "AND name in " . $fieldsjoined);
 
         $dbtables = ['block_opencast_uploadjob', 'block_opencast_deletejob', 'block_opencast_groupaccess',
-            'block_opencast_ltimodule', 'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu',];
+            'block_opencast_ltimodule', 'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu', ];
 
         foreach ($dbtables as $dbtable) {
             // Add new opencast instance field.

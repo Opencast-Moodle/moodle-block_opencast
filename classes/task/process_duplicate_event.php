@@ -41,8 +41,8 @@ use stdClass;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicate_event extends adhoc_task
-{
+class process_duplicate_event extends adhoc_task {
+
 
     /** @var int max number of retries for one task */
     const MAX_COUNT_RETRIES = 10;
@@ -50,8 +50,7 @@ class process_duplicate_event extends adhoc_task
     /**
      * Create a copy event task.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->set_component('block_opencast');
     }
 
@@ -60,8 +59,7 @@ class process_duplicate_event extends adhoc_task
      *
      * @see \core\task\task_base::execute()
      */
-    public function execute()
-    {
+    public function execute() {
         global $DB;
 
         $data = $this->get_custom_data();

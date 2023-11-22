@@ -36,16 +36,15 @@ use moodle_exception;
  * @copyright 2018 Tobias Reischmann, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_delete_cron extends scheduled_task
-{
+class process_delete_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
      * @return lang_string|string
      * @throws coding_exception
      */
-    public function get_name()
-    {
+    public function get_name() {
         return get_string('processdelete', 'block_opencast');
     }
 
@@ -53,8 +52,7 @@ class process_delete_cron extends scheduled_task
      * Executes the task.
      * @throws dml_exception
      */
-    public function execute()
-    {
+    public function execute() {
         global $DB;
 
         // Get all delete jobs.

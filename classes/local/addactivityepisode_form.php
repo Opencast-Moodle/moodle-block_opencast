@@ -38,13 +38,12 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addactivityepisode_form extends moodleform
-{
+class addactivityepisode_form extends moodleform {
+
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $CFG;
 
         $mform = $this->_form;
@@ -80,7 +79,7 @@ class addactivityepisode_form extends moodleform
             $mform->setDefault('intro',
                 ['text' =>
                     activitymodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
-                    'format' => FORMAT_HTML,]);
+                    'format' => FORMAT_HTML, ]);
         }
 
         if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) == true) {
@@ -123,8 +122,7 @@ class addactivityepisode_form extends moodleform
      *
      * @return void
      */
-    public function add_action_buttons($cancel = true, $submitlabel = null)
-    {
+    public function add_action_buttons($cancel = true, $submitlabel = null) {
         $mform = $this->_form;
 
         // Elements in a row need a group.

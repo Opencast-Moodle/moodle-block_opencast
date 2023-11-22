@@ -35,7 +35,7 @@ $workflow = required_param('workflow', PARAM_ALPHANUMEXT);
 $configparams = required_param('configparams', PARAM_RAW);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -57,7 +57,7 @@ if ($seriesid->identifier != $video->video->is_part_of) {
 
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
 // Apply multiple tags.
-$workflowtags = array();
+$workflowtags = [];
 $workflowtagsconfig = get_config('block_opencast', 'workflow_tags_' . $ocinstanceid);
 if (!empty($workflowtagsconfig)) {
     $workflowtags = explode(',', $workflowtagsconfig);
@@ -70,7 +70,7 @@ if (!$apiworkflow || empty(array_intersect($apiworkflow->tags, $workflowtags))) 
         notification::NOTIFY_ERROR);
 }
 
-$result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $configparams));
+$result = $apibridge->start_workflow($videoid, $workflow, ['configuration' => $configparams]);
 
 if ($result) {
     // Redirect with success message.

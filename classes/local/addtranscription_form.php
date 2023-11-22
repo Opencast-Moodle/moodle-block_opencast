@@ -42,13 +42,12 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addtranscription_form extends moodleform
-{
+class addtranscription_form extends moodleform {
+
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
         // Get the renderer to use its methods.
         $this->renderer = $PAGE->get_renderer('block_opencast');

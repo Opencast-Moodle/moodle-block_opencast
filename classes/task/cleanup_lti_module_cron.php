@@ -39,23 +39,21 @@ use tool_opencast\local\settings_api;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanup_lti_module_cron extends scheduled_task
-{
+class cleanup_lti_module_cron extends scheduled_task {
+
 
     /**
      * Get the task name.
      * @return string description.
      */
-    public function get_name()
-    {
+    public function get_name() {
         return get_string('processltimodulecleanup', 'block_opencast');
     }
 
     /**
      * Execute the task.
      */
-    public function execute()
-    {
+    public function execute() {
         try {
             // 1. Update the existing records of LTI Modules.
             mtrace('Step 1: Updating existing LTI modules...');

@@ -33,8 +33,8 @@ use admin_setting_configtext;
  * @copyright  2022 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configtextvalidate extends admin_setting_configtext
-{
+class admin_setting_configtextvalidate extends admin_setting_configtext {
+
     /** @var callable|null Validation function */
     protected $validatefunction = null;
 
@@ -46,8 +46,7 @@ class admin_setting_configtextvalidate extends admin_setting_configtext
      *
      * @param callable|null $validatefunction Validate function or null to clear
      */
-    public function set_validate_function(?callable $validatefunction = null)
-    {
+    public function set_validate_function(?callable $validatefunction = null) {
         $this->validatefunction = $validatefunction;
     }
 
@@ -56,8 +55,7 @@ class admin_setting_configtextvalidate extends admin_setting_configtext
      * @param string $data New setting data
      * @return mixed true if ok string if error found
      */
-    public function validate($data)
-    {
+    public function validate($data) {
         $valid = parent::validate($data);
         if ($valid === true) {
             // Parent validation was successful.

@@ -35,7 +35,7 @@ $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $message = required_param('inputMessage', PARAM_TEXT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -73,7 +73,7 @@ if (!$result->error) {
     $mailinfo->username = $USER->username;
     $mailinfo->useremail = $USER->email;
     $mailinfo->courselink = (new moodle_url('/blocks/opencast/index.php',
-        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)))->out();
+        ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]))->out();
     $mailinfo->course = $COURSE->fullname;
     $mailinfo->series = $result->video->series;
     $mailinfo->seriesid = $result->video->is_part_of;

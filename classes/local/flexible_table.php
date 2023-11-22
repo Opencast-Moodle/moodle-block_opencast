@@ -37,14 +37,13 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flexible_table extends \flexible_table
-{
+class flexible_table extends \flexible_table {
+
 
     /**
      * Overridden method to change content and format of display notification.
      */
-    public function print_nothing_to_display()
-    {
+    public function print_nothing_to_display() {
 
         // Render button to allow user to reset table preferences.
         echo $this->render_reset_button();

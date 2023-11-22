@@ -37,14 +37,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2021 Farbod Zamani Boroujeni, ELAN e.V. <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step3_form_acl extends moodleform
-{
+class importvideos_step3_form_acl extends moodleform {
+
 
     /**
      * Form definition.
      */
-    public function definition()
-    {
+    public function definition() {
         global $PAGE;
 
         // Define mform.

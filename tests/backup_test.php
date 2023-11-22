@@ -61,20 +61,18 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_test extends advanced_testcase
-{
+class backup_test extends advanced_testcase {
+
 
     /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
 
-    public function setUp(): void
-    {
+    public function setUp(): void {
         parent::setUp();
         apibridge::set_testing(true);
     }
 
-    public function tearDown(): void
-    {
+    public function tearDown(): void {
         parent::tearDown();
         apibridge::set_testing(false);
     }
@@ -84,8 +82,7 @@ class backup_test extends advanced_testcase
      * @param int $courseid
      * @return string
      */
-    private function get_backup_filepath($courseid)
-    {
+    private function get_backup_filepath($courseid) {
         global $CFG;
         return $CFG->tempdir . '/backup/core_course_testcase_' . $courseid;
     }
@@ -96,8 +93,7 @@ class backup_test extends advanced_testcase
      * @param int $blockid
      * @return string
      */
-    private function get_backup_filename($courseid, $blockid)
-    {
+    private function get_backup_filename($courseid, $blockid) {
 
         $backupfilepath = $this->get_backup_filepath($courseid);
         return $backupfilepath . '/course/blocks/opencast_' . $blockid . '/opencast.xml';
@@ -111,8 +107,7 @@ class backup_test extends advanced_testcase
      * @param int $userid The user doing the backup.
      * @return string filepath of backup
      */
-    protected function backup_course($courseid, $includevideos = false, $userid = 2)
-    {
+    protected function backup_course($courseid, $includevideos = false, $userid = 2) {
 
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
             backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
@@ -143,8 +138,7 @@ class backup_test extends advanced_testcase
      * @param int $userid The ID of the user performing the restore.
      * @return stdClass The updated course object.
      */
-    protected function restore_course($backupid, $courseid, $includevideos, $userid)
-    {
+    protected function restore_course($backupid, $courseid, $includevideos, $userid) {
         global $DB;
 
         $target = backup::TARGET_CURRENT_ADDING;
@@ -165,7 +159,7 @@ class backup_test extends advanced_testcase
         }
         $rc->execute_plan();
 
-        $course = $DB->get_record('course', array('id' => $rc->get_courseid()));
+        $course = $DB->get_record('course', ['id' => $rc->get_courseid()]);
 
         $rc->destroy();
         unset($rc);
@@ -176,8 +170,7 @@ class backup_test extends advanced_testcase
      *  Execute an adhoc task like via cron function.
      * @param stdClass $taskrecord
      */
-    private function execute_adhoc_task($taskrecord)
-    {
+    private function execute_adhoc_task($taskrecord) {
         global $CFG;
 
         $task = new process_duplicate_event();
@@ -209,14 +202,13 @@ class backup_test extends advanced_testcase
      * @throws coding_exception
      * @throws dml_exception
      */
-    private function check_task_fail_with_error($expectederrortextkey, $expectedfailedcount)
-    {
+    private function check_task_fail_with_error($expectederrortextkey, $expectedfailedcount) {
         global $DB;
 
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $a = json_decode($taskrecord->customdata);
-        $course = $DB->get_record('course', array('id' => $a->courseid));
+        $course = $DB->get_record('course', ['id' => $a->courseid]);
         $a->coursefullname = $course->fullname;
         $a->taskid = $taskrecord->id;
         $a->duplicateworkflow = block_opencast_apibridge_testable::DUPLICATE_WORKFLOW;
@@ -239,8 +231,7 @@ class backup_test extends advanced_testcase
      *
      * @covers \restore_controller \backup_controller
      */
-    public function test_adhoctask_execution()
-    {
+    public function test_adhoctask_execution() {
         global $USER, $DB;
 
         $this->resetAfterTest();
@@ -301,7 +292,7 @@ class backup_test extends advanced_testcase
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
 
         // But delete the course series in Moodle.
-        $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['courseid' => $newcourse->id, 'isdefault' => '1']);
         $mapping->delete();
 
         // The series is now missing, so the task should fail.
@@ -383,8 +374,7 @@ class backup_test extends advanced_testcase
     /**
      * Test restore of event identifiers.
      */
-    public function notest_restore()
-    {
+    public function notest_restore() {
         global $USER, $DB;
 
         $this->resetAfterTest();
@@ -466,8 +456,7 @@ class backup_test extends advanced_testcase
     /**
      * Test backup of event identifiers.
      */
-    public function notest_backup()
-    {
+    public function notest_backup() {
         global $USER;
 
         $this->resetAfterTest();

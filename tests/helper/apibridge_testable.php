@@ -27,8 +27,8 @@ use tool_opencast\seriesmapping;
 /**
  * Test apibridge.
  */
-class block_opencast_apibridge_testable extends apibridge
-{
+class block_opencast_apibridge_testable extends apibridge {
+
 
     /** @var array register for possible function results. */
     private $register = [];
@@ -40,8 +40,7 @@ class block_opencast_apibridge_testable extends apibridge
      * For basic testcases connection parameters are not necessary.
      * block_opencast_apibridge_testable constructor.
      */
-    public function __construct()
-    {
+    public function __construct() {
 
     }
 
@@ -50,8 +49,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @return array
      * @throws dml_exception
      */
-    public function getroles_testable()
-    {
+    public function getroles_testable() {
         return parent::getroles(1);
     }
 
@@ -63,8 +61,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param mixed $value
      *
      */
-    public function set_testdata($methodname, $key, $value)
-    {
+    public function set_testdata($methodname, $key, $value) {
         global $CFG;
 
         if (!isset($this->register[$methodname])) {
@@ -85,8 +82,7 @@ class block_opencast_apibridge_testable extends apibridge
      *
      * @return mixed the data or 'file' when using a file in /fixtures.
      */
-    private function get_testdata($methodname, $key = null)
-    {
+    private function get_testdata($methodname, $key = null) {
 
         if (!isset($this->register[$methodname])) {
             return null;
@@ -109,8 +105,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param string $methodname
      * @param mixed $key
      */
-    public function unset_testdata($methodname, $key)
-    {
+    public function unset_testdata($methodname, $key) {
 
         if (!isset($this->register[$methodname])) {
             return;
@@ -131,8 +126,7 @@ class block_opencast_apibridge_testable extends apibridge
      *
      * @return object with error code and videos.
      */
-    public function get_course_videos($courseid, $sortcolumns = null)
-    {
+    public function get_course_videos($courseid, $sortcolumns = null) {
 
         $result = new stdClass();
         $result->videos = [];
@@ -155,8 +149,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @return stdClass Video
      */
     public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
-                                       bool $includingmedia = false)
-    {
+                                       bool $includingmedia = false) {
         $result = new stdClass();
         $result->video = false;
         $result->error = 0;
@@ -176,8 +169,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param bool $withmetadata
      * @return stdClass
      */
-    public function get_series_videos($series, $sortcolumns = null, $withmetadata = false)
-    {
+    public function get_series_videos($series, $sortcolumns = null, $withmetadata = false) {
         $result = new stdClass();
         $result->error = 0;
 
@@ -210,8 +202,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param bool $withmetadata
      * @return stdClass
      */
-    public function get_block_videos($courseid, $withmetadata = false)
-    {
+    public function get_block_videos($courseid, $withmetadata = false) {
         // Used for behat test.
         $result = new stdClass();
         $result->count = 0;
@@ -251,8 +242,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @return boolean
      * @throws moodle_exception
      */
-    public function create_course_series($courseid, $seriestitle = null, $userid = null)
-    {
+    public function create_course_series($courseid, $seriestitle = null, $userid = null) {
 
         $mapping = seriesmapping::get_record(['courseid' => $courseid, 'isdefault' => '1']);
         if ($mapping && $seriesid = $mapping->get('series')) {
@@ -284,8 +274,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param string $level
      * @return boolean
      */
-    public function supports_api_level($level)
-    {
+    public function supports_api_level($level) {
         $value = $this->get_testdata('supports_api_level', 'level');
         return ($value == $level);
     }
@@ -296,8 +285,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param array $eventids
      * @return boolean
      */
-    public function get_already_existing_event($eventids)
-    {
+    public function get_already_existing_event($eventids) {
 
         $registeredevents = $this->get_testdata('get_course_videos');
 
@@ -317,8 +305,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param int $courseid
      * @return object|null
      */
-    public function get_default_course_series($courseid)
-    {
+    public function get_default_course_series($courseid) {
 
         $result = null;
         if ($value = $this->get_testdata('get_default_course_series', $courseid)) {
@@ -333,8 +320,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param string $name
      * @return bool|mixed|null
      */
-    public function check_if_workflow_exists($name)
-    {
+    public function check_if_workflow_exists($name) {
         return $this->get_testdata('check_if_workflow_exists', $name);
     }
 
@@ -346,8 +332,7 @@ class block_opencast_apibridge_testable extends apibridge
      * @param false $returnworkflowid
      * @return bool|int|mixed|null
      */
-    public function start_workflow($eventid, $duplicateworkflow, $params = [], $returnworkflowid = false)
-    {
+    public function start_workflow($eventid, $duplicateworkflow, $params = [], $returnworkflowid = false) {
         return $this->get_testdata('start_workflow', $duplicateworkflow);
     }
 

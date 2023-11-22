@@ -40,15 +40,14 @@ use tool_opencast\local\settings_api;
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanup_imported_episodes_cron extends scheduled_task
-{
+class cleanup_imported_episodes_cron extends scheduled_task {
+
 
     /**
      * Get a descriptive name for this task (shown to admins).
      * @return string
      */
-    public function get_name()
-    {
+    public function get_name() {
         return get_string('processepisodecleanup', 'block_opencast');
     }
 
@@ -58,8 +57,7 @@ class cleanup_imported_episodes_cron extends scheduled_task
      *
      * @throws dml_exception
      */
-    public function execute()
-    {
+    public function execute() {
         global $DB;
 
         $ocinstances = settings_api::get_ocinstances();
@@ -164,7 +162,7 @@ class cleanup_imported_episodes_cron extends scheduled_task
                     if ($episodeid === '') {
                         // Postpone the cleanup job.
                         $params = ['increment' => 1, 'time' => time(), 'ocworkflowid' => $workflow->ocworkflowid,
-                            'ocinstanceid' => $ocinstance->id,];
+                            'ocinstanceid' => $ocinstance->id, ];
                         $DB->execute('UPDATE {block_opencast_ltiepisode_cu} ' .
                             'SET queuecount = queuecount + :increment, timemodified = :time ' .
                             'WHERE ocworkflowid = :ocworkflowid AND ocinstanceid = :ocinstanceid',

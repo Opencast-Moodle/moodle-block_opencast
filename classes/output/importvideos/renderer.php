@@ -43,8 +43,8 @@ require_once($CFG->dirroot . '/backup/util/ui/renderer.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer extends core_backup_renderer
-{
+class renderer extends core_backup_renderer {
+
     /**
      * Renderer to display the import course selector.
      * This function is a modified version of import_course_selector from core_backup_renderer
@@ -56,8 +56,7 @@ class renderer extends core_backup_renderer
      * @return string
      */
     public function importvideos_coursesearch(moodle_url                $nextstageurl,
-                                              importvideos_coursesearch $courses = null)
-    {
+                                              importvideos_coursesearch $courses = null) {
         $html = html_writer::start_tag('div', ['class' => 'import-course-selector']);
         $html .= $this->wizard_intro_notification(
             get_string('importvideos_wizardstep1intro', 'block_opencast'));
@@ -70,7 +69,7 @@ class renderer extends core_backup_renderer
         $html .= $this->backup_detail_pair('', $this->render_import_course_search($courses));
         $attrs = ['type' => 'submit',
             'value' => get_string('importvideos_wizardstepbuttontitlecontinue', 'block_opencast'),
-            'class' => 'btn btn-primary',];
+            'class' => 'btn btn-primary', ];
         $html .= $this->backup_detail_pair('', html_writer::empty_tag('input', $attrs));
         $html .= html_writer::end_tag('div');
         $html .= html_writer::end_tag('form');
@@ -85,8 +84,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function course_menu_entry($course)
-    {
+    public function course_menu_entry($course) {
         // Add the course fullname.
         $entrystring = $course->fullname;
 
@@ -109,8 +107,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function course_video_menu_entry($video)
-    {
+    public function course_video_menu_entry($video) {
         // Add the video title.
         $entrystring = $video->title;
 
@@ -145,8 +142,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function progress_bar($currentstep = 1, $maxsteps = 4, $hasstep3 = true)
-    {
+    public function progress_bar($currentstep = 1, $maxsteps = 4, $hasstep3 = true) {
         // If we don't have step 3, we have to respect that.
         if ($hasstep3 == false) {
             // The whole progress bar has one step less.
@@ -164,7 +160,7 @@ class renderer extends core_backup_renderer
                 'style' => 'width: ' . (floor(($currentstep / $maxsteps) * 100)) . '%',
                 'aria-valuenow' => $currentstep,
                 'aria-valuemin' => '0',
-                'aria-valuemax' => $maxsteps,]);
+                'aria-valuemax' => $maxsteps, ]);
         $progressbar .= html_writer::start_span('text-left pl-2');
         $progressbar .= get_string('importvideos_progressbarstep', 'block_opencast',
             ['current' => $currentstep, 'last' => $maxsteps]);
@@ -183,8 +179,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function wizard_intro_notification($intromessage)
-    {
+    public function wizard_intro_notification($intromessage) {
         // Compose notification.
         $notification = html_writer::start_div('alert alert-info');
         $notification .= $intromessage;
@@ -201,8 +196,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function wizard_error_notification($errormessage)
-    {
+    public function wizard_error_notification($errormessage) {
         // Compose notification.
         $notification = html_writer::start_div('alert alert-danger');
         $notification .= $errormessage;
@@ -219,8 +213,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function series_menu_entry($series)
-    {
+    public function series_menu_entry($series) {
         // Add the series title.
         $entrystring = $series->title;
 
@@ -239,8 +232,7 @@ class renderer extends core_backup_renderer
      * @param array $arrayvideoentrystrings to use as list elements
      * @return string
      */
-    public function course_videos_list_entry($arrayvideoentrystrings)
-    {
+    public function course_videos_list_entry($arrayvideoentrystrings) {
         // Add the video list.
         $entrystring = '';
 
@@ -263,8 +255,7 @@ class renderer extends core_backup_renderer
      *
      * @return string
      */
-    public function wizard_warning_notification($warningmessage)
-    {
+    public function wizard_warning_notification($warningmessage) {
         // Compose notification.
         $notification = html_writer::start_div('alert alert-warning');
         $notification .= $warningmessage;

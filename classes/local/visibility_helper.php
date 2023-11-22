@@ -37,8 +37,8 @@ use stdClass;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class visibility_helper
-{
+class visibility_helper {
+
     /** @var int visibility change failed */
     const STATUS_FAILED = 0;
 
@@ -54,8 +54,7 @@ class visibility_helper
     /**
      * Process all scheduled change visibility jobs.
      */
-    public function cron()
-    {
+    public function cron() {
         global $DB;
 
         // Get the scheduled change visibility jobs with the pending status.
@@ -107,8 +106,7 @@ class visibility_helper
      * @return boolean
      * @throws moodle_exception
      */
-    protected function process_scheduled_change_visibility_job($job)
-    {
+    protected function process_scheduled_change_visibility_job($job) {
         $status = self::STATUS_FAILED;
 
         // Extract all the required parameters to perform the change_visibility function.
@@ -125,7 +123,7 @@ class visibility_helper
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         $allowedvisibilitystates = [block_opencast_renderer::VISIBLE,
-            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP,];
+            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP, ];
 
         if (!in_array($visibility, $allowedvisibilitystates)) {
             mtrace('job ' . $job->id . ':(ERROR) Has invalid visibility state.');
@@ -193,8 +191,7 @@ class visibility_helper
      *
      * @return boolean the status creating the job.
      */
-    public static function save_visibility_job($visibility)
-    {
+    public static function save_visibility_job($visibility) {
         global $DB;
         // Set the pending status.
         $visibility->status = self::STATUS_PENDING;
@@ -212,8 +209,7 @@ class visibility_helper
      *
      * @return boolean the status updating the job.
      */
-    public static function update_visibility_job($visibility)
-    {
+    public static function update_visibility_job($visibility) {
         global $DB;
         // Set the pending status.
         $visibility->status = self::STATUS_PENDING;
@@ -231,8 +227,7 @@ class visibility_helper
      *
      * @return boolean the status deleting the job.
      */
-    public static function delete_visibility_job($visibility)
-    {
+    public static function delete_visibility_job($visibility) {
         global $DB;
         // Delete the visibility record.
         return $DB->delete_records('block_opencast_visibility', ['id' => $visibility->id]);
@@ -245,8 +240,7 @@ class visibility_helper
      *
      * @return boolean whether the visibility is validated.
      */
-    private static function validate_job($visibility)
-    {
+    private static function validate_job($visibility) {
         $isvalid = true;
 
         // Make sure that, either uploadjobid exists or the other required params are set.
@@ -277,11 +271,10 @@ class visibility_helper
      * @param object $job Visibility job object
      * @param int $status Visibility status.
      */
-    public static function change_job_status($job, $status)
-    {
+    public static function change_job_status($job, $status) {
         global $DB;
         $allowedjobstatus = [self::STATUS_PENDING, self::STATUS_DONE,
-            self::STATUS_FAILED,];
+            self::STATUS_FAILED, ];
 
         if (!in_array($status, $allowedjobstatus)) {
             throw new coding_exception('Invalid job status code.');
@@ -299,8 +292,7 @@ class visibility_helper
      * @return stdClass $initialvisibility initial visibility object.
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
-    public static function get_initial_visibility($uploadjob)
-    {
+    public static function get_initial_visibility($uploadjob) {
         global $DB;
         // Get the visibility record.
         $visibilityrecord = $DB->get_record('block_opencast_visibility', ['uploadjobid' => $uploadjob->id]);
@@ -322,7 +314,7 @@ class visibility_helper
 
             // Checking the visibility value against the allowed visibility states.
             $allowedvisibilitystates = [block_opencast_renderer::VISIBLE,
-                block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP,];
+                block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP, ];
 
             if (!in_array($visibility, $allowedvisibilitystates)) {
                 throw new coding_exception('Invalid visibility state.');
@@ -347,8 +339,7 @@ class visibility_helper
      * @return array $acls initial acls.
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
-    private static function get_acl_roles($uploadjob, $visibility, $groups)
-    {
+    private static function get_acl_roles($uploadjob, $visibility, $groups) {
         // Retrieve required values from upload job object.
         $courseid = $uploadjob->courseid;
         $ocinstanceid = $uploadjob->ocinstanceid;
@@ -409,8 +400,7 @@ class visibility_helper
      * @param object $job represents the visibility job.
      * @throws moodle_exception
      */
-    protected function cleanup_visibility_job($job)
-    {
+    protected function cleanup_visibility_job($job) {
         global $DB;
         // We will change back the status if the job got a date in future.
         if (!empty($job->scheduledvisibilitytime) && intval($job->scheduledvisibilitytime) >= time()) {
@@ -433,8 +423,7 @@ class visibility_helper
      * @param object $job Visibility job object
      * @return array the parameters for performing scheduled visibility changes
      */
-    private function extract_job_params($job)
-    {
+    private function extract_job_params($job) {
         global $DB;
         $ocinstanceid = null;
         $courseid = null;
@@ -471,8 +460,7 @@ class visibility_helper
      * @param array $customminutes Custome minutes to be added or deducted on demand.
      * @return int
      */
-    public static function get_waiting_time($ocinstanceid, $customminutes = [])
-    {
+    public static function get_waiting_time($ocinstanceid, $customminutes = []) {
         $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
         if (empty($configwaitingtime)) {
             $configwaitingtime = self::DEFAULT_WAITING_TIME;
@@ -503,8 +491,7 @@ class visibility_helper
      *
      * @return ?object The current scheduled visibility info, or null if not found.
      */
-    public static function get_event_scheduled_visibility($ocinstanceid, $courseid, $opencasteventid)
-    {
+    public static function get_event_scheduled_visibility($ocinstanceid, $courseid, $opencasteventid) {
         global $DB;
         // Now that we have two different options in visibility table, we need to prepare a comprehensive sql.
         // Assuming that the visibility was requested by changevisibility form, not the addvideo (not uploadjob).
@@ -548,8 +535,7 @@ class visibility_helper
      *
      * @return ?object The current scheduled visibility job info, or null if not found.
      */
-    public static function get_uploadjob_scheduled_visibility($uploadjobid, $onlyscheduled = true)
-    {
+    public static function get_uploadjob_scheduled_visibility($uploadjobid, $onlyscheduled = true) {
         global $DB;
         $sql = "SELECT * FROM {block_opencast_visibility}" .
             " WHERE uploadjobid = :uploadjobid";

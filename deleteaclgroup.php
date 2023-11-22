@@ -35,7 +35,7 @@ $action = optional_param('action', '', PARAM_ALPHA);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteaclgroup.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -44,7 +44,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('deleteaclgroup', 'block_opencast'), $baseurl);
 

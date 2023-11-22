@@ -44,8 +44,8 @@ use stdClass;
  * @copyright  2021 Tamara Gunkel WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ingest_uploader
-{
+class ingest_uploader {
+
     /** @var int Media package is created */
     const STATUS_INGEST_CREATING_MEDIA_PACKAGE = 221;
 
@@ -71,8 +71,7 @@ class ingest_uploader
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function create_event($job)
-    {
+    public static function create_event($job) {
         global $DB;
         $apibridge = apibridge::get_instance($job->ocinstanceid);
 
@@ -246,8 +245,7 @@ class ingest_uploader
      * @return false|string
      * @throws Exception
      */
-    protected static function create_episode_xml($job)
-    {
+    protected static function create_episode_xml($job) {
 
         $dom = new DOMDocument('1.0', 'utf-8');
 
@@ -307,8 +305,7 @@ class ingest_uploader
      * @throws coding_exception
      * @throws dml_exception
      */
-    protected static function create_acl_xml($roles, $job)
-    {
+    protected static function create_acl_xml($roles, $job) {
         $mediapackageid = 'mediapackage-1';
         if (!empty($job->mediapackage)) {
             $mediapackagexml = new SimpleXMLElement($job->mediapackage);
@@ -396,8 +393,7 @@ class ingest_uploader
      * @throws dml_exception
      */
     public static function update_status_with_mediapackage(&$job, $status, $setmodified = true, $setstarted = false,
-                                                           $setsucceeded = false, $mediapackage = null)
-    {
+                                                           $setsucceeded = false, $mediapackage = null) {
         global $DB;
         $time = time();
         if ($setstarted) {
@@ -423,8 +419,7 @@ class ingest_uploader
      * @param int $statuscode Status code
      * @return lang_string|string Name of status code or empty if not found.
      */
-    public static function get_status_string($statuscode)
-    {
+    public static function get_status_string($statuscode) {
         switch ($statuscode) {
             case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE :
                 return get_string('ingeststatecreatingmedispackage', 'block_opencast');

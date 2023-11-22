@@ -35,8 +35,8 @@ use stdClass;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class eventstatus_notification_helper
-{
+class eventstatus_notification_helper {
+
 
     /**
      * Save the event status notification job onto the db table to be processed later with cronjobs.
@@ -46,8 +46,7 @@ class eventstatus_notification_helper
      * @param int $courseid Course id
      * @param int $uploaderuserid userid of the uploader
      */
-    public static function save_notification_jobs($ocinstanceid, $eventidentifier, $courseid, $uploaderuserid)
-    {
+    public static function save_notification_jobs($ocinstanceid, $eventidentifier, $courseid, $uploaderuserid) {
         global $DB;
 
         // Initialize the notification job.
@@ -66,8 +65,7 @@ class eventstatus_notification_helper
     /**
      * Process all transfers to opencast server.
      */
-    public function cron()
-    {
+    public function cron() {
         global $DB;
 
         // Get all waiting notification jobs.
@@ -97,8 +95,7 @@ class eventstatus_notification_helper
      * @return void
      * @throws moodle_exception
      */
-    protected function process_notification_job($job)
-    {
+    protected function process_notification_job($job) {
         global $DB;
         $ocinstanceid = $job->ocinstanceid;
         $apibridge = apibridge::get_instance($ocinstanceid);
@@ -164,8 +161,7 @@ class eventstatus_notification_helper
      * @param object $video the video object retrieved from Opencast.
      *
      */
-    private function notify_users($job, $video)
-    {
+    private function notify_users($job, $video) {
         global $DB;
         // Initialize the user list as an empty array.
         $usertolist = [];
@@ -212,8 +208,7 @@ class eventstatus_notification_helper
      * @param object $metadata represents the metadate object for the upload job.
      *
      */
-    public static function notify_users_upload_queue($job, $metadata)
-    {
+    public static function notify_users_upload_queue($job, $metadata) {
         global $DB;
         // Initialize the user list as an empty array.
         $usertolist = [];
@@ -270,8 +265,7 @@ class eventstatus_notification_helper
      * @param string $status status string code.
      * @return string status message text.
      */
-    private function get_status_message($status)
-    {
+    private function get_status_message($status) {
         switch ($status) {
             case 'FAILED' :
                 return get_string('ocstatefailed', 'block_opencast');

@@ -39,11 +39,11 @@ $mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/directaccess.php',
-    array('courseid' => $courseid, 'video_identifier' => $videoid,
-        'mediaid' => $mediaid, 'ocinstanceid' => $ocinstanceid));
+    ['courseid' => $courseid, 'video_identifier' => $videoid,
+        'mediaid' => $mediaid, 'ocinstanceid' => $ocinstanceid, ]);
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -59,7 +59,7 @@ try {
     require_capability('block/opencast:directaccessvideolink', $coursecontext);
 } catch (required_capability_exception $e) {
     // We gently redirect to the course main view page in case of capability exception, to handle the behat more sufficiently.
-    $redirecttocourse = new moodle_url('/course/view.php', array('id' => $courseid));
+    $redirecttocourse = new moodle_url('/course/view.php', ['id' => $courseid]);
     redirect($redirecttocourse,
         get_string('nopermissions', 'error', get_string('opencast:directaccessvideolink', 'block_opencast')),
         null,

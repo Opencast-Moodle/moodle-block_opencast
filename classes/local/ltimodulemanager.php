@@ -41,8 +41,8 @@ use function lti_filter_get_types;
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ltimodulemanager
-{
+class ltimodulemanager {
+
 
     /**
      * Helperfunction to get the list of available preconfigured LTI tools.
@@ -51,8 +51,7 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_preconfigured_tools()
-    {
+    public static function get_preconfigured_tools() {
         global $CFG;
 
         // Require LTI library.
@@ -81,8 +80,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return int|boolean
      */
-    public static function get_preconfigured_tool_for_series($ocinstanceid)
-    {
+    public static function get_preconfigured_tool_for_series($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
         $toolid = get_config('block_opencast', 'addltipreconfiguredtool_' . $ocinstanceid);
 
@@ -109,8 +107,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return int|boolean
      */
-    public static function get_preconfigured_tool_for_episode($ocinstanceid)
-    {
+    public static function get_preconfigured_tool_for_episode($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
         $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
 
@@ -137,8 +134,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_enabled_and_working_for_series($ocinstanceid)
-    {
+    public static function is_enabled_and_working_for_series($ocinstanceid) {
         // Get the status of the feature.
         $config = get_config('block_opencast', 'addltienabled_' . $ocinstanceid);
 
@@ -158,8 +154,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_working_for_series($ocinstanceid)
-    {
+    public static function is_working_for_series($ocinstanceid) {
         // Get the preconfigured tool.
         $tool = self::get_preconfigured_tool_for_series($ocinstanceid);
 
@@ -192,8 +187,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_enabled_and_working_for_episodes($ocinstanceid)
-    {
+    public static function is_enabled_and_working_for_episodes($ocinstanceid) {
         // Remember the status for subsequent calls.
         static $enabledandworking = null;
 
@@ -230,8 +224,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return boolean
      */
-    public static function is_working_for_episodes($ocinstanceid)
-    {
+    public static function is_working_for_episodes($ocinstanceid) {
         // Remember the status for subsequent calls.
         static $working = null;
 
@@ -288,8 +281,7 @@ class ltimodulemanager
      * @return boolean
      */
     public static function create_module_for_series($ocinstanceid, $courseid, $title, $seriesid, $sectionid = 0, $introtext = '',
-                                                    $introformat = FORMAT_HTML, $availability = null)
-    {
+                                                    $introformat = FORMAT_HTML, $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -358,8 +350,7 @@ class ltimodulemanager
      */
     public static function create_module_for_episode($ocinstanceid, $courseid, $title, $episodeuuid, $sectionid = 0,
                                                      $introtext = '', $introformat = FORMAT_HTML,
-                                                     $availability = null)
-    {
+                                                     $availability = null) {
         global $CFG, $DB;
 
         // Require mod library.
@@ -428,8 +419,7 @@ class ltimodulemanager
      * @return object
      */
     public static function build_lti_modinfo($pluginid, $course, $title, $sectionid, $toolid, $instructorcustomparameters,
-                                             $introtext = '', $introformat = FORMAT_HTML, $availability = null)
-    {
+                                             $introtext = '', $introformat = FORMAT_HTML, $availability = null) {
         global $DB;
 
         // Create standard class object.
@@ -482,13 +472,12 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_series($ocinstanceid, $courseid, $series)
-    {
+    public static function get_module_for_series($ocinstanceid, $courseid, $series) {
         global $DB;
 
         // Get the LTI series module id.
         $moduleid = $DB->get_field('block_opencast_ltimodule', 'cmid', ['ocinstanceid' => $ocinstanceid,
-            'courseid' => $courseid, 'seriesid' => $series,]);
+            'courseid' => $courseid, 'seriesid' => $series, ]);
 
         // If there is a LTI series module found.
         if ($moduleid) {
@@ -524,8 +513,7 @@ class ltimodulemanager
      *
      * @return array of course module IDs. The course module ID is used as array key, the references series ID as array value.
      */
-    public static function get_modules_for_series_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid)
-    {
+    public static function get_modules_for_series_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid) {
         global $DB;
 
         // Get an APIbridge instance.
@@ -552,7 +540,7 @@ class ltimodulemanager
                 ' ORDER BY cm.added ASC';
             $params = ['toolid' => $toolid,
                 'course' => $modulecourseid,
-                'referencedseriesid' => '%' . $series->series . '%',];
+                'referencedseriesid' => '%' . $series->series . '%', ];
             $seriesmodules = $DB->get_fieldset_sql($sql, $params);
 
             // If there are any existing series modules in this course.
@@ -580,8 +568,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedcourseid, $duplicatedseries)
-    {
+    public static function cleanup_series_modules($ocinstanceid, $modulecourseid, $referencedcourseid, $duplicatedseries) {
         global $CFG, $DB;
 
         // Require grade library. For an unknown reason, this is needed when updating the module.
@@ -679,13 +666,12 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episodes($ocinstanceid, $courseid)
-    {
+    public static function get_modules_for_episodes($ocinstanceid, $courseid) {
         global $DB;
 
         // Get the LTI episode module ids.
         $modules = $DB->get_records_menu('block_opencast_ltiepisode', ['ocinstanceid' => $ocinstanceid,
-            'courseid' => $courseid,], '', 'episodeuuid, cmid');
+            'courseid' => $courseid, ], '', 'episodeuuid, cmid');
 
         // Return the LTI module ids.
         return $modules;
@@ -701,8 +687,7 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function pick_module_for_episode($ocinstanceid, $modules, $courseid, $episodeuuid)
-    {
+    public static function pick_module_for_episode($ocinstanceid, $modules, $courseid, $episodeuuid) {
         global $DB;
 
         // If there isn't an episode for the given episode.
@@ -746,8 +731,7 @@ class ltimodulemanager
      *
      * @return int|boolean
      */
-    public static function get_module_for_episode($ocinstanceid, $courseid, $episodeuuid)
-    {
+    public static function get_module_for_episode($ocinstanceid, $courseid, $episodeuuid) {
         // Get the existing modules of the course.
         $modules = self::get_modules_for_episodes($ocinstanceid, $courseid);
 
@@ -773,8 +757,7 @@ class ltimodulemanager
      * @return array
      */
     public static function get_modules_for_episodes_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid,
-                                                                            $onlytheseepisodes = null)
-    {
+                                                                            $onlytheseepisodes = null) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -819,8 +802,7 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedepisodeid)
-    {
+    public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedepisodeid) {
         global $DB;
 
         // Get the id of the preconfigured tool.
@@ -838,7 +820,7 @@ class ltimodulemanager
             'AND ' . $DB->sql_like('l.instructorcustomparameters', ':referencedepisodeid');
         $params = ['toolid' => $toolid,
             'course' => $modulecourseid,
-            'referencedepisodeid' => '%' . $referencedepisodeid . '%',];
+            'referencedepisodeid' => '%' . $referencedepisodeid . '%', ];
         $episodemodules = $DB->get_fieldset_sql($sql, $params);
 
         // If there are any existing episode modules in this course.
@@ -867,8 +849,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function cleanup_episode_modules($ocinstanceid, $modulecourseid, $episodemodules, $episodeid)
-    {
+    public static function cleanup_episode_modules($ocinstanceid, $modulecourseid, $episodemodules, $episodeid) {
         global $CFG, $DB;
 
         // Require course module library.
@@ -945,8 +926,7 @@ class ltimodulemanager
      * @param int $ocinstanceid Opencast instance id.
      * @return string
      */
-    public static function get_default_title_for_series($ocinstanceid)
-    {
+    public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
         $defaulttitle = get_config('block_opencast', 'addltidefaulttitle_' . $ocinstanceid);
 
@@ -968,8 +948,7 @@ class ltimodulemanager
      *
      * @return string
      */
-    public static function get_default_title_for_episode($ocinstanceid, $episodeuuid)
-    {
+    public static function get_default_title_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -1004,8 +983,7 @@ class ltimodulemanager
      *
      * @return string
      */
-    public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid)
-    {
+    public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
         $apibridge = apibridge::get_instance($ocinstanceid);
 
@@ -1044,8 +1022,7 @@ class ltimodulemanager
      *
      * @return array
      */
-    public static function get_course_sections($courseid)
-    {
+    public static function get_course_sections($courseid) {
         // Get course format.
         $courseformat = course_get_format($courseid);
 
@@ -1079,8 +1056,7 @@ class ltimodulemanager
      *
      * @return bool
      */
-    public static function is_valid_episode_id($episodeid)
-    {
+    public static function is_valid_episode_id($episodeid) {
         $uuidv4pattern = '/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i';
         if (strlen($episodeid) != 36 || preg_match($uuidv4pattern, $episodeid) !== 1) {
             return false;
@@ -1096,8 +1072,7 @@ class ltimodulemanager
      *
      * @return int The number of updated lti modules.
      */
-    public static function update_existing_lti_modules()
-    {
+    public static function update_existing_lti_modules() {
         global $DB, $CFG;
 
         // We need mod and grade libraries to get module information.
@@ -1217,8 +1192,7 @@ class ltimodulemanager
      *
      * @return int The number of unrecorded lti modules.
      */
-    public static function record_manually_added_lti_modules()
-    {
+    public static function record_manually_added_lti_modules() {
         global $DB;
         // Get all available opencast instances to get all the configured tool ids.
         $ocinstances = settings_api::get_ocinstances();
@@ -1361,8 +1335,7 @@ class ltimodulemanager
      *
      * @return int number of deleted modules.
      */
-    public static function cleanup_lti_module_entries()
-    {
+    public static function cleanup_lti_module_entries() {
         global $DB;
 
         $deletedrecordsnum = 0;
@@ -1459,8 +1432,7 @@ class ltimodulemanager
      * @param int $courseid course id
      * @return boolean
      */
-    private static function check_course($courseid)
-    {
+    private static function check_course($courseid) {
         global $DB;
         if (empty($courseid)) {
             return false;
@@ -1476,8 +1448,7 @@ class ltimodulemanager
      * @param int $ocinstanceid opencast instance id
      * @return boolean
      */
-    private static function check_opencast_config($ocinstanceid)
-    {
+    private static function check_opencast_config($ocinstanceid) {
         if (empty($ocinstanceid)) {
             return false;
         }
@@ -1506,8 +1477,7 @@ class ltimodulemanager
      * @param int $courseid course id
      * @return boolean
      */
-    private static function check_module($cmid, $courseid)
-    {
+    private static function check_module($cmid, $courseid) {
         if (empty($cmid) || empty($courseid)) {
             return false;
         }
@@ -1525,8 +1495,7 @@ class ltimodulemanager
      * @param int $ocinstanceid opencast instance id
      * @return boolean
      */
-    private static function check_opencast_episode($identifier, $ocinstanceid)
-    {
+    private static function check_opencast_episode($identifier, $ocinstanceid) {
         if (empty($identifier) || empty($ocinstanceid)) {
             return false;
         }
@@ -1542,8 +1511,7 @@ class ltimodulemanager
      * @param int $ocinstanceid opencast instance id
      * @return boolean
      */
-    private static function check_opencast_series($identifier, $ocinstanceid)
-    {
+    private static function check_opencast_series($identifier, $ocinstanceid) {
         if (empty($identifier) || empty($ocinstanceid)) {
             return false;
         }

@@ -33,8 +33,8 @@ namespace block_opencast;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_default_manager
-{
+class setting_default_manager {
+
 
     /**
      * Initializes the set default settings provided in this class.
@@ -42,8 +42,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function init_regirstered_defaults($ocinstanceid = 1)
-    {
+    public static function init_regirstered_defaults($ocinstanceid = 1) {
         $classmethods = get_class_methods('\block_opencast\setting_default_manager');
         foreach ($classmethods as $methodname) {
             if (strpos($methodname, 'set_default') !== false) {
@@ -57,8 +56,7 @@ class setting_default_manager
      *
      * @return string json default setting string
      */
-    public static function get_default_metadata()
-    {
+    public static function get_default_metadata() {
         return '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
             '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
@@ -85,8 +83,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_metadata($ocinstanceid = 1)
-    {
+    public static function set_default_metadata($ocinstanceid = 1) {
         $configname = 'metadata_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
@@ -99,8 +96,7 @@ class setting_default_manager
      *
      * @return string json default setting string
      */
-    public static function get_default_metadataseries()
-    {
+    public static function get_default_metadataseries() {
         return '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
             '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0},' .
@@ -127,8 +123,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_metadataseries($ocinstanceid = 1)
-    {
+    public static function set_default_metadataseries($ocinstanceid = 1) {
         $configname = 'metadataseries_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
@@ -141,8 +136,7 @@ class setting_default_manager
      *
      * @return string json default setting string
      */
-    public static function get_default_transcriptionflavors()
-    {
+    public static function get_default_transcriptionflavors() {
         return '[{"key":"de","value":"Amberscript German"},' .
             '{"key":"en","value":"Amberscript English"},{"key":"deu","value":"Vosk German"},' .
             '{"key":"eng","value":"Vosk English"}]';
@@ -153,8 +147,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_transcriptionflavors($ocinstanceid = 1)
-    {
+    public static function set_default_transcriptionflavors($ocinstanceid = 1) {
         $configname = 'transcriptionflavors_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
@@ -167,8 +160,7 @@ class setting_default_manager
      *
      * @return string json default setting string
      */
-    public static function get_default_roles()
-    {
+    public static function get_default_roles() {
         return '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
             '{"rolename":"ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS","actions":"write,read","permanent":1},' .
             '{"rolename":"[COURSEID]_Instructor","actions":"write,read","permanent":1},' .
@@ -180,8 +172,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_roles($ocinstanceid = 1)
-    {
+    public static function set_default_roles($ocinstanceid = 1) {
         $configname = 'roles_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
@@ -194,8 +185,7 @@ class setting_default_manager
      *
      * @return int max series number
      */
-    public static function get_default_maxseries()
-    {
+    public static function get_default_maxseries() {
         return 3;
     }
 
@@ -204,8 +194,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_maxseries($ocinstanceid = 1)
-    {
+    public static function set_default_maxseries($ocinstanceid = 1) {
         $configname = 'maxseries_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
@@ -218,8 +207,7 @@ class setting_default_manager
      *
      * @return int limit videos number
      */
-    public static function get_default_limitvideos()
-    {
+    public static function get_default_limitvideos() {
         return 5;
     }
 
@@ -228,8 +216,7 @@ class setting_default_manager
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_limitvideos($ocinstanceid = 1)
-    {
+    public static function set_default_limitvideos($ocinstanceid = 1) {
         $configname = 'limitvideos_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
