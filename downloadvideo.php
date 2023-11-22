@@ -23,6 +23,8 @@
 require_once('../../config.php');
 
 use block_opencast\local\apibridge;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
@@ -31,7 +33,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/downloadvideo.php',
     array('courseid' => $courseid, 'video_identifier' => $videoid, 'ocinstanceid' => $ocinstanceid));
@@ -97,11 +99,11 @@ if (!$result->error) {
         redirect($redirecturl,
             get_string('video_not_downloadable', 'block_opencast'),
             null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 } else {
     redirect($redirecturl,
         get_string('video_retrieval_failed', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }

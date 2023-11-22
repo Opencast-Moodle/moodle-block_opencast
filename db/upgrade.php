@@ -29,7 +29,8 @@ use tool_opencast\local\settings_api;
  * @param int $oldversion
  * @return bool
  */
-function xmldb_block_opencast_upgrade($oldversion) {
+function xmldb_block_opencast_upgrade($oldversion)
+{
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
@@ -43,7 +44,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('actionname', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_roles.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for block_opencast_roles.
         if (!$dbman->table_exists($table)) {
@@ -79,8 +80,8 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('series', XMLDB_TYPE_CHAR, '36', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_series.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
 
         // Conditionally launch create table for block_opencast_series.
         if (!$dbman->table_exists($table)) {
@@ -103,10 +104,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_draftitemid.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table block_opencast_draftitemid.
-        $table->add_index('ctx-itemid', XMLDB_INDEX_NOTUNIQUE, array('contextid', 'itemid'));
+        $table->add_index('ctx-itemid', XMLDB_INDEX_NOTUNIQUE, ['contextid', 'itemid']);
 
         // Conditionally launch create table for block_opencast_draftitemid.
         if (!$dbman->table_exists($table)) {
@@ -147,7 +148,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_deletejob.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for block_opencast_deletejob.
         if (!$dbman->table_exists($table)) {
@@ -171,7 +172,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_groupaccess.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for block_opencast_groupaccess.
         if (!$dbman->table_exists($table)) {
@@ -253,29 +254,29 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Catalog.
-        $catalog = array();
-        $catalog[0] = new \stdClass();
+        $catalog = [];
+        $catalog[0] = new stdClass();
         $catalog[0]->name = 'title';
         $catalog[0]->datatype = 'text';
         $catalog[0]->required = 1;
         $catalog[0]->readonly = 0;
         $catalog[0]->param_json = '{"style":"min-width: 27ch;"}';
 
-        $catalog[1] = new \stdClass();
+        $catalog[1] = new stdClass();
         $catalog[1]->name = 'subjects';
         $catalog[1]->datatype = 'autocomplete';
         $catalog[1]->required = 0;
         $catalog[1]->readonly = 0;
         $catalog[1]->param_json = null;
 
-        $catalog[2] = new \stdClass();
+        $catalog[2] = new stdClass();
         $catalog[2]->name = 'description';
         $catalog[2]->datatype = 'textarea';
         $catalog[2]->required = 0;
         $catalog[2]->readonly = 0;
         $catalog[2]->param_json = '{"rows":"3","cols":"19"}';
 
-        $catalog[3] = new \stdClass();
+        $catalog[3] = new stdClass();
         $catalog[3]->name = 'language';
         $catalog[3]->datatype = 'select';
         $catalog[3]->required = 0;
@@ -285,14 +286,14 @@ function xmldb_block_opencast_upgrade($oldversion) {
             '"spa":"Spanish","gsw":"Swiss German","nor":"Norwegian","rus":"Russian","jpx":"Japanese","nld":"Dutch",' .
             '"tur":"Turkish","hin":"Hindi","swa":"Swedish","eng":"English","deu":"German"}';
 
-        $catalog[4] = new \stdClass();
+        $catalog[4] = new stdClass();
         $catalog[4]->name = 'rightsHolder';
         $catalog[4]->datatype = 'text';
         $catalog[4]->required = 0;
         $catalog[4]->readonly = 0;
         $catalog[4]->param_json = '{"style":"min-width: 27ch;"}';
 
-        $catalog[5] = new \stdClass();
+        $catalog[5] = new stdClass();
         $catalog[5]->name = 'license';
         $catalog[5]->datatype = 'select';
         $catalog[5]->required = 0;
@@ -300,14 +301,14 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $catalog[5]->param_json = '{"":"No option selected","ALLRIGHTS":"All Rights Reserved","CC0":"CC0","CC-BY-ND":"CC BY-ND",' .
             '"CC-BY-NC-ND":"CC BY-NC-ND","CC-BY-NC-SA":"CC BY-NC-SA","CC-BY-SA":"CC BY-SA","CC-BY-NC":"CC BY-NC","CC-BY":"CC BY"}';
 
-        $catalog[6] = new \stdClass();
+        $catalog[6] = new stdClass();
         $catalog[6]->name = 'creator';
         $catalog[6]->datatype = 'autocomplete';
         $catalog[6]->required = 0;
         $catalog[6]->readonly = 0;
         $catalog[6]->param_json = null;
 
-        $catalog[7] = new \stdClass();
+        $catalog[7] = new stdClass();
         $catalog[7]->name = 'contributor';
         $catalog[7]->datatype = 'autocomplete';
         $catalog[7]->required = 0;
@@ -331,10 +332,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_ltimodule.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
-        $table->add_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
-        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('courseid', XMLDB_KEY_UNIQUE, ['courseid']);
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, ['cmid'], 'course_modules', ['id']);
 
         // Conditionally launch create table for block_opencast_ltimodule.
         if (!$dbman->table_exists($table)) {
@@ -383,12 +384,12 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_ltiepisode.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
-        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, ['cmid'], 'course_modules', ['id']);
 
         // Adding indexes to table block_opencast_ltiepisode.
-        $table->add_index('episodeuuid', XMLDB_INDEX_NOTUNIQUE, array('episodeuuid'));
+        $table->add_index('episodeuuid', XMLDB_INDEX_NOTUNIQUE, ['episodeuuid']);
 
         // Conditionally launch create table for block_opencast_ltiepisode.
         if (!$dbman->table_exists($table)) {
@@ -405,28 +406,28 @@ function xmldb_block_opencast_upgrade($oldversion) {
         // that Moodle drops both keys already when you just want to drop the first one as both are technically the same.
 
         // There is no key_exists, so test the equivalent index.
-        $oldindex = new xmldb_index('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+        $oldindex = new xmldb_index('courseid', XMLDB_KEY_UNIQUE, ['courseid']);
 
         // Launch drop key if the key exists.
         if ($dbman->index_exists($table, $oldindex)) {
             // Drop the key.
-            $key = new xmldb_key('courseid', XMLDB_KEY_UNIQUE, array('courseid'));
+            $key = new xmldb_key('courseid', XMLDB_KEY_UNIQUE, ['courseid']);
             $dbman->drop_key($table, $key);
         }
 
         // There is no key_exists, so test the equivalent index.
-        $oldindex2 = new xmldb_index('fk_course', XMLDB_KEY_UNIQUE, array('courseid'));
+        $oldindex2 = new xmldb_index('fk_course', XMLDB_KEY_UNIQUE, ['courseid']);
 
         // Launch drop key if the key exists.
         if ($dbman->index_exists($table, $oldindex2)) {
             // Drop the key.
-            $key2 = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $key2 = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
             $dbman->drop_key($table, $key2);
         }
 
         // Launch add key if the key does not exist.
         if (!$dbman->index_exists($table, $oldindex2)) {
-            $newkey = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+            $newkey = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
             $dbman->add_key($table, $newkey);
         }
 
@@ -448,12 +449,12 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table block_opencast_ltiepisode_cu.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
-        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, array('cmid'), 'course_modules', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+        $table->add_key('fk_cm', XMLDB_KEY_FOREIGN_UNIQUE, ['cmid'], 'course_modules', ['id']);
 
         // Adding indexes to table block_opencast_ltiepisode_cu.
-        $table->add_index('ocworkflowid', XMLDB_INDEX_NOTUNIQUE, array('ocworkflowid'));
+        $table->add_index('ocworkflowid', XMLDB_INDEX_NOTUNIQUE, ['ocworkflowid']);
 
         // Conditionally launch create table for block_opencast_ltiepisode_cu.
         if (!$dbman->table_exists($table)) {
@@ -510,7 +511,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         $params = [
             'component' => 'block_opencast',
-            'filearea' => 'videotoupload'
+            'filearea' => 'videotoupload',
         ];
 
         $sql = "SELECT CONCAT(contextid, '_', itemid), contextid, itemid, COUNT(*) as cnt " .
@@ -528,7 +529,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
                         'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
                         'filename' => '.',
                         'contextid' => $entry->contextid,
-                        'itemid' => $entry->itemid
+                        'itemid' => $entry->itemid,
                     ];
 
                     $sql = "SELECT f.* " .
@@ -580,13 +581,13 @@ function xmldb_block_opencast_upgrade($oldversion) {
             'addltiintro', 'addltisection', 'addltiavailability', 'addltiepisodeenabled',
             'addltiepisodepreconfiguredtool', 'addltiepisodeintro', 'addltiepisodesection', 'addltiepisodeavailability',
             'importvideosenabled', 'duplicateworkflow', 'importvideoscoreenabled', 'importvideosmanualenabled',
-            'importvideoshandleseriesenabled', 'importvideoshandleepisodeenabled'];
+            'importvideoshandleseriesenabled', 'importvideoshandleepisodeenabled',];
 
         $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
 
         // Check if settings were upgraded without upgrading the plugin.
-        if ($DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles')) &&
-            $DB->get_record('config_plugins', array('plugin' => 'block_opencast', 'name' => 'roles_1'))) {
+        if ($DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles']) &&
+            $DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles_1'])) {
             // Remove already upgraded settings and only keep old ones.
             $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name != 'version' " .
                 "AND name not in " . $fieldsjoined);
@@ -597,7 +598,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
             "AND name in " . $fieldsjoined);
 
         $dbtables = ['block_opencast_uploadjob', 'block_opencast_deletejob', 'block_opencast_groupaccess',
-            'block_opencast_ltimodule', 'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu'];
+            'block_opencast_ltimodule', 'block_opencast_ltiepisode', 'block_opencast_ltiepisode_cu',];
 
         foreach ($dbtables as $dbtable) {
             // Add new opencast instance field.
@@ -641,9 +642,9 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Allow course id to occur multiple times.
-        $key = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, array('courseid'), 'course', array('id'));
+        $key = new xmldb_key('fk_course', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
         $dbman->drop_key($table, $key);
-        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('fk_course', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
 
         // Opencast savepoint reached.
         upgrade_block_savepoint(true, 2021073101, 'opencast');
@@ -665,7 +666,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $table->add_field('timenotified', XMLDB_TYPE_INTEGER, '10');
 
         // Adding keys to table block_opencast_notifications.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for block_opencast_notifications.
         if (!$dbman->table_exists($table)) {

@@ -25,6 +25,12 @@
 
 namespace block_opencast\local;
 
+use coding_exception;
+use core_date;
+use DateTime;
+use DateTimeZone;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,12 +45,14 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class updatemetadata_form extends \moodleform {
+class updatemetadata_form extends moodleform
+{
 
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $PAGE;
 
         $mform = $this->_form;
@@ -58,8 +66,8 @@ class updatemetadata_form extends \moodleform {
             if (is_array($value)) {
                 $value = array_map('trim', $value);
             }
-            $param = array();
-            $attributes = array();
+            $param = [];
+            $attributes = [];
             if ($field->param_json) {
                 $param = $field->datatype == 'static' ? $field->param_json : json_decode($field->param_json, true);
             }
@@ -71,7 +79,7 @@ class updatemetadata_form extends \moodleform {
                     'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
-                    'tags' => true
+                    'tags' => true,
                 ];
                 // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
                 if ($field->name == 'creator' || $field->name == 'contributor') {
@@ -122,8 +130,8 @@ class updatemetadata_form extends \moodleform {
         // Adding Start Date element to the update form.
         $startdate = $this->extract_value('startDate');
         $starttime = $this->extract_value('startTime');
-        $sd = new \DateTime("$startdate $starttime", new \DateTimeZone("UTC"));
-        $sd->setTimezone(\core_date::get_user_timezone_object());
+        $sd = new DateTime("$startdate $starttime", new DateTimeZone("UTC"));
+        $sd->setTimezone(core_date::get_user_timezone_object());
         $mform->addElement('date_time_selector', 'startDate', get_string('date', 'block_opencast'));
         $mform->setDefault('startDate', date('U', $sd->getTimestamp()));
 
@@ -159,9 +167,10 @@ class updatemetadata_form extends \moodleform {
      * @param string|object|array $a An object, string or number that can be used
      *      within translation strings
      * @return string
-     * @throws \coding_exception
+     * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null) {
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -174,7 +183,8 @@ class updatemetadata_form extends \moodleform {
      * @param string $fieldname the name of the catalog field which is defined as id in metadata set
      * @return string|array $value An array or string derived from metadata
      */
-    protected function extract_value($fieldname) {
+    protected function extract_value($fieldname)
+    {
         $metadata = $this->_customdata['metadata'];
 
         foreach ($metadata as $data) {

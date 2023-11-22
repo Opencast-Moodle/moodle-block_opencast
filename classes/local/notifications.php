@@ -24,6 +24,10 @@
 
 namespace block_opencast\local;
 
+use core\message\message;
+use core_user;
+use Exception;
+
 /**
  * Notifications for block_opencast.
  *
@@ -31,7 +35,8 @@ namespace block_opencast\local;
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class notifications {
+class notifications
+{
 
     /**
      * Helperfunction to send all following messages .
@@ -42,13 +47,14 @@ class notifications {
      * @param string $body Body
      * @param string $format Format
      */
-    private static function send_message($messagetype, $touser, $subject, $body, $format = FORMAT_PLAIN) {
+    private static function send_message($messagetype, $touser, $subject, $body, $format = FORMAT_PLAIN)
+    {
 
-        $message = new \core\message\message();
+        $message = new message();
         $message->courseid = SITEID;
         $message->component = 'block_opencast';
         $message->name = $messagetype;
-        $message->userfrom = \core_user::get_user(\core_user::NOREPLY_USER);
+        $message->userfrom = core_user::get_user(core_user::NOREPLY_USER);
         $message->userto = $touser;
         $message->subject = $subject;
         $message->fullmessage = html_to_text($body);
@@ -66,7 +72,8 @@ class notifications {
      * @param int $courseid
      * @param array $backupeventids
      */
-    public static function notify_failed_course_series($courseid, $backupeventids) {
+    public static function notify_failed_course_series($courseid, $backupeventids)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -96,7 +103,8 @@ class notifications {
      * @param int $courseid Course id
      * @param array $missingevents Missing events
      */
-    public static function notify_missing_events($courseid, $missingevents) {
+    public static function notify_missing_events($courseid, $missingevents)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -123,9 +131,10 @@ class notifications {
      * Notify administrator upon an exception error.
      *
      * @param string $identifier
-     * @param \Exception $e
+     * @param Exception $e
      */
-    public static function notify_error($identifier, \Exception $e = null) {
+    public static function notify_error($identifier, Exception $e = null)
+    {
 
         $subject = get_string('erroremailsubj', 'block_opencast');
 
@@ -133,7 +142,7 @@ class notifications {
         $errorstr = get_string($identifier, 'block_opencast', $identifier);
         $a = (object)[
             'message' => $message,
-            'errorstr' => $errorstr
+            'errorstr' => $errorstr,
         ];
 
         $body = get_string('erroremailbody', 'block_opencast', $a);
@@ -147,7 +156,8 @@ class notifications {
      * Notify user that email to support was successfully sent.
      * @param string $message Message that was sent to the support
      */
-    public static function notify_problem_reported($message) {
+    public static function notify_problem_reported($message)
+    {
         global $USER;
 
         self::send_message('reportproblem_confirmation', $USER,
@@ -160,7 +170,8 @@ class notifications {
      *
      * @param int $courseid
      */
-    public static function notify_failed_importmode($courseid) {
+    public static function notify_failed_importmode($courseid)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -184,7 +195,8 @@ class notifications {
      *
      * @param int $courseid
      */
-    public static function notify_missing_sourcecourseid($courseid) {
+    public static function notify_missing_sourcecourseid($courseid)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -208,7 +220,8 @@ class notifications {
      *
      * @param int $courseid
      */
-    public static function notify_missing_seriesid($courseid) {
+    public static function notify_missing_seriesid($courseid)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -234,7 +247,8 @@ class notifications {
      * @param int $sourcecourseid
      * @param string $seriesid
      */
-    public static function notify_failed_series_acl_change($courseid, $sourcecourseid, $seriesid) {
+    public static function notify_failed_series_acl_change($courseid, $sourcecourseid, $seriesid)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -242,7 +256,7 @@ class notifications {
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'seriesid' => $seriesid
+            'seriesid' => $seriesid,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -267,14 +281,15 @@ class notifications {
      * @param int $sourcecourseid
      * @param array $failed falied events.
      */
-    public static function notify_failed_events_acl_change($courseid, $sourcecourseid, $failed) {
+    public static function notify_failed_events_acl_change($courseid, $sourcecourseid, $failed)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
             'courseid' => $courseid,
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast')
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -303,7 +318,8 @@ class notifications {
      * @param int $sourcecourseid
      * @param string $seriesid
      */
-    public static function notify_failed_series_mapping($courseid, $sourcecourseid, $seriesid) {
+    public static function notify_failed_series_mapping($courseid, $sourcecourseid, $seriesid)
+    {
         global $DB, $PAGE;
 
         $a = (object)[
@@ -311,7 +327,7 @@ class notifications {
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'seriesid' => $seriesid
+            'seriesid' => $seriesid,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -336,7 +352,8 @@ class notifications {
      * @param string $message the message containing the status of the event.
      * @param object $video the video object to get title and identifier.
      */
-    public static function notify_event_status($courseid, $touser, $message, $video) {
+    public static function notify_event_status($courseid, $touser, $message, $video)
+    {
         global $DB;
 
         $a = (object)[
@@ -344,7 +361,7 @@ class notifications {
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'videotitle' => $video->title,
             'videoidentifier' => $video->identifier,
-            'statusmessage' => $message
+            'statusmessage' => $message,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -364,14 +381,15 @@ class notifications {
      * @param int $waitingnum the number of jobs in the queue ahead
      * @param string $videotitle the title of the video
      */
-    public static function notify_upload_queue_status($courseid, $touser, $waitingnum, $videotitle) {
+    public static function notify_upload_queue_status($courseid, $touser, $waitingnum, $videotitle)
+    {
         global $DB;
 
         $a = (object)[
             'courseid' => $courseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'videotitle' => $videotitle,
-            'waitingnum' => $waitingnum
+            'waitingnum' => $waitingnum,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -392,14 +410,15 @@ class notifications {
      * @param string $exceptionmessage extra exception message to pass along the normal message.
      */
     public static function notify_cleanup_imported_modules_force_deletion($courseid, $workflowid, $notificationtype,
-                                                                            $exceptionmessage = '') {
+                                                                          $exceptionmessage = '')
+    {
         global $DB;
 
         $a = (object)[
             'courseid' => $courseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'workflowid' => $workflowid,
-            'exceptionmessage' => $exceptionmessage
+            'exceptionmessage' => $exceptionmessage,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {

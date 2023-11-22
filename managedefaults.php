@@ -22,31 +22,36 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\managedefaults_form;
+use core\output\notification;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER;
 
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 $redirectto = optional_param('redirectto', '', PARAM_TEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/managedefaults.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]
 );
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]
 );
 
 if ($redirectto == 'addvideo') {
     $redirecturl = new moodle_url('/blocks/opencast/addvideo.php',
-        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid)
+        ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]
     );
 }
 if ($redirectto == 'manageseries') {
     $redirecturl = new moodle_url('/blocks/opencast/manageseries.php',
-        array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'createseries' => 1)
+        ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'createseries' => 1]
     );
 }
 
@@ -66,7 +71,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 $eventmetadata = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
 $seriesmetadata = json_decode(get_config('block_opencast', 'metadataseries_' . $ocinstanceid));
 
-$defaultables = new \stdClass();
+$defaultables = new stdClass();
 
 $eventmetadatadefaultables = array_filter($eventmetadata, function ($metadata) {
     return !empty($metadata->defaultable);
@@ -88,13 +93,13 @@ if ($userdefaultsrecord) {
     $userdefaults = json_decode($userdefaultsrecord->defaults, true);
 }
 
-$managedefaultsform = new \block_opencast\local\managedefaults_form(null,
-    array('courseid' => $courseid,
+$managedefaultsform = new managedefaults_form(null,
+    ['courseid' => $courseid,
         'ocinstanceid' => $ocinstanceid,
         'redirectto' => $redirectto,
         'defaultables' => $defaultables,
-        'userdefaults' => $userdefaults
-    ));
+        'userdefaults' => $userdefaults,
+    ]);
 
 if ($managedefaultsform->is_cancelled()) {
     redirect($redirecturl);
@@ -116,20 +121,20 @@ if ($data = $managedefaultsform->get_data()) {
 
     $defaults = [
         'event' => $eventdefaults,
-        'series' => $seriesdefaults
+        'series' => $seriesdefaults,
     ];
 
     if ($userdefaultsrecord) {
         $userdefaultsrecord->defaults = json_encode($defaults);
         $DB->update_record('block_opencast_user_default', $userdefaultsrecord);
     } else {
-        $userdefaultsrecord = new \stdClass();
+        $userdefaultsrecord = new stdClass();
         $userdefaultsrecord->userid = $USER->id;
         $userdefaultsrecord->defaults = json_encode($defaults);
         $DB->insert_record('block_opencast_user_default', $userdefaultsrecord);
     }
 
-    redirect($redirecturl, get_string('defaultssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
+    redirect($redirecturl, get_string('defaultssaved', 'block_opencast'), null, notification::NOTIFY_SUCCESS);
 }
 $renderer = $PAGE->get_renderer('block_opencast');
 

@@ -20,8 +20,15 @@
  * @copyright 2018 Tobias Reischmann, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast\task;
+
 use block_opencast\local\apibridge;
+use coding_exception;
+use core\task\scheduled_task;
+use dml_exception;
+use lang_string;
+use moodle_exception;
 
 /**
  * Processes the videos marked as deleted.
@@ -29,22 +36,25 @@ use block_opencast\local\apibridge;
  * @copyright 2018 Tobias Reischmann, WWU
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_delete_cron extends \core\task\scheduled_task {
+class process_delete_cron extends scheduled_task
+{
 
     /**
      * Get the name of the task.
-     * @return \lang_string|string
-     * @throws \coding_exception
+     * @return lang_string|string
+     * @throws coding_exception
      */
-    public function get_name() {
+    public function get_name()
+    {
         return get_string('processdelete', 'block_opencast');
     }
 
     /**
      * Executes the task.
-     * @throws \dml_exception
+     * @throws dml_exception
      */
-    public function execute() {
+    public function execute()
+    {
         global $DB;
 
         // Get all delete jobs.
@@ -63,15 +73,15 @@ class process_delete_cron extends \core\task\scheduled_task {
                 $event = $apibridge->get_opencast_video($job->opencasteventid);
                 // If job failed previously and event does no longer exist, remove the delete job.
                 if ($event->error == 404 & $job->failed) {
-                    $DB->delete_records("block_opencast_deletejob", array('id' => $job->id));
+                    $DB->delete_records("block_opencast_deletejob", ['id' => $job->id]);
                     mtrace('failed job ' . $job->id . ' removed');
                 }
                 // If deletion workflow finished, remove the video.
                 if ($event->error == 0 &&
                     ($event->video->processing_state === "SUCCEEDED" ||
-                        $event->video->processing_state === "PLANNED" )) {
+                        $event->video->processing_state === "PLANNED")) {
                     $apibridge->delete_event($job->opencasteventid);
-                    $DB->delete_records("block_opencast_deletejob", array('id' => $job->id));
+                    $DB->delete_records("block_opencast_deletejob", ['id' => $job->id]);
                     mtrace('event ' . $job->opencasteventid . ' removed');
                 }
                 // Mark delete job as failed.
@@ -81,7 +91,7 @@ class process_delete_cron extends \core\task\scheduled_task {
                     $DB->update_record("block_opencast_deletejob", $job);
                     mtrace('deletion of event ' . $job->opencasteventid . ' failed');
                 }
-            } catch (\moodle_exception $e) {
+            } catch (moodle_exception $e) {
                 mtrace('Job failed due to: ' . $e);
                 $this->upload_failed($job, $e->getMessage());
             }

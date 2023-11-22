@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use stored_file;
+
 /**
  * Manager to enable ad hoc file deletion
  *
@@ -31,7 +33,8 @@ namespace block_opencast\local;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class file_deletionmanager extends \file_system_filedir {
+class file_deletionmanager extends \file_system_filedir
+{
 
     /**
      * Delete all the users draft file entries that belongs to a videofile within
@@ -44,7 +47,8 @@ class file_deletionmanager extends \file_system_filedir {
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function delete_draft_files_by_source($contenthash, $coursecontextid, $itemid = 0) {
+    public static function delete_draft_files_by_source($contenthash, $coursecontextid, $itemid = 0)
+    {
         global $DB;
 
         $params = [
@@ -52,7 +56,7 @@ class file_deletionmanager extends \file_system_filedir {
             'filearea' => 'draft',
             'contenthash' => $contenthash,
             'filename' => '.',
-            'contextid' => $coursecontextid
+            'contextid' => $coursecontextid,
         ];
 
         // Get draft entries belonging to stored file.
@@ -87,7 +91,8 @@ class file_deletionmanager extends \file_system_filedir {
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function delete_dot_files_by_source($coursecontextid, $itemid) {
+    public static function delete_dot_files_by_source($coursecontextid, $itemid)
+    {
         global $DB;
 
         $params = [
@@ -96,7 +101,7 @@ class file_deletionmanager extends \file_system_filedir {
             'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
             'filename' => '.',
             'contextid' => $coursecontextid,
-            'itemid' => $itemid
+            'itemid' => $itemid,
         ];
 
         // Get dot entries belonging to stored file.
@@ -125,7 +130,8 @@ class file_deletionmanager extends \file_system_filedir {
      * @param int $coursecontextid
      * @param int $itemid
      */
-    public static function track_draftitemid($coursecontextid, $itemid) {
+    public static function track_draftitemid($coursecontextid, $itemid)
+    {
         global $DB;
 
         // Do some cleanup.
@@ -133,7 +139,7 @@ class file_deletionmanager extends \file_system_filedir {
 
         $params = [
             'contextid' => $coursecontextid,
-            'itemid' => $itemid
+            'itemid' => $itemid,
         ];
 
         // Moodle generates a new itemid for filemanager, so we know that $itemid
@@ -147,7 +153,7 @@ class file_deletionmanager extends \file_system_filedir {
         $record = (object)[
             'contextid' => $coursecontextid,
             'itemid' => $itemid,
-            'timecreated' => time()
+            'timecreated' => time(),
         ];
         $DB->insert_record('block_opencast_draftitemid', $record);
     }
@@ -158,7 +164,8 @@ class file_deletionmanager extends \file_system_filedir {
      * It must be noted, that draft entries should have been removed within
      * 4 days by filestorage cron, so we can do so some save cleanup here.
      */
-    public static function cleanup_old_draftitemids() {
+    public static function cleanup_old_draftitemids()
+    {
         global $DB;
 
         $old = time() - 5 * DAYSECS;
@@ -175,9 +182,10 @@ class file_deletionmanager extends \file_system_filedir {
      * We are aware of this, but according to the use cast this is done intentional (file
      * must not be transferred again as it is already on opencast server.
      *
-     * @param \stored_file $storedfile
+     * @param stored_file $storedfile
      */
-    public static function fulldelete_file($storedfile) {
+    public static function fulldelete_file($storedfile)
+    {
         $filedir = new file_system_filedir();
 
         // Delete .dot entry, see https://tracker.moodle.org/browse/MDL-65857.

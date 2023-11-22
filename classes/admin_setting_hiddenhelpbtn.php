@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use admin_setting;
+
 /**
  * Admin setting class which is used to create a hidden help button.
  *
@@ -31,7 +33,8 @@ namespace block_opencast;
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_hiddenhelpbtn extends \admin_setting {
+class admin_setting_hiddenhelpbtn extends admin_setting
+{
     /** @var string Id of the div tag */
     private $divid;
 
@@ -48,7 +51,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting {
      * @param string $iconname Icon that is displayed as help button
      * @param string $component Component
      */
-    public function __construct($name, $divid, $iconname, $component) {
+    public function __construct($name, $divid, $iconname, $component)
+    {
         $this->nosave = true;
         $this->divid = $divid;
         $this->iconname = $iconname;
@@ -61,7 +65,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting {
      *
      * @return bool Always returns true
      */
-    public function get_setting() {
+    public function get_setting()
+    {
         return true;
     }
 
@@ -70,7 +75,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting {
      *
      * @return bool Always returns true
      */
-    public function get_defaultsetting() {
+    public function get_defaultsetting()
+    {
         return true;
     }
 
@@ -80,7 +86,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting {
      * @param mixed $data Gets converted to str for comparison against yes value
      * @return string Always returns an empty string
      */
-    public function write_setting($data) {
+    public function write_setting($data)
+    {
         // Do not write any setting.
         return '';
     }
@@ -92,7 +99,8 @@ class admin_setting_hiddenhelpbtn extends \admin_setting {
      * @param string $query
      * @return string Returns an HTML string
      */
-    public function output_html($data, $query = '') {
+    public function output_html($data, $query = '')
+    {
         global $OUTPUT;
         return '<div class="d-none" id="' . $this->divid . '">' .
             $OUTPUT->help_icon($this->iconname, $this->component) .

@@ -21,10 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\upload_helper;
+
 /**
  * Generator for test data.
  */
-class block_opencast_generator extends testing_block_generator {
+class block_opencast_generator extends testing_block_generator
+{
 
     /**
      * Creates a file.
@@ -34,7 +37,8 @@ class block_opencast_generator extends testing_block_generator {
      * @throws moodle_exception
      * @throws stored_file_creation_exception
      */
-    public function create_file($record = null) {
+    public function create_file($record = null)
+    {
         global $USER;
 
         if (!isset($record['courseid'])) {
@@ -44,7 +48,7 @@ class block_opencast_generator extends testing_block_generator {
         $record['contextid'] = context_course::instance($record['courseid'])->id;
         $record['component'] = 'block_opencast';
 
-        $record['filearea'] = \block_opencast\local\upload_helper::OC_FILEAREA;
+        $record['filearea'] = upload_helper::OC_FILEAREA;
         $record['itemid'] = 0;
 
         if (!isset($record['filepath'])) {

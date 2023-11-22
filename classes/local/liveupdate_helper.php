@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use html_writer;
+
 /**
  * Video live update Helper.
  * @package    block_opencast
@@ -31,7 +33,8 @@ namespace block_opencast\local;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class liveupdate_helper {
+class liveupdate_helper
+{
     /**
      * Returns the processing state live update hidden input flag.
      *
@@ -39,12 +42,13 @@ class liveupdate_helper {
      * @param string $eventtitle video title
      * @return string a hidden input as processing state item
      */
-    public static function get_liveupdate_processing_hidden_input($identifier, $eventtitle) {
-        $attributes = array('type' => 'hidden', 'name' => 'liveupdate_processing_item', 'value' => $identifier);
+    public static function get_liveupdate_processing_hidden_input($identifier, $eventtitle)
+    {
+        $attributes = ['type' => 'hidden', 'name' => 'liveupdate_processing_item', 'value' => $identifier];
         if (!empty($eventtitle)) {
             $attributes['data-title'] = $eventtitle;
         }
-        return \html_writer::empty_tag('input', $attributes);
+        return html_writer::empty_tag('input', $attributes);
     }
 
     /**
@@ -54,12 +58,13 @@ class liveupdate_helper {
      * @param string $jobtitle job title
      * @return string a hidden input for uploading job item
      */
-    public static function get_liveupdate_uploading_hidden_input($jobid, $jobtitle) {
-        $attributes = array('type' => 'hidden', 'name' => 'liveupdate_uploading_item', 'value' => $jobid);
+    public static function get_liveupdate_uploading_hidden_input($jobid, $jobtitle)
+    {
+        $attributes = ['type' => 'hidden', 'name' => 'liveupdate_uploading_item', 'value' => $jobid];
         if (!empty($jobtitle)) {
             $attributes['data-title'] = $jobtitle;
         }
-        return \html_writer::empty_tag('input', $attributes);
+        return html_writer::empty_tag('input', $attributes);
     }
 
     /**
@@ -70,7 +75,8 @@ class liveupdate_helper {
      * @param string $identifier event identifier
      * @return array|string $info the live update info or empty string if error happens.
      */
-    public static function get_processing_state_info($ocinstanceid, $identifier) {
+    public static function get_processing_state_info($ocinstanceid, $identifier)
+    {
         global $PAGE;
         /** @var block_opencast_renderer $renderer */
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -104,14 +110,15 @@ class liveupdate_helper {
      * @param int $uploadjobid the id of upload job
      * @return array|string $info the live update info or empty string if error happens.
      */
-    public static function get_uploading_info($uploadjobid) {
+    public static function get_uploading_info($uploadjobid)
+    {
         global $DB, $PAGE;
 
         // Get single upload job record to extract its current info.
         $sql = "SELECT status, countfailed FROM {block_opencast_uploadjob} " .
             "WHERE id = :uploadjobid";
         $params = [
-            'uploadjobid' => $uploadjobid
+            'uploadjobid' => $uploadjobid,
         ];
         $uploadjob = $DB->get_record_sql($sql, $params);
         // If something went wrong, we return empty string to remove the live update item.

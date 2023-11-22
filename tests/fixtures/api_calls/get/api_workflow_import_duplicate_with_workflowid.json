@@ -1,21 +1,21 @@
 {
-    "resource": "/api/workflows/1119?withoperations=false&withconfiguration=true",
-    "body": {
-        "workflow_definition_identifier": "duplicate-event",
-        "identifier": 1119,
-        "creator": "admin",
-        "configuration": {
-            "mpTitle": "Test video",
-            "startDateTime": "2023-04-24T10:55:31Z",
-            "duplicate_media_package_1_id": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
-            "noCopySuffix": "false",
-            "duplicate_media_package_ids": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
-            "seriesId": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
-            "numberOfEvents": "1"
-        },
-        "description": "",
-        "state": "running",
-        "title": "Duplicate Event",
-        "event_identifier": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6"
-    }
+  "resource": "/api/workflows/1119?withoperations=false&withconfiguration=true",
+  "body": {
+    "workflow_definition_identifier": "duplicate-event",
+    "identifier": 1119,
+    "creator": "admin",
+    "configuration": {
+      "mpTitle": "Test video",
+      "startDateTime": "2023-04-24T10:55:31Z",
+      "duplicate_media_package_1_id": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
+      "noCopySuffix": "false",
+      "duplicate_media_package_ids": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6",
+      "seriesId": "84bab8de-5688-46a1-9af0-5ce9122eeb6a",
+      "numberOfEvents": "1"
+    },
+    "description": "",
+    "state": "running",
+    "title": "Duplicate Event",
+    "event_identifier": "45fca7d0-c1e2-4601-bf12-6ccb3376a5f6"
+  }
 }

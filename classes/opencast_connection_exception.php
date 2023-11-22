@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use moodle_exception;
+
 /**
  * Exception, which is thrown when the opencast server is unreachable or an unexpected response code is returned.
  *
@@ -31,6 +33,7 @@ namespace block_opencast;
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class opencast_connection_exception extends \moodle_exception {
+class opencast_connection_exception extends moodle_exception
+{
 
 }

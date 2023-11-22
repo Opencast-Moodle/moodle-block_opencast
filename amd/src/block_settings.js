@@ -53,7 +53,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'},
         {key: 'readonly_disabled_tooltip_text', component: 'block_opencast'},
     ];
-    str.get_strings(strings).then(function(jsstrings) {
+    str.get_strings(strings).then(function (jsstrings) {
         // We need to check and apply the transcription section first,
         // because it might be rendered in different sections (additional features)
         var hastranscription = false;
@@ -73,7 +73,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
                 data: JSON.parse(transcriptionflavorinput.val()),
                 layout: "fitColumns",
-                dataChanged: function(data) {
+                dataChanged: function (data) {
                     data = data.filter(value => value.key && value.value);
                     transcriptionflavorinput.val(JSON.stringify(data));
                 },
@@ -85,29 +85,29 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         width: 40,
                         headerSort: false,
                         hozAlign: "center",
-                        formatter: function() {
+                        formatter: function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                        cellClick: function(e, cell) {
+                        cellClick: function (e, cell) {
                             ModalFactory.create({
                                 type: ModalFactory.types.SAVE_CANCEL,
                                 title: jsstrings[17],
                                 body: jsstrings[18]
                             })
-                                .then(function(modal) {
+                                .then(function (modal) {
                                     modal.setSaveButtonText(jsstrings[17]);
-                                    modal.getRoot().on(ModalEvents.save, function() {
+                                    modal.getRoot().on(ModalEvents.save, function () {
                                         cell.getRow().delete();
                                     });
                                     modal.show();
-                                    return;
+
                                 }).catch(Notification.exception);
                         }
                     }
                 ],
             });
 
-            $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
+            $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function () {
                 transcriptionflavoroptions.addRow({'key': '', 'value': ''});
             });
         }
@@ -133,13 +133,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         var rolestable = new Tabulator("#rolestable_" + ocinstanceid, {
             data: JSON.parse(rolesinput.val()),
             layout: "fitColumns",
-            dataChanged: function(data) {
+            dataChanged: function (data) {
                 data = data.filter(value => value.rolename);
                 rolesinput.val(JSON.stringify(data));
             },
             columns: [
                 {
-                    title: jsstrings[0], field: "rolename", editor: "input", widthGrow: 4, cellEdited: function(cell) {
+                    title: jsstrings[0], field: "rolename", editor: "input", widthGrow: 4, cellEdited: function (cell) {
                         if (cell.getData().rolename.includes('[USERNAME]') || cell.getData().rolename.includes('[USERNAME_LOW]') ||
                             cell.getData().rolename.includes('[USERNAME_UP]')) {
                             // Tick permanent checkbox.
@@ -156,12 +156,12 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     field: "permanent",
                     hozAlign: "center",
                     widthGrow: 0,
-                    formatter: function(cell) {
+                    formatter: function (cell) {
                         var input = document.createElement('input');
                         input.type = 'checkbox';
                         input.style.cursor = 'pointer';
                         input.checked = cell.getValue();
-                        input.addEventListener('click', function() {
+                        input.addEventListener('click', function () {
                             cell.getRow().update({'permanent': $(this).prop('checked') ? 1 : 0});
                         });
 
@@ -178,29 +178,29 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     width: 40,
                     headerSort: false,
                     hozAlign: "center",
-                    formatter: function() {
+                    formatter: function () {
                         return '<i class="icon fa fa-trash fa-fw"></i>';
                     },
-                    cellClick: function(e, cell) {
+                    cellClick: function (e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[3],
                             body: jsstrings[4]
                         })
-                            .then(function(modal) {
+                            .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[3]);
-                                modal.getRoot().on(ModalEvents.save, function() {
+                                modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                                return;
+
                             }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-rolestable_' + ocinstanceid).click(function() {
+        $('#addrow-rolestable_' + ocinstanceid).click(function () {
             rolestable.addRow({'rolename': '', 'actions': '', 'permanent': 0});
         });
 
@@ -208,13 +208,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             data: JSON.parse(metadatainput.val()),
             layout: "fitColumns",
             movableRows: true,
-            rowMoved: function() {
+            rowMoved: function () {
                 // Order by row position
                 var data = metadatatable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
                 metadatainput.val(JSON.stringify(data));
             },
-            dataChanged: function() {
+            dataChanged: function () {
                 // Order by row position
                 var data = metadatatable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
@@ -229,7 +229,12 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     headerSort: false
                 },
                 {
-                    title: jsstrings[8], field: "datatype", widthGrow: 1, headerSort: false, editor: "select", editorParams:
+                    title: jsstrings[8],
+                    field: "datatype",
+                    widthGrow: 1,
+                    headerSort: false,
+                    editor: "select",
+                    editorParams:
                         {
                             values: {
                                 'text': 'String (text)',
@@ -251,12 +256,12 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
-                        function(cell) {
+                        function (cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 var checked = $(this).prop('checked');
                                 cell.getRow().update({'required': checked ? 1 : 0});
                                 // Make readonly disabled if this item is required.
@@ -282,7 +287,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 {
                     title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function(cell) {
+                        function (cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return null;
                             }
@@ -301,7 +306,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                                 input.style.cursor = 'pointer';
                                 input.disabled = false;
                             }
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 // Check if required is enabled.
                                 if (cell.getRow().getData()?.required) {
                                     // If required is enabled, we disable this checkbox.
@@ -325,7 +330,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 {
                     title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function(cell) {
+                        function (cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return null;
                             }
@@ -333,7 +338,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             input.type = 'checkbox';
                             input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -342,29 +347,29 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function() {
+                        function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                    cellClick: function(e, cell) {
+                    cellClick: function (e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
-                            .then(function(modal) {
+                            .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[14]);
-                                modal.getRoot().on(ModalEvents.save, function() {
+                                modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                                return;
+
                             }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-metadatatable_' + ocinstanceid).click(function() {
+        $('#addrow-metadatatable_' + ocinstanceid).click(function () {
             metadatatable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
@@ -372,13 +377,13 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
             data: JSON.parse(metadataseriesinput.val()),
             layout: "fitColumns",
             movableRows: true,
-            rowMoved: function() {
+            rowMoved: function () {
                 // Order by row position
                 var data = metadataseriestable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
                 metadataseriesinput.val(JSON.stringify(data));
             },
-            dataChanged: function() {
+            dataChanged: function () {
                 // Order by row position
                 var data = metadataseriestable.getRows().map(row => row.getData());
                 data = data.filter(value => value.name);
@@ -393,7 +398,12 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     headerSort: false
                 },
                 {
-                    title: jsstrings[8], field: "datatype", widthGrow: 1, headerSort: false, editor: "select", editorParams:
+                    title: jsstrings[8],
+                    field: "datatype",
+                    widthGrow: 1,
+                    headerSort: false,
+                    editor: "select",
+                    editorParams:
                         {
                             values: {
                                 'text': 'String (text)',
@@ -415,12 +425,12 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                     title: jsstrings[10],
                     field: "required", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
 
-                        function(cell) {
+                        function (cell) {
                             var input = document.createElement('input');
                             input.type = 'checkbox';
                             input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 var checked = $(this).prop('checked');
                                 cell.getRow().update({'required': checked ? 1 : 0});
                                 // Make readonly disabled if this item is required.
@@ -446,7 +456,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 {
                     title: jsstrings[11] + '   ' + $('#helpbtnreadonly_' + ocinstanceid).html(),
                     field: "readonly", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function(cell) {
+                        function (cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return null;
                             }
@@ -465,7 +475,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                                 input.style.cursor = 'pointer';
                                 input.disabled = false;
                             }
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 // Check if required is enabled.
                                 if (cell.getRow().getData()?.required) {
                                     // If required is enabled, we disable this checkbox.
@@ -489,7 +499,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 {
                     title: jsstrings[13] + '   ' + $('#helpbtndefaultable_' + ocinstanceid).html(),
                     field: "defaultable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
-                        function(cell) {
+                        function (cell) {
                             if (cell.getRow().getCell("name").getValue() == 'title') {
                                 return null;
                             }
@@ -497,7 +507,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             input.type = 'checkbox';
                             input.style.cursor = 'pointer';
                             input.checked = cell.getValue();
-                            input.addEventListener('click', function() {
+                            input.addEventListener('click', function () {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
                             });
 
@@ -506,29 +516,29 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function() {
+                        function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                    cellClick: function(e, cell) {
+                    cellClick: function (e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
-                            .then(function(modal) {
+                            .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[14]);
-                                modal.getRoot().on(ModalEvents.save, function() {
+                                modal.getRoot().on(ModalEvents.save, function () {
                                     cell.getRow().delete();
                                 });
                                 modal.show();
-                                return;
+
                             }).catch(Notification.exception);
                     }
                 }
             ],
         });
 
-        $('#addrow-metadataseriestable_' + ocinstanceid).click(function() {
+        $('#addrow-metadataseriestable_' + ocinstanceid).click(function () {
             metadataseriestable.addRow({'datatype': 'text', 'required': 0, 'readonly': 0, 'param_json': null});
         });
 
@@ -548,6 +558,6 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 }
             }
         }
-        return;
+
     }).catch(Notification.exception);
 };

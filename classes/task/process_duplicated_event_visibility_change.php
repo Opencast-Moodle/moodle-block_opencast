@@ -25,6 +25,12 @@
 
 namespace block_opencast\task;
 
+use block_opencast\local\apibridge;
+use block_opencast\local\notifications;
+use core\task\adhoc_task;
+use Exception;
+use moodle_exception;
+
 /**
  * Task to change the visibility of the duplicated event
  *
@@ -33,7 +39,8 @@ namespace block_opencast\task;
  * @author      Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
+class process_duplicated_event_visibility_change extends adhoc_task
+{
 
     /** @var int max number of failed retries for one task */
     const MAX_COUNT_FAILS = 10;
@@ -51,7 +58,8 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
     /**
      * Create a copy event task.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->set_component('block_opencast');
     }
 
@@ -60,12 +68,13 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
      *
      * @see \core\task\task_base::execute()
      */
-    public function execute() {
+    public function execute()
+    {
         global $DB;
 
         $data = $this->get_custom_data();
 
-        $course = $DB->get_record('course', array('id' => $data->courseid));
+        $course = $DB->get_record('course', ['id' => $data->courseid]);
         // If no course, we abandon the task to get it deleted by task manager.
         if (!$course) {
             mtrace("course to reset does not exist, ID: $data->courseid, deleting adhoc task.");
@@ -80,16 +89,16 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
         $visiblitychangestatus = self::TASK_PENDING;
 
         try {
-            $apibridge = \block_opencast\local\apibridge::get_instance($data->ocinstanceid);
+            $apibridge = apibridge::get_instance($data->ocinstanceid);
             // Opencast Workflow id check.
             if (empty($data->ocworkflowid) || !is_number($data->ocworkflowid)) {
                 $visiblitychangestatus = self::TASK_FAILED;
-                throw new \moodle_exception('error_no_duplicate_workflow_id', 'block_opencast', '', $a);
+                throw new moodle_exception('error_no_duplicate_workflow_id', 'block_opencast', '', $a);
             }
             // Event checks.
             if (empty($data->sourceeventid)) {
                 $visiblitychangestatus = self::TASK_FAILED;
-                throw new \moodle_exception('error_no_duplicate_origin_event_id', 'block_opencast', '', $a);
+                throw new moodle_exception('error_no_duplicate_origin_event_id', 'block_opencast', '', $a);
             }
 
             // Extract duplicated event id, if it is not yet there.
@@ -99,15 +108,15 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
 
             // Repeating the task a few time until it gets or rejects.
             if (empty($data->duplicatedeventid)) {
-                throw new \moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
+                throw new moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
             }
 
             // Ensure video processing is finished and no other workflow is running.
             $event = $apibridge->get_already_existing_event([$data->duplicatedeventid]);
             if (!$event || !in_array($event->status, ['EVENTS.EVENTS.STATUS.PROCESSED', 'EVENTS.EVENTS.STATUS.PROCESSING_FAILURE'])
-                    || count($event->publication_status) == 0
-                    || count($event->publication_status) == 1 && $event->publication_status[0] === 'internal') {
-                throw new \moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
+                || count($event->publication_status) == 0
+                || count($event->publication_status) == 1 && $event->publication_status[0] === 'internal') {
+                throw new moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
             }
 
             // Adopting the visibility.
@@ -117,10 +126,10 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
                 $data->courseid
             );
             if ($visiblitychangestatus !== self::TASK_COMPLETED) {
-                throw new \moodle_exception('error_duplicated_event_visibility_change', 'block_opencast', '', $a);
+                throw new moodle_exception('error_duplicated_event_visibility_change', 'block_opencast', '', $a);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $retry = true;
             if ($visiblitychangestatus === self::TASK_PENDING) {
                 if (isset($data->countpending)) {
@@ -148,9 +157,9 @@ class process_duplicated_event_visibility_change extends \core\task\adhoc_task {
                 $futuretime = strtotime($intervalstring);
                 $this->set_next_run_time($futuretime);
                 $this->set_custom_data($data);
-                throw new \moodle_exception('errorduplicatedeventvisibilitytaskretry', 'block_opencast', '', $e->getMessage());
+                throw new moodle_exception('errorduplicatedeventvisibilitytaskretry', 'block_opencast', '', $e->getMessage());
             } else {
-                \block_opencast\local\notifications::notify_error('errorduplicatedeventvisibilitytaskterminated', $e);
+                notifications::notify_error('errorduplicatedeventvisibilitytaskterminated', $e);
             }
         }
     }

@@ -24,6 +24,8 @@
 require_once('../../config.php');
 
 use block_opencast\local\apibridge;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 
@@ -31,7 +33,7 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 $baseurl = new moodle_url('/blocks/opencast/managetranscriptions.php',
@@ -55,7 +57,7 @@ $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
-        get_string('unabletomanagetranscriptions', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+        get_string('unabletomanagetranscriptions', 'block_opencast'), null, notification::NOTIFY_WARNING);
 }
 
 // Create new url.

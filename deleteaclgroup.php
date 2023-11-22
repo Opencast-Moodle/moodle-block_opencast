@@ -23,14 +23,16 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteaclgroup.php',
     array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
@@ -50,7 +52,7 @@ $PAGE->navbar->add(get_string('deleteaclgroup', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 $video = $opencast->get_opencast_video($identifier);
 
 if (($action == 'delete') && confirm_sesskey()) {

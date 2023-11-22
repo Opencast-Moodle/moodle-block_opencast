@@ -21,6 +21,12 @@
  * @copyright  2022 Tamara Gunkel, WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\apibridge;
+use block_opencast\local\changeowner_form;
+use core\output\notification;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
@@ -29,16 +35,16 @@ global $PAGE, $OUTPUT, $CFG, $USER, $SITE;
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = optional_param('courseid', $SITE->id, PARAM_INT);
 $isseries = optional_param('isseries', false, PARAM_BOOL);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/changeowner.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'isseries' => $isseries));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'isseries' => $isseries]);
 $PAGE->set_url($baseurl);
 
 if ($courseid == $SITE->id) {
-    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 require_login($courseid, false);
@@ -55,16 +61,16 @@ if ($courseid == $SITE->id) {
 
 if (empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid))) {
     redirect($redirecturl, get_string('functionalitydisabled', 'block_opencast'), null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
-$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 
 if ($isseries) {
     $series = $apibridge->get_series_by_identifier($identifier, true);
     if (!$series) {
         redirect($redirecturl, get_string('series_does_not_exist_admin', 'block_opencast', $identifier), null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
     $title = $series->title;
     $acls = $series->acl;
@@ -75,7 +81,7 @@ if ($isseries) {
 
     if ($video->error) {
         redirect($redirecturl, get_string('failedtogetvideo', 'block_opencast'), null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     } else {
         $title = $video->video->title;
         $acls = $video->video->acl;
@@ -103,18 +109,18 @@ if (!$isowner &&
     $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
     $PAGE->navbar->add(get_string('changeowner', 'block_opencast'), $baseurl);
 
-    $excludeusers = array();
+    $excludeusers = [];
     if ($isowner) {
         $excludeusers = [$USER->id];
     }
 
     $userselector = new block_opencast_enrolled_user_selector('ownerselect',
-        array('context' => $coursecontext, 'multiselect' => false, 'exclude' => $excludeusers));
+        ['context' => $coursecontext, 'multiselect' => false, 'exclude' => $excludeusers]);
     $userselector->viewfullnames = $viewfullnames;
 
-    $changeownerform = new \block_opencast\local\changeowner_form(null,
-        array('courseid' => $courseid, 'title' => $title, 'identifier' => $identifier,
-            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'isseries' => $isseries, 'noowner' => $noowner));
+    $changeownerform = new changeowner_form(null,
+        ['courseid' => $courseid, 'title' => $title, 'identifier' => $identifier,
+            'ocinstanceid' => $ocinstanceid, 'userselector' => $userselector, 'isseries' => $isseries, 'noowner' => $noowner, ]);
 
     if ($changeownerform->is_cancelled()) {
         redirect($redirecturl);
@@ -130,7 +136,7 @@ if (!$isowner &&
         if ($success) {
             redirect($redirecturl, get_string('changingownersuccess', 'block_opencast'));
         } else {
-            redirect($baseurl, get_string('changingownerfailed', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+            redirect($baseurl, get_string('changingownerfailed', 'block_opencast'), null, notification::NOTIFY_ERROR);
         }
     }
 

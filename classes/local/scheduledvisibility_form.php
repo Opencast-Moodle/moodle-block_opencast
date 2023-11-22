@@ -25,6 +25,9 @@
 
 namespace block_opencast\local;
 
+use block_opencast_renderer;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,12 +42,14 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class scheduledvisibility_form extends \moodleform {
+class scheduledvisibility_form extends moodleform
+{
 
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $PAGE;
         $mform = $this->_form;
 
@@ -55,7 +60,7 @@ class scheduledvisibility_form extends \moodleform {
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         $scheduledvisibility = $this->_customdata['scheduledvisibility'];
 
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
@@ -75,10 +80,10 @@ class scheduledvisibility_form extends \moodleform {
 
         $stringid = '';
         switch ($initialvisibilitystatus) {
-            case \block_opencast_renderer::GROUP:
+            case block_opencast_renderer::GROUP:
                 $stringid = 'visibility_group';
                 break;
-            case \block_opencast_renderer::VISIBLE:
+            case block_opencast_renderer::VISIBLE:
                 $stringid = 'visibility_show';
                 break;
             default:
@@ -90,7 +95,7 @@ class scheduledvisibility_form extends \moodleform {
             get_string('initialvisibilitystatus', 'block_opencast'), $initialvisibilitystatustxt);
 
         // Check if the teacher should be allowed to restrict the episode to course groups.
-        $groups = array();
+        $groups = [];
         $groupvisibilityallowed = false;
         $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
 
@@ -107,7 +112,7 @@ class scheduledvisibility_form extends \moodleform {
         }
 
         // Scheduled visibility.
-        list($waitingtime, $configuredtimespan) = \block_opencast\local\visibility_helper::get_waiting_time($ocinstanceid);
+        list($waitingtime, $configuredtimespan) = visibility_helper::get_waiting_time($ocinstanceid);
         $element = $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
             get_string('scheduledvisibilitytime', 'block_opencast'));
         $element->_helpbutton = $renderer->render_help_icon_with_custom_text(
@@ -120,7 +125,7 @@ class scheduledvisibility_form extends \moodleform {
         }
         $mform->setDefault('scheduledvisibilitytime', $waitingtime);
 
-        $scheduleradioarray = array();
+        $scheduleradioarray = [];
         $scheduleradioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
             get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
         $scheduleradioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
@@ -132,7 +137,7 @@ class scheduledvisibility_form extends \moodleform {
         }
 
         // Setting default scheduled visibility status if this event has already been scheduled.
-        $defaultstatus = \block_opencast_renderer::HIDDEN;
+        $defaultstatus = block_opencast_renderer::HIDDEN;
         if (!empty($scheduledvisibility) && property_exists($scheduledvisibility, 'scheduledvisibilitystatus')) {
             $defaultstatus = intval($scheduledvisibility->scheduledvisibilitystatus);
         }
@@ -166,32 +171,33 @@ class scheduledvisibility_form extends \moodleform {
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files) {
+    public function validation($data, $files)
+    {
         $errors = parent::validation($data, $files);
         // Deducting 2 minutes from the time, to let teachers finish the form.
         $customminutes = [
             'minutes' => 2,
-            'action' => 'minus'
+            'action' => 'minus',
         ];
         // Get custom allowed scheduled visibility time.
-        $waitingtimearray = \block_opencast\local\visibility_helper::get_waiting_time(
+        $waitingtimearray = visibility_helper::get_waiting_time(
             $this->_customdata['ocinstanceid'], $customminutes);
         $allowedscheduledvisibilitytime = $waitingtimearray[0];
         if (intval($data['scheduledvisibilitytime']) < intval($allowedscheduledvisibilitytime)) {
             $errors['scheduledvisibilitytime'] = get_string('scheduledvisibilitytimeerror',
                 'block_opencast', $waitingtimearray[1]);
         }
-        if ($data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP &&
+        if ($data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP &&
             empty($data['scheduledvisibilitygroups'])) {
             $errors['scheduledvisibilitystatus'] = get_string('emptyvisibilitygroups', 'block_opencast');
         }
         // Check whether the scheduled visibility is equal to initial visibility.
         if (intval($data['scheduledvisibilitystatus']) == intval($data['initialvisibilitystatus'])) {
             $haserror = true;
-            if ($data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP) {
+            if ($data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP) {
                 sort($data['scheduledvisibilitygroups']);
-                $initialvisibilitygroups = array();
-                if ( isset($data['initialvisibilitygroups'])) {
+                $initialvisibilitygroups = [];
+                if (isset($data['initialvisibilitygroups'])) {
                     $initialvisibilitygroups = json_decode($data['initialvisibilitygroups'], true);
                 }
                 sort($initialvisibilitygroups);

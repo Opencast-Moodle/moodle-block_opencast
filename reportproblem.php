@@ -24,13 +24,16 @@
 require_once('../../config.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\notifications;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $USER, $COURSE;
 
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $message = required_param('inputMessage', PARAM_TEXT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
 
@@ -44,11 +47,11 @@ require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 if (empty(get_config('block_opencast', 'support_email_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('support_setting_notset', 'block_opencast'),
-        null, \core\output\notification::NOTIFY_ERROR);
+        null, notification::NOTIFY_ERROR);
 }
 
 // Create email.
-$user = new \stdClass();
+$user = new stdClass();
 $user->id = -1;
 $user->email = get_config('block_opencast', 'support_email_' . $ocinstanceid);
 $user->mailformat = 1;
@@ -63,10 +66,10 @@ if (!$result->error) {
         redirect($redirecturl,
             get_string('video_notallowed', 'block_opencast'),
             null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 
-    $mailinfo = new \stdClass();
+    $mailinfo = new stdClass();
     $mailinfo->username = $USER->username;
     $mailinfo->useremail = $USER->email;
     $mailinfo->courselink = (new moodle_url('/blocks/opencast/index.php',
@@ -95,27 +98,27 @@ if (!$result->error) {
 
     if ($success) {
         // Send copy to user.
-        \block_opencast\local\notifications::notify_problem_reported(
+        notifications::notify_problem_reported(
             get_string('reportproblem_notification', 'block_opencast') . $message);
 
         // Redirect with success message.
         redirect($redirecturl,
             get_string('reportproblem_success', 'block_opencast'),
             null,
-            \core\output\notification::NOTIFY_SUCCESS);
+            notification::NOTIFY_SUCCESS);
     }
 
     // Redirect with failure message.
     redirect($redirecturl,
         get_string('reportproblem_failure', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 } else {
     // Redirect with failure message.
     redirect($redirecturl,
         get_string('video_retrieval_failed', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
 

@@ -24,6 +24,9 @@
 
 namespace block_opencast\local;
 
+use context_course;
+use core_user;
+
 /**
  * Autocompelete Suggestion helper.
  * @package    block_opencast
@@ -31,14 +34,16 @@ namespace block_opencast\local;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class autocomplete_suggestion_helper {
+class autocomplete_suggestion_helper
+{
 
     /**
      * Get all available suggestions for contributor and creator (Presenter) metadata field.
      * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
-    public static function get_suggestions_for_creator_and_contributor($ocinstanceid) {
+    public static function get_suggestions_for_creator_and_contributor($ocinstanceid)
+    {
         // We gather all suggestions array lists from different methods and return it as one array.
         // We use array_unique to make sure that there is no duplication.
         // We use array_filter to make sure there is no empty elements.
@@ -61,11 +66,12 @@ class autocomplete_suggestion_helper {
      *
      * @return array
      */
-    private static function get_suggestions_from_course_teachers() {
+    private static function get_suggestions_from_course_teachers()
+    {
         global $COURSE;
 
         // Getting the course context.
-        $context = \context_course::instance($COURSE->id);
+        $context = context_course::instance($COURSE->id);
 
         // Getting course enrolled users (teachers) with the designated capability.
         $teachers = get_enrolled_users($context, 'block/opencast:autocompleteteacherroles');
@@ -96,7 +102,8 @@ class autocomplete_suggestion_helper {
      *
      * @return array
      */
-    private static function get_suggestions_from_existing_uploadjobs() {
+    private static function get_suggestions_from_existing_uploadjobs()
+    {
         global $COURSE, $DB;
 
         // Initialize the array list to return.
@@ -122,7 +129,7 @@ class autocomplete_suggestion_helper {
             // At first, we consider the user who upload the video as an suggestion.
 
             // Get the user who performed the upload job.
-            $uploadjobuser = \core_user::get_user($record->userid);
+            $uploadjobuser = core_user::get_user($record->userid);
 
             // Get the fullname of the user.
             $uploadjobuserfullname = fullname($uploadjobuser);
@@ -175,7 +182,8 @@ class autocomplete_suggestion_helper {
      * @param int $ocinstanceid Opencast instance id.
      * @return array
      */
-    private static function get_suggestions_from_opencast_course_videos($ocinstanceid) {
+    private static function get_suggestions_from_opencast_course_videos($ocinstanceid)
+    {
         global $COURSE;
 
         // Initialize the array list to return.

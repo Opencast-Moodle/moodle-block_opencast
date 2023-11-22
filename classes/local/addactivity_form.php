@@ -24,6 +24,9 @@
 
 namespace block_opencast\local;
 
+use core_availability\frontend;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,12 +38,14 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>, 2021 Justus Dieckmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addactivity_form extends \moodleform {
+class addactivity_form extends moodleform
+{
 
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $CFG;
 
         $mform = $this->_form;
@@ -49,9 +54,9 @@ class addactivity_form extends \moodleform {
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         $seriesid = $this->_customdata['seriesid'];
 
-        $mform->addElement('text', 'title', get_string('addactivity_formactivitytitle', 'block_opencast'), array('size' => '40'));
+        $mform->addElement('text', 'title', get_string('addactivity_formactivitytitle', 'block_opencast'), ['size' => '40']);
         $mform->setType('title', PARAM_TEXT);
-        $mform->setDefault('title', \block_opencast\local\activitymodulemanager::get_default_title_for_series($ocinstanceid));
+        $mform->setDefault('title', activitymodulemanager::get_default_title_for_series($ocinstanceid));
         $mform->addRule('title',
             get_string('addactivity_noemptytitle', 'block_opencast', get_string('addactivity_defaulttitle', 'block_opencast')),
             'required');
@@ -68,19 +73,19 @@ class addactivity_form extends \moodleform {
 
         if (get_config('block_opencast', 'addactivityintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivity_formactivityintro', 'block_opencast'),
-                array('rows' => 5),
-                array('maxfiles' => 0, 'noclean' => true));
+                ['rows' => 5],
+                ['maxfiles' => 0, 'noclean' => true]);
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
         if (get_config('block_opencast', 'addactivitysection_' . $ocinstanceid) == true) {
             // Get course sections.
-            $sectionmenu = \block_opencast\local\activitymodulemanager::get_course_sections($courseid);
+            $sectionmenu = activitymodulemanager::get_course_sections($courseid);
 
             // Add the widget only if we have more than one section.
             if (count($sectionmenu) > 1) {
                 $mform->addElement('select', 'section', get_string('addactivity_formactivitysection', 'block_opencast'),
-                    \block_opencast\local\activitymodulemanager::get_course_sections($courseid));
+                    activitymodulemanager::get_course_sections($courseid));
                 $mform->setType('section', PARAM_INT);
                 $mform->setDefault('section', 0);
             }
@@ -89,7 +94,7 @@ class addactivity_form extends \moodleform {
         if (get_config('block_opencast', 'addactivityavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addactivity_formactivityavailability', 'block_opencast'));
-            \core_availability\frontend::include_all_javascript(get_course($courseid));
+            frontend::include_all_javascript(get_course($courseid));
         }
 
         $mform->addElement('hidden', 'courseid', $courseid);
@@ -112,11 +117,12 @@ class addactivity_form extends \moodleform {
      *
      * @return void
      */
-    public function add_action_buttons($cancel = true, $submitlabel = null) {
+    public function add_action_buttons($cancel = true, $submitlabel = null)
+    {
         $mform = $this->_form;
 
         // Elements in a row need a group.
-        $buttonarray = array();
+        $buttonarray = [];
 
         // Submit buttons.
         $submitlabel = get_string('addactivity_addbuttontitlereturnoverview', 'block_opencast');
@@ -128,7 +134,7 @@ class addactivity_form extends \moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
 
         // Show group.
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $mform->setType('buttonar', PARAM_RAW);
         $mform->closeHeaderBefore('buttonar');
     }

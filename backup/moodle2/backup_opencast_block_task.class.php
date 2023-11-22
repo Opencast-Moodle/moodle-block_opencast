@@ -23,6 +23,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
+use block_opencast\local\importvideosmanager;
+use tool_opencast\local\settings_api;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -38,21 +42,23 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_bac
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_opencast_block_task extends backup_block_task {
+class backup_opencast_block_task extends backup_block_task
+{
 
     /**
      * Add a setting to backup process, when course videos are available.
      */
-    protected function define_my_settings() {
-        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+    protected function define_my_settings()
+    {
+        $ocinstances = settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             // Check whether this feature is enabled and working at all.
-            if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
+            if (importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
                 // Get default value, to include opencast video.
                 $defaultimportvalue = get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id);
                 // Check, whether there are course videos available.
-                $apibridge = \block_opencast\local\apibridge::get_instance($ocinstance->id);
+                $apibridge = apibridge::get_instance($ocinstance->id);
                 $courseid = $this->get_courseid();
 
                 $seriestobackup = $apibridge->get_course_series($courseid);
@@ -83,8 +89,9 @@ class backup_opencast_block_task extends backup_block_task {
     /**
      * Add the structure step, when course videos are available.
      */
-    protected function define_my_steps() {
-        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+    protected function define_my_steps()
+    {
+        $ocinstances = settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
                 continue;
@@ -101,7 +108,8 @@ class backup_opencast_block_task extends backup_block_task {
      * No file areas are controlled by this block.
      * @return array
      */
-    public function get_fileareas() {
+    public function get_fileareas()
+    {
         return [];
     }
 
@@ -109,7 +117,8 @@ class backup_opencast_block_task extends backup_block_task {
      * We don't need to encode attrs in configdata.
      * @return array
      */
-    public function get_configdata_encoded_attributes() {
+    public function get_configdata_encoded_attributes()
+    {
         return [];
     }
 
@@ -118,7 +127,8 @@ class backup_opencast_block_task extends backup_block_task {
      * @param string $content
      * @return string
      */
-    public static function encode_content_links($content) {
+    public static function encode_content_links($content)
+    {
         return $content;
     }
 

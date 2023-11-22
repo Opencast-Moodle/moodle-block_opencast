@@ -26,19 +26,21 @@
 require_once('../../config.php');
 
 use block_opencast\local\upload_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/deletedraft.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'redirectpage' => $redirectpage, 'series' => $series));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series, ]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -48,10 +50,10 @@ $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 if ($redirectpage == 'overviewvideos') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-        'series' => $series));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+        'series' => $series, ]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
@@ -72,12 +74,12 @@ foreach ($uploadjobs as $uploadjob) {
 }
 if (!$jobtodelete) {
     $message = get_string('videodraftnotfound', 'block_opencast');
-    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
+    redirect($redirecturl, $message, null, notification::NOTIFY_WARNING);
 }
 if ($jobtodelete->status != upload_helper::STATUS_READY_TO_UPLOAD) {
     $message = get_string('videodraftnotdeletable', 'block_opencast',
         upload_helper::get_status_string($jobtodelete->status));
-    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
+    redirect($redirecturl, $message, null, notification::NOTIFY_WARNING);
 }
 
 
@@ -96,15 +98,15 @@ $renderer = $PAGE->get_renderer('block_opencast');
 $html .= $renderer->render_upload_jobs($ocinstanceid, [$jobtodelete], false);
 
 $label = get_string('dodeletedraft', 'block_opencast');
-$params = array(
+$params = [
     'identifier' => $identifier,
     'courseid' => $courseid,
     'action' => 'delete',
     'ocinstanceid' => $ocinstanceid,
     'redirectpage' => $redirectpage,
-    'series' => $series
-);
-$urldelete = new \moodle_url('/blocks/opencast/deletedraft.php', $params);
+    'series' => $series,
+];
+$urldelete = new moodle_url('/blocks/opencast/deletedraft.php', $params);
 $html .= $OUTPUT->confirm($label, $urldelete, $redirecturl);
 
 echo $OUTPUT->header();

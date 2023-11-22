@@ -25,6 +25,11 @@
 
 namespace block_opencast\local;
 
+use coding_exception;
+use html_writer;
+use moodle_url;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,12 +44,14 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class series_form extends \moodleform {
+class series_form extends moodleform
+{
 
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $USER, $PAGE;
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -62,15 +69,15 @@ class series_form extends \moodleform {
         $mform->setType('courseid', PARAM_INT);
 
         if (!empty($seriesdefaults)) {
-            $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php',
-                array(
+            $managedefaultsurl = new moodle_url('/blocks/opencast/managedefaults.php',
+                [
                     'courseid' => $this->_customdata['courseid'],
                     'ocinstanceid' => $ocinstanceid,
-                    'redirectto' => 'manageseries'
-                )
+                    'redirectto' => 'manageseries',
+                ]
             );
-            $managedefaultslink = \html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
-            $managedefaultsexplation = \html_writer::tag('p',
+            $managedefaultslink = html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
+            $managedefaultsexplation = html_writer::tag('p',
                 get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
             $mform->addElement('html', $managedefaultsexplation);
         }
@@ -82,8 +89,8 @@ class series_form extends \moodleform {
             if (is_array($value)) {
                 $value = array_map('trim', $value);
             }
-            $param = array();
-            $attributes = array();
+            $param = [];
+            $attributes = [];
             if ($field->name == 'title') {
                 if ($field->required) {
                     $settitle = false;
@@ -103,7 +110,7 @@ class series_form extends \moodleform {
                     'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
-                    'tags' => true
+                    'tags' => true,
                 ];
                 // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
                 if ($field->name == 'creator' || $field->name == 'contributor') {
@@ -183,9 +190,10 @@ class series_form extends \moodleform {
      * @param string|object|array $a An object, string or number that can be used
      *      within translation strings
      * @return string
-     * @throws \coding_exception
+     * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null) {
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -198,7 +206,8 @@ class series_form extends \moodleform {
      * @param string $fieldname the name of the catalog field which is defined as id in metadata set
      * @return string|array $value An array or string derived from metadata
      */
-    protected function extract_value($fieldname) {
+    protected function extract_value($fieldname)
+    {
         if (array_key_exists('metadata', $this->_customdata)) {
             $metadata = $this->_customdata['metadata'];
 

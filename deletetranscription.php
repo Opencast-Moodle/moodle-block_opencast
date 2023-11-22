@@ -25,6 +25,8 @@ require_once('../../config.php');
 
 use block_opencast\local\attachment_helper;
 use block_opencast\local\apibridge;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 
@@ -34,14 +36,14 @@ $videoidentifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $identifier = required_param('transcription_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$indexurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',
-array('video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $videoidentifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/deletetranscription.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'video_identifier' => $videoidentifier, 'transcription_identifier' => $identifier));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'video_identifier' => $videoidentifier, 'transcription_identifier' => $identifier, ]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -63,30 +65,30 @@ if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid)) ||
     empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
-        get_string('unabletodeletetranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+        get_string('unabletodeletetranscription', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }
 
 if (($action == 'delete') && confirm_sesskey()) {
     $deleted = attachment_helper::delete_transcription($ocinstanceid, $videoidentifier, $identifier);
 
     $message = get_string('transcriptiondeletionsucceeded', 'block_opencast');
-    $status = \core\output\notification::NOTIFY_SUCCESS;
+    $status = notification::NOTIFY_SUCCESS;
     if (!$deleted) {
         $message = get_string('transcriptiondeletionfailed', 'block_opencast');
-        $status = \core\output\notification::NOTIFY_ERROR;
+        $status = notification::NOTIFY_ERROR;
     }
     redirect($redirecturl, $message, null, $status);
 }
 
 $label = get_string('deletetranscription_desc', 'block_opencast');
-$params = array(
+$params = [
     'transcription_identifier' => $identifier,
     'courseid' => $courseid,
     'action' => 'delete',
     'ocinstanceid' => $ocinstanceid,
-    'video_identifier' => $videoidentifier
-);
-$urldelete = new \moodle_url('/blocks/opencast/deletetranscription.php', $params);
+    'video_identifier' => $videoidentifier,
+];
+$urldelete = new moodle_url('/blocks/opencast/deletetranscription.php', $params);
 $html = $OUTPUT->confirm($label, $urldelete, $redirecturl);
 
 /** @var block_opencast_renderer $renderer */

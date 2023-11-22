@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery'], function($) {
+define(['jquery'], function ($) {
     /**
      * Instantiate the window variable in order to work with Intervals
      *
@@ -48,7 +48,7 @@ define(['jquery'], function($) {
      *
      */
     function autocompletePrettifier() {
-        $('div[data-fieldtype="autocomplete"]').each(function(i, elm) {
+        $('div[data-fieldtype="autocomplete"]').each(function (i, elm) {
             var input = $(elm).find('input');
             if (!input.hasClass('form-control')) {
                 input.addClass('form-control');
@@ -94,17 +94,17 @@ define(['jquery'], function($) {
      * Initialise all of the modules for the opencast block.
      *
      */
-    var init = function() {
+    var init = function () {
         // Toggle visibility of terms of use
         $('#termsofuse').hide();
-        $('#termsofuse_toggle').on('click', function(e) {
+        $('#termsofuse_toggle').on('click', function (e) {
             $('#termsofuse').toggle();
             e.preventDefault();
         });
 
         // Chunkupload.
-        $('.local_chunkupload input[type="file"]').on('change', function(e) {
-            setTimeout(function() {
+        $('.local_chunkupload input[type="file"]').on('change', function (e) {
+            setTimeout(function () {
                 var span = $(e.currentTarget).siblings('label.chunkupload-label').find('.chunkupload-filename');
                 if (span.length) {
                     setDefaultTitle($(span[0]).text());
@@ -112,15 +112,15 @@ define(['jquery'], function($) {
             }, 500);
         });
 
-        $('.filepickerhidden').on('change', function(e) {
-            setTimeout(function() {
+        $('.filepickerhidden').on('change', function (e) {
+            setTimeout(function () {
                 var filelist = $(e.currentTarget).parent().find('.filepicker-filelist');
                 var filename = getFilenameFromFilelist(filelist);
                 setDefaultTitle(filename);
             }, 500);
         });
 
-        $('.filepicker-filelist').on('drop', function(e) {
+        $('.filepicker-filelist').on('drop', function (e) {
             var filelist = e.currentTarget;
             var videoIdentifier = $(filelist).parent().siblings('.filepickerhidden').attr('name');
 
@@ -128,7 +128,7 @@ define(['jquery'], function($) {
 
             if (videoIdentifier == 'video_presenter') {
                 $(filelist).addClass('presenter-uploading');
-                window.presenterIntervalHandle = setInterval(function() {
+                window.presenterIntervalHandle = setInterval(function () {
                     window.presenterRun = true;
                     if (!$('.presenter-uploading').hasClass('dndupload-inprogress')) {
                         window.presenterRun = false;
@@ -137,7 +137,7 @@ define(['jquery'], function($) {
                 }, 500);
             } else {
                 $(filelist).addClass('presentation-uploading');
-                window.presenterIntervalHandle = setInterval(function() {
+                window.presenterIntervalHandle = setInterval(function () {
                     window.presentationRun = true;
                     if (!$('.presentation-uploading').hasClass('dndupload-inprogress')) {
                         window.presentationRun = false;
@@ -146,16 +146,16 @@ define(['jquery'], function($) {
                 }, 500);
             }
 
-            setTimeout(function() {
+            setTimeout(function () {
                 var filename = getFilenameFromFilelist(filelist);
                 setDefaultTitle(filename);
             }, 500);
         });
 
         // Ensures that autocomplete fields are loaded properly after 1 sec!
-        setTimeout(function() {
+        setTimeout(function () {
             autocompletePrettifier();
-            $('.moreless-actions').on('click', function() { //
+            $('.moreless-actions').on('click', function () {
                 autocompletePrettifier();
             });
         }, 1000);
@@ -165,4 +165,3 @@ define(['jquery'], function($) {
         init: init
     };
 });
-

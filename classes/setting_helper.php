@@ -24,6 +24,11 @@
 
 namespace block_opencast;
 
+use block_opencast\local\apibridge;
+use coding_exception;
+use dml_exception;
+use Exception;
+use lang_string;
 use tool_opencast\empty_configuration_exception;
 
 /**
@@ -33,16 +38,18 @@ use tool_opencast\empty_configuration_exception;
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_helper {
+class setting_helper
+{
 
     /**
      * Validate if the selected workflow does indeed exist.
      *
      * @param string $data Setting value
-     * @return false|\lang_string|string
-     * @throws \coding_exception
+     * @return false|lang_string|string
+     * @throws coding_exception
      */
-    public static function validate_workflow_setting($data) {
+    public static function validate_workflow_setting($data)
+    {
         if ($data == null) {
             return false;
         }
@@ -57,7 +64,7 @@ class setting_helper {
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Verify if the given value is a valid Opencast workflow.
         if (!$apibridge->check_if_workflow_exists($data)) {
@@ -70,9 +77,10 @@ class setting_helper {
      * Returns available workflows with the given tag.
      * @param int $ocinstanceid Opencast instance id.
      * @param string $workflowtags comma separated list of tags
-     * @return array|opencast_connection_exception|\Exception|empty_configuration_exception|null
+     * @return array|opencast_connection_exception|Exception|empty_configuration_exception|null
      */
-    public static function load_workflow_choices($ocinstanceid, $workflowtags) {
+    public static function load_workflow_choices($ocinstanceid, $workflowtags)
+    {
         // Don't load anything during initial installation.
         // This is important as the Opencast API is not set up during initial installation.
         if (during_initial_install()) {
@@ -81,13 +89,13 @@ class setting_helper {
 
         try {
             // Get the available workflows.
-            $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+            $apibridge = apibridge::get_instance($ocinstanceid);
 
             // Set workflows as choices. This is even done if there aren't any (real) workflows returned.
             return $apibridge->get_available_workflows_for_menu($workflowtags, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
-        } catch (opencast_connection_exception | empty_configuration_exception $e) {
+        } catch (opencast_connection_exception|empty_configuration_exception $e) {
             return $e;
         }
     }
@@ -97,11 +105,12 @@ class setting_helper {
      * fulfills the requirements for the owner role.
      *
      * @param string $data Setting data
-     * @return bool|\lang_string|string
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @return bool|lang_string|string
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public static function validate_aclownerrole_setting($data) {
+    public static function validate_aclownerrole_setting($data)
+    {
         // Hack to get the opencast instance id.
         $category = optional_param('category', null, PARAM_RAW);
         if ($category) {

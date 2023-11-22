@@ -29,45 +29,44 @@
     }
 }}
 {{#has_config_panel}}
-<!DOCTYPE html>
-<html lang="{{language}}">
-<head>
-    <meta charset="UTF-8">
-    <title>{{#str}}workflow_settings_opencast, block_opencast{{/str}}</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-</head>
-<body>
-<!-- Security risk: Do not directly open this page in a browser!
-If you do, the external JavaScript code from the Opencast server can access moodle sites and cookies. -->
-<div id="configForm">
-{{{config_panel}}}
-</div>
-<script>
-    window.onload = function(){
-        var body = document.body, html = document.documentElement;
-        var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        parent.postMessage(parseInt(height), "{{parent_url}}");
-    };
+    <!DOCTYPE html>
+    <html lang="{{language}}">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{#str}}workflow_settings_opencast, block_opencast{{/str}}</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    </head>
+    <body>
+    <!-- Security risk: Do not directly open this page in a browser!
+    If you do, the external JavaScript code from the Opencast server can access moodle sites and cookies. -->
+    <div id="configForm">
+        {{{config_panel}}}
+    </div>
+    <script>
+        window.onload = function () {
+            var body = document.body, html = document.documentElement;
+            var height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+            parent.postMessage(parseInt(height), "{{parent_url}}");
+        };
 
-    window.addEventListener('message', function (event) {
-        let parent_origin = new URL("{{parent_origin}}");
-        if (event.origin !== parent_origin.origin) {
-            return;
-        }
-        if (event.data === "getdata") {
-            var values = {};
-            $('#configForm input').each(function () {
-                if(this.type === 'checkbox' || this.type === 'radio') {
-                    values[this.id] = this.checked ? 'true' : 'false';
-                }
-                else {
-                    values[this.id] = $(this).val();
-                }
-            });
-            parent.postMessage(JSON.stringify(values), "{{parent_url}}");
-        }
-    });
-</script>
-</body>
-</html>
+        window.addEventListener('message', function (event) {
+            let parent_origin = new URL("{{parent_origin}}");
+            if (event.origin !== parent_origin.origin) {
+                return;
+            }
+            if (event.data === "getdata") {
+                var values = {};
+                $('#configForm input').each(function () {
+                    if (this.type === 'checkbox' || this.type === 'radio') {
+                        values[this.id] = this.checked ? 'true' : 'false';
+                    } else {
+                        values[this.id] = $(this).val();
+                    }
+                });
+                parent.postMessage(JSON.stringify(values), "{{parent_url}}");
+            }
+        });
+    </script>
+    </body>
+    </html>
 {{/has_config_panel}}

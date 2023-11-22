@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use block_opencast\local\apibridge;
 use block_opencast\local\event;
 use block_opencast\local\notifications;
 
@@ -35,7 +36,8 @@ use block_opencast\local\notifications;
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_opencast_block_structure_step extends restore_structure_step {
+class restore_opencast_block_structure_step extends restore_structure_step
+{
 
     /** @var array Ids of the videos included in the backup. */
     private $backupeventids = [];
@@ -55,7 +57,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      *
      * @return array of @restore_path_element elements
      */
-    protected function define_structure() {
+    protected function define_structure()
+    {
         global $USER;
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
         $this->ocinstanceid = $ocinstanceid;
@@ -66,7 +69,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $paths = array();
 
         // Get apibridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the import mode to decide the way of importing opencast videos.
         $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
@@ -102,7 +105,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @param array $data the event identifier
      * @return void
      */
-    public function process_event($data) {
+    public function process_event($data)
+    {
         $data = (object)$data;
 
         // Collect eventids for notification.
@@ -114,7 +118,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
 
         // Check, whether event exists on opencast server.
-        $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
+        $apibridge = apibridge::get_instance($this->ocinstanceid);
 
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {
@@ -132,7 +136,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function process_series($data) {
+    public function process_series($data)
+    {
         global $USER;
 
         $data = (object)$data;
@@ -141,7 +146,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $courseid = $this->get_courseid();
 
         // Get apibridge instance, to ensure series validity and edit series mapping.
-        $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
+        $apibridge = apibridge::get_instance($this->ocinstanceid);
 
         // Exit when there is no original series, no course course id and the original seriesid is not valid.
         // Also exit when the course by any chance wanted to restore itself.
@@ -163,7 +168,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      * @param array $data The import data needed for ACL change mode.
      * @return void
      */
-    public function process_import($data) {
+    public function process_import($data)
+    {
 
         $data = (object)$data;
 
@@ -177,7 +183,8 @@ class restore_opencast_block_structure_step extends restore_structure_step {
      *
      * @return void
      */
-    public function after_restore() {
+    public function after_restore()
+    {
 
         $courseid = $this->get_courseid();
 

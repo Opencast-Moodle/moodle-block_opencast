@@ -25,6 +25,10 @@
 
 namespace block_opencast\local;
 
+use coding_exception;
+use html_writer;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,11 +43,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class managedefaults_form extends \moodleform {
+class managedefaults_form extends moodleform
+{
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $CFG, $PAGE;
         // Get the renderer to use its methods.
         $this->renderer = $PAGE->get_renderer('block_opencast');
@@ -52,7 +58,7 @@ class managedefaults_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $explanation = \html_writer::tag('p', get_string('managedefaultsforuser_desc', 'block_opencast'));
+        $explanation = html_writer::tag('p', get_string('managedefaultsforuser_desc', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
         // Event Metadata.
@@ -103,9 +109,10 @@ class managedefaults_form extends \moodleform {
      * @param string|object|array $a An object, string or number that can be used
      *      within translation strings
      * @return string
-     * @throws \coding_exception
+     * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null) {
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {
@@ -119,10 +126,11 @@ class managedefaults_form extends \moodleform {
      * @param string $belongsto decides which default sets the element belongs to.
      * @param string $default the default value that user has already set.
      */
-    protected function generate_element($field, $belongsto, $default = null) {
+    protected function generate_element($field, $belongsto, $default = null)
+    {
         $mform = $this->_form;
-        $param = array();
-        $attributes = array();
+        $param = [];
+        $attributes = [];
         $elementname = "{$belongsto}_{$field->name}";
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         if ($field->param_json) {
@@ -136,7 +144,7 @@ class managedefaults_form extends \moodleform {
                 'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                 'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                     $this->try_get_string($field->name, 'block_opencast')),
-                'tags' => true
+                'tags' => true,
             ];
 
             // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.

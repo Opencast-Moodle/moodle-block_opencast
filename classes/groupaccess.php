@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use core\persistent;
+
 /**
  * Persistent table of groupaccess
  *
@@ -31,7 +33,8 @@ namespace block_opencast;
  * @copyright  2018 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class groupaccess extends \core\persistent {
+class groupaccess extends persistent
+{
 
     /** Table name for the persistent. */
     const TABLE = 'block_opencast_groupaccess';
@@ -41,20 +44,21 @@ class groupaccess extends \core\persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
-        return array(
-            'id' => array(
+    protected static function define_properties()
+    {
+        return [
+            'id' => [
                 'type' => PARAM_INT,
-            ),
-            'ocinstanceid' => array(
+            ],
+            'ocinstanceid' => [
                 'type' => PARAM_INT,
-            ),
-            'opencasteventid' => array(
+            ],
+            'opencasteventid' => [
                 'type' => PARAM_ALPHANUMEXT,
-            ),
-            'moodlegroups' => array(
+            ],
+            'moodlegroups' => [
                 'type' => PARAM_SEQUENCE,
-            ),
-        );
+            ],
+        ];
     }
 }

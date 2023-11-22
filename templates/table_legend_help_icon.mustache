@@ -30,32 +30,32 @@
 </a>
 {{#js}}
     require([
-        'jquery',
-        'core/str',
-        'core/modal_factory',
-        'core/templates',
-        'core/notification'], function($, Str, ModalFactory, Templates, Notification) {
+    'jquery',
+    'core/str',
+    'core/modal_factory',
+    'core/templates',
+    'core/notification'], function($, Str, ModalFactory, Templates, Notification) {
 
-        $("#{{uniqid}}-legend-icon").click(function(e) {
-            e.preventDefault();
+    $("#{{uniqid}}-legend-icon").click(function(e) {
+    e.preventDefault();
 
-            var titlePromise = Str.get_string('legendtitle', 'block_opencast');
-            var modalPromise = ModalFactory.create({type: ModalFactory.types.CANCEL});
-            var bodyPromise = Templates.render('block_opencast/table_legend_details', {
-                {{#statushelpicon}}
-                    "showstatusdetails": "true"
-                {{/statushelpicon}}
-                {{#visibilityhelpicon}}
-                    "showvisibilitydetails": "true"
-                {{/visibilityhelpicon}}
-            });
-            $.when(titlePromise, modalPromise).then(function(title, modal) {
-                modal.setTitle(title);
-                modal.setBody(bodyPromise);
+    var titlePromise = Str.get_string('legendtitle', 'block_opencast');
+    var modalPromise = ModalFactory.create({type: ModalFactory.types.CANCEL});
+    var bodyPromise = Templates.render('block_opencast/table_legend_details', {
+    {{#statushelpicon}}
+        "showstatusdetails": "true"
+    {{/statushelpicon}}
+    {{#visibilityhelpicon}}
+        "showvisibilitydetails": "true"
+    {{/visibilityhelpicon}}
+    });
+    $.when(titlePromise, modalPromise).then(function(title, modal) {
+    modal.setTitle(title);
+    modal.setBody(bodyPromise);
 
-                modal.show();
-                return modal;
-            }).catch(Notification.exception);
-        });
+    modal.show();
+    return modal;
+    }).catch(Notification.exception);
+    });
     });
 {{/js}}

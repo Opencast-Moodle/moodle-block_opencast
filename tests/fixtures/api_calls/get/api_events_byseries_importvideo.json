@@ -1,157 +1,157 @@
 {
-    "resource": "/api/events?filter=is_part_of:1111-1111-1111-1111-1111&sign=true&withacl=true&withmetadata=true&withpublications=true",
-    "status": 200,
-    "body": [
+  "resource": "/api/events?filter=is_part_of:1111-1111-1111-1111-1111&sign=true&withacl=true&withmetadata=true&withpublications=true",
+  "status": 200,
+  "body": [
+    {
+      "identifier": "abcd-abcd-abcd-abcd",
+      "creator": "",
+      "presenter": [],
+      "created": "2021-08-11T09:32:00Z",
+      "is_part_of": "1111-1111-1111-1111-1111",
+      "subjects": [],
+      "start": "2021-08-11T09:32:00Z",
+      "description": "",
+      "language": "",
+      "source": "",
+      "title": "My video",
+      "processing_state": "SUCCEEDED",
+      "duration": 0,
+      "license": "",
+      "archive_version": 4,
+      "contributor": [],
+      "series": "Test series",
+      "has_previews": false,
+      "location": "",
+      "rightsholder": "",
+      "publication_status": [
+        "engage-player",
+        "api",
+        "annotation"
+      ],
+      "status": "EVENTS.EVENTS.STATUS.PROCESSED",
+      "publications": [
         {
-            "identifier": "abcd-abcd-abcd-abcd",
-            "creator": "",
-            "presenter": [],
-            "created": "2021-08-11T09:32:00Z",
-            "is_part_of": "1111-1111-1111-1111-1111",
-            "subjects": [],
-            "start": "2021-08-11T09:32:00Z",
-            "description": "",
-            "language": "",
-            "source": "",
-            "title": "My video",
-            "processing_state": "SUCCEEDED",
-            "duration": 0,
-            "license": "",
-            "archive_version": 4,
-            "contributor": [],
-            "series": "Test series",
-            "has_previews": false,
-            "location": "",
-            "rightsholder": "",
-            "publication_status": [
-                "engage-player",
-                "api",
-                "annotation"
-            ],
-            "status": "EVENTS.EVENTS.STATUS.PROCESSED",
-            "publications": [
-                {
-                "metadata": [],
-                "attachments": [],
-                "channel": "engage-player",
-                "id": "4152b1eb-1268-4dce-b960-8205f150cdc6",
-                "media": [],
-                "mediatype": "text/html",
-                "url": "https://test-opencast.de/play/abcd-abcd-abcd-abcd"
-                },
-                {
-                "metadata": [],
-                "attachments": [
-                    {
-                    "flavor": "presenter/timeline+preview",
-                    "ref": "track:521ddbcb-0f1b-400e-b3c6-bbd9078c452b",
-                    "size": -1,
-                    "checksum": "",
-                    "id": "fe870775-e0d1-4708-805c-76d26d6d0524",
-                    "mediatype": "image/png",
-                    "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/7ed4fbad-bc61-4365-a2ac-35c2672fca06/Pexels_Videos_2021532_75e24d5b_f6a8_46bb_ab98_e47975dc183d_timelinepreviews.png",
-                    "tags": [
-                        "archive",
-                        "engage-download"
-                    ]
-                    },
-                    {
-                    "flavor": "presenter/search+preview",
-                    "ref": "track:9c024e27-fdb6-4f2d-ad83-7c2bc7e13398",
-                    "size": 52454,
-                    "checksum": "",
-                    "id": "9e6b0249-4b8e-4176-b272-49ec70d5b3be",
-                    "mediatype": "image/jpeg",
-                    "url": "https://test-opencast-cdn.de/static/ƒmh_default_org/api/1234-1234-1234-1234-1234/8d8da056-433a-4aed-8187-b7ea117fbaca/Pexels_Videos_2021532_1_000s_ele_image_search.jpg",
-                    "tags": [
-                        "archive",
-                        "engage-download"
-                    ]
-                    },
-                    {
-                    "flavor": "presenter/player+preview",
-                    "ref": "track:9c024e27-fdb6-4f2d-ad83-7c2bc7e13398",
-                    "size": 79236,
-                    "checksum": "",
-                    "id": "58a5e20a-b2af-4cc5-8232-01456b6650bc",
-                    "mediatype": "image/jpeg",
-                    "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/df761f84-7211-4570-ba04-42de83a29cdd/Pexels_Videos_2021532_1_000s_ele_image_cover.jpg",
-                    "tags": [
-                        "archive",
-                        "engage-download"
-                    ]
-                    }
-                ],
-                "channel": "api",
-                "id": "9c6cd3ee-4a36-4425-afc9-da401c7c7c04",
-                "media": [
-                    {
-                    "has_audio": true,
-                    "framerate": 24.014963,
-                    "description": "",
-                    "bitrate": 768879.0,
-                    "is_master_playlist": false,
-                    "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/521ddbcb-0f1b-400e-b3c6-bbd9078c452b/Pexels_Videos_2021532.mp4",
-                    "has_video": true,
-                    "tags": [
-                        "480p-quality",
-                        "archive",
-                        "default",
-                        "engage-download"
-                    ],
-                    "flavor": "presenter/delivery",
-                    "duration": 13398,
-                    "size": 1301200,
-                    "framecount": 321,
-                    "checksum": "a34b86a0878efdf436ad2b0beb3c5db8 (md5)",
-                    "width": 852,
-                    "is_live": false,
-                    "id": "a7ad2e80-f9a8-47b2-8ad5-4fca76417e98",
-                    "mediatype": "video/mp4",
-                    "height": 480
-                    }
-                ],
-                "mediatype": "",
-                "url": "http://test-opencast.de/paella/ui/watch.html?id=1234-1234-1234-1234-1234"
-                }
-            ],
-            "acl": [
-                {
-                "allow": true,
-                "role": "ROLE_ADMIN",
-                "action": "read"
-                },
-                {
-                "allow": true,
-                "role": "ROLE_ADMIN",
-                "action": "write"
-                },
-                {
-                "allow": true,
-                "role": "1_Instructor",
-                "action": "read"
-                },
-                {
-                "allow": true,
-                "role": "1_Instructor",
-                "action": "write"
-                },
-                {
-                "allow": true,
-                "role": "1_Learner",
-                "action": "read"
-                },
-                {
-                "allow": true,
-                "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
-                "action": "read"
-                },
-                {
-                "allow": true,
-                "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
-                "action": "write"
-                }
-            ]
+          "metadata": [],
+          "attachments": [],
+          "channel": "engage-player",
+          "id": "4152b1eb-1268-4dce-b960-8205f150cdc6",
+          "media": [],
+          "mediatype": "text/html",
+          "url": "https://test-opencast.de/play/abcd-abcd-abcd-abcd"
+        },
+        {
+          "metadata": [],
+          "attachments": [
+            {
+              "flavor": "presenter/timeline+preview",
+              "ref": "track:521ddbcb-0f1b-400e-b3c6-bbd9078c452b",
+              "size": -1,
+              "checksum": "",
+              "id": "fe870775-e0d1-4708-805c-76d26d6d0524",
+              "mediatype": "image/png",
+              "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/7ed4fbad-bc61-4365-a2ac-35c2672fca06/Pexels_Videos_2021532_75e24d5b_f6a8_46bb_ab98_e47975dc183d_timelinepreviews.png",
+              "tags": [
+                "archive",
+                "engage-download"
+              ]
+            },
+            {
+              "flavor": "presenter/search+preview",
+              "ref": "track:9c024e27-fdb6-4f2d-ad83-7c2bc7e13398",
+              "size": 52454,
+              "checksum": "",
+              "id": "9e6b0249-4b8e-4176-b272-49ec70d5b3be",
+              "mediatype": "image/jpeg",
+              "url": "https://test-opencast-cdn.de/static/ƒmh_default_org/api/1234-1234-1234-1234-1234/8d8da056-433a-4aed-8187-b7ea117fbaca/Pexels_Videos_2021532_1_000s_ele_image_search.jpg",
+              "tags": [
+                "archive",
+                "engage-download"
+              ]
+            },
+            {
+              "flavor": "presenter/player+preview",
+              "ref": "track:9c024e27-fdb6-4f2d-ad83-7c2bc7e13398",
+              "size": 79236,
+              "checksum": "",
+              "id": "58a5e20a-b2af-4cc5-8232-01456b6650bc",
+              "mediatype": "image/jpeg",
+              "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/df761f84-7211-4570-ba04-42de83a29cdd/Pexels_Videos_2021532_1_000s_ele_image_cover.jpg",
+              "tags": [
+                "archive",
+                "engage-download"
+              ]
+            }
+          ],
+          "channel": "api",
+          "id": "9c6cd3ee-4a36-4425-afc9-da401c7c7c04",
+          "media": [
+            {
+              "has_audio": true,
+              "framerate": 24.014963,
+              "description": "",
+              "bitrate": 768879.0,
+              "is_master_playlist": false,
+              "url": "https://test-opencast-cdn.de/static/mh_default_org/api/1234-1234-1234-1234-1234/521ddbcb-0f1b-400e-b3c6-bbd9078c452b/Pexels_Videos_2021532.mp4",
+              "has_video": true,
+              "tags": [
+                "480p-quality",
+                "archive",
+                "default",
+                "engage-download"
+              ],
+              "flavor": "presenter/delivery",
+              "duration": 13398,
+              "size": 1301200,
+              "framecount": 321,
+              "checksum": "a34b86a0878efdf436ad2b0beb3c5db8 (md5)",
+              "width": 852,
+              "is_live": false,
+              "id": "a7ad2e80-f9a8-47b2-8ad5-4fca76417e98",
+              "mediatype": "video/mp4",
+              "height": 480
+            }
+          ],
+          "mediatype": "",
+          "url": "http://test-opencast.de/paella/ui/watch.html?id=1234-1234-1234-1234-1234"
         }
-    ]
+      ],
+      "acl": [
+        {
+          "allow": true,
+          "role": "ROLE_ADMIN",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_ADMIN",
+          "action": "write"
+        },
+        {
+          "allow": true,
+          "role": "1_Instructor",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "1_Instructor",
+          "action": "write"
+        },
+        {
+          "allow": true,
+          "role": "1_Learner",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+          "action": "read"
+        },
+        {
+          "allow": true,
+          "role": "ROLE_GROUP_MH_DEFAULT_ORG_EXTERNAL_APPLICATIONS",
+          "action": "write"
+        }
+      ]
+    }
+  ]
 }

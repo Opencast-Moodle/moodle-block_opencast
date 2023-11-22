@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use admin_setting;
+
 /**
  * Admin setting class which is used to create an editable table.
  *
@@ -31,7 +33,8 @@ namespace block_opencast;
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configeditabletable extends \admin_setting {
+class admin_setting_configeditabletable extends admin_setting
+{
     /** @var string Id of the div tag */
     private $divid;
     /** @var string Text for add button */
@@ -43,7 +46,8 @@ class admin_setting_configeditabletable extends \admin_setting {
      * @param string $divid Id of the div tag
      * @param string $buttontext Text of "Add row" button
      */
-    public function __construct($name, $divid, $buttontext) {
+    public function __construct($name, $divid, $buttontext)
+    {
         $this->nosave = true;
         $this->divid = $divid;
         $this->buttontext = $buttontext;
@@ -55,7 +59,8 @@ class admin_setting_configeditabletable extends \admin_setting {
      *
      * @return bool Always returns true
      */
-    public function get_setting() {
+    public function get_setting()
+    {
         return true;
     }
 
@@ -64,7 +69,8 @@ class admin_setting_configeditabletable extends \admin_setting {
      *
      * @return bool Always returns true
      */
-    public function get_defaultsetting() {
+    public function get_defaultsetting()
+    {
         return true;
     }
 
@@ -74,7 +80,8 @@ class admin_setting_configeditabletable extends \admin_setting {
      * @param mixed $data Gets converted to str for comparison against yes value
      * @return string Always returns an empty string
      */
-    public function write_setting($data) {
+    public function write_setting($data)
+    {
         // Do not write any setting.
         return '';
     }
@@ -86,7 +93,8 @@ class admin_setting_configeditabletable extends \admin_setting {
      * @param string $query
      * @return string Returns an HTML string
      */
-    public function output_html($data, $query = '') {
+    public function output_html($data, $query = '')
+    {
         return '<div class="mt-3" id="' . $this->divid .
             '"></div><div class="d-flex"><button class="btn btn-primary mt-3 ml-auto mb-3" type="button" id="addrow-' .
             $this->divid . '">' . $this->buttontext . '</button></div>';

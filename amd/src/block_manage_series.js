@@ -64,7 +64,7 @@ function submitFormAjax(e) {
     changeEvent.initEvent('change', true, true);
 
     // Run validation functions.
-    modal.getRoot().find(':input').each(function(index, element) {
+    modal.getRoot().find(':input').each(function (index, element) {
         element.dispatchEvent(changeEvent);
     });
 
@@ -86,8 +86,13 @@ function submitFormAjax(e) {
     // Submit form.
     Ajax.call([{
         methodname: 'block_opencast_submit_series_form',
-        args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, seriesid: e.data.seriesid, jsonformdata: formData},
-        done: function(newseries) {
+        args: {
+            contextid: contextid,
+            ocinstanceid: e.data.ocinstanceid,
+            seriesid: e.data.seriesid,
+            jsonformdata: formData
+        },
+        done: function (newseries) {
             modal.destroy();
             if (edited) {
                 let row = seriestable.getRows().find(r => r.getData().series === e.data.seriesid);
@@ -102,7 +107,7 @@ function submitFormAjax(e) {
                 }
             }
         },
-        fail: function(er) {
+        fail: function (er) {
             if (er.errorcode === 'metadataseriesupdatefailed') {
                 modal.destroy();
                 displayError(er.message);
@@ -126,10 +131,10 @@ function displayError(message) {
         message: message
     };
 
-    Templates.render("core/notification_error", context).then(function(m) {
+    Templates.render("core/notification_error", context).then(function (m) {
         $('#user-notifications').append(m);
-        return;
-    }).fail(function() {
+
+    }).fail(function () {
         Notification.alert(message, message);
     });
 }
@@ -147,10 +152,10 @@ function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
     Ajax.call([{
         methodname: 'block_opencast_get_series_titles',
         args: {contextid: contextid, ocinstanceid: ocinstanceid, series: JSON.stringify(series)},
-        done: function(data) {
+        done: function (data) {
             var titles = JSON.parse(data);
             if (seriestable !== null) {
-                seriestable.getRows().forEach(function(row) {
+                seriestable.getRows().forEach(function (row) {
                     row.update({"seriesname": titles[row.getData().series]});
                 });
             } else {
@@ -158,10 +163,10 @@ function loadSeriesTitles(contextid, ocinstanceid, series, seriestable, row) {
             }
 
         },
-        fail: function(error) {
+        fail: function (error) {
             // Show error.
             if (seriestable !== null) {
-                seriestable.getRows().forEach(function(row) {
+                seriestable.getRows().forEach(function (row) {
                     row.update({"seriesname": error.message});
                 });
             } else {
@@ -191,14 +196,14 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
         {key: 'setdefaultseries_heading', component: 'block_opencast'},
         {key: 'setdefaultseries', component: 'block_opencast'}
     ];
-    str.get_strings(strings).then(function(jsstrings) {
+    str.get_strings(strings).then(function (jsstrings) {
         // Style hidden input.
         var seriestable = new Tabulator("#seriestable", {
             data: series,
             layout: "fitColumns",
             placeholder: jsstrings[3],
             headerSort: false,
-            dataLoaded: function(data) {
+            dataLoaded: function (data) {
                 // Load series titles.
                 loadSeriesTitles(contextid, ocinstanceid, data.map(x => x.series), this);
             },
@@ -209,32 +214,34 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                     title: jsstrings[2], field: "isdefault",
                     hozAlign: "center",
                     widthGrow: 0,
-                    formatter: function(cell) {
+                    formatter: function (cell) {
                         var input = document.createElement('input');
                         input.type = 'radio';
                         input.name = 'defaultseries';
                         input.checked = cell.getValue();
                         input.classList.add('ignoredirty');
-                        input.addEventListener('click', function(e) {
+                        input.addEventListener('click', function (e) {
                             e.preventDefault();
                             ModalFactory.create({
                                 type: ModalFactory.types.SAVE_CANCEL,
                                 title: jsstrings[13],
                                 body: jsstrings[14]
                             })
-                                .then(function(modal) {
-                                    modal.getRoot().on(ModalEvents.hidden, function() {
+                                .then(function (modal) {
+                                    modal.getRoot().on(ModalEvents.hidden, function () {
                                         modal.destroy();
                                     });
 
-                                    modal.getRoot().on(ModalEvents.save, function() {
+                                    modal.getRoot().on(ModalEvents.save, function () {
                                         Ajax.call([{
                                             methodname: 'block_opencast_set_default_series',
-                                            args: {contextid: contextid, ocinstanceid: ocinstanceid,
-                                                seriesid: cell.getRow().getData().series},
-                                            done: function() {
+                                            args: {
+                                                contextid: contextid, ocinstanceid: ocinstanceid,
+                                                seriesid: cell.getRow().getData().series
+                                            },
+                                            done: function () {
                                                 modal.destroy();
-                                                cell.getTable().getRows().forEach(function(row) {
+                                                cell.getTable().getRows().forEach(function (row) {
                                                     if (row === cell.getRow()) {
                                                         row.update({'isdefault': 1});
                                                     } else {
@@ -242,14 +249,14 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                                     }
                                                 });
                                             },
-                                            fail: function(e) {
+                                            fail: function (e) {
                                                 modal.destroy();
                                                 displayError(e.message);
                                             }
                                         }]);
                                     });
                                     modal.show();
-                                    return;
+
                                 }).catch(Notification.exception);
                         });
                         return input;
@@ -257,30 +264,30 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function() {
+                        function () {
                             return '<i class="icon fa fa-edit fa-fw"></i>';
                         },
-                    cellClick: function(_, cell) {
+                    cellClick: function (_, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[7],
                             body: getBody(contextid, ocinstanceid, cell.getRow().getCell("series").getValue())
                         })
-                            .then(function(modal) {
+                            .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[7]);
                                 modal.setLarge();
 
                                 // Reset modal on every open event.
-                                modal.getRoot().on(ModalEvents.hidden, function() {
+                                modal.getRoot().on(ModalEvents.hidden, function () {
                                     modal.destroy();
                                 });
 
                                 // We want to hide the submit buttons every time it is opened.
-                                modal.getRoot().on(ModalEvents.shown, function() {
+                                modal.getRoot().on(ModalEvents.shown, function () {
                                     modal.getRoot().append('<style>[data-fieldtype=submit] { display: none ! important; }</style>');
                                 });
 
-                                modal.getRoot().on(ModalEvents.save, function(e) {
+                                modal.getRoot().on(ModalEvents.save, function (e) {
                                     e.preventDefault();
                                     modal.getRoot().find('form').submit();
                                 });
@@ -294,29 +301,31 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                 }, submitFormAjax);
 
                                 modal.show();
-                                return;
+
                             }).catch(Notification.exception);
                     }
                 },
                 {
                     title: "", width: 40, headerSort: false, hozAlign: "center", formatter:
-                        function() {
+                        function () {
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
-                    cellClick: function(e, cell) {
+                    cellClick: function (e, cell) {
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
-                            .then(function(modal) {
+                            .then(function (modal) {
                                 modal.setSaveButtonText(jsstrings[8]);
-                                modal.getRoot().on(ModalEvents.save, function() {
+                                modal.getRoot().on(ModalEvents.save, function () {
                                     Ajax.call([{
                                         methodname: 'block_opencast_unlink_series',
-                                        args: {contextid: contextid, ocinstanceid: ocinstanceid,
-                                            seriesid: cell.getRow().getData().series},
-                                        done: function(result) {
+                                        args: {
+                                            contextid: contextid, ocinstanceid: ocinstanceid,
+                                            seriesid: cell.getRow().getData().series
+                                        },
+                                        done: function (result) {
                                             modal.destroy();
                                             let res = JSON.parse(result);
                                             if (res.error) {
@@ -331,14 +340,14 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                                 importseries.removeClass('d-none');
                                             }
                                         },
-                                        fail: function(e) {
+                                        fail: function (e) {
                                             modal.destroy();
                                             displayError(e.message);
                                         }
                                     }]);
                                 });
                                 modal.show();
-                                return;
+
                             }).catch(Notification.exception);
                     }
                 }
@@ -349,26 +358,26 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
 
         // Create new series in modal
         // Button for connection a new series
-        $('#createseries').click(function() {
+        $('#createseries').click(function () {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[4],
                 body: getBody(contextid, ocinstanceid, '', undefined)
             })
-                .then(function(modal) {
+                .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[4]);
                     modal.setLarge();
 
-                    modal.getRoot().on(ModalEvents.hidden, function() {
+                    modal.getRoot().on(ModalEvents.hidden, function () {
                         modal.destroy();
                     });
 
                     // We want to hide the submit buttons every time it is opened.
-                    modal.getRoot().on(ModalEvents.shown, function() {
+                    modal.getRoot().on(ModalEvents.shown, function () {
                         modal.getRoot().append('<style>[data-fieldtype=submit] { display: none ! important; }</style>');
                     });
 
-                    modal.getRoot().on(ModalEvents.save, function(e) {
+                    modal.getRoot().on(ModalEvents.save, function (e) {
                         e.preventDefault();
                         modal.getRoot().find('form').submit();
                     });
@@ -382,13 +391,13 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                     }, submitFormAjax);
 
                     modal.show();
-                    return;
+
                 }).catch(Notification.exception);
 
         });
 
         // Import new series in modal
-        $('#importseries').click(function() {
+        $('#importseries').click(function () {
             let context = {
                 label: jsstrings[12],
                 required: false,
@@ -408,15 +417,15 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                 title: jsstrings[10],
                 body: Templates.render("core_form/element-text", context)
             })
-                .then(function(modal) {
+                .then(function (modal) {
                     modal.setSaveButtonText(jsstrings[10]);
                     modal.setLarge();
 
-                    modal.getRoot().on(ModalEvents.hidden, function() {
+                    modal.getRoot().on(ModalEvents.hidden, function () {
                         modal.destroy();
                     });
 
-                    modal.getRoot().on(ModalEvents.save, function(e) {
+                    modal.getRoot().on(ModalEvents.save, function (e) {
                         e.preventDefault();
                         var seriesid = $('#importseriesid').val();
 
@@ -424,11 +433,15 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                         Ajax.call([{
                             methodname: 'block_opencast_import_series',
                             args: {contextid: contextid, ocinstanceid: ocinstanceid, seriesid: seriesid},
-                            done: function(newseries) {
+                            done: function (newseries) {
                                 modal.destroy();
                                 if (seriestable !== undefined) {
                                     var s = JSON.parse(newseries);
-                                    seriestable.addRow({'seriesname': s.title, 'series': s.id, 'isdefault': s.isdefault});
+                                    seriestable.addRow({
+                                        'seriesname': s.title,
+                                        'series': s.id,
+                                        'isdefault': s.isdefault
+                                    });
 
                                     if (seriestable.getRows().length >= numseriesallowed) {
                                         $("#createseries").hide();
@@ -436,7 +449,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                     }
                                 }
                             },
-                            fail: function() {
+                            fail: function () {
                                 modal.destroy();
                                 displayError(jsstrings[11]);
                             }
@@ -444,7 +457,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                     });
 
                     modal.show();
-                    return;
+
                 }).catch(Notification.exception);
         });
 
@@ -452,7 +465,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
         if (createseries) {
             $('#createseries').trigger('click');
         }
-        return;
+
     }).catch(Notification.exception);
 };
 

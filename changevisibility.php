@@ -25,17 +25,21 @@
 require_once('../../config.php');
 require_once('./renderer.php');
 
+use block_opencast\groupaccess;
 use block_opencast\local\apibridge;
+use block_opencast\local\visibility_form;
 use block_opencast\local\visibility_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/changevisibility.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -44,7 +48,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('changevisibility', 'block_opencast'), $baseurl);
 
@@ -59,19 +63,19 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $visibility = $apibridge->is_event_visible($identifier, $courseid);
-if ($visibility === \block_opencast_renderer::MIXED_VISIBILITY) {
-    $groups = \block_opencast\groupaccess::get_record(array('opencasteventid' => $identifier, 'ocinstanceid' => $ocinstanceid));
+if ($visibility === block_opencast_renderer::MIXED_VISIBILITY) {
+    $groups = groupaccess::get_record(['opencasteventid' => $identifier, 'ocinstanceid' => $ocinstanceid]);
     if ($groups) {
-        $visibility = \block_opencast_renderer::GROUP;
+        $visibility = block_opencast_renderer::GROUP;
     } else {
-        $visibility = \block_opencast_renderer::HIDDEN;
+        $visibility = block_opencast_renderer::HIDDEN;
     }
 }
 $scheduledvisibility = visibility_helper::get_event_scheduled_visibility($ocinstanceid, $courseid, $identifier);
 
-$changevisibilityform = new \block_opencast\local\visibility_form(null, array('courseid' => $courseid,
+$changevisibilityform = new visibility_form(null, ['courseid' => $courseid,
     'identifier' => $identifier, 'visibility' => $visibility, 'ocinstanceid' => $ocinstanceid,
-    'scheduledvisibility' => $scheduledvisibility));
+    'scheduledvisibility' => $scheduledvisibility, ]);
 
 // Check if video exists.
 $courseseries = $apibridge->get_course_series($courseid);
@@ -96,7 +100,7 @@ if (!$video) {
 
 if ($video->processing_state == 'RUNNING' || $video->processing_state == 'PAUSED') {
     $message = get_string('worklowisrunning', 'block_opencast');
-    redirect($redirecturl, $message, null, \core\output\notification::NOTIFY_WARNING);
+    redirect($redirecturl, $message, null, notification::NOTIFY_WARNING);
 }
 
 // Workflow is not set.
@@ -130,7 +134,7 @@ if ($data = $changevisibilityform->get_data()) {
                 if ($requestscheduling) {
                     $text .= get_string('scheduledvisibilitychangeskipped', 'block_opencast');
                 }
-                redirect($redirecturl, $text, null, \core\output\notification::NOTIFY_ERROR);
+                redirect($redirecturl, $text, null, notification::NOTIFY_ERROR);
             }
         }
 
@@ -139,12 +143,12 @@ if ($data = $changevisibilityform->get_data()) {
         // Check if the scheduled visibility is set, we update the record.
         if ($requestscheduling) {
             $initialvisibilitygroups = null;
-            if ($data->visibility == \block_opencast_renderer::GROUP
+            if ($data->visibility == block_opencast_renderer::GROUP
                 && !empty($data->groups)) {
                 $initialvisibilitygroups = json_encode($data->groups);
             }
             $scheduledvisibilitygroups = null;
-            if ($data->scheduledvisibilitystatus == \block_opencast_renderer::GROUP
+            if ($data->scheduledvisibilitystatus == block_opencast_renderer::GROUP
                 && !empty($data->scheduledvisibilitygroups)) {
                 $scheduledvisibilitygroups = json_encode($data->scheduledvisibilitygroups);
             }
@@ -158,7 +162,7 @@ if ($data = $changevisibilityform->get_data()) {
                 $schedulingcode = $schedulingresult ? 'scheduledvisibilitychangeupdated' : 'scheduledvisibilityupdatefailed';
             } else {
                 // Otherwise, we create a new record.
-                $scheduledvisibility = new \stdClass();
+                $scheduledvisibility = new stdClass();
                 $scheduledvisibility->initialvisibilitystatus = $data->visibility;
                 $scheduledvisibility->initialvisibilitygroups = $initialvisibilitygroups;
                 $scheduledvisibility->scheduledvisibilitytime = $data->scheduledvisibilitytime;
@@ -177,14 +181,14 @@ if ($data = $changevisibilityform->get_data()) {
         }
 
         $text = '';
-        $status = \core\output\notification::NOTIFY_SUCCESS;
+        $status = notification::NOTIFY_SUCCESS;
         if (!empty($visibilitycode)) {
             $text = get_string($visibilitycode, 'block_opencast', $video);
         }
         if (!empty($schedulingcode)) {
             if (!$schedulingresult) {
-                $status = empty($visibilitycode) ? \core\output\notification::NOTIFY_ERROR :
-                    \core\output\notification::NOTIFY_WARNING;
+                $status = empty($visibilitycode) ? notification::NOTIFY_ERROR :
+                    notification::NOTIFY_WARNING;
             }
             $schedulingtext = get_string($schedulingcode, 'block_opencast');
             $text = $text . (!empty($visibilitycode) ? '<br>' : '') . $schedulingtext;
@@ -194,7 +198,7 @@ if ($data = $changevisibilityform->get_data()) {
         if (empty($text)) {
             $text = get_string('novisibilitychange', 'block_opencast');
             $redirecturl = $baseurl;
-            $status = \core\output\notification::NOTIFY_WARNING;
+            $status = notification::NOTIFY_WARNING;
         }
         redirect($redirecturl, $text, null, $status);
     }

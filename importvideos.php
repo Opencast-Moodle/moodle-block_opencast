@@ -23,6 +23,17 @@
  */
 
 use block_opencast\local\activitymodulemanager;
+use block_opencast\local\importvideos_coursesearch;
+use block_opencast\local\importvideos_select_series_form;
+use block_opencast\local\importvideos_step1_form;
+use block_opencast\local\importvideos_step2_form;
+use block_opencast\local\importvideos_step3_form;
+use block_opencast\local\importvideos_step3_form_acl;
+use block_opencast\local\importvideos_step4_form;
+use block_opencast\local\importvideosmanager;
+use block_opencast\local\ltimodulemanager;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 require_once('../../config.php');
 
@@ -31,7 +42,7 @@ global $PAGE, $OUTPUT, $CFG, $DB;
 // Handle submitted parameters of the form.
 // This course id of the target course.
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 // The current step of the wizard.
 $step = optional_param('step', 1, PARAM_INT);
 // The course id of the course where the videos are imported from (this is submitted by the course search component in step 1 only).
@@ -41,19 +52,19 @@ $sourcecourseid = optional_param('sourcecourseid', null, PARAM_INT);
 $sourcecourseseries = optional_param('sourcecourseseries', null, PARAM_ALPHANUMEXT);
 
 // The list of course videos to import.
-$coursevideos = optional_param_array('coursevideos', array(), PARAM_ALPHANUMEXT);
+$coursevideos = optional_param_array('coursevideos', [], PARAM_ALPHANUMEXT);
 
 // The fact if we have to handle series and / or episode modules after the import.
 $fixseriesmodules = optional_param('fixseriesmodules', false, PARAM_BOOL);
 $fixepisodemodules = optional_param('fixepisodemodules', false, PARAM_BOOL);
 
 // Set base URL.
-$baseurl = new moodle_url('/blocks/opencast/importvideos.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/importvideos.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 // Remember URLs for redirecting.
 $redirecturloverview = new moodle_url('/blocks/opencast/index.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $redirecturlcancel = $redirecturloverview;
 
 // Require login and course membership.
@@ -67,7 +78,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('importvideos_importbuttontitle', 'block_opencast'), $baseurl);
 
 // Check if the manual import videos feature is enabled and working.
-if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == false) {
+if (importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == false) {
     throw new moodle_exception('importvideos_errornotenabledorworking', 'block_opencast', $redirecturloverview);
 }
 
@@ -77,9 +88,9 @@ require_capability('block/opencast:manualimporttarget', $coursecontext);
 
 // Check if either the handle series feature or the handle episodes feature is enabled _and_ the user is allowed to use the feature,
 // we have to include step 3.
-if ((\block_opencast\local\importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true &&
+if ((importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstanceid) == true &&
         has_capability('block/opencast:addlti', $coursecontext)) ||
-    (\block_opencast\local\importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true &&
+    (importvideosmanager::handle_episode_modules_is_enabled_and_working($ocinstanceid) == true &&
         has_capability('block/opencast:addltiepisode', $coursecontext))) {
     $hasstep3 = true;
 } else {
@@ -98,7 +109,7 @@ if ($importmode == 'acl') {
     $hasstep3 = true;
 
     // Check if the maximum number of series is already reached.
-    $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+    $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
     if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
         throw new moodle_exception('maxseriesreached', 'block_opencast');
     }
@@ -124,8 +135,8 @@ switch ($step) {
         $possiblesourcecoursescount = count($possiblesourcecourses);
         if ($possiblesourcecoursescount < 1 || ($possiblesourcecoursescount == 1 && $possiblesourcecourses[0]->id == $courseid)) {
             // Use step 1 form.
-            $importvideosform = new \block_opencast\local\importvideos_step1_form(null,
-                array('courseid' => $courseid));
+            $importvideosform = new importvideos_step1_form(null,
+                ['courseid' => $courseid]);
 
             // Redirect if the form was cancelled.
             if ($importvideosform->is_cancelled()) {
@@ -139,10 +150,10 @@ switch ($step) {
             if ($importid == null) {
                 // Prepare next step URL.
                 $url = new moodle_url('/blocks/opencast/importvideos.php',
-                    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
                 // Prepare course search component.
-                $search = new \block_opencast\local\importvideos_coursesearch(array('url' => $url), $courseid);
+                $search = new importvideos_coursesearch(['url' => $url], $courseid);
 
                 $heading = get_string('importvideos_wizardstep' . $step . 'heading', 'block_opencast');
                 // Output course search component.
@@ -167,23 +178,23 @@ switch ($step) {
         // When the Duplicating Events is selected.
         if ($importmode == 'duplication') {
             // Set form for next step.
-            $importvideosform = new \block_opencast\local\importvideos_step2_form(null,
-                array(
+            $importvideosform = new importvideos_step2_form(null,
+                [
                     'ocinstanceid' => $ocinstanceid,
                     'courseid' => $courseid,
-                    'sourcecourseid' => $sourcecourseid));
+                    'sourcecourseid' => $sourcecourseid, ]);
         } else if ($importmode == 'acl') {
             $aclheadingstringname = 'acl';
 
-            $courseseries = \block_opencast\local\importvideosmanager::get_import_source_course_series($ocinstanceid,
+            $courseseries = importvideosmanager::get_import_source_course_series($ocinstanceid,
                 $sourcecourseid);
 
             if (count($courseseries) > 1) {
-                $importvideosform = new \block_opencast\local\importvideos_select_series_form(null, array(
+                $importvideosform = new importvideos_select_series_form(null, [
                     'ocinstanceid' => $ocinstanceid,
                     'courseid' => $courseid,
                     'sourcecourseid' => $sourcecourseid,
-                    'series' => $courseseries));
+                    'series' => $courseseries, ]);
             } else {
                 $nextstep = true;
             }
@@ -236,19 +247,19 @@ switch ($step) {
         if (!$jumpto4) {
 
             if ($importmode == 'acl') {
-                $importvideosform = new \block_opencast\local\importvideos_step3_form_acl(null,
-                    array(
+                $importvideosform = new importvideos_step3_form_acl(null,
+                    [
                         'ocinstanceid' => $ocinstanceid,
                         'courseid' => $courseid,
                         'sourcecourseid' => $sourcecourseid,
-                        'series' => $sourcecourseseries));
+                        'series' => $sourcecourseseries, ]);
             } else {
-                $importvideosform = new \block_opencast\local\importvideos_step3_form(null,
-                    array(
+                $importvideosform = new importvideos_step3_form(null,
+                    [
                         'ocinstanceid' => $ocinstanceid,
                         'courseid' => $courseid,
                         'sourcecourseid' => $sourcecourseid,
-                        'coursevideos' => $coursevideos));
+                        'coursevideos' => $coursevideos, ]);
             }
 
 
@@ -262,7 +273,7 @@ switch ($step) {
 
                 if ($importmode == 'acl') {
                     // Perform ACL change.
-                    $resultaclchange = \block_opencast\local\importvideosmanager::change_acl($ocinstanceid, $sourcecourseid,
+                    $resultaclchange = importvideosmanager::change_acl($ocinstanceid, $sourcecourseid,
                         $data->sourcecourseseries, $courseid);
                     // Redirec the user with corresponding messages.
                     redirect($redirecturloverview, $resultaclchange->message, null, $resultaclchange->type);
@@ -281,14 +292,14 @@ switch ($step) {
     case 4:
         $step = 4;
         // Use step 4 form.
-        $importvideosform = new \block_opencast\local\importvideos_step4_form(null,
-            array(
+        $importvideosform = new importvideos_step4_form(null,
+            [
                 'ocinstanceid' => $ocinstanceid,
                 'courseid' => $courseid,
                 'sourcecourseid' => $sourcecourseid,
                 'coursevideos' => $coursevideos,
                 'fixseriesmodules' => $fixseriesmodules,
-                'fixepisodemodules' => $fixepisodemodules));
+                'fixepisodemodules' => $fixepisodemodules, ]);
 
         // Redirect if the form was cancelled.
         if ($importvideosform->is_cancelled()) {
@@ -297,7 +308,7 @@ switch ($step) {
 
         // Process data.
         if ($data = $importvideosform->get_data()) {
-            $resultduplicate = \block_opencast\local\importvideosmanager::duplicate_videos($ocinstanceid,
+            $resultduplicate = importvideosmanager::duplicate_videos($ocinstanceid,
                 $sourcecourseid, $courseid, $coursevideos, $fixepisodemodules);
 
             // If duplication did not complete correctly.
@@ -306,20 +317,20 @@ switch ($step) {
                 redirect($redirecturloverview,
                     get_string('importvideos_importjobcreationfailed', 'block_opencast'),
                     null,
-                    \core\output\notification::NOTIFY_ERROR);
+                    notification::NOTIFY_ERROR);
             }
 
             // If cleanup of the series modules was requested and the user is allowed to do this.
             if ($fixseriesmodules == true) {
                 $resulthandleseries = true;
-                if (\block_opencast\local\ltimodulemanager::is_working_for_series($ocinstanceid) &&
+                if (ltimodulemanager::is_working_for_series($ocinstanceid) &&
                     has_capability('block/opencast:addlti', $coursecontext)) {
                     // Clean up the series modules.
-                    $resulthandleseries = \block_opencast\local\ltimodulemanager::cleanup_series_modules($ocinstanceid,
+                    $resulthandleseries = ltimodulemanager::cleanup_series_modules($ocinstanceid,
                         $courseid, $sourcecourseid, $resultduplicate->duplicatedseries);
                 }
 
-                if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                if (core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
                     $resulthandleseries = $resulthandleseries &&
                         activitymodulemanager::cleanup_series_modules($ocinstanceid, $courseid, $resultduplicate->duplicatedseries);
                 }
@@ -330,7 +341,7 @@ switch ($step) {
                     redirect($redirecturloverview,
                         get_string('importvideos_importseriescleanupfailed', 'block_opencast'),
                         null,
-                        \core\output\notification::NOTIFY_ERROR);
+                        notification::NOTIFY_ERROR);
                 }
             }
 
@@ -338,7 +349,7 @@ switch ($step) {
             redirect($redirecturloverview,
                 get_string('importvideos_importjobcreated', 'block_opencast'),
                 null,
-                \core\output\notification::NOTIFY_SUCCESS);
+                notification::NOTIFY_SUCCESS);
         }
 
         $heading = get_string('importvideos_wizardstep' . $step . 'heading', 'block_opencast');

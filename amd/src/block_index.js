@@ -22,8 +22,8 @@
  */
 
 define(['jquery', 'core/modal_factory', 'core/modal_events',
-    'core/str', 'core/url', 'core/notification', 'core/toast', 'core/ajax'],
-    function($, ModalFactory, ModalEvents, str, url, Notification, Toast, Ajax) {
+        'core/str', 'core/url', 'core/notification', 'core/toast', 'core/ajax'],
+    function ($, ModalFactory, ModalEvents, str, url, Notification, Toast, Ajax) {
         /**
          * Instantiate the window variable in order to work with Intervals
          *
@@ -32,7 +32,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         window.liveUpdateItemsWithError = [];
         window.liveUpdateState = null;
 
-        var pauseLiveUpdate = function(liveupdate) {
+        var pauseLiveUpdate = function (liveupdate) {
             if (!liveupdate.enabled) {
                 return;
             }
@@ -42,7 +42,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             }
         };
 
-        var resumeLiveUpdate = function(ocinstanceid, contextid, liveupdate) {
+        var resumeLiveUpdate = function (ocinstanceid, contextid, liveupdate) {
             if (!liveupdate.enabled) {
                 return;
             }
@@ -52,7 +52,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             }
         };
 
-        var initWorkflowModal = function(ocinstanceid, courseid, langstrings, contextid, liveupdate) {
+        var initWorkflowModal = function (ocinstanceid, courseid, langstrings, contextid, liveupdate) {
             if (document.getElementById('workflowsjson')) {
                 var workflows = JSON.parse($('#workflowsjson').text());
                 var privacyinfohtml = null;
@@ -66,7 +66,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     privacyworkflows = JSON.parse($('#swprivacynoticewfds').text());
                 }
 
-                $('.start-workflow').on('click', function(e) {
+                $('.start-workflow').on('click', function (e) {
                     e.preventDefault();
                     var clickedVideo = $(e.currentTarget);
                     var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
@@ -113,12 +113,12 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         title: langstrings[5],
                         body: body
                     }, undefined)
-                        .then(function(modal) {
+                        .then(function (modal) {
                             // Pause the live update if it is running.
                             pauseLiveUpdate(liveupdate);
                             modal.setSaveButtonText(langstrings[5]);
                             var root = modal.getRoot();
-                            root.on(ModalEvents.save, function(e) {
+                            root.on(ModalEvents.save, function (e) {
                                 // Handle form submission after receiving data, if the workflow has config panel.
                                 if ($('#config-frame').is(':visible')) {
                                     document.getElementById('config-frame').contentWindow.postMessage('getdata', '*');
@@ -128,7 +128,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                     $('#startWorkflowForm').submit();
                                 }
                             });
-                            root.on(ModalEvents.hidden, function() {
+                            root.on(ModalEvents.hidden, function () {
                                 // Resume the live update if it was paused.
                                 resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
                                 // Destroy when hidden/closed.
@@ -136,7 +136,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             });
 
                             // Show description for initial value.
-                            modal.show().then(function() {
+                            modal.show().then(function () {
                                 const workflowselect = $('#workflowselect');
                                 let workflowid = workflowselect.val();
                                 displayWorkflowDescription(workflows[workflowid]);
@@ -145,16 +145,16 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 displayWorkflowPrivacyNotice(privacyworkflows, workflowid);
 
                                 // Show workflow description when selected.
-                                workflowselect.change(function() {
+                                workflowselect.change(function () {
                                     let workflowid = $(this).val();
                                     displayWorkflowDescription(workflows[workflowid]);
                                     displayWorkflowConfigPanel(ocinstanceid, courseid, workflowid);
                                     // After each change, check if the selected workflow has to be displayed.
                                     displayWorkflowPrivacyNotice(privacyworkflows, workflowid);
                                 });
-                                return;
+
                             }).catch(Notification.exception);
-                            return;
+
                         }).catch(Notification.exception);
                 });
             }
@@ -165,7 +165,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
          * @param {Array} privacyworkflows an array list of workflows to display privacy notice for.
          * @param {string} workflowid workflow def id
          */
-        var displayWorkflowPrivacyNotice = function(privacyworkflows, workflowid) {
+        var displayWorkflowPrivacyNotice = function (privacyworkflows, workflowid) {
             if (Array.isArray(privacyworkflows) && (privacyworkflows.length === 0 || privacyworkflows.includes(workflowid))) {
                 $('#privacynoticediv').removeClass('d-none');
             } else {
@@ -177,7 +177,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
          * Helper function to display the description of the workflow.
          * @param {Object} workflowobj the workflow object
          */
-        var displayWorkflowDescription = function(workflowobj) {
+        var displayWorkflowDescription = function (workflowobj) {
             if (workflowobj?.description) {
                 $('#workflowdescdiv').removeClass('d-none');
                 $('#workflowdesc').html(workflowobj.description);
@@ -192,7 +192,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
          * @param {string} courseid course id
          * @param {string} workflowid workflow def id
          */
-        var displayWorkflowConfigPanel = function(ocinstanceid, courseid, workflowid) {
+        var displayWorkflowConfigPanel = function (ocinstanceid, courseid, workflowid) {
             $('#workflowconfigpaneldiv').addClass('d-none');
             $('#workflowconfigpanelloading').removeClass('d-none');
             $('#config-frame').attr('src', '');
@@ -213,8 +213,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             });
         };
 
-        var initReportModal = function(ocinstanceid, courseid, langstrings, contextid, liveupdate) {
-            $('.report-problem').on('click', function(e) {
+        var initReportModal = function (ocinstanceid, courseid, langstrings, contextid, liveupdate) {
+            $('.report-problem').on('click', function (e) {
                 e.preventDefault();
                 var clickedVideo = $(e.currentTarget);
                 ModalFactory.create({
@@ -232,12 +232,12 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         '  <div class="invalid-feedback d-none" id="messageValidation">' + langstrings[3] + '</div>' +
                         '</div></form>'
                 })
-                    .then(function(modal) {
+                    .then(function (modal) {
                         // Pause the live update if it is running.
                         pauseLiveUpdate(liveupdate);
                         modal.setSaveButtonText(langstrings[4]);
                         var root = modal.getRoot();
-                        root.on(ModalEvents.save, function(e) {
+                        root.on(ModalEvents.save, function (e) {
                             if ($('#inputMessage').val()) {
                                 $('#reportProblemForm').submit();
                             } else {
@@ -246,14 +246,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             }
                             e.preventDefault();
                         });
-                        root.on(ModalEvents.hidden, function() {
+                        root.on(ModalEvents.hidden, function () {
                             // Resume the live update if it was paused.
                             resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
                             // Destroy when hidden/closed.
                             modal.destroy();
                         });
                         modal.show();
-                        return;
+
                     }).catch(Notification.exception);
             });
         };
@@ -261,14 +261,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Initialise the status live update in the overview page.
          */
-        var initLiveUpdate = function(ocinstanceid, contextid, reloadtimeout) {
+        var initLiveUpdate = function (ocinstanceid, contextid, reloadtimeout) {
             if (window.liveUpdateInterval !== null) {
                 clearInterval(window.liveUpdateInterval);
             }
             window.liveUpdateItemsWithError = [];
             var items = getLiveUpdateItems();
             if (items.length) {
-                window.liveUpdateInterval = setInterval(function() {
+                window.liveUpdateInterval = setInterval(function () {
                     var processingItems = getLiveUpdateProcessingItems();
                     var uploadingItems = getLiveUpdateUploadingItems();
                     if (processingItems.length == 0 && uploadingItems.length == 0) {
@@ -276,7 +276,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         if (window.liveUpdateItemsWithError.length > 0) {
                             var titles = window.liveUpdateItemsWithError.join('</li><li>');
                             str.get_string('liveupdate_fail_notification_message', 'block_opencast', titles)
-                                .done(function(result) {
+                                .done(function (result) {
                                     Notification.addNotification({
                                         message: result,
                                         type: 'error'
@@ -299,7 +299,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Gets all status live updates items (flags).
          */
-        var getLiveUpdateItems = function() {
+        var getLiveUpdateItems = function () {
             var processingItems = getLiveUpdateProcessingItems();
             var uploadingItems = getLiveUpdateUploadingItems();
             return processingItems.concat(uploadingItems);
@@ -308,7 +308,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Gets all status live updates items for Processing states.
          */
-        var getLiveUpdateProcessingItems = function() {
+        var getLiveUpdateProcessingItems = function () {
             var itemsNodeList = document.getElementsByName('liveupdate_processing_item');
             return Array.from(itemsNodeList);
         };
@@ -316,7 +316,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Gets all status live updates items for uploading status.
          */
-        var getLiveUpdateUploadingItems = function() {
+        var getLiveUpdateUploadingItems = function () {
             var itemsNodeList = document.getElementsByName('liveupdate_uploading_item');
             return Array.from(itemsNodeList);
         };
@@ -324,7 +324,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Perform status live update Ajax call to the backend to get the related info.
          */
-        var liveUpdatePerformAjax = function(type, ocinstanceid, contextid, item, reloadtimeout) {
+        var liveUpdatePerformAjax = function (type, ocinstanceid, contextid, item, reloadtimeout) {
             var identifier = item.value;
             var title = item?.dataset?.title ? item.dataset.title : '';
             if (identifier == undefined || title == '') {
@@ -335,7 +335,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             Ajax.call([{
                 methodname: 'block_opencast_get_liveupdate_info',
                 args: {contextid: contextid, ocinstanceid: ocinstanceid, type: type, identifier: identifier},
-                done: function(status) {
+                done: function (status) {
                     if (status == '') {
                         window.liveUpdateItemsWithError.push(title);
                         item.remove();
@@ -352,16 +352,16 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             title: title
                         };
                         str.get_string('liveupdate_toast_notification', 'block_opencast', stringparams)
-                            .done(function(result) {
+                            .done(function (result) {
                                 Toast.add(result);
                             })
                             .fail(Notification.exception);
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.location.reload();
                         }, reloadtimeout * 1000);
                     }
                 },
-                fail: function() {
+                fail: function () {
                     window.liveUpdateItemsWithError.push(title);
                     item.remove();
                 }
@@ -371,7 +371,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Replace the new live update status with the current one for both text and DOM element.
          */
-        var replaceLiveUpdateInfo = function(item, replace) {
+        var replaceLiveUpdateInfo = function (item, replace) {
             if (item == undefined || replace == '' || typeof replace != 'string') {
                 return;
             }
@@ -396,7 +396,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Checks if the liev update DOM elements (new vs old) are equal.
          */
-        var areElementsEqual = function(baseElm, checkElm) {
+        var areElementsEqual = function (baseElm, checkElm) {
             var isEqual = true;
             var attributes = baseElm.getAttributeNames();
             for (var attributeName of attributes) {
@@ -418,14 +418,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Copies the direct access link into the clipboard.
          */
-        var initCopyAccessLinkToClipboard = function() {
-            $('.access-link-copytoclipboard').on('click', function(e) {
+        var initCopyAccessLinkToClipboard = function () {
+            $('.access-link-copytoclipboard').on('click', function (e) {
                 e.preventDefault();
                 var element = e.currentTarget;
                 var link = element.getAttribute('href');
                 if (!link) {
                     str.get_string('directaccess_copy_no_link', 'block_opencast')
-                        .done(function(result) {
+                        .done(function (result) {
                             Toast.add(result, {type: 'warning'});
                         })
                         .fail(Notification.exception);
@@ -434,18 +434,18 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(link)
-                    .then(() => {
-                        str.get_string('directaccess_copy_success', 'block_opencast')
-                            .done(function(result) {
-                                Toast.add(result);
-                            })
-                            .fail(Notification.exception);
-                        return;
-                    }).catch();
-                    return;
+                        .then(() => {
+                            str.get_string('directaccess_copy_success', 'block_opencast')
+                                .done(function (result) {
+                                    Toast.add(result);
+                                })
+                                .fail(Notification.exception);
+
+                        }).catch();
+
                 } else {
                     str.get_string('directaccess_copytoclipboard_unavialable', 'block_opencast')
-                        .done(function(result) {
+                        .done(function (result) {
                             Toast.add(result, {type: 'danger', autohide: false, closeButton: true});
                         })
                         .fail(Notification.exception);
@@ -456,7 +456,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         /*
          * Initialise all of the modules for the opencast block.
          */
-        var init = function(courseid, ocinstanceid, contextid, liveupdate) {
+        var init = function (courseid, ocinstanceid, contextid, liveupdate) {
             // Load strings
             var strings = [
                 {
@@ -496,12 +496,12 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     component: 'block_opencast'
                 }
             ];
-            str.get_strings(strings).then(function(results) {
+            str.get_strings(strings).then(function (results) {
                 initWorkflowModal(ocinstanceid, courseid, results, contextid, liveupdate);
                 initReportModal(ocinstanceid, courseid, results, contextid, liveupdate);
-                return;
+
             }).catch(Notification.exception);
-            window.addEventListener('message', function(event) {
+            window.addEventListener('message', function (event) {
                 if (event.origin !== "null") {
                     return;
                 }

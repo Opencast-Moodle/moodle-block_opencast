@@ -25,9 +25,15 @@
 use block_opencast\admin_setting_configeditabletable;
 use block_opencast\admin_setting_configtextvalidate;
 use block_opencast\admin_setting_hiddenhelpbtn;
+use block_opencast\local\ltimodulemanager;
+use block_opencast\local\visibility_helper;
+use block_opencast\opencast_connection_exception;
 use block_opencast\setting_helper;
 use block_opencast\setting_default_manager;
+use core\notification;
+use tool_opencast\empty_configuration_exception;
 use tool_opencast\local\environment_util;
+use tool_opencast\local\settings_api;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -43,7 +49,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $settingscategory = new admin_category('block_opencast', new lang_string('settings', 'block_opencast'));
     $ADMIN->add('blocksettings', $settingscategory);
 
-    $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+    $ocinstances = settings_api::get_ocinstances();
 
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
@@ -89,8 +95,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
         // when needed. So we check if this setting page is currently requested.
     } else if ($ADMIN->fulltree &&
         (strpos($PAGE->pagetype, 'block_opencast') !== false || // When only landing on the admin settings page for block_opencast.
-        ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance') || // During upgrade or install.
-        (environment_util::is_cli_application() && !environment_util::is_moodle_plugin_ci_workflow()))) {
+            ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance') || // During upgrade or install.
+            (environment_util::is_cli_application() && !environment_util::is_moodle_plugin_ci_workflow()))) {
         if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
             $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
             $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
@@ -153,7 +159,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $dcmitermsnotice = get_string('dcmitermsnotice', 'block_opencast');
             $metadatasetting = new admin_setting_configtext('block_opencast/metadata_' . $instance->id,
                 get_string('metadata', 'block_opencast'),
-                get_string('metadatadesc', 'block_opencast') . $dcmitermsnotice , $metadatadefault);
+                get_string('metadatadesc', 'block_opencast') . $dcmitermsnotice, $metadatadefault);
 
             $metadataseriessetting = new admin_setting_configtext('block_opencast/metadataseries_' . $instance->id,
                 get_string('metadataseries', 'block_opencast'),
@@ -170,7 +176,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     $metadatasetting->get_id(),
                     $metadataseriessetting->get_id(),
                     $transcriptionflavors->get_id(),
-                    $instance->id
+                    $instance->id,
                 ]);
             }
 
@@ -180,15 +186,15 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $url = new moodle_url('/admin/tool/task/scheduledtasks.php');
-            $link = html_writer::link($url, get_string('pluginname', 'tool_task'), array('target' => '_blank'));
+            $link = html_writer::link($url, get_string('pluginname', 'tool_task'), ['target' => '_blank']);
             $generalsettings->add(
                 new admin_setting_configtext('block_opencast/limituploadjobs_' . $instance->id,
                     get_string('limituploadjobs', 'block_opencast'),
                     get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'upload');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            if ($workflowchoices instanceof opencast_connection_exception ||
+                $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
             }
@@ -228,8 +234,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'delete');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            if ($workflowchoices instanceof opencast_connection_exception ||
+                $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
             }
@@ -294,8 +300,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'archive');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            if ($workflowchoices instanceof opencast_connection_exception ||
+                $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
             }
@@ -380,9 +386,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('enablechunkupload', 'block_opencast'),
                         get_string('enablechunkupload_desc', 'block_opencast'), true));
 
-                $sizelist = array(-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1610612736, 1073741824,
-                    536870912, 268435456, 134217728, 67108864);
-                $filesizes = array();
+                $sizelist = [-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1610612736, 1073741824,
+                    536870912, 268435456, 134217728, 67108864, ];
+                $filesizes = [];
                 foreach ($sizelist as $sizebytes) {
                     $filesizes[(string)intval($sizebytes)] = display_size($sizebytes);
                 }
@@ -546,7 +552,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 new admin_setting_configtext('block_opencast/aclcontrolwaitingtime_' . $instance->id,
                     get_string('acl_settingcontrolwaitingtime', 'block_opencast'),
                     get_string('acl_settingcontrolwaitingtime_desc', 'block_opencast'),
-                    \block_opencast\local\visibility_helper::DEFAULT_WAITING_TIME, PARAM_INT));
+                    visibility_helper::DEFAULT_WAITING_TIME, PARAM_INT));
             if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
                 $additionalsettings->hide_if('block_opencast/aclcontrolwaitingtime_' . $instance->id,
                     'block_opencast/aclcontrolafter_' . $instance->id, 'notchecked');
@@ -600,7 +606,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
                 // Add Opencast Activity series modules: Availability.
                 $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-                $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+                $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), ['target' => '_blank']);
                 $description = get_string('addactivity_settingavailability_desc', 'block_opencast') . '<br />' .
                     get_string('addactivity_settingavailability_note', 'block_opencast', $link);
                 $additionalsettings->add(
@@ -640,7 +646,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
                 // Add Opencast Activity episode modules: Availability.
                 $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-                $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+                $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), ['target' => '_blank']);
                 $description = get_string('addactivityepisode_settingavailability_desc', 'block_opencast') . '<br />' .
                     get_string('addactivity_settingavailability_note', 'block_opencast', $link);
                 $additionalsettings->add(
@@ -700,7 +706,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     new lang_string('transcriptionfileextensions', 'block_opencast'),
                     get_string('transcriptionfileextensions_desc', 'block_opencast',
                         $CFG->wwwroot . '/admin/tool/filetypes/index.php')
-            ));
+                ));
             $additionalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
                 'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
             // End of transcription upload settings.
@@ -750,7 +756,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('swprivacynotice_settingtitle_desc', 'block_opencast'), null));
             // Providing hide_if for this setting.
             $additionalsettings->hide_if('block_opencast/swprivacynoticetitle_' . $instance->id,
-                    'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
+                'block_opencast/swprivacynoticeinfotext_' . $instance->id, 'eq', '');
             // End of privacy notice.
 
             // Additional Settings.
@@ -815,7 +821,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Add LTI series modules: Preconfigured LTI tool.
-            $tools = \block_opencast\local\ltimodulemanager::get_preconfigured_tools();
+            $tools = ltimodulemanager::get_preconfigured_tools();
             // If there are any tools to be selected.
             if (count($tools) > 0) {
                 $ltimodulesettings->add(
@@ -830,7 +836,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
                 $url = new moodle_url('/admin/settings.php?section=modsettinglti');
-                $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
+                $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), ['target' => '_blank']);
                 $description = get_string('addlti_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(
                     new admin_setting_configempty('block_opencast/addltipreconfiguredtool_' . $instance->id,
@@ -864,7 +870,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             // Add LTI series modules: Availability.
             $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), ['target' => '_blank']);
             $description = get_string('addlti_settingavailability_desc', 'block_opencast') . '<br />' .
                 get_string('addlti_settingavailability_note', 'block_opencast', $link);
             $ltimodulesettings->add(
@@ -889,7 +895,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('addltiepisode_settingenabled_desc', 'block_opencast'), 0));
 
             // Add LTI episode modules: Preconfigured LTI tool.
-            $tools = \block_opencast\local\ltimodulemanager::get_preconfigured_tools();
+            $tools = ltimodulemanager::get_preconfigured_tools();
             // If there are any tools to be selected.
             if (count($tools) > 0) {
                 $ltimodulesettings->add(
@@ -904,7 +910,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 // Add an empty element to at least create the setting when the plugin is installed.
                 // Additionally, show some information text where to add preconfigured tools.
                 $url = new moodle_url('/admin/settings.php?section=modsettinglti');
-                $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), array('target' => '_blank'));
+                $link = html_writer::link($url, get_string('manage_tools', 'mod_lti'), ['target' => '_blank']);
                 $description = get_string('addltiepisode_settingpreconfiguredtool_notools', 'block_opencast', $link);
                 $ltimodulesettings->add(
                     new admin_setting_configempty('block_opencast/addltiepisodepreconfiguredtool_' . $instance->id,
@@ -938,7 +944,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             // Add LTI episode modules: Availability.
             $url = new moodle_url('/admin/settings.php?section=optionalsubsystems');
-            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), array('target' => '_blank'));
+            $link = html_writer::link($url, get_string('advancedfeatures', 'admin'), ['target' => '_blank']);
             $description = get_string('addltiepisode_settingavailability_desc', 'block_opencast') . '<br />' .
                 get_string('addlti_settingavailability_note', 'block_opencast', $link);
             $ltimodulesettings->add(
@@ -968,10 +974,10 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('importvideos_settingenabled_desc', 'block_opencast'), 1));
 
             // Import Video: define modes (ACL Change / Duplicating Events).
-            $importmodechoices = array(
+            $importmodechoices = [
                 'duplication' => get_string('importvideos_settingmodeduplication', 'block_opencast'),
-                'acl' => get_string('importvideos_settingmodeacl', 'block_opencast')
-            );
+                'acl' => get_string('importvideos_settingmodeacl', 'block_opencast'),
+            ];
 
             // Set default to duplication mode.
             $select = new admin_setting_configselect('block_opencast/importmode_' . $instance->id,
@@ -990,8 +996,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             // The default duplicate-event workflow has archive tag, therefore it needs to be adjusted here as well.
             // As this setting has used api tag for the duplicate event, it is now possible to have multiple tags in here.
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api,archive');
-            if ($workflowchoices instanceof \block_opencast\opencast_connection_exception ||
-                $workflowchoices instanceof \tool_opencast\empty_configuration_exception) {
+            if ($workflowchoices instanceof opencast_connection_exception ||
+                $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
             }
@@ -1026,9 +1032,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             // Import videos: Define a pre-defined configuration to enabled the import core settings.
             // This setting depends on the importvideoscoreenabled setting.
-            $importvideoscorevaluechioces = array(
+            $importvideoscorevaluechioces = [
                 0 => get_string('importvideos_settingcoredefaultvalue_false', 'block_opencast'),
-                1 => get_string('importvideos_settingcoredefaultvalue_true', 'block_opencast'));
+                1 => get_string('importvideos_settingcoredefaultvalue_true', 'block_opencast'), ];
             $defaultvaluechioce = 0;
             $importvideossettings->add(
                 new admin_setting_configselect('block_opencast/importvideoscoredefaultvalue_' . $instance->id,
@@ -1085,7 +1091,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
             // Don't spam other setting pages with error messages just because the tree was built.
             if ($opencasterror && $PAGE->pagetype == 'admin-setting-block_opencast') {
-                \core\notification::error($opencasterror);
+                notification::error($opencasterror);
             }
         }
     }

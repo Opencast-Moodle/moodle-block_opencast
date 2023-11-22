@@ -25,7 +25,15 @@
 
 namespace block_opencast\local;
 
+use block_opencast\opencast_connection_exception;
+use block_opencast_renderer;
+use coding_exception;
+use core\notification;
+use html_writer;
 use local_chunkupload\chunkupload_form_element;
+use moodle_url;
+use moodleform;
+use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,11 +49,13 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addvideo_form extends \moodleform {
+class addvideo_form extends moodleform
+{
     /**
      * Form definition.
      */
-    public function definition() {
+    public function definition()
+    {
         global $CFG, $DB, $PAGE;
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -57,7 +67,7 @@ class addvideo_form extends \moodleform {
             && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
 
         if ($usechunkupload) {
-            \MoodleQuickForm::registerElementType('chunkupload',
+            MoodleQuickForm::registerElementType('chunkupload',
                 "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
                 'local_chunkupload\chunkupload_form_element');
 
@@ -69,31 +79,31 @@ class addvideo_form extends \moodleform {
         $mform->addElement('header', 'metadata', get_string('metadata', 'block_opencast'));
         $mform->setExpanded('metadata', true);
 
-        $managedefaultsurl = new \moodle_url('/blocks/opencast/managedefaults.php',
-            array(
+        $managedefaultsurl = new moodle_url('/blocks/opencast/managedefaults.php',
+            [
                 'courseid' => $this->_customdata['courseid'],
                 'ocinstanceid' => $ocinstanceid,
-                'redirectto' => 'addvideo'
-            ));
-        $managedefaultslink = \html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
-        $managedefaultsexplation = \html_writer::tag('p',
+                'redirectto' => 'addvideo',
+            ]);
+        $managedefaultslink = html_writer::link($managedefaultsurl, get_string('managedefaultsforuser', 'block_opencast'));
+        $managedefaultsexplation = html_writer::tag('p',
             get_string('managedefaultredirectlinkwithexp', 'block_opencast') . $managedefaultslink);
-        $explanation = \html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
+        $explanation = html_writer::tag('p', get_string('metadataexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation . $managedefaultsexplation);
 
         $seriesrecords = $DB->get_records('tool_opencast_series',
-            array('courseid' => $this->_customdata['courseid'], 'ocinstanceid' => $ocinstanceid));
+            ['courseid' => $this->_customdata['courseid'], 'ocinstanceid' => $ocinstanceid]);
         if ($seriesrecords) {
             $defaultseries = array_search('1', array_column($seriesrecords, 'isdefault', 'series'));
-            $seriesoption = array();
+            $seriesoption = [];
 
             try {
                 $seriesrecords = $apibridge->get_multiple_series_by_identifier($seriesrecords);
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->identifier] = $series->title;
                 }
-            } catch (\block_opencast\opencast_connection_exception $e) {
-                \core\notification::warning($e->getMessage());
+            } catch (opencast_connection_exception $e) {
+                notification::warning($e->getMessage());
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->series] = $series->series;
                 }
@@ -103,14 +113,14 @@ class addvideo_form extends \moodleform {
             $mform->addRule('series', get_string('required'), 'required');
             $mform->setDefault('series', $defaultseries);
         } else if (array_key_exists('series', $this->_customdata) && $this->_customdata['series']) {
-            $seriesoption = array();
+            $seriesoption = [];
             try {
-                $seriesrecords = $apibridge->get_multiple_series_by_identifier(array($this->_customdata['series']));
+                $seriesrecords = $apibridge->get_multiple_series_by_identifier([$this->_customdata['series']]);
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->identifier] = $series->title;
                 }
-            } catch (\block_opencast\opencast_connection_exception $e) {
-                \core\notification::warning($e->getMessage());
+            } catch (opencast_connection_exception $e) {
+                notification::warning($e->getMessage());
                 $seriesoption[$this->_customdata['series']] = $this->_customdata['series'];
             }
 
@@ -121,8 +131,8 @@ class addvideo_form extends \moodleform {
 
         $settitle = true;
         foreach ($this->_customdata['metadata_catalog'] as $field) {
-            $param = array();
-            $attributes = array();
+            $param = [];
+            $attributes = [];
             if ($field->name == 'title') {
                 if ($field->required) {
                     $settitle = false;
@@ -141,7 +151,7 @@ class addvideo_form extends \moodleform {
                     'showsuggestions' => true, // If true, admin is able to add suggestion via admin page. Otherwise no suggestions!
                     'noselectionstring' => get_string('metadata_autocomplete_noselectionstring', 'block_opencast',
                         $this->try_get_string($field->name, 'block_opencast')),
-                    'tags' => true
+                    'tags' => true,
                 ];
 
                 // Check if the metadata_catalog field is creator or contributor, to pass some suggestions.
@@ -207,7 +217,7 @@ class addvideo_form extends \moodleform {
                 $allowchangevisibility = true;
             }
             // Check if the teacher should be allowed to restrict the episode to course groups.
-            $groups = array();
+            $groups = [];
             $groupvisibilityallowed = false;
             $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
             // If group restriction is generally enabled, check if there are roles which allow group visibility.
@@ -227,11 +237,11 @@ class addvideo_form extends \moodleform {
             $mform->addElement('header', 'visibility_header', get_string('visibilityheader', 'block_opencast'));
             $mform->setExpanded('visibility_header', true);
 
-            $explanation = \html_writer::tag('p', get_string('visibilityheaderexplanation', 'block_opencast'));
+            $explanation = html_writer::tag('p', get_string('visibilityheaderexplanation', 'block_opencast'));
             $mform->addElement('html', $explanation);
 
             // Initial visibility.
-            $intialvisibilityradioarray = array();
+            $intialvisibilityradioarray = [];
             $intialvisibilityradioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
                 get_string('initialvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
             $intialvisibilityradioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
@@ -241,7 +251,7 @@ class addvideo_form extends \moodleform {
                 $intialvisibilityradioarray[] = $mform->addElement('radio', 'initialvisibilitystatus',
                     '', get_string('visibility_group', 'block_opencast'), 2);
             }
-            $mform->setDefault('initialvisibilitystatus', \block_opencast_renderer::VISIBLE);
+            $mform->setDefault('initialvisibilitystatus', block_opencast_renderer::VISIBLE);
             $mform->setType('initialvisibilitystatus', PARAM_INT);
 
             // Load existing groups.
@@ -264,7 +274,7 @@ class addvideo_form extends \moodleform {
                 $mform->hideIf('scheduledvisibilitystatus', 'enableschedulingchangevisibility', 'notchecked');
 
                 // Scheduled visibility.
-                list($waitingtime, $configuredtimespan) = \block_opencast\local\visibility_helper::get_waiting_time($ocinstanceid);
+                list($waitingtime, $configuredtimespan) = visibility_helper::get_waiting_time($ocinstanceid);
                 $scheduledvisibilitytimeelm = $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
                     get_string('scheduledvisibilitytime', 'block_opencast'));
                 $scheduledvisibilitytimeelm->_helpbutton = $renderer->render_help_icon_with_custom_text(
@@ -272,7 +282,7 @@ class addvideo_form extends \moodleform {
                     get_string('scheduledvisibilitytimehi_help', 'block_opencast', $configuredtimespan));
                 $mform->setDefault('scheduledvisibilitytime', $waitingtime);
 
-                $radioarray = array();
+                $radioarray = [];
                 $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
                     get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
                 $radioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
@@ -283,7 +293,7 @@ class addvideo_form extends \moodleform {
                         '', get_string('visibility_group', 'block_opencast'), 2);
                 }
 
-                $mform->setDefault('scheduledvisibilitystatus', \block_opencast_renderer::HIDDEN);
+                $mform->setDefault('scheduledvisibilitystatus', block_opencast_renderer::HIDDEN);
                 $mform->setType('scheduledvisibilitystatus', PARAM_INT);
 
                 // Load existing groups.
@@ -305,7 +315,7 @@ class addvideo_form extends \moodleform {
         $mform->addElement('header', 'upload_filepicker', get_string('upload', 'block_opencast'));
         $mform->setExpanded('upload_filepicker', true);
 
-        $explanation = \html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
+        $explanation = html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
         $videotypescfg = get_config('block_opencast', 'uploadfileextensions_' . $ocinstanceid);
@@ -324,7 +334,7 @@ class addvideo_form extends \moodleform {
 
         $maxuploadsize = (int)get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
 
-        $presenterdesc = \html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
+        $presenterdesc = html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
         $mform->addElement('html', $presenterdesc);
 
         if (!$usechunkupload || $offerchunkuploadalternative) {
@@ -334,7 +344,7 @@ class addvideo_form extends \moodleform {
         }
         if ($usechunkupload) {
             $mform->addElement('chunkupload', 'video_presenter_chunk', get_string('presenter', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+                ['maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes]);
             if ($offerchunkuploadalternative) {
                 $mform->addElement('checkbox', 'presenter_already_uploaded',
                     get_string('usedefaultfilepicker', 'block_opencast'));
@@ -343,7 +353,7 @@ class addvideo_form extends \moodleform {
             }
         }
 
-        $presentationdesc = \html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
+        $presentationdesc = html_writer::tag('p', get_string('presentationdesc', 'block_opencast'));
         $mform->addElement('html', $presentationdesc);
 
         if (!$usechunkupload || $offerchunkuploadalternative) {
@@ -353,7 +363,7 @@ class addvideo_form extends \moodleform {
         }
         if ($usechunkupload) {
             $mform->addElement('chunkupload', 'video_presentation_chunk', get_string('presentation', 'block_opencast'), null,
-                array('maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes));
+                ['maxbytes' => $maxuploadsize, 'accepted_types' => $videotypes]);
             if ($offerchunkuploadalternative) {
                 $mform->addElement('checkbox', 'presentation_already_uploaded',
                     get_string('usedefaultfilepicker', 'block_opencast'));
@@ -387,7 +397,7 @@ class addvideo_form extends \moodleform {
             $mform->addElement('header', 'uploadtranscription_header', get_string('transcriptionheader', 'block_opencast'));
             $mform->setExpanded('uploadtranscription_header', false);
 
-            $explanation = \html_writer::tag('p', get_string('transcriptionheaderexplanation', 'block_opencast'));
+            $explanation = html_writer::tag('p', get_string('transcriptionheaderexplanation', 'block_opencast'));
             $mform->addElement('html', $explanation);
 
             $transcriptiontypescfg = get_config('block_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
@@ -407,7 +417,7 @@ class addvideo_form extends \moodleform {
             // Preparing flavors as for service types.
             $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
             $flavors = [
-                '' => get_string('emptyflavoroption', 'block_opencast')
+                '' => get_string('emptyflavoroption', 'block_opencast'),
             ];
             if (!empty($flavorsconfig)) {
                 $flavorsarray = json_decode($flavorsconfig);
@@ -425,7 +435,7 @@ class addvideo_form extends \moodleform {
 
             for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
                 if ($transcriptionindex > 0) {
-                    $line = \html_writer::tag('hr', '');
+                    $line = html_writer::tag('hr', '');
                     $mform->addElement('html', $line);
                 }
                 $mform->addElement('select', 'transcription_flavor_' . $transcriptionindex,
@@ -450,7 +460,8 @@ class addvideo_form extends \moodleform {
      * @param array $files
      * @return array the errors that were found
      */
-    public function validation($data, $files) {
+    public function validation($data, $files)
+    {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
         if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
@@ -474,7 +485,7 @@ class addvideo_form extends \moodleform {
         }
 
         if (isset($data['initialvisibilitystatus']) &&
-            $data['initialvisibilitystatus'] == \block_opencast_renderer::GROUP &&
+            $data['initialvisibilitystatus'] == block_opencast_renderer::GROUP &&
             empty($data['initialvisibilitygroups'])) {
             $errors['initialvisibilitystatus'] = get_string('emptyvisibilitygroups', 'block_opencast');
         }
@@ -483,10 +494,10 @@ class addvideo_form extends \moodleform {
             // Deducting 2 minutes from the time, to let teachers finish the form.
             $customminutes = [
                 'minutes' => 2,
-                'action' => 'minus'
+                'action' => 'minus',
             ];
             // Get custom allowed scheduled visibility time.
-            $waitingtimearray = \block_opencast\local\visibility_helper::get_waiting_time(
+            $waitingtimearray = visibility_helper::get_waiting_time(
                 $this->_customdata['ocinstanceid'], $customminutes);
             $allowedscheduledvisibilitytime = $waitingtimearray[0];
             if (intval($data['scheduledvisibilitytime']) < intval($allowedscheduledvisibilitytime)) {
@@ -495,14 +506,14 @@ class addvideo_form extends \moodleform {
             }
 
             if (isset($data['scheduledvisibilitystatus']) &&
-                $data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP &&
+                $data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP &&
                 empty($data['scheduledvisibilitygroups'])) {
                 $errors['scheduledvisibilitystatus'] = get_string('emptyvisibilitygroups', 'block_opencast');
             }
             // Check whether the scheduled visibility is equal to initial visibility.
             if (intval($data['scheduledvisibilitystatus']) == intval($data['initialvisibilitystatus'])) {
                 $haserror = true;
-                if ($data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP) {
+                if ($data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP) {
                     sort($data['scheduledvisibilitygroups']);
                     sort($data['initialvisibilitygroups']);
                     if ($data['scheduledvisibilitygroups'] != $data['initialvisibilitygroups']) {
@@ -529,9 +540,10 @@ class addvideo_form extends \moodleform {
      * @param string|object|array $a An object, string or number that can be used
      *      within translation strings
      * @return string
-     * @throws \coding_exception
+     * @throws coding_exception
      */
-    protected function try_get_string($identifier, $component = '', $a = null) {
+    protected function try_get_string($identifier, $component = '', $a = null)
+    {
         if (!get_string_manager()->string_exists($identifier, $component)) {
             return ucfirst($identifier);
         } else {

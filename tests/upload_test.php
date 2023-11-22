@@ -21,9 +21,16 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast;
+
 use advanced_testcase;
+use block_opencast\local\apibridge;
+use block_opencast\local\upload_helper;
+use coding_exception;
 use context_course;
+use dml_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +44,8 @@ global $CFG;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_test extends advanced_testcase {
+class upload_test extends advanced_testcase
+{
 
     /** @var string Test api url. */
     private $apiurl = 'http://127.0.0.1:8080';
@@ -53,7 +61,8 @@ class upload_test extends advanced_testcase {
     /**
      * Test, whether the plugin is properly installed.
      */
-    public function notest_plugin_installed() {
+    public function notest_plugin_installed()
+    {
 
         $config = get_config('block_opencast');
         $this->assertNotEmpty($config);
@@ -63,10 +72,11 @@ class upload_test extends advanced_testcase {
      * Uploads a file to the opencast server and checks if it was transmitted.
      *
      * @covers \block_opencast\local\upload_helper
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public function test_upload() {
+    public function test_upload()
+    {
         global $CFG, $DB;
 
         $this->resetAfterTest();
@@ -108,23 +118,23 @@ class upload_test extends advanced_testcase {
         $this->assertInstanceOf('stored_file', $file);
         $obj = [
             'id' => 'title',
-            'value' => 'test'
+            'value' => 'test',
         ];
         $metadata[] = $obj;
-        $options = new \stdClass();
+        $options = new stdClass();
         $options->metadata = json_encode($metadata);
         $options->presenter = $file ? $file->get_itemid() : '';
         $options->presentation = $file ? $file->get_itemid() : '';
-        \block_opencast\local\upload_helper::save_upload_jobs(1, $course->id, $options);
+        upload_helper::save_upload_jobs(1, $course->id, $options);
 
         // Check upload job.
         $jobs = $DB->get_records('block_opencast_uploadjob');
         $this->assertCount(1, $jobs);
 
-        \block_opencast\local\apibridge::set_testing(false);
-        $apibridge = \block_opencast\local\apibridge::get_instance(1, true);
+        apibridge::set_testing(false);
+        $apibridge = apibridge::get_instance(1, true);
 
-        $uploadhelper = new \block_opencast\local\upload_helper();
+        $uploadhelper = new upload_helper();
         $isuploaded = false;
         $limiter = 5;
         $counter = 0;
@@ -147,12 +157,13 @@ class upload_test extends advanced_testcase {
      * Checks, if the video is available after upload, by running cron first to make sure upload video took place successfully.
      *
      * @param int $courseid Course ID
-     * @param \block_opencast\local\apibridge $apibridge the apibridge instance
+     * @param apibridge $apibridge the apibridge instance
      *
      * @return bool true if the video is avialable, false otherwise.
      */
-    private function notest_check_uploaded_video($courseid, $apibridge) {
-        $uploadhelper = new \block_opencast\local\upload_helper();
+    private function notest_check_uploaded_video($courseid, $apibridge)
+    {
+        $uploadhelper = new upload_helper();
         // Prevent mtrace output, which would be considered risky.
         ob_start();
         $uploadhelper->cron();
