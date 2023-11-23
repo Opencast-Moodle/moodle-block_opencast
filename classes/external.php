@@ -40,6 +40,7 @@ require_once($CFG->libdir . '/externallib.php');
  */
 class block_opencast_external extends external_api {
 
+
     /**
      * Returns description of method parameters
      *
@@ -50,7 +51,7 @@ class block_opencast_external extends external_api {
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'The series id'),
-            'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create group form, encoded as json array')
+            'jsonformdata' => new external_value(PARAM_RAW, 'The data from the create group form, encoded as json array'),
         ]);
     }
 
@@ -63,7 +64,7 @@ class block_opencast_external extends external_api {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
-            'series' => new external_value(PARAM_RAW, 'Requested series, encoded as json array')
+            'series' => new external_value(PARAM_RAW, 'Requested series, encoded as json array'),
         ]);
     }
 
@@ -76,7 +77,7 @@ class block_opencast_external extends external_api {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
-            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be imported')
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be imported'),
         ]);
     }
 
@@ -89,7 +90,7 @@ class block_opencast_external extends external_api {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
-            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be removed')
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be removed'),
         ]);
     }
 
@@ -102,7 +103,7 @@ class block_opencast_external extends external_api {
         return new external_function_parameters([
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
-            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be set as default')
+            'seriesid' => new external_value(PARAM_ALPHANUMEXT, 'Series to be set as default'),
         ]);
     }
 
@@ -116,7 +117,7 @@ class block_opencast_external extends external_api {
             'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'type' => new external_value(PARAM_TEXT, 'The type of domain to check the status from'),
-            'identifier' => new external_value(PARAM_ALPHANUMEXT, 'Event id to observe its processing state')
+            'identifier' => new external_value(PARAM_ALPHANUMEXT, 'Event id to observe its processing state'),
         ]);
     }
 
@@ -137,7 +138,7 @@ class block_opencast_external extends external_api {
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
             'seriesid' => $seriesid,
-            'jsonformdata' => $jsonformdata
+            'jsonformdata' => $jsonformdata,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -147,21 +148,21 @@ class block_opencast_external extends external_api {
         list($ignored, $course) = get_context_info_array($context->id);
 
         // Check if the maximum number of series is already reached.
-        $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
+        $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $course->id]);
         if (!$params['seriesid'] && count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 
-        $data = array();
+        $data = [];
         parse_str($params['jsonformdata'], $data);
         $data['courseid'] = $course->id;
 
         $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $params['ocinstanceid']));
         // Make sure $metadatacatalog is array.
         $metadatacatalog = !empty($metadatacatalog) ? $metadatacatalog : [];
-        $createseriesform = new series_form(null, array('courseid' => $course->id,
+        $createseriesform = new series_form(null, ['courseid' => $course->id,
             'ocinstanceid' => $params['ocinstanceid'],
-            'metadata_catalog' => $metadatacatalog), 'post', '', null, true, $data);
+            'metadata_catalog' => $metadatacatalog, ], 'post', '', null, true, $data);
         $validateddata = $createseriesform->get_data();
 
         if ($validateddata) {
@@ -171,15 +172,15 @@ class block_opencast_external extends external_api {
                     continue;
                 }
                 if ($field === 'subjects') {
-                    $metadata[] = array(
+                    $metadata[] = [
                         'id' => 'subject',
-                        'value' => implode(',', $value)
-                    );
+                        'value' => implode(',', $value),
+                    ];
                 } else {
-                    $metadata[] = array(
+                    $metadata[] = [
                         'id' => $field,
-                        'value' => $value
-                    );
+                        'value' => $value,
+                    ];
                 }
             }
 
@@ -211,7 +212,7 @@ class block_opencast_external extends external_api {
         $params = self::validate_parameters(self::get_series_titles_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
-            'series' => $series
+            'series' => $series,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -219,7 +220,7 @@ class block_opencast_external extends external_api {
         require_capability('block/opencast:defineseriesforcourse', $context);
 
         $serialiseddata = json_decode($params['series']);
-        $seriestitles = array();
+        $seriestitles = [];
 
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
         $seriesrecords = $apibridge->get_multiple_series_by_identifier($serialiseddata);
@@ -245,7 +246,7 @@ class block_opencast_external extends external_api {
         $params = self::validate_parameters(self::import_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
-            'seriesid' => $series
+            'seriesid' => $series,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -255,7 +256,7 @@ class block_opencast_external extends external_api {
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
         // Check if the maximum number of series is already reached.
-        $courseseries = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $course->id));
+        $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $course->id]);
         if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
@@ -289,7 +290,7 @@ class block_opencast_external extends external_api {
         $params = self::validate_parameters(self::unlink_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
-            'seriesid' => $series
+            'seriesid' => $series,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -298,8 +299,8 @@ class block_opencast_external extends external_api {
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
-            'series' => $params['seriesid']), true);
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
+            'series' => $params['seriesid'], ], true);
 
         if ($mapping) {
             if (!$mapping->delete()) {
@@ -331,7 +332,7 @@ class block_opencast_external extends external_api {
         $params = self::validate_parameters(self::set_default_series_parameters(), [
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
-            'seriesid' => $series
+            'seriesid' => $series,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -340,8 +341,8 @@ class block_opencast_external extends external_api {
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        $olddefaultseries = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],
-            'courseid' => $course->id, 'isdefault' => true));
+        $olddefaultseries = seriesmapping::get_record(['ocinstanceid' => $params['ocinstanceid'],
+            'courseid' => $course->id, 'isdefault' => true, ]);
 
         // Series is already set as default.
         if ($olddefaultseries->get('series') == $params['seriesid']) {
@@ -349,8 +350,8 @@ class block_opencast_external extends external_api {
         }
 
         // Set new series as default.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $params['ocinstanceid'],
-            'courseid' => $course->id, 'series' => $params['seriesid']), true);
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $params['ocinstanceid'],
+            'courseid' => $course->id, 'series' => $params['seriesid'], ], true);
 
         if ($mapping) {
             $mapping->set('isdefault', true);
@@ -385,7 +386,7 @@ class block_opencast_external extends external_api {
             'contextid' => $contextid,
             'ocinstanceid' => $ocinstanceid,
             'type' => $type,
-            'identifier' => $identifier
+            'identifier' => $identifier,
         ]);
 
         $context = context::instance_by_id($params['contextid']);
@@ -398,7 +399,7 @@ class block_opencast_external extends external_api {
         if ($params['type'] == 'processing') {
             $liveupdateinfo = liveupdate_helper::get_processing_state_info($params['ocinstanceid'], $params['identifier']);
         } else if ($type == 'uploading') {
-             // Get uploading status.
+            // Get uploading status.
             $liveupdateinfo = liveupdate_helper::get_uploading_info($params['identifier']);
         }
 

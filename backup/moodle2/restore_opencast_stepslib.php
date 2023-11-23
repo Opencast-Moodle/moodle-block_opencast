@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+use block_opencast\local\apibridge;
 use block_opencast\local\event;
 use block_opencast\local\notifications;
 
@@ -36,6 +37,7 @@ use block_opencast\local\notifications;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_opencast_block_structure_step extends restore_structure_step {
+
 
     /** @var array Ids of the videos included in the backup. */
     private $backupeventids = [];
@@ -63,10 +65,10 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         // Check, target series.
         $courseid = $this->get_courseid();
 
-        $paths = array();
+        $paths = [];
 
         // Get apibridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the import mode to decide the way of importing opencast videos.
         $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
@@ -114,7 +116,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
 
         // Check, whether event exists on opencast server.
-        $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
+        $apibridge = apibridge::get_instance($this->ocinstanceid);
 
         // Only duplicate, when the event exists in opencast.
         if (!$apibridge->get_already_existing_event([$data->eventid])) {
@@ -141,7 +143,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $courseid = $this->get_courseid();
 
         // Get apibridge instance, to ensure series validity and edit series mapping.
-        $apibridge = \block_opencast\local\apibridge::get_instance($this->ocinstanceid);
+        $apibridge = apibridge::get_instance($this->ocinstanceid);
 
         // Exit when there is no original series, no course course id and the original seriesid is not valid.
         // Also exit when the course by any chance wanted to restore itself.

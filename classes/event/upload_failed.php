@@ -24,6 +24,9 @@
 
 namespace block_opencast\event;
 
+use core\event\base;
+use moodle_url;
+
 /**
  * Event of block opencast for failing uploads.
  *
@@ -31,7 +34,8 @@ namespace block_opencast\event;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_failed extends \core\event\base {
+class upload_failed extends base {
+
 
     /**
      * Init method.
@@ -67,11 +71,11 @@ class upload_failed extends \core\event\base {
     /**
      * Get URL related to the action.
      *
-     * @return \moodle_url
+     * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/blocks/opencast/index.php',
-            array('courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['ocinstanceid']));
+        return new moodle_url('/blocks/opencast/index.php',
+            ['courseid' => $this->data['courseid'], 'ocinstanceid' => $this->data['ocinstanceid']]);
     }
 
 }

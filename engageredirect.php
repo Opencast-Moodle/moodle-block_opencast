@@ -20,6 +20,11 @@
  * @copyright  2022 Tamara Gunkel, WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\apibridge;
+use block_opencast\local\lti_helper;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
@@ -29,12 +34,12 @@ global $PAGE, $OUTPUT, $CFG, $USER;
 // Get all the params from the get call.
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 // Preparing the urls for the page.
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/engageredirect.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 // Check if the user is logged in.
@@ -55,7 +60,7 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $url = $endpoint . '/play/' . $identifier;
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 
 $consumerkey = $opencast->get_lti_consumerkey();
 $consumersecret = $opencast->get_lti_consumersecret();
@@ -67,7 +72,7 @@ if (empty($consumerkey)) {
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
 // Create parameters.
-$params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $url);
+$params = lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $url);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 

@@ -30,15 +30,15 @@
 </div>
 {{#addseriesallowed}}
     <button type="button" class="btn btn-primary mt-3" id="createseries">
-    {{# str}}createseriesforcourse, block_opencast {{/ str}}
+        {{# str}}createseriesforcourse, block_opencast {{/ str}}
     </button>
     <button type="button" class="btn btn-primary mt-3" id="importseries">
     {{# str}}importseries, block_opencast {{/ str}}
 {{/addseriesallowed}}
 {{^addseriesallowed}}
-    <button type="button" class="btn btn-primary mt-3 d-none" id="createseries">
-    {{# str}}createseriesforcourse, block_opencast {{/ str}}
-    </button>
+        <button type="button" class="btn btn-primary mt-3 d-none" id="createseries">
+            {{# str}}createseriesforcourse, block_opencast {{/ str}}
+        </button>
     <button type="button" class="btn btn-primary mt-3 d-none" id="importseries">
     {{# str}}importseries, block_opencast {{/ str}}
 {{/addseriesallowed}}

@@ -24,59 +24,59 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$functions = array(
-    'block_opencast_submit_series_form' => array(
+$functions = [
+    'block_opencast_submit_series_form' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'submit_series_form',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Creates/Modifies a series',
         'type' => 'write',
         'ajax' => true,
-        'capabilities' => 'block/opencast:createseriesforcourse'
-    ),
-    'block_opencast_get_series_titles' => array(
+        'capabilities' => 'block/opencast:createseriesforcourse',
+    ],
+    'block_opencast_get_series_titles' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'get_series_titles',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Retrieves series titles',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:defineseriesforcourse'
-    ),
-    'block_opencast_import_series' => array(
+        'capabilities' => 'block/opencast:defineseriesforcourse',
+    ],
+    'block_opencast_import_series' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'import_series',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Imports a series into a course',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:importseriesintocourse'
-    ),
-    'block_opencast_unlink_series' => array(
+        'capabilities' => 'block/opencast:importseriesintocourse',
+    ],
+    'block_opencast_unlink_series' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'unlink_series',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Removes a series from a course',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:manageseriesforcourse'
-    ),
-    'block_opencast_set_default_series' => array(
+        'capabilities' => 'block/opencast:manageseriesforcourse',
+    ],
+    'block_opencast_set_default_series' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'set_default_series',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Sets a new default series for a course',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:manageseriesforcourse'
-    ),
-    'block_opencast_get_liveupdate_info' => array(
+        'capabilities' => 'block/opencast:manageseriesforcourse',
+    ],
+    'block_opencast_get_liveupdate_info' => [
         'classname' => 'block_opencast_external',
         'methodname' => 'get_liveupdate_info',
         'classpath' => 'block/opencast/classes/external.php',
         'description' => 'Gets the latest live update information.',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:viewunpublishedvideos'
-    )
-);
+        'capabilities' => 'block/opencast:viewunpublishedvideos',
+    ],
+];

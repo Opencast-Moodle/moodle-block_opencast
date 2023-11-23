@@ -24,6 +24,9 @@
 
 namespace block_opencast\local;
 
+use core_availability\frontend;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +38,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addactivityepisode_form extends \moodleform {
+class addactivityepisode_form extends moodleform {
+
     /**
      * Form definition.
      */
@@ -48,7 +52,7 @@ class addactivityepisode_form extends \moodleform {
         $ocinstanceid = $this->_customdata['ocinstanceid'];
 
         $mform->addElement('text', 'title', get_string('addactivityepisode_formactivitytitle', 'block_opencast'),
-            array('size' => '40'));
+            ['size' => '40']);
         $mform->setType('title', PARAM_TEXT);
         $mform->setDefault('title',
             activitymodulemanager::get_default_title_for_episode($ocinstanceid, $this->_customdata['episodeuuid']));
@@ -69,13 +73,13 @@ class addactivityepisode_form extends \moodleform {
 
         if (get_config('block_opencast', 'addactivityepisodeintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivityepisode_formactivityintro', 'block_opencast'),
-                array('rows' => 5),
-                array('maxfiles' => 0, 'noclean' => true));
+                ['rows' => 5],
+                ['maxfiles' => 0, 'noclean' => true]);
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
             $mform->setDefault('intro',
-                array('text' =>
+                ['text' =>
                     activitymodulemanager::get_default_intro_for_episode($ocinstanceid, $this->_customdata['episodeuuid']),
-                    'format' => FORMAT_HTML));
+                    'format' => FORMAT_HTML, ]);
         }
 
         if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) == true) {
@@ -95,7 +99,7 @@ class addactivityepisode_form extends \moodleform {
             !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addactivityepisode_formactivityavailability', 'block_opencast'));
-            \core_availability\frontend::include_all_javascript(get_course($courseid));
+            frontend::include_all_javascript(get_course($courseid));
         }
 
         $mform->addElement('hidden', 'episodeuuid', $this->_customdata['episodeuuid']);
@@ -122,7 +126,7 @@ class addactivityepisode_form extends \moodleform {
         $mform = $this->_form;
 
         // Elements in a row need a group.
-        $buttonarray = array();
+        $buttonarray = [];
 
         // Submit buttons.
         $submitlabel = get_string('addactivityepisode_addbuttontitlereturnoverview', 'block_opencast');
@@ -134,7 +138,7 @@ class addactivityepisode_form extends \moodleform {
         $buttonarray[] = &$mform->createElement('cancel');
 
         // Show group.
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $mform->setType('buttonar', PARAM_RAW);
         $mform->closeHeaderBefore('buttonar');
     }

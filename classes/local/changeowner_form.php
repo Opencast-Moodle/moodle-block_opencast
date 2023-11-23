@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +37,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2022 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class changeowner_form extends \moodleform {
+class changeowner_form extends moodleform {
+
 
     /**
      * Form definition.

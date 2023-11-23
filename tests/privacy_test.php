@@ -25,11 +25,16 @@
 
 namespace block_opencast;
 
+use block_opencast\local\upload_helper;
 use context_course;
-use \core_privacy\local\metadata\collection;
-use \core_privacy\local\request\writer;
-use \core_privacy\local\request\approved_contextlist;
-use \block_opencast\privacy\provider;
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\userlist;
+use core_privacy\local\request\writer;
+use core_privacy\local\request\approved_contextlist;
+use block_opencast\privacy\provider;
+use core_privacy\tests\provider_testcase;
+use stdClass;
 
 /**
  * Unit tests for the block_opencast implementation of the privacy API.
@@ -38,7 +43,8 @@ use \block_opencast\privacy\provider;
  * @copyright  2018 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class privacy_test extends \core_privacy\tests\provider_testcase {
+class privacy_test extends provider_testcase {
+
 
     /**
      * Overriding setUp() function to always reset after tests.
@@ -97,7 +103,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $course2 = $this->getDataGenerator()->create_course();
 
         // Add two upload jobs for the User.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 1;
         $job->presentation_fileid = null;
         $job->presenter_contenthash = '1234567';
@@ -106,7 +112,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_READY_TO_UPLOAD;
+        $job->status = upload_helper::STATUS_READY_TO_UPLOAD;
         $job->courseid = $course1->id;
         $job->userid = $teacher->id;
         $job->timecreated = time();
@@ -116,7 +122,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $DB->insert_record('block_opencast_uploadjob', $job);
 
         // Add two upload jobs for the User in another course.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = null;
         $job->presentation_fileid = 3;
         $job->presenter_contenthash = null;
@@ -125,7 +131,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = $course2->id;
         $job->userid = $teacher->id;
         $job->timecreated = time();
@@ -168,7 +174,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         // Add 3 upload jobs for the User.
         for ($c = 0; $c < 3; $c++) {
-            $job = new \stdClass();
+            $job = new stdClass();
             $job->presenter_fileid = $c;
             $job->presentation_fileid = ($c + 4);
             $job->presenter_contenthash = '987654321' . $c;
@@ -177,7 +183,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
             $job->countfailed = 0;
             $job->timestarted = 0;
             $job->timesucceeded = 0;
-            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->status = upload_helper::STATUS_CREATING_EVENT;
             $job->courseid = 1;
             $job->userid = $teacher->id;
             $job->timecreated = time();
@@ -225,7 +231,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $this->setUser($teacher);
 
         // Add an upload job for the User.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 3;
         $job->presentation_fileid = 4;
         $job->presenter_contenthash = '98765432100';
@@ -234,7 +240,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = 1;
         $job->userid = $teacher->id;
         $job->timecreated = time();
@@ -274,7 +280,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         // Add 3 upload jobs for Teacher 1.
         for ($c = 0; $c < 3; $c++) {
-            $job = new \stdClass();
+            $job = new stdClass();
             $job->presenter_fileid = $c;
             $job->presentation_fileid = ($c + 4);
             $job->presenter_contenthash = '987654321' . $c;
@@ -283,7 +289,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
             $job->countfailed = 0;
             $job->timestarted = 0;
             $job->timesucceeded = 0;
-            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->status = upload_helper::STATUS_CREATING_EVENT;
             $job->courseid = 1;
             $job->userid = $teacher1->id;
             $job->timecreated = time();
@@ -294,7 +300,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         }
 
         // Add 1 upload jobs for Teacher 2.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
         $job->presenter_contenthash = '98765432100';
@@ -303,7 +309,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = 1;
         $job->userid = $teacher2->id;
         $job->timecreated = time();
@@ -367,7 +373,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         // Add 3 upload jobs for Teacher 1 in course 1.
         for ($c = 0; $c < 3; $c++) {
-            $job = new \stdClass();
+            $job = new stdClass();
             $job->presenter_fileid = $c;
             $job->presentation_fileid = ($c + 4);
             $job->presenter_contenthash = '987654321' . $c;
@@ -376,7 +382,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
             $job->countfailed = 0;
             $job->timestarted = 0;
             $job->timesucceeded = 0;
-            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->status = upload_helper::STATUS_CREATING_EVENT;
             $job->courseid = $course1->id;
             $job->userid = $teacher1->id;
             $job->timecreated = time();
@@ -394,15 +400,15 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $coursecontext1 = context_course::instance($course1->id);
         $coursecontext2 = context_course::instance($course2->id);
 
-        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        $userlist = new userlist($coursecontext1, 'block_opencast');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist);
-        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        $userlist2 = new userlist($coursecontext2, 'block_opencast');
         provider::get_users_in_context($userlist2);
         $this->assertCount(0, $userlist2);
 
         // Add 1 upload jobs for Teacher 2 in course 2.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
         $job->presenter_contenthash = '98765432100';
@@ -411,7 +417,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = $course2->id;
         $job->userid = $teacher2->id;
         $job->timecreated = time();
@@ -420,15 +426,15 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
-        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        $userlist = new userlist($coursecontext1, 'block_opencast');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist);
-        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        $userlist2 = new userlist($coursecontext2, 'block_opencast');
         provider::get_users_in_context($userlist2);
         $this->assertCount(1, $userlist2);
 
         // Add 1 upload jobs for Teacher 2 in course 1.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
         $job->presenter_contenthash = '98765432100';
@@ -437,7 +443,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = $course1->id;
         $job->userid = $teacher2->id;
         $job->timecreated = time();
@@ -446,10 +452,10 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         $DB->insert_record('block_opencast_uploadjob', $job);
 
-        $userlist = new \core_privacy\local\request\userlist($coursecontext1, 'block_opencast');
+        $userlist = new userlist($coursecontext1, 'block_opencast');
         provider::get_users_in_context($userlist);
         $this->assertCount(2, $userlist);
-        $userlist2 = new \core_privacy\local\request\userlist($coursecontext2, 'block_opencast');
+        $userlist2 = new userlist($coursecontext2, 'block_opencast');
         provider::get_users_in_context($userlist2);
         $this->assertCount(1, $userlist2);
     }
@@ -472,7 +478,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
 
         // Add 3 upload jobs for Teacher 1 in course 1.
         for ($c = 0; $c < 3; $c++) {
-            $job = new \stdClass();
+            $job = new stdClass();
             $job->presenter_fileid = $c;
             $job->presentation_fileid = ($c + 4);
             $job->presenter_contenthash = '987654321' . $c;
@@ -481,7 +487,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
             $job->countfailed = 0;
             $job->timestarted = 0;
             $job->timesucceeded = 0;
-            $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+            $job->status = upload_helper::STATUS_CREATING_EVENT;
             $job->courseid = $course1->id;
             $job->userid = $teacher1->id;
             $job->timecreated = time();
@@ -492,7 +498,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         }
 
         // Add 1 upload jobs for Teacher 1 in course 2.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
         $job->presenter_contenthash = '98765432100';
@@ -501,7 +507,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = $course2->id;
         $job->userid = $teacher1->id;
         $job->timecreated = time();
@@ -511,7 +517,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $DB->insert_record('block_opencast_uploadjob', $job);
 
         // Add 1 upload jobs for Teacher 2 in course 2.
-        $job = new \stdClass();
+        $job = new stdClass();
         $job->presenter_fileid = 10;
         $job->presentation_fileid = 11;
         $job->presenter_contenthash = '98765432100';
@@ -520,7 +526,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $job->countfailed = 0;
         $job->timestarted = 0;
         $job->timesucceeded = 0;
-        $job->status = \block_opencast\local\upload_helper::STATUS_CREATING_EVENT;
+        $job->status = upload_helper::STATUS_CREATING_EVENT;
         $job->courseid = $course2->id;
         $job->userid = $teacher2->id;
         $job->timecreated = time();
@@ -541,7 +547,7 @@ class privacy_test extends \core_privacy\tests\provider_testcase {
         $coursecontext1 = context_course::instance($course1->id);
         $coursecontext2 = context_course::instance($course2->id);
 
-        $approveduserlist = new \core_privacy\local\request\approved_userlist($coursecontext2, 'block_opencast',
+        $approveduserlist = new approved_userlist($coursecontext2, 'block_opencast',
             [$teacher1->id]);
         provider::delete_data_for_users($approveduserlist);
         $this->assertCount(1, $approveduserlist);

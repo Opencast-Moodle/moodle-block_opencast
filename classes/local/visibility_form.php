@@ -26,6 +26,8 @@
 namespace block_opencast\local;
 
 use block_opencast\groupaccess;
+use block_opencast_renderer;
+use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,7 +43,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class visibility_form extends \moodleform {
+class visibility_form extends moodleform {
+
 
     /**
      * Form definition.
@@ -58,7 +61,7 @@ class visibility_form extends \moodleform {
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         $scheduledvisibility = $this->_customdata['scheduledvisibility'];
 
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
@@ -70,7 +73,7 @@ class visibility_form extends \moodleform {
         $mform->setType('ocinstanceid', PARAM_INT);
 
         // Check if the teacher should be allowed to restrict the episode to course groups.
-        $groups = array();
+        $groups = [];
         $groupvisibilityallowed = false;
         $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
 
@@ -86,7 +89,7 @@ class visibility_form extends \moodleform {
             }
         }
 
-        $radioarray = array();
+        $radioarray = [];
         $radioarray[] = $mform->addElement('radio', 'visibility',
             get_string('visibility', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
         $radioarray[] = $mform->addElement('radio', 'visibility', '', get_string('visibility_show', 'block_opencast'), 1);
@@ -110,7 +113,7 @@ class visibility_form extends \moodleform {
             $select = $mform->addElement('select', 'groups', get_string('groups'), $options);
             $select->setMultiple(true);
 
-            $selectedgroups = groupaccess::get_record(array('opencasteventid' => $eventid, 'ocinstanceid' => $ocinstanceid));
+            $selectedgroups = groupaccess::get_record(['opencasteventid' => $eventid, 'ocinstanceid' => $ocinstanceid]);
             if ($selectedgroups && $moodlegroups = $selectedgroups->get('moodlegroups')) {
                 $moodlegroupsarray = explode(',', $moodlegroups);
                 $select->setSelected($moodlegroupsarray);
@@ -133,7 +136,7 @@ class visibility_form extends \moodleform {
         $mform->setDefault('enableschedulingchangevisibility', $enabledscheduling);
 
         // Scheduled visibility.
-        list($waitingtime, $configuredtimespan) = \block_opencast\local\visibility_helper::get_waiting_time($ocinstanceid);
+        list($waitingtime, $configuredtimespan) = visibility_helper::get_waiting_time($ocinstanceid);
         $element = $mform->addElement('date_time_selector', 'scheduledvisibilitytime',
             get_string('scheduledvisibilitytime', 'block_opencast'));
         $element->_helpbutton = $renderer->render_help_icon_with_custom_text(
@@ -146,7 +149,7 @@ class visibility_form extends \moodleform {
         }
         $mform->setDefault('scheduledvisibilitytime', $waitingtime);
 
-        $scheduleradioarray = array();
+        $scheduleradioarray = [];
         $scheduleradioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus',
             get_string('scheduledvisibilitystatus', 'block_opencast'), get_string('visibility_hide', 'block_opencast'), 0);
         $scheduleradioarray[] = $mform->addElement('radio', 'scheduledvisibilitystatus', '',
@@ -158,7 +161,7 @@ class visibility_form extends \moodleform {
         }
 
         // Setting default scheduled visibility status if this event has already been scheduled.
-        $defaultstatus = \block_opencast_renderer::HIDDEN;
+        $defaultstatus = block_opencast_renderer::HIDDEN;
         if (!empty($scheduledvisibility) && property_exists($scheduledvisibility, 'scheduledvisibilitystatus')) {
             $defaultstatus = intval($scheduledvisibility->scheduledvisibilitystatus);
         }
@@ -194,31 +197,31 @@ class visibility_form extends \moodleform {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if ($data['visibility'] == \block_opencast_renderer::GROUP && empty($data['groups'])) {
+        if ($data['visibility'] == block_opencast_renderer::GROUP && empty($data['groups'])) {
             $errors['visibility'] = get_string('emptyvisibilitygroups', 'block_opencast');
         }
         if (isset($data['enableschedulingchangevisibility']) && $data['enableschedulingchangevisibility']) {
             // Deducting 2 minutes from the time, to let teachers finish the form.
             $customminutes = [
                 'minutes' => 2,
-                'action' => 'minus'
+                'action' => 'minus',
             ];
             // Get custom allowed scheduled visibility time.
-            $waitingtimearray = \block_opencast\local\visibility_helper::get_waiting_time(
+            $waitingtimearray = visibility_helper::get_waiting_time(
                 $this->_customdata['ocinstanceid'], $customminutes);
             $allowedscheduledvisibilitytime = $waitingtimearray[0];
             if (intval($data['scheduledvisibilitytime']) < intval($allowedscheduledvisibilitytime)) {
                 $errors['scheduledvisibilitytime'] = get_string('scheduledvisibilitytimeerror',
                     'block_opencast', $waitingtimearray[1]);
             }
-            if ($data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP &&
+            if ($data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP &&
                 empty($data['scheduledvisibilitygroups'])) {
                 $errors['enableschedulingchangevisibility'] = get_string('emptyvisibilitygroups', 'block_opencast');
             }
             // Check whether the scheduled visibility is equal to initial visibility.
             if (intval($data['scheduledvisibilitystatus']) == intval($data['visibility'])) {
                 $haserror = true;
-                if ($data['scheduledvisibilitystatus'] == \block_opencast_renderer::GROUP) {
+                if ($data['scheduledvisibilitystatus'] == block_opencast_renderer::GROUP) {
                     sort($data['scheduledvisibilitygroups']);
                     sort($data['groups']);
                     if ($data['scheduledvisibilitygroups'] != $data['groups']) {

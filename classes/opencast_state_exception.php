@@ -23,6 +23,8 @@
 
 namespace block_opencast;
 
+use moodle_exception;
+
 /**
  * Exception thrown when opencast has not yet processed the current step. Then the job is postponed until the next cron run.
  *
@@ -30,6 +32,7 @@ namespace block_opencast;
  * @copyright  2017 Tobias Reischmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class opencast_state_exception extends \moodle_exception {
+class opencast_state_exception extends moodle_exception {
+
 
 }

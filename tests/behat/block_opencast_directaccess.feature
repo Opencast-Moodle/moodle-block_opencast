@@ -1,5 +1,6 @@
 @block @block_opencast
 Feature: Direct Access via shared link
+
   Background:
     Given the following "users" exist:
       | username      | firstname | lastname | email                | idnumber |

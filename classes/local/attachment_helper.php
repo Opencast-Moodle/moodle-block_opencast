@@ -25,6 +25,11 @@
 namespace block_opencast\local;
 
 use block_opencast_renderer;
+use coding_exception;
+use moodle_exception;
+use SimpleXMLElement;
+use stdClass;
+use Throwable;
 
 /**
  * Event Attachment Helper.
@@ -34,6 +39,7 @@ use block_opencast_renderer;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attachment_helper {
+
     /** @var string File area id where attachments files are uploaded */
     const OC_FILEAREA_ATTACHMENT = 'attachmenttoupload';
 
@@ -49,7 +55,7 @@ class attachment_helper {
     /** @var string transcription type of attachment */
     const ATTACHMENT_TYPE_TRANSCRIPTION = 'transcription';
 
-     /** @var string transcription flavor */
+    /** @var string transcription flavor */
     const TRANSCRIPTION_FLAVOR_TYPE = 'captions/vtt';
 
     /**
@@ -62,7 +68,7 @@ class attachment_helper {
     public static function save_attachment_upload_job($uploadjobid, $type, $attachemntfiles) {
         global $DB;
         // Create object.
-        $attachments = new \stdClass();
+        $attachments = new stdClass();
         $attachments->uploadjobid = $uploadjobid;
         $attachments->type = $type;
         $attachments->files = json_encode($attachemntfiles);
@@ -92,7 +98,7 @@ class attachment_helper {
             mtrace('processing: ' . $job->id);
             try {
                 $this->process_upload_attachment_job($job);
-            } catch (\moodle_exception $e) {
+            } catch (moodle_exception $e) {
                 mtrace('Upload attachment job failed due to: ' . $e);
             }
         }
@@ -111,7 +117,7 @@ class attachment_helper {
             mtrace('cleaning-up: ' . $job->id);
             try {
                 $this->cleanup_attachment_job($job);
-            } catch (\moodle_exception $e) {
+            } catch (moodle_exception $e) {
                 mtrace('Cleaup attachment job failed due to: ' . $e);
             }
         }
@@ -121,7 +127,7 @@ class attachment_helper {
      * Processes the upload attachment job.
      *
      * @param object $job represents the attachment job.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     protected function process_upload_attachment_job($job) {
         global $DB;
@@ -209,11 +215,11 @@ class attachment_helper {
      */
     private static function change_job_status($job, $status) {
         global $DB;
-        $allowedjobstatus = array(self::STATUS_PENDING, self::STATUS_DONE,
-            self::STATUS_FAILED);
+        $allowedjobstatus = [self::STATUS_PENDING, self::STATUS_DONE,
+            self::STATUS_FAILED, ];
 
         if (!in_array($status, $allowedjobstatus)) {
-            throw new \coding_exception('Invalid job status code.');
+            throw new coding_exception('Invalid job status code.');
         }
         // Set the pending status.
         $job->status = $status;
@@ -313,7 +319,7 @@ class attachment_helper {
     /**
      * Removes the specified attachments from the mediapackage xml object.
      *
-     * @param \SimpleXMLElement $mediapackage the mediapackage XML object.
+     * @param SimpleXMLElement $mediapackage the mediapackage XML object.
      * @param string $attributetype the type of attribute to check against.
      * @param string $value the value of attribute to match with.
      */
@@ -335,7 +341,7 @@ class attachment_helper {
     /**
      * Removes the specified media track from the mediapackage xml object.
      *
-     * @param \SimpleXMLElement $mediapackage the mediapackage XML object.
+     * @param SimpleXMLElement $mediapackage the mediapackage XML object.
      * @param string $attributetype the type of attribute to check against.
      * @param string $value the value of attribute to match with.
      */
@@ -375,7 +381,7 @@ class attachment_helper {
             // Ingest the mediapackage.
             $workflow = $apibridge->ingest($mediapackagestr, $transcriptionuploadworkflow);
             return !empty($workflow);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return false;
         }
     }
@@ -401,7 +407,7 @@ class attachment_helper {
             if (!empty($ingested)) {
                 $success = true;
             }
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $success = false;
         }
         return $success;

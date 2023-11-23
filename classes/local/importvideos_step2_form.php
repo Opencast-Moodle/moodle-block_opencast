@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +37,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step2_form extends \moodleform {
+class importvideos_step2_form extends moodleform {
+
 
     /**
      * Form definition.
@@ -88,7 +91,7 @@ class importvideos_step2_form extends \moodleform {
             $mform->addElement('html', '<p>' . $info['title'] . '</p>');
             foreach ($info['videos'] as $videoid => $label) {
                 $mform->addElement('advcheckbox', 'coursevideos[' . $videoid . ']', $label, null,
-                    array('group' => 'coursevideocheckboxes'));
+                    ['group' => 'coursevideocheckboxes']);
             }
         }
         $this->add_checkbox_controller('coursevideocheckboxes', null, null, 1);

@@ -22,7 +22,11 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\apibridge;
+use block_opencast\local\updatemetadata_form;
 use block_opencast\local\upload_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 
@@ -30,22 +34,22 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/updatemetadata.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'redirectpage' => $redirectpage, 'series' => $series));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series, ]);
 $PAGE->set_url($baseurl);
 
 if ($redirectpage == 'overviewvideos') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-        'series' => $series));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+        'series' => $series, ]);
 } else if ($redirectpage == 'overview') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 require_login($courseid, false);
@@ -60,13 +64,13 @@ $PAGE->navbar->add(get_string('updatemetadata', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 $metadata = $opencast->get_event_metadata($identifier, 'dublincore/episode');
 $metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
 
-$updatemetadataform = new \block_opencast\local\updatemetadata_form(null,
-    array('metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier,
-        'ocinstanceid' => $ocinstanceid, 'redirectpage' => $redirectpage, 'series' => $series));
+$updatemetadataform = new updatemetadata_form(null,
+    ['metadata' => $metadata, 'metadata_catalog' => $metadatacatalog, 'courseid' => $courseid, 'identifier' => $identifier,
+        'ocinstanceid' => $ocinstanceid, 'redirectpage' => $redirectpage, 'series' => $series, ]);
 
 if ($updatemetadataform->is_cancelled()) {
     redirect($redirecturl);
@@ -83,13 +87,13 @@ if ($data = $updatemetadataform->get_data()) {
                 $sd->setTimestamp($data->startDate);
                 $starttime = [
                     'id' => 'startTime',
-                    'value' => $sd->format('H:i:s') . 'Z'
+                    'value' => $sd->format('H:i:s') . 'Z',
                 ];
                 $newmetadata[] = $starttime;
             }
             $contentobj = [
                 'id' => $key,
-                'value' => ($key == 'startDate' && !empty($sd)) ? $sd->format('Y-m-d') : $data->$key
+                'value' => ($key == 'startDate' && !empty($sd)) ? $sd->format('Y-m-d') : $data->$key,
             ];
             $newmetadata[] = $contentobj;
         }
@@ -99,7 +103,7 @@ if ($data = $updatemetadataform->get_data()) {
     if ($res) {
         redirect($redirecturl, get_string('updatemetadatasaved', 'block_opencast'));
     } else {
-        redirect($redirecturl, get_string('updatemetadatafailed', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+        redirect($redirecturl, get_string('updatemetadatafailed', 'block_opencast'), null, notification::NOTIFY_ERROR);
     }
 }
 $PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');

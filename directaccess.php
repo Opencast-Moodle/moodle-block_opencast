@@ -25,6 +25,9 @@ require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\lti_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
@@ -33,14 +36,14 @@ require_once($CFG->dirroot . '/repository/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $mediaid = required_param('mediaid', PARAM_ALPHANUMEXT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/directaccess.php',
-    array('courseid' => $courseid, 'video_identifier' => $videoid,
-        'mediaid' => $mediaid, 'ocinstanceid' => $ocinstanceid));
+    ['courseid' => $courseid, 'video_identifier' => $videoid,
+        'mediaid' => $mediaid, 'ocinstanceid' => $ocinstanceid, ]);
 $PAGE->set_url($baseurl);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -54,13 +57,13 @@ $PAGE->navbar->add(get_string('directaccesstovideo', 'block_opencast'), $baseurl
 $coursecontext = context_course::instance($courseid);
 try {
     require_capability('block/opencast:directaccessvideolink', $coursecontext);
-} catch (\required_capability_exception $e) {
+} catch (required_capability_exception $e) {
     // We gently redirect to the course main view page in case of capability exception, to handle the behat more sufficiently.
-    $redirecttocourse = new moodle_url('/course/view.php', array('id' => $courseid));
+    $redirecttocourse = new moodle_url('/course/view.php', ['id' => $courseid]);
     redirect($redirecttocourse,
         get_string('nopermissions', 'error', get_string('opencast:directaccessvideolink', 'block_opencast')),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
 $apibridge = apibridge::get_instance($ocinstanceid);
@@ -84,10 +87,10 @@ if (!$result->error) {
             redirect($redirecturl,
                 get_string('video_not_accessible', 'block_opencast'),
                 null,
-                \core\output\notification::NOTIFY_ERROR);
+                notification::NOTIFY_ERROR);
         }
 
-        $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+        $endpoint = settings_api::get_apiurl($ocinstanceid);
 
         // Make sure the endpoint is correct.
         if (strpos($endpoint, 'http') !== 0) {
@@ -106,7 +109,7 @@ if (!$result->error) {
         $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
         // Create parameters.
-        $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret,
+        $params = lti_helper::create_lti_parameters($consumerkey, $consumersecret,
             $ltiendpoint, $directaccessurl);
 
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -127,11 +130,11 @@ if (!$result->error) {
         redirect($redirecturl,
             get_string('video_not_accessible', 'block_opencast'),
             null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 } else {
     redirect($redirecturl,
         get_string('video_retrieval_failed', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }

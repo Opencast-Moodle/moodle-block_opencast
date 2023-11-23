@@ -97,12 +97,12 @@ Feature: Restore courses as Teacher
     Then the lti tool "Test video" in the course "Course 1 copy 1" should have the custom parameter "id=abcd-abcd-abcd-abcd"
     And I run all adhoc tasks
     And the following config values are set as admin:
-      | config     | value | plugin         |
-      | apiurl_1   |       | tool_opencast  |
+      | config   | value | plugin        |
+      | apiurl_1 |       | tool_opencast |
     And I run the scheduled task "\block_opencast\task\cleanup_imported_episodes_cron"
     And the following config values are set as admin:
-      | config     | value                | plugin         |
-      | apiurl_1   |  http://testapi:8080 | tool_opencast  |
+      | config   | value               | plugin        |
+      | apiurl_1 | http://testapi:8080 | tool_opencast |
     And I reload the page
     When I click on ".popover-region-notifications" "css_element"
     Then I should see "Opencast imported modules cleanup task notification"

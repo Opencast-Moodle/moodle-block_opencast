@@ -26,14 +26,15 @@
     }
 }}
 {{#hasanyactions}}
-<div class="d-flex flex-wrap flex-row-reverse m-b-1 text-right">
-    {{#manageseriesurl}}
-        <div class="pl-1">
-            <a class="iconsmall" title="{{#str}} manageseriesforcourse, block_opencast {{/str}}" href="{{{manageseriesurl}}}">
-                {{#pix}} i/edit, core{{/pix}}
-                {{#str}} manageseriesforcourse, block_opencast {{/str}}
-            </a>
-        </div>
-    {{/manageseriesurl}}
-</div>
+    <div class="d-flex flex-wrap flex-row-reverse m-b-1 text-right">
+        {{#manageseriesurl}}
+            <div class="pl-1">
+                <a class="iconsmall" title="{{#str}} manageseriesforcourse, block_opencast {{/str}}"
+                   href="{{{manageseriesurl}}}">
+                    {{#pix}} i/edit, core{{/pix}}
+                    {{#str}} manageseriesforcourse, block_opencast {{/str}}
+                </a>
+            </div>
+        {{/manageseriesurl}}
+    </div>
 {{/hasanyactions}}

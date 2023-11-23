@@ -24,8 +24,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $definitions = [
-        'videodata' => [
-                'mode' => cache_store::MODE_APPLICATION,
-                'invalidationevents' => ['viewopencastvideolist']
-        ]
+    'videodata' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'invalidationevents' => ['viewopencastvideolist'],
+    ],
 ];

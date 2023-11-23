@@ -35,6 +35,7 @@ namespace block_opencast;
  */
 class setting_default_manager {
 
+
     /**
      * Initializes the set default settings provided in this class.
      * Methods starting with set_default will be called to set configs.

@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use html_writer;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/tablelib.php');
@@ -37,6 +39,7 @@ require_once($CFG->dirroot . '/lib/tablelib.php');
  */
 class flexible_table extends \flexible_table {
 
+
     /**
      * Overridden method to change content and format of display notification.
      */
@@ -48,6 +51,6 @@ class flexible_table extends \flexible_table {
         $this->print_initials_bar();
 
         // SYNERGY LEARNING: change format and content of display.
-        echo \html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
+        echo html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
     }
 }

@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +37,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step1_form extends \moodleform {
+class importvideos_step1_form extends moodleform {
+
 
     /**
      * Form definition.
@@ -57,7 +60,7 @@ class importvideos_step1_form extends \moodleform {
 
         // We are in a dead end situation, no chance to add anything.
         $notification = $renderer->wizard_error_notification(
-                get_string('importvideos_wizardstep1sourcecoursenone', 'block_opencast'));
+            get_string('importvideos_wizardstep1sourcecoursenone', 'block_opencast'));
         $mform->addElement('html', $notification);
         $mform->addElement('cancel');
     }

@@ -25,6 +25,11 @@
 
 namespace block_opencast\task;
 
+use coding_exception;
+use core\task\scheduled_task;
+use dml_exception;
+use lang_string;
+use moodle_exception;
 use tool_opencast\local\settings_api;
 
 /**
@@ -35,12 +40,13 @@ use tool_opencast\local\settings_api;
  *
  * @package block_opencast
  */
-class process_delete_notification_cron extends \core\task\scheduled_task {
+class process_delete_notification_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
-     * @return \lang_string|string
-     * @throws \coding_exception
+     * @return lang_string|string
+     * @throws coding_exception
      */
     public function get_name() {
         return get_string('processdeletenotification', 'block_opencast');
@@ -48,7 +54,7 @@ class process_delete_notification_cron extends \core\task\scheduled_task {
 
     /**
      * Executes the task.
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function execute() {
         global $DB;
@@ -78,7 +84,7 @@ class process_delete_notification_cron extends \core\task\scheduled_task {
 
             // Get all waiting notification jobs.
             $allnotificationjobs = $DB->get_records('block_opencast_notifications',
-                array('ocinstanceid' => $ocinstance->id), 'timecreated DESC');
+                ['ocinstanceid' => $ocinstance->id], 'timecreated DESC');
 
             if (!$allnotificationjobs) {
                 mtrace('...no jobs to proceed');
@@ -99,10 +105,10 @@ class process_delete_notification_cron extends \core\task\scheduled_task {
                     // Check if the job deadline time is up.
                     if (time() > $expirytime) {
                         $DB->delete_records("block_opencast_notifications",
-                            array('id' => $job->id, 'ocinstanceid' => $ocinstance->id));
+                            ['id' => $job->id, 'ocinstanceid' => $ocinstance->id]);
                         mtrace('job ' . $job->id . ' deleted.');
                     }
-                } catch (\moodle_exception $e) {
+                } catch (moodle_exception $e) {
                     mtrace('Job failed due to: ' . $e);
                 }
             }

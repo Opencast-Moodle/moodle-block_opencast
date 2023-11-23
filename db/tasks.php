@@ -23,77 +23,77 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
+$tasks = [
+    [
         'classname' => 'block_opencast\task\process_upload_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\process_delete_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\cleanup_imported_episodes_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\process_notification_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\process_delete_notification_cron',
         'blocking' => 0,
         'minute' => '59',
         'hour' => '23',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\process_visibility_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\process_attachment_cron',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
+        'month' => '*',
+    ],
+    [
         'classname' => 'block_opencast\task\cleanup_lti_module_cron',
         'blocking' => 0,
         'minute' => '59',
         'hour' => '23',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    )
-);
+        'month' => '*',
+    ],
+];

@@ -42,6 +42,7 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  */
 class behat_block_opencast extends behat_base {
 
+
     /**
      * @var $directaccesslink string direct access link to be saved temporarily, and then be used when needed. (i.e. in the step
      * where student wants to access that link).
@@ -62,7 +63,7 @@ class behat_block_opencast extends behat_base {
      * @Given /^I upload a testvideo$/
      */
     public function i_upload_a_testvideo() {
-        $courses = core_course_category::search_courses(array('search' => 'Course 1'));
+        $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
         $mapping = new seriesmapping();
         $mapping->set('courseid', reset($courses)->id);
@@ -77,7 +78,7 @@ class behat_block_opencast extends behat_base {
      * @Given /^I create a second series$/
      */
     public function i_create_a_second_series() {
-        $courses = core_course_category::search_courses(array('search' => 'Course 1'));
+        $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
         $mapping = new seriesmapping();
         $mapping->set('courseid', reset($courses)->id);
@@ -158,11 +159,11 @@ class behat_block_opencast extends behat_base {
      * @Given /^I wait until no video is being processed$/
      */
     public function i_wait_until_no_video_is_being_processed() {
-        $courses = core_course_category::search_courses(array('search' => 'Course 1'));
+        $courses = core_course_category::search_courses(['search' => 'Course 1']);
 
-        $mappedseries = seriesmapping::get_records(array('ocinstanceid' => 1, 'courseid' => reset($courses)->id));
+        $mappedseries = seriesmapping::get_records(['ocinstanceid' => 1, 'courseid' => reset($courses)->id]);
         $series = reset($mappedseries)->get('series');
-        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+        $apibridge = apibridge::get_instance(1);
         do {
             $videos = $apibridge->get_series_videos($series);
             $hasprocessing = false;
@@ -182,7 +183,7 @@ class behat_block_opencast extends behat_base {
      */
     public function i_should_watch_the_video_in_opencast() {
         $xpath = "//video";
-        $this->execute('behat_general::should_exist', array($xpath, 'xpath_element'));
+        $this->execute('behat_general::should_exist', [$xpath, 'xpath_element']);
     }
 
     /**
@@ -199,7 +200,7 @@ class behat_block_opencast extends behat_base {
         $ltitool = $DB->get_record('lti', ['name' => $ltitoolname]);
         if ($ltitool->instructorcustomparameters !== $customparameter) {
             throw new ExpectationException("$ltitoolname has custom parameter \"$ltitool->instructorcustomparameters\"" .
-                    " instead of expected \"$customparameter\"", $this->getSession());
+                " instead of expected \"$customparameter\"", $this->getSession());
         }
     }
 
@@ -219,8 +220,8 @@ class behat_block_opencast extends behat_base {
 
         $ltitool = $DB->get_record('lti', ['name' => $ltitoolname, 'course' => $cid]);
         if ($ltitool->instructorcustomparameters !== $customparameter) {
-            throw new ExpectationException("$ltitoolname has custom parameter \"$ltitool->instructorcustomparameters\"".
-                    " instead of expected \"$customparameter\"", $this->getSession());
+            throw new ExpectationException("$ltitoolname has custom parameter \"$ltitool->instructorcustomparameters\"" .
+                " instead of expected \"$customparameter\"", $this->getSession());
         }
     }
 }

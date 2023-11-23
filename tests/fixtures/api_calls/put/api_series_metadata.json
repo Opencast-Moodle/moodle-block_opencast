@@ -1,4 +1,4 @@
 {
-    "resource": "/api/series/1234-1234-1234-1234-1234/metadata?type=dublincore/series",
-    "status": 200
+  "resource": "/api/series/1234-1234-1234-1234-1234/metadata?type=dublincore/series",
+  "status": 200
 }

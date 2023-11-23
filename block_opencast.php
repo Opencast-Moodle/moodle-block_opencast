@@ -22,13 +22,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use block_opencast\opencast_connection_exception;
+use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
 /**
  * Configuration of block_opencast.
  */
 class block_opencast extends block_base {
+
 
     /**
      * Initializes the block.
@@ -42,7 +45,7 @@ class block_opencast extends block_base {
      * Block can appear on the dashboard and course pages.
      */
     public function applicable_formats() {
-        return array('all' => false, 'course' => true, 'my' => true);
+        return ['all' => false, 'course' => true, 'my' => true];
     }
 
     /**
@@ -85,7 +88,7 @@ class block_opencast extends block_base {
 
         $parentcontext = context::instance_by_id($this->instance->parentcontextid);
 
-        $ocinstances = \tool_opencast\local\settings_api::get_ocinstances();
+        $ocinstances = settings_api::get_ocinstances();
         $ocinstances = array_filter($ocinstances, function ($oci) {
             return $oci->isvisible;
         });
@@ -95,11 +98,11 @@ class block_opencast extends block_base {
             foreach ($ocinstances as $instance) {
                 if ($rendername) {
                     $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
-                            array('ocinstanceid' => $instance->id)),
+                            ['ocinstanceid' => $instance->id]),
                             get_string('seriesoverviewof', 'block_opencast', $instance->name)) . '<br>';
                 } else {
                     $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
-                        array('ocinstanceid' => $instance->id)),
+                        ['ocinstanceid' => $instance->id]),
                         get_string('seriesoverview', 'block_opencast'));
                 }
             }
@@ -122,12 +125,12 @@ class block_opencast extends block_base {
             }
 
             if (!isset($videos)) {
-                $videos = array();
+                $videos = [];
 
                 foreach ($ocinstances as $instance) {
                     try {
                         if ($instance->isvisible) {
-                            $apibridge = \block_opencast\local\apibridge::get_instance($instance->id);
+                            $apibridge = apibridge::get_instance($instance->id);
                             $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
                         }
                     } catch (opencast_connection_exception $e) {
@@ -161,7 +164,7 @@ class block_opencast extends block_base {
         global $COURSE;
         $success = true;
 
-        $mappings = seriesmapping::get_records(array('courseid' => $COURSE->id));
+        $mappings = seriesmapping::get_records(['courseid' => $COURSE->id]);
         foreach ($mappings as $mapping) {
             if (!$mapping->delete()) {
                 $success = false;
@@ -181,7 +184,7 @@ class block_opencast extends block_base {
 
         if ($this->instance_allow_multiple() === false) {
             $ocblockinstances = $DB->get_records('block_instances',
-                    ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]);
+                ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]);
             if (count($ocblockinstances) > 1) {
                 $idstoremove = array_keys($ocblockinstances);
                 sort($idstoremove);

@@ -1,1 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24" data-tags="closed_caption"><g fill="#444" transform="scale(0.0234375 0.0234375)"><path d="M768 470v-44q0-18-12-30t-30-12h-128q-18 0-31 12t-13 30v172q0 18 13 30t31 12h128q18 0 30-12t12-30v-44h-64v22h-86v-128h86v22h64zM470 470v-44q0-18-13-30t-31-12h-128q-18 0-30 12t-12 30v172q0 18 12 30t30 12h128q18 0 31-12t13-30v-44h-64v22h-86v-128h86v22h64zM810 170q34 0 60 26t26 60v512q0 34-26 60t-60 26h-596q-36 0-61-25t-25-61v-512q0-36 25-61t61-25h596z" /></g></svg>
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+        "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
+     viewBox="0 0 24 24" data-tags="closed_caption">
+    <g fill="#444" transform="scale(0.0234375 0.0234375)">
+        <path d="M768 470v-44q0-18-12-30t-30-12h-128q-18 0-31 12t-13 30v172q0 18 13 30t31 12h128q18 0 30-12t12-30v-44h-64v22h-86v-128h86v22h64zM470 470v-44q0-18-13-30t-31-12h-128q-18 0-30 12t-12 30v172q0 18 12 30t30 12h128q18 0 31-12t13-30v-44h-64v22h-86v-128h86v22h64zM810 170q34 0 60 26t26 60v512q0 34-26 60t-60 26h-596q-36 0-61-25t-25-61v-512q0-36 25-61t61-25h596z"/>
+    </g>
+</svg>

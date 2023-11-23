@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
 
 defined('MOODLE_INTERNAL') || die();
@@ -53,24 +54,24 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $opencast = new backup_nested_element('opencast');
 
         // Site information.
-        $site = new backup_nested_element('site', array(), array('apiurl', 'identifier', 'ocinstanceid'));
+        $site = new backup_nested_element('site', [], ['apiurl', 'identifier', 'ocinstanceid']);
         $opencast->add_child($site);
 
         $apiurl = settings_api::get_apiurl($ocinstanceid);
         $sitedata = (object)[
             'ocinstanceid' => $ocinstanceid,
-            'apiurl' => $apiurl
+            'apiurl' => $apiurl,
         ];
         $site->set_source_array([$sitedata]);
 
         // Events information.
         $events = new backup_nested_element('events');
-        $event = new backup_nested_element('event', array(), array('eventid'));
+        $event = new backup_nested_element('event', [], ['eventid']);
         $events->add_child($event);
         $opencast->add_child($events);
 
         // Check, whether there are course videos available.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $courseid = $this->get_courseid();
         $coursevideos = $apibridge->get_course_videos_for_backup($courseid);
@@ -85,8 +86,8 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $event->set_source_array($list);
 
         // Import information.
-        $import = new backup_nested_element('import', array(), array('sourcecourseid'));
-        $serieselement = new backup_nested_element('series', array(), array('seriesid'));
+        $import = new backup_nested_element('import', [], ['sourcecourseid']);
+        $serieselement = new backup_nested_element('series', [], ['seriesid']);
         $import->add_child($serieselement);
         $opencast->add_child($import);
 
@@ -100,7 +101,7 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $serieselement->set_source_array($list);
 
         $importdata = (object)[
-            'sourcecourseid' => $courseid
+            'sourcecourseid' => $courseid,
         ];
 
         $import->set_source_array([$importdata]);

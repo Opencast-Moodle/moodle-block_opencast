@@ -24,6 +24,8 @@
 require_once('../../config.php');
 
 use block_opencast\local\apibridge;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $USER, $COURSE, $DB;
 
@@ -31,9 +33,9 @@ $courseid = required_param('courseid', PARAM_INT);
 $videoid = required_param('videoid', PARAM_ALPHANUMEXT);
 $workflow = required_param('workflow', PARAM_ALPHANUMEXT);
 $configparams = required_param('configparams', PARAM_RAW);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -50,12 +52,12 @@ if ($seriesid->identifier != $video->video->is_part_of) {
     redirect($redirecturl,
         get_string('video_notallowed', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
 // Apply multiple tags.
-$workflowtags = array();
+$workflowtags = [];
 $workflowtagsconfig = get_config('block_opencast', 'workflow_tags_' . $ocinstanceid);
 if (!empty($workflowtagsconfig)) {
     $workflowtags = explode(',', $workflowtagsconfig);
@@ -65,20 +67,20 @@ if (!$apiworkflow || empty(array_intersect($apiworkflow->tags, $workflowtags))) 
     redirect($redirecturl,
         get_string('workflow_opencast_invalid', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
-$result = $apibridge->start_workflow($videoid, $workflow, array('configuration' => $configparams));
+$result = $apibridge->start_workflow($videoid, $workflow, ['configuration' => $configparams]);
 
 if ($result) {
     // Redirect with success message.
     redirect($redirecturl,
         get_string('workflow_started_success', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_SUCCESS);
+        notification::NOTIFY_SUCCESS);
 } else {
     redirect($redirecturl,
         get_string('workflow_started_failure', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }

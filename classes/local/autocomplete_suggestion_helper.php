@@ -24,6 +24,9 @@
 
 namespace block_opencast\local;
 
+use context_course;
+use core_user;
+
 /**
  * Autocompelete Suggestion helper.
  * @package    block_opencast
@@ -32,6 +35,7 @@ namespace block_opencast\local;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autocomplete_suggestion_helper {
+
 
     /**
      * Get all available suggestions for contributor and creator (Presenter) metadata field.
@@ -65,7 +69,7 @@ class autocomplete_suggestion_helper {
         global $COURSE;
 
         // Getting the course context.
-        $context = \context_course::instance($COURSE->id);
+        $context = context_course::instance($COURSE->id);
 
         // Getting course enrolled users (teachers) with the designated capability.
         $teachers = get_enrolled_users($context, 'block/opencast:autocompleteteacherroles');
@@ -122,7 +126,7 @@ class autocomplete_suggestion_helper {
             // At first, we consider the user who upload the video as an suggestion.
 
             // Get the user who performed the upload job.
-            $uploadjobuser = \core_user::get_user($record->userid);
+            $uploadjobuser = core_user::get_user($record->userid);
 
             // Get the fullname of the user.
             $uploadjobuserfullname = fullname($uploadjobuser);

@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/lib/filestorage/file_system_filedir.php');
  */
 class file_system_filedir extends \file_system_filedir {
 
+
     /**
      * Unlink one file in the trashdir by contenthash
      *

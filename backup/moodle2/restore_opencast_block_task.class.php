@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
 
 defined('MOODLE_INTERNAL') || die();
@@ -36,6 +37,7 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_res
  */
 class restore_opencast_block_task extends restore_block_task {
 
+
     /**
      * Check, if it is possible to restore events into given target course.
      *
@@ -46,7 +48,7 @@ class restore_opencast_block_task extends restore_block_task {
      * @return boolean
      */
     private function can_restore_events($ocinstanceid) {
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         $courseid = $this->get_courseid();
         $seriesid = $apibridge->get_stored_seriesid($courseid);
@@ -69,7 +71,7 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_settings() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \dml_exception('dmlreadexception', null,
+            throw new dml_exception('dmlreadexception', null,
                 "No Opencast instances are defined.");
         }
 
@@ -96,7 +98,7 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_steps() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new \dml_exception('dmlreadexception', null,
+            throw new dml_exception('dmlreadexception', null,
                 "No Opencast instances are defined.");
         }
 
@@ -130,7 +132,7 @@ class restore_opencast_block_task extends restore_block_task {
      * @return array
      */
     public function get_configdata_encoded_attributes() {
-        return array(); // We need to encode some attrs in configdata.
+        return []; // We need to encode some attrs in configdata.
     }
 
     /**

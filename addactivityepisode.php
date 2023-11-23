@@ -21,6 +21,12 @@
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>, 2021 Justus Dieckmann WWU
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\activitymodulemanager;
+use block_opencast\local\addactivityepisode_form;
+use core\output\notification;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG;
@@ -28,15 +34,15 @@ global $PAGE, $OUTPUT, $CFG;
 $episodeuuid = required_param('episodeuuid', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $submitbutton2 = optional_param('submitbutton2', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/addactivityepisode.php',
-    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 $redirecturloverview = new moodle_url('/blocks/opencast/index.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
-$redirecturlcourse = new moodle_url('/course/view.php', array('id' => $courseid));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
+$redirecturlcourse = new moodle_url('/course/view.php', ['id' => $courseid]);
 
 require_login($courseid, false);
 
@@ -47,7 +53,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturloverv
 $PAGE->navbar->add(get_string('addactivityepisode_addicontitle', 'block_opencast'), $baseurl);
 
 // Check if the Opencast Activity module feature is enabled and working.
-if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == false) {
+if (activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == false) {
     throw new moodle_exception('add opencast activity episode module not enabled or working',
         'block_opencast', $redirecturloverview);
 }
@@ -57,15 +63,15 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addactivityepisode', $coursecontext);
 
 // Existing Opencast Activity module check.
-$moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid, $episodeuuid, $ocinstanceid);
+$moduleid = activitymodulemanager::get_module_for_episode($courseid, $episodeuuid, $ocinstanceid);
 if ($moduleid) {
     // Redirect to Opencast videos overview page.
     redirect($redirecturloverview,
-        get_string('addactivityepisode_moduleexists', 'block_opencast'), null, \core\output\notification::NOTIFY_WARNING);
+        get_string('addactivityepisode_moduleexists', 'block_opencast'), null, notification::NOTIFY_WARNING);
 }
 
-$addactivityform = new \block_opencast\local\addactivityepisode_form(null,
-    array('episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$addactivityform = new addactivityepisode_form(null,
+    ['episodeuuid' => $episodeuuid, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 if ($addactivityform->is_cancelled()) {
     redirect($redirecturloverview);
@@ -110,7 +116,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // Create the module.
-    $result = \block_opencast\local\activitymodulemanager::create_module_for_episode($courseid, $ocinstanceid,
+    $result = activitymodulemanager::create_module_for_episode($courseid, $ocinstanceid,
         $data->title, $episodeuuid, $sectionid, $introtext, $introformat, $availability, $data->allowdownload);
 
     // Check if the module was created successfully.
@@ -121,7 +127,7 @@ if ($data = $addactivityform->get_data()) {
             redirect($redirecturlcourse,
                 get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
                 null,
-                \core\output\notification::NOTIFY_SUCCESS);
+                notification::NOTIFY_SUCCESS);
 
             // Form was submitted with first submit button.
         } else {
@@ -129,7 +135,7 @@ if ($data = $addactivityform->get_data()) {
             redirect($redirecturloverview,
                 get_string('addactivityepisode_modulecreated', 'block_opencast', $data->title),
                 null,
-                \core\output\notification::NOTIFY_SUCCESS);
+                notification::NOTIFY_SUCCESS);
         }
 
         // Otherwise.
@@ -138,7 +144,7 @@ if ($data = $addactivityform->get_data()) {
         redirect($redirecturloverview,
             get_string('addactivityepisode_modulenotcreated', 'block_opencast', $data->title),
             null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 }
 

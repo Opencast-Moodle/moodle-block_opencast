@@ -23,7 +23,12 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\addvideo_form;
+use block_opencast\local\apibridge;
+use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 
@@ -31,11 +36,11 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurlparams = [
     'ocinstanceid' => $ocinstanceid,
-    'courseid' => $courseid
+    'courseid' => $courseid,
 ];
 if ($series) {
     $baseurlparams['series'] = $series;
@@ -45,10 +50,10 @@ $baseurl = new moodle_url('/blocks/opencast/addvideo.php', $baseurlparams);
 $PAGE->set_url($baseurl);
 
 if ($courseid == $SITE->id && $series) {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('series' => $series,
-        'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', ['series' => $series,
+        'ocinstanceid' => $ocinstanceid, ]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 require_login($courseid, false);
@@ -67,12 +72,12 @@ $PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
 if ($courseid == $SITE->id) {
     // If upload initiated from overview page, check that capability is given in specific course or ownership.
     if (!$series) {
-        redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid, 'series' => null)),
+        redirect(new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid, 'series' => null]),
             get_string('addvideonotallowed', 'block_opencast'), null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 
-    $records = $DB->get_records('tool_opencast_series', array('series' => $series, 'ocinstanceid' => $ocinstanceid));
+    $records = $DB->get_records('tool_opencast_series', ['series' => $series, 'ocinstanceid' => $ocinstanceid]);
     $haspermission = false;
     foreach ($records as $record) {
         $cc = context_course::instance($record->courseid, IGNORE_MISSING);
@@ -84,20 +89,20 @@ if ($courseid == $SITE->id) {
 
     if (!$haspermission) {
         // Check if series is owned by user.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
         $ocseries = $apibridge->get_series_by_identifier($series);
         if (!$ocseries) {
-            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-                'series' => $series)),
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+                'series' => $series, ]),
                 get_string('connection_failure', 'block_opencast'), null,
-                \core\output\notification::NOTIFY_ERROR);
+                notification::NOTIFY_ERROR);
         }
 
         if (!$apibridge->is_owner($ocseries->acl, $USER->id, $SITE->id)) {
-            redirect(new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-                'series' => $series)),
+            redirect(new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+                'series' => $series, ]),
                 get_string('addvideonotallowed', 'block_opencast'), null,
-                \core\output\notification::NOTIFY_ERROR);
+                notification::NOTIFY_ERROR);
         }
     }
 } else {
@@ -112,14 +117,14 @@ $userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults,
 $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
 
 if ($series) {
-    $addvideoform = new \block_opencast\local\addvideo_form(null,
-        array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
-            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, 'series' => $series)
+    $addvideoform = new addvideo_form(null,
+        ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
+            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, 'series' => $series, ]
     );
 } else {
-    $addvideoform = new \block_opencast\local\addvideo_form(null,
-        array('courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
-            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid)
+    $addvideoform = new addvideo_form(null,
+        ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
+            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, ]
     );
 }
 
@@ -147,10 +152,10 @@ if ($data = $addvideoform->get_data()) {
     }
 
     if (isset($storedfilepresenter) && $storedfilepresenter) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresenter->get_itemid());
+        file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresenter->get_itemid());
     }
     if (isset($storedfilepresentation) && $storedfilepresentation) {
-        \block_opencast\local\file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresentation->get_itemid());
+        file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresentation->get_itemid());
     }
 
     // Transcription files.
@@ -166,14 +171,14 @@ if ($data = $addvideoform->get_data()) {
             $flavorelm = "transcription_flavor_{$transcriptionindex}";
             if (property_exists($data, $fileelm) && property_exists($data, $flavorelm)) {
                 $storedfile = $addvideoform->save_stored_file($fileelm, $coursecontext->id,
-                        'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
+                    'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
                 $flavor = $data->{$flavorelm};
                 if (isset($storedfile) && $storedfile) {
                     $transcriptions[] = [
                         'file_itemid' => $storedfile->get_itemid(),
                         'file_id' => $storedfile->get_id(),
                         'file_contenhash' => $storedfile->get_contenthash(),
-                        'flavor' => $flavor
+                        'flavor' => $flavor,
                     ];
                 }
             }
@@ -183,10 +188,10 @@ if ($data = $addvideoform->get_data()) {
     $metadata = [];
 
     if (property_exists($data, 'series')) {
-        $metadata[] = array(
+        $metadata[] = [
             'id' => 'isPartOf',
-            'value' => $data->series
-        );
+            'value' => $data->series,
+        ];
     }
 
     $gettitle = true; // Make sure title (required) is added into metadata.
@@ -199,11 +204,11 @@ if ($data = $addvideoform->get_data()) {
                 $gettitle = false;
             }
             if ($field->name == 'subjects') {
-                !is_array($data->$id) ? $data->$id = array($data->$id) : $data->$id = $data->$id;
+                !is_array($data->$id) ? $data->$id = [$data->$id] : $data->$id = $data->$id;
             }
             $obj = [
                 'id' => $id,
-                'value' => $data->$id
+                'value' => $data->$id,
             ];
             $metadata[] = $obj;
         }
@@ -213,7 +218,7 @@ if ($data = $addvideoform->get_data()) {
     if ($gettitle) {
         $titleobj = [
             'id' => 'title',
-            'value' => $data->title ? $data->title : 'upload-task'
+            'value' => $data->title ? $data->title : 'upload-task',
         ];
         $metadata[] = $titleobj;
     }
@@ -222,16 +227,16 @@ if ($data = $addvideoform->get_data()) {
     $sd->setTimestamp($data->startDate);
     $startdate = [
         'id' => 'startDate',
-        'value' => $sd->format('Y-m-d')
+        'value' => $sd->format('Y-m-d'),
     ];
     $starttime = [
         'id' => 'startTime',
-        'value' => $sd->format('H:i:s') . 'Z'
+        'value' => $sd->format('H:i:s') . 'Z',
     ];
     $metadata[] = $startdate;
     $metadata[] = $starttime;
 
-    $options = new \stdClass();
+    $options = new stdClass();
     $options->metadata = json_encode($metadata);
     $options->presenter = isset($storedfilepresenter) && $storedfilepresenter ? $storedfilepresenter->get_itemid() : '';
     $options->presentation = isset($storedfilepresentation) && $storedfilepresentation ? $storedfilepresentation->get_itemid() : '';
@@ -239,7 +244,7 @@ if ($data = $addvideoform->get_data()) {
     $options->chunkupload_presentation = isset($chunkuploadpresentation) ? $chunkuploadpresentation : '';
 
     // Prepare attachment object.
-    $attachments = new \stdClass();
+    $attachments = new stdClass();
     if (isset($transcriptions) && !empty($transcriptions)) {
         $attachments->transcriptions = $transcriptions;
     }
@@ -247,9 +252,9 @@ if ($data = $addvideoform->get_data()) {
     $options->attachments = $attachments;
 
     // Prepare the visibility object.
-    $visibility = new \stdClass();
+    $visibility = new stdClass();
     $visibility->initialvisibilitystatus = !isset($data->initialvisibilitystatus) ?
-        \block_opencast_renderer::VISIBLE : $data->initialvisibilitystatus;
+        block_opencast_renderer::VISIBLE : $data->initialvisibilitystatus;
     $visibility->initialvisibilitygroups = !empty($data->initialvisibilitygroups) ?
         json_encode($data->initialvisibilitygroups) : null;
     // Check if the scheduled visibility is set.
@@ -262,7 +267,7 @@ if ($data = $addvideoform->get_data()) {
 
     // Update all upload jobs.
     upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
-    redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, \core\output\notification::NOTIFY_SUCCESS);
+    redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, notification::NOTIFY_SUCCESS);
 }
 
 $PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');

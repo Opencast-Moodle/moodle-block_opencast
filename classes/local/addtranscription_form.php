@@ -25,6 +25,9 @@
 
 namespace block_opencast\local;
 
+use html_writer;
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -39,7 +42,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addtranscription_form extends \moodleform {
+class addtranscription_form extends moodleform {
+
     /**
      * Form definition.
      */
@@ -53,7 +57,7 @@ class addtranscription_form extends \moodleform {
 
         $mform = $this->_form;
 
-        $explanation = \html_writer::tag('p', get_string('addnewtranscription_desc', 'block_opencast'));
+        $explanation = html_writer::tag('p', get_string('addnewtranscription_desc', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
         $transcriptiontypescfg = get_config('block_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
@@ -73,7 +77,7 @@ class addtranscription_form extends \moodleform {
         // Preparing flavors as for service types.
         $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
         $flavors = [
-            '' => get_string('emptyflavoroption', 'block_opencast')
+            '' => get_string('emptyflavoroption', 'block_opencast'),
         ];
         if (!empty($flavorsconfig)) {
             $flavorsarray = json_decode($flavorsconfig);

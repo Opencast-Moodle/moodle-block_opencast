@@ -29,8 +29,20 @@ defined('MOODLE_INTERNAL') || die();
 
 use block_opencast\groupaccess;
 use block_opencast\opencast_connection_exception;
+use block_opencast\task\process_duplicated_event_visibility_change;
+use block_opencast_apibridge_testable;
 use block_opencast_renderer;
+use coding_exception;
+use context_course;
+use core\invalid_persistent_exception;
 use core_user;
+use dml_exception;
+use local_chunkupload\local\chunkupload_file;
+use moodle_exception;
+use moodle_url;
+use OpencastApi\Rest\OcIngest;
+use stdClass;
+use stored_file;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
@@ -49,6 +61,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class apibridge {
+
     /** @var int Opencast instance id */
     private $ocinstanceid;
 
@@ -58,7 +71,7 @@ class apibridge {
     /** @var bool True for tests */
     private static $testing = false;
 
-    /** @var \tool_opencast\local\api the opencast tool api instance */
+    /** @var api the opencast tool api instance */
     public $api;
 
     /**
@@ -78,7 +91,7 @@ class apibridge {
      * @return apibridge
      */
     public static function get_instance($ocinstanceid = null, $forcenewinstance = false) {
-        static $apibridges = array();
+        static $apibridges = [];
 
         if (!$ocinstanceid) {
             $ocinstanceid = settings_api::get_default_ocinstance()->id;
@@ -90,7 +103,7 @@ class apibridge {
 
         // Use replacement of api bridge for test cases.
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST && self::$testing) {
-            $apibridge = new \block_opencast_apibridge_testable();
+            $apibridge = new block_opencast_apibridge_testable();
             $apibridge->ocinstanceid = 1;
             $apibridges[1] = $apibridge;
             return $apibridge;
@@ -115,7 +128,7 @@ class apibridge {
             $api = $this->get_instance($this->ocinstanceid);
 
             // If the API is not set up correctly, the constructor will throw an exception.
-        } catch (\moodle_exception $e) {
+        } catch (moodle_exception $e) {
             return false;
         }
 
@@ -126,9 +139,9 @@ class apibridge {
     /**
      * Sets up an api object with an ingest node as endpoint.
      *
-     * @return api
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @return OcIngest
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     private function get_ingest_api() {
@@ -143,8 +156,8 @@ class apibridge {
      * Create a new media package via an ingest node.
      *
      * @return string Newly created mediapackage
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function ingest_create_media_package() {
@@ -167,8 +180,8 @@ class apibridge {
      * @param string $flavor Flavor of catalog
      * @param object $file Catalog as file
      * @return string
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function ingest_add_catalog($mediapackage, $flavor, $file) {
@@ -192,8 +205,8 @@ class apibridge {
      * @param string $flavor Flavor of track
      * @param object $file Track
      * @return string
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function ingest_add_track($mediapackage, $flavor, $file) {
@@ -217,8 +230,8 @@ class apibridge {
      * @param string $flavor Flavor of attachment
      * @param object $file Attachment
      * @return string
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function ingest_add_attachment($mediapackage, $flavor, $file) {
@@ -241,8 +254,8 @@ class apibridge {
      * @param string $mediapackage Mediapackage
      * @param string $uploadworkflow workflow definition is to start after ingest
      * @return string Workflow instance that was started
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function ingest($mediapackage, $uploadworkflow = '') {
@@ -281,10 +294,10 @@ class apibridge {
      * @return resource|false the file pointer resource.
      */
     public function get_upload_xml_file($filename, $filedata) {
-        $filedata = (string) $filedata;
+        $filedata = (string)$filedata;
         $tempdir = make_temp_directory('xmlfiletoupload');
         $tempfilepath = tempnam($tempdir, 'tempup_') . $filename;
-        file_put_contents($tempfilepath,  $filedata);
+        file_put_contents($tempfilepath, $filedata);
         $filestream = fopen($tempfilepath, 'r');
         if (file_exists($tempfilepath)) {
             unlink($tempfilepath);
@@ -299,17 +312,17 @@ class apibridge {
      *
      * @param int $courseid
      * @param bool $withmetadata
-     * @return \stdClass
+     * @return stdClass
      */
     public function get_block_videos($courseid, $withmetadata = false) {
         if (defined('BEHAT_SITE_RUNNING')) {
             $withmetadata = true;
         }
 
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->count = 0;
         $result->more = false;
-        $result->videos = array();
+        $result->videos = [];
         $result->error = 0;
 
         $series = $this->get_course_series($courseid);
@@ -328,7 +341,7 @@ class apibridge {
                 'withmetadata' => $withmetadata === true,
                 'withpublications' => true,
                 'sort' => [
-                    'start_date' => 'DESC'
+                    'start_date' => 'DESC',
                 ],
             ];
 
@@ -389,8 +402,8 @@ class apibridge {
      * @return array
      */
     public function get_course_videos($courseid, $sortcolumns = null) {
-        $result = new \stdClass();
-        $result->videos = array();
+        $result = new stdClass();
+        $result->videos = [];
         $result->error = 0;
 
         $series = $this->get_default_course_series($courseid);
@@ -408,15 +421,15 @@ class apibridge {
      * @param string $series
      * @param string $sortcolumns
      * @param bool $withmetadata
-     * @return array
+     * @return stdClass
      */
     public function get_series_videos($series, $sortcolumns = null, $withmetadata = false) {
         if (defined('BEHAT_SITE_RUNNING')) {
             $withmetadata = true;
         }
 
-        $result = new \stdClass();
-        $result->videos = array();
+        $result = new stdClass();
+        $result->videos = [];
         $result->error = 0;
 
         $params = [
@@ -469,7 +482,7 @@ class apibridge {
      * - Planned
      * - Capturing
      * - In cutting
-     * @param \stdClass $video The video object, which should be checked.
+     * @param stdClass $video The video object, which should be checked.
      */
     private function extend_video_status(&$video) {
         if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
@@ -489,7 +502,7 @@ class apibridge {
 
     /**
      * Checks if a video can be downloaded and saves this state.
-     * @param \stdClass $video Video to be updated
+     * @param stdClass $video Video to be updated
      */
     private function set_download_state(&$video) {
         if (in_array(get_config('block_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
@@ -501,7 +514,7 @@ class apibridge {
 
     /**
      * Checks if a video can be accessed directly and saves this state.
-     * @param \stdClass $video Video to be updated
+     * @param stdClass $video Video to be updated
      */
     private function set_access_state(&$video) {
         if (in_array(get_config('block_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
@@ -517,11 +530,11 @@ class apibridge {
      * @param bool $withpublications If true, publications are included
      * @param bool $withacl If true, ACLs are included
      * @param bool $includingmedia If true, media files are included
-     * @return \stdClass Video
+     * @return stdClass Video
      */
     public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
-                                        bool $includingmedia = false) {
-        $result = new \stdClass();
+                                       bool $includingmedia = false) {
+        $result = new stdClass();
         $result->video = false;
         $result->error = 0;
 
@@ -605,14 +618,14 @@ class apibridge {
         $description = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $roles = [
             'ROLE_API_SERIES_VIEW',
-            'ROLE_API_EVENTS_VIEW'
+            'ROLE_API_EVENTS_VIEW',
         ];
 
         $response = $this->api->opencastapi->groupsApi->create($name, $description, $roles);
         $code = $response['code'];
 
         if ($code >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            throw new moodle_exception('serverconnectionerror', 'tool_opencast');
         }
     }
 
@@ -651,7 +664,7 @@ class apibridge {
      */
     public function store_group_access($eventid, $groups) {
         try {
-            $groupaccess = groupaccess::get_record(array('opencasteventid' => $eventid, 'ocinstanceid' => $this->ocinstanceid));
+            $groupaccess = groupaccess::get_record(['opencasteventid' => $eventid, 'ocinstanceid' => $this->ocinstanceid]);
             if ($groupaccess) {
                 if (empty($groups)) {
                     $groupaccess->delete();
@@ -666,7 +679,7 @@ class apibridge {
                 $groupaccess->set('moodlegroups', implode(',', $groups));
                 $groupaccess->create();
             }
-        } catch (\moodle_exception $e) {
+        } catch (moodle_exception $e) {
             return false;
         }
         return true;
@@ -682,8 +695,8 @@ class apibridge {
      */
     public function get_stored_seriesid($courseid, $createifempty = false, $userid = null) {
         // Get series mapping.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1', ]);
 
         // Get existing series from the series, set it to null if there isn't an existing mapping or series in the mapping.
         if (!$mapping || !($seriesid = $mapping->get('series'))) {
@@ -716,7 +729,7 @@ class apibridge {
      *
      * @param int $seriesid
      * @param bool $withacl If true, ACLs are included
-     * @return null|\stdClass series if it exists in the opencast system.
+     * @return null|stdClass series if it exists in the opencast system.
      */
     public function get_series_by_identifier($seriesid, bool $withacl = false) {
         if (empty($seriesid)) {
@@ -789,14 +802,14 @@ class apibridge {
      * Returns the record list of the course series.
      * @param int $courseid
      * @return array
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function get_course_series($courseid) {
         global $DB;
         // We do an intense look-up into the series records, to avoid redundancy.
         $allcourseseries = $DB->get_records('tool_opencast_series',
-            array('ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid));
-        $tempholder = array();
+            ['ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid]);
+        $tempholder = [];
         $defaultseriesnum = 0;
         foreach ($allcourseseries as $courseserie) {
             if (empty($courseserie->series)) {
@@ -818,9 +831,9 @@ class apibridge {
         }
         // We throw an exception, if there are more than one default series.
         if ($defaultseriesnum > 1) {
-            throw new \moodle_exception('morethanonedefaultserieserror', 'block_opencast');
+            throw new moodle_exception('morethanonedefaultserieserror', 'block_opencast');
         }
-        return !empty($tempholder) ? array_values($tempholder) : array();
+        return !empty($tempholder) ? array_values($tempholder) : [];
     }
 
     /**
@@ -836,8 +849,8 @@ class apibridge {
      * @param int $userid
      *
      * @return string[]
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function replace_placeholders($name, $courseid, $groups = null, $userid = null) {
         global $SITE;
@@ -847,7 +860,7 @@ class apibridge {
             if (strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
                 strpos($name, '[COURSEGROUPID]') !== false) {
-                return array(null);
+                return [null];
             }
         }
 
@@ -859,7 +872,7 @@ class apibridge {
         foreach (self::$userplaceholders as $placeholder) {
             if (strpos($title, $placeholder) !== false) {
                 if (!$userid) {
-                    return array();
+                    return [];
                 }
 
                 $user = core_user::get_user($userid, '*', MUST_EXIST);
@@ -883,7 +896,7 @@ class apibridge {
             }
         }
 
-        $result = array();
+        $result = [];
 
         if (strpos($name, '[COURSEGROUPID]') !== false) {
             if (is_array($groups)) {
@@ -928,36 +941,39 @@ class apibridge {
     /**
      * API call to create a series for given course.
      * @param int $courseid Course id
-     * @param null|array $metadatafields
-     * @param int $userid
-     * @return bool  tells if the creation of the series was successful.
+     * @param null $metadatafields
+     * @param null $userid
+     * @return bool | stdClass  tells if the creation of the series was successful.
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function create_course_series($courseid, $metadatafields = null, $userid = null) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1', ]);
 
         $isdefault = $mapping ? false : true;
 
-        $metadata = array();
+        $metadata = [];
         $metadata['label'] = "Opencast Series Dublincore";
         $metadata['flavor'] = "dublincore/series";
-        $metadata['fields'] = [];
 
         if (is_null($metadatafields)) {
-            $metadatafields = array();
-            $metadatafields[] = array('id' => 'title', 'value' => $this->get_default_seriestitle($courseid, $userid));
+            $metadatafields = [];
+            $metadatafields[] = ['id' => 'title', 'value' => $this->get_default_seriestitle($courseid, $userid)];
         }
 
         $metadata['fields'] = $metadatafields;
 
-        $metadatastr = json_encode(array($metadata));
+        $metadatastr = json_encode([$metadata]);
 
-        $acl = array();
+        $acl = [];
         $roles = $this->getroles();
         foreach ($roles as $role) {
             foreach ($role->actions as $action) {
-                $acl[] = (object)array('allow' => true, 'action' => $action,
-                    'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0]);
+                $acl[] = (object)['allow' => true, 'action' => $action,
+                    'role' => $this->replace_placeholders($role->rolename, $courseid, null, $userid)[0], ];
             }
         }
 
@@ -966,7 +982,7 @@ class apibridge {
         $response = $this->api->opencastapi->seriesApi->create($metadatastr, $aclstr);
         $code = $response['code'];
         if ($code >= 400 || $code < 200) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            throw new moodle_exception('serverconnectionerror', 'tool_opencast');
         }
         $series = $response['body'];
 
@@ -993,7 +1009,7 @@ class apibridge {
      * @param int $courseid
      * @param int $userid
      *
-     * @return object series object.
+     * @return string series object.
      * @throws opencast_state_exception
      */
     public function ensure_course_series_exists($courseid, $userid) {
@@ -1021,8 +1037,8 @@ class apibridge {
      * @param int $userid
      */
     public function update_course_series($courseid, $seriesid, $userid) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1', ]);
 
         if (!$mapping) {
             $mapping = new seriesmapping();
@@ -1042,7 +1058,7 @@ class apibridge {
         $defaultaclstr = json_encode(array_values($acl));
 
         if (!is_array($acl)) {
-            throw new \moodle_exception('invalidacldata', 'block_opencast');
+            throw new moodle_exception('invalidacldata', 'block_opencast');
         }
 
         $roles = $this->getroles();
@@ -1052,9 +1068,9 @@ class apibridge {
                 strpos($role->rolename, '[USERNAME_UP]') !== false) {
                 // Add new user as well.
                 foreach ($role->actions as $action) {
-                    $acl[] = (object)array('allow' => true,
+                    $acl[] = (object)['allow' => true,
                         'role' => self::replace_placeholders($role->rolename, $courseid, null, $userid)[0],
-                        'action' => $action);
+                        'action' => $action, ];
                 }
 
             } else {
@@ -1065,9 +1081,9 @@ class apibridge {
                         }
                     }
 
-                    $acl[] = (object)array('allow' => true,
+                    $acl[] = (object)['allow' => true,
                         'role' => self::replace_placeholders($role->rolename, $courseid)[0],
-                        'action' => $action);
+                        'action' => $action, ];
                 }
             }
         }
@@ -1090,8 +1106,8 @@ class apibridge {
      * @param int $courseid Course ID
      */
     public function unset_course_series($courseid) {
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+            'courseid' => $courseid, 'isdefault' => '1', ]);
 
         if ($mapping) {
             $mapping->delete();
@@ -1102,8 +1118,8 @@ class apibridge {
      * Checks if the series ID exists in the Opencast system.
      * @param string $seriesid Series id
      * @return bool true, if the series exists. Otherwise false.
-     * @throws \dml_exception
-     * @throws \moodle_exception if there is no connection to the server.
+     * @throws dml_exception
+     * @throws moodle_exception if there is no connection to the server.
      */
     public function ensure_series_is_valid($seriesid) {
         $response = $this->api->opencastapi->seriesApi->get($seriesid);
@@ -1114,7 +1130,7 @@ class apibridge {
         }
 
         if ($code >= 400) {
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            throw new moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
         return true;
@@ -1148,7 +1164,7 @@ class apibridge {
     public function create_event($job) {
         global $DB;
 
-        $event = new \block_opencast\local\event();
+        $event = new event();
 
         // Get initial visibility object.
         $initialvisibility = visibility_helper::get_initial_visibility($job);
@@ -1187,7 +1203,7 @@ class apibridge {
 
         if (!$validstoredfile) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
-            throw new \moodle_exception('invalidfiletoupload', 'tool_opencast');
+            throw new moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
 
         if ($job->metadata) {
@@ -1240,9 +1256,9 @@ class apibridge {
             $errorpattern = "/Cannot find a metadata field with id '([\w]+)' from Catalog with Flavor 'dublincore\/episode'./";
             if (preg_match($errorpattern, $result)) {
                 // If the process fails due to invalid metadata field, more specific error message will be thrown.
-                throw new \moodle_exception('invalidmetadatafield', 'block_opencast', null, $result);
+                throw new moodle_exception('invalidmetadatafield', 'block_opencast', null, $result);
             }
-            throw new \moodle_exception('serverconnectionerror', 'tool_opencast');
+            throw new moodle_exception('serverconnectionerror', 'tool_opencast');
         }
 
         return $result;
@@ -1261,12 +1277,12 @@ class apibridge {
         $tempdir = make_temp_directory($tempdirname);
         $tempfilepath = tempnam($tempdir, 'block_opencast_' . $type . '_upload') . '_' . $file->get_filename();
         $filestream = null;
-        if ($file instanceof \stored_file) {
+        if ($file instanceof stored_file) {
             if ($file->copy_content_to($tempfilepath)) {
                 $filestream = fopen($tempfilepath, 'r');
             }
         } else if (class_exists('\local_chunkupload\local\chunkupload_file') &&
-            $file instanceof \local_chunkupload\local\chunkupload_file) {
+            $file instanceof chunkupload_file) {
             if (copy($file->get_fullpath(), $tempfilepath)) {
                 $filestream = fopen($tempfilepath, 'r');
             }
@@ -1284,7 +1300,7 @@ class apibridge {
      *
      * @param string|bool $permanent If true, only permanent roles are returned
      * @return array of acl roles.
-     * @throws \dml_exception A DML specific exception is thrown for any errors.
+     * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     public function getroles($permanent = null) {
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
@@ -1306,7 +1322,7 @@ class apibridge {
      * Check, whether the related series exists to given course id. If not exists than try to create
      * a group in opencast system.
      *
-     * @param \stdClass $job Job to be checked
+     * @param stdClass $job Job to be checked
      * @param array $opencastids Opencas id
      * @return object (Created) event
      */
@@ -1347,7 +1363,7 @@ class apibridge {
         $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
 
-        $event = new \block_opencast\local\event();
+        $event = new event();
         $event->set_json_acl($jsonacl);
 
         $roles = $this->getroles();
@@ -1393,7 +1409,7 @@ class apibridge {
             return false;
         }
 
-        $context = \context_course::instance($courseid);
+        $context = context_course::instance($courseid);
 
         return has_capability('block/opencast:unassignevent', $context);
     }
@@ -1407,7 +1423,7 @@ class apibridge {
      * @return boolean true if succeeded
      */
     public function delete_acl_group_assigned($eventidentifier, $courseid) {
-        $event = new \block_opencast\local\event();
+        $event = new event();
 
         $grouprole = api::get_course_acl_role($courseid);
 
@@ -1443,25 +1459,25 @@ class apibridge {
      * @return string identifier of the notification string to be presented to the user.
      */
     public function change_visibility($eventidentifier, $courseid, $visibility, $groups = null) {
-        $oldgroups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
-        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('moodlegroups')) : array();
+        $oldgroups = groupaccess::get_record(['opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid]);
+        $oldgroupsarray = $oldgroups ? explode(',', $oldgroups->get('moodlegroups')) : [];
 
-        $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
-            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
+        $allowedvisibilitystates = [block_opencast_renderer::VISIBLE,
+            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP, ];
         if (!in_array($visibility, $allowedvisibilitystates)) {
-            throw new \coding_exception('Invalid visibility state.');
+            throw new coding_exception('Invalid visibility state.');
         }
 
         $oldvisibility = $this->is_event_visible($eventidentifier, $courseid);
 
         // Only use transmitted groups if the status is group.
-        if ($visibility !== \block_opencast_renderer::GROUP) {
-            $groups = array();
+        if ($visibility !== block_opencast_renderer::GROUP) {
+            $groups = [];
         }
 
         // If there is no change in the status or in the group arrays, we can stop here.
         if ($oldvisibility === $visibility) {
-            if ($visibility !== \block_opencast_renderer::GROUP || $groups === $oldgroupsarray) {
+            if ($visibility !== block_opencast_renderer::GROUP || $groups === $oldgroupsarray) {
                 return 'aclnothingtobesaved';
             }
         }
@@ -1474,12 +1490,12 @@ class apibridge {
         $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
 
-        $event = new \block_opencast\local\event();
+        $event = new event();
         $event->set_json_acl($jsonacl);
 
         // Remove acls.
         if ($oldvisibility === block_opencast_renderer::MIXED_VISIBILITY) {
-            $oldacls = array();
+            $oldacls = [];
             array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
                 block_opencast_renderer::GROUP, $oldgroupsarray));
             array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
@@ -1532,7 +1548,7 @@ class apibridge {
      * @return boolean
      */
     public function assign_series($eventidentifier, $seriesidentifier) {
-        $metadata = json_encode(array(array('id' => 'isPartOf', 'value' => $seriesidentifier)));
+        $metadata = json_encode([['id' => 'isPartOf', 'value' => $seriesidentifier]]);
         $response = $this->api->opencastapi->eventsApi->updateMetadata($eventidentifier, 'dublincore/episode', $metadata);
         return ($response['code'] == 204);
     }
@@ -1544,8 +1560,8 @@ class apibridge {
      * @param int $visibility visibility of the event.
      * @param array|null $groups array of group ids used for replacing the placeholders
      * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
-     * @throws \dml_exception
-     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
+     * @throws dml_exception
+     * @throws coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
     private function get_non_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
         return $this->get_acl_rules_for_status($courseid, $visibility, false, $groups);
@@ -1558,8 +1574,8 @@ class apibridge {
      * @param int $visibility visibility of the event.
      * @param array|null $groups array of group ids used for replacing the placeholders
      * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
-     * @throws \dml_exception
-     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
+     * @throws dml_exception
+     * @throws coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
     private function get_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
         return $this->get_acl_rules_for_status($courseid, $visibility, true, $groups);
@@ -1573,13 +1589,13 @@ class apibridge {
      * @param bool $permanent whether to get permanent or non-permanent acl rules.
      * @param array|null $groups array of group ids used for replacing the placeholders
      * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
-     * @throws \dml_exception
-     * @throws \coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
+     * @throws dml_exception
+     * @throws coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
     private function get_acl_rules_for_status($courseid, $visibility, $permanent, $groups = null) {
         $roles = $this->getroles($permanent ? 1 : 0);
 
-        $result = array();
+        $result = [];
 
         switch ($visibility) {
             case block_opencast_renderer::VISIBLE:
@@ -1588,11 +1604,11 @@ class apibridge {
                         $rolenameformatted = self::replace_placeholders($role->rolename, $courseid)[0];
                         // Might return null if USERNAME cannot be replaced.
                         if ($rolenameformatted) {
-                            $result[] = (object)array(
+                            $result[] = (object)[
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rolenameformatted,
-                            );
+                            ];
                         }
                     }
                 }
@@ -1604,18 +1620,18 @@ class apibridge {
                     foreach ($role->actions as $action) {
                         foreach (self::replace_placeholders($role->rolename, $courseid, $groups) as $rule) {
                             if ($rule) {
-                                $result[] = (object)array(
+                                $result[] = (object)[
                                     'allow' => true,
                                     'action' => $action,
                                     'role' => $rule,
-                                );
+                                ];
                             }
                         }
                     }
                 }
                 break;
             default:
-                throw new \coding_exception('The provided visibility status is not valid!');
+                throw new coding_exception('The provided visibility status is not valid!');
         }
         return $result;
     }
@@ -1630,14 +1646,14 @@ class apibridge {
     public function is_event_visible($eventidentifier, $courseid) {
         $response = $this->api->opencastapi->eventsApi->getAcl($eventidentifier);
         $jsonacl = $response['body'];
-        $event = new \block_opencast\local\event();
+        $event = new event();
         $event->set_json_acl($jsonacl);
 
-        $groups = groupaccess::get_record(array('opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid));
-        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : array();
+        $groups = groupaccess::get_record(['opencasteventid' => $eventidentifier, 'ocinstanceid' => $this->ocinstanceid]);
+        $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : [];
 
-        $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::VISIBLE);
-        $groupacl = $this->get_non_permanent_acl_rules_for_status($courseid, \block_opencast_renderer::GROUP, $groupsarray);
+        $visibleacl = $this->get_non_permanent_acl_rules_for_status($courseid, block_opencast_renderer::VISIBLE);
+        $groupacl = $this->get_non_permanent_acl_rules_for_status($courseid, block_opencast_renderer::GROUP, $groupsarray);
 
         $hasallvisibleacls = true;
         $hasnovisibleacls = true;
@@ -1674,18 +1690,18 @@ class apibridge {
         }
         // If all non permanent acls for visibility are set the event is visible.
         if ($hasallvisibleacls) {
-            return \block_opencast_renderer::VISIBLE;
+            return block_opencast_renderer::VISIBLE;
         } else if (!empty($groupsarray) && $hasallgroupacls && !$hasaclnotingroup) {
             // If we have groups and the acl rules for each group is present and we do not have non-permanent acls,
             // which do not belong to group visibility, then visibility is group.
-            return \block_opencast_renderer::GROUP;
+            return block_opencast_renderer::GROUP;
         } else if (empty($groupsarray) && $hasnogroupacls & $hasnovisibleacls) {
             // The visibility is hidden if we have no groupaccess and
             // if there is no acl for group or full visibility in the set.
-            return \block_opencast_renderer::HIDDEN;
+            return block_opencast_renderer::HIDDEN;
         } else {
             // In all other cases we have mixed visibility.
-            return \block_opencast_renderer::MIXED_VISIBILITY;
+            return block_opencast_renderer::MIXED_VISIBILITY;
         }
     }
 
@@ -1695,8 +1711,8 @@ class apibridge {
      * access rights.
      * @param string $eventid id of the event the metadata should be updated for.
      * @return bool true, if the workflow was successfully started.
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     private function update_metadata($eventid) {
         $video = $this->get_opencast_video($eventid);
@@ -1724,10 +1740,10 @@ class apibridge {
      * @param bool $returnworkflowid (optional) Return the workflow ID instead of just a boolean.
      * @return bool|int false if the workflow was not successfully started;
      *                  true or the workflow ID (if $returnworkflowid was set) if the workflow was successfully started.
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
-    public function start_workflow($eventid, $workflow, $params = array(), $returnworkflowid = false) {
+    public function start_workflow($eventid, $workflow, $params = [], $returnworkflowid = false) {
         if (!$workflow) {
             return false;
         }
@@ -1776,17 +1792,17 @@ class apibridge {
      * @return array of OC workflows. The keys represent the ID of the workflow,
      * while the value contains its displayname. This is either the description, if set, or the ID. If not $onlynames,
      * the workflows details are also included.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
-    public function get_existing_workflows($tags = array(), $onlynames = true, $withconfigurations = false) {
-        $workflows = array();
+    public function get_existing_workflows($tags = [], $onlynames = true, $withconfigurations = false) {
+        $workflows = [];
 
         // Make sure that the tags are trimmed.
         if (!empty($tags)) {
             $tags = array_map('trim', $tags);
         }
 
-        $queryparams = array();
+        $queryparams = [];
         // If only one or no tag is defined, we pass that as a filter to the API call.
         if (count($tags) < 2) {
             $queryparams['filter'] = ['tag' => (isset($tags[0]) ? $tags[0] : '')];
@@ -1859,7 +1875,7 @@ class apibridge {
      */
     public function get_available_workflows_for_menu($stringtags = '', $withnoworkflow = false) {
         // Get the workflow list.
-        $tags = array();
+        $tags = [];
         if (!empty($stringtags)) {
             $tags = explode(',', $stringtags) ?? [];
         }
@@ -1886,7 +1902,7 @@ class apibridge {
         if (isset($video->processing_state) &&
             ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
 
-            $context = \context_course::instance($courseid);
+            $context = context_course::instance($courseid);
 
             return has_capability('block/opencast:deleteevent', $context);
         }
@@ -1911,7 +1927,7 @@ class apibridge {
                     "opencasteventid" => $eventidentifier,
                     "failed" => false,
                     "timecreated" => time(),
-                    "timemodified" => time()
+                    "timemodified" => time(),
                 ];
                 $DB->insert_record("block_opencast_deletejob", $record);
                 return true;
@@ -2003,7 +2019,7 @@ class apibridge {
     public function supports_api_level($level) {
         try {
             return $this->api->supports_api_level($level);
-        } catch (\moodle_exception $e) {
+        } catch (moodle_exception $e) {
             debugging('Api level ' . $level . ' not supported.');
             return false;
         }
@@ -2034,7 +2050,7 @@ class apibridge {
             ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
                 $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
             if ($capabilitycheck) {
-                $context = \context_course::instance($courseid);
+                $context = context_course::instance($courseid);
                 return has_capability('block/opencast:addvideo', $context);
             } else {
                 return true;
@@ -2058,7 +2074,7 @@ class apibridge {
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED" &&
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('internal', $video->publication_status)) {
-            $context = \context_course::instance($courseid);
+            $context = context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
         }
 
@@ -2096,10 +2112,10 @@ class apibridge {
     /**
      * Update the metadata with the matching type of the specified event.
      * @param string $eventidentifier identifier of the event
-     * @param \stdClass $metadata collection of metadata
+     * @param stdClass $metadata collection of metadata
      * @return bool
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function update_event_metadata($eventidentifier, $metadata) {
         $metadata = json_encode($metadata);
@@ -2120,9 +2136,9 @@ class apibridge {
      * @param int $userid User ID of the new owner
      * @param bool $isseries True if the identifier is a series
      * @return bool|int
-     * @throws \coding_exception
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function set_owner($courseid, $eventidentifier, $userid, $isseries) {
         $response = null;
@@ -2137,7 +2153,7 @@ class apibridge {
 
         $jsonacl = $response['body'];
 
-        $event = new \block_opencast\local\event();
+        $event = new event();
         $event->set_json_acl($jsonacl);
 
         $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
@@ -2250,8 +2266,8 @@ class apibridge {
      * @param int $userid
      * @param int $courseid
      * @return string
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     private function get_owner_role_for_user($userid, $courseid) {
         if (empty(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
@@ -2271,45 +2287,45 @@ class apibridge {
      * Retrieves all series that are owned by the specified user.
      * @param int $userid
      * @return array
-     * @throws \coding_exception
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function get_series_owned_by($userid) {
         global $SITE;
         // Course id should not be used in owner role, so we can use the site id.
         $ownerrole = self::get_owner_role_for_user($userid, $SITE->id);
         if (!$ownerrole) {
-            return array();
+            return [];
         }
 
         $params = [
             'withacl' => true,
             'onlyWithWriteAccess' => true,
         ];
-        $response = $this->api->opencastapi->seriesApi->runWithRoles(array($ownerrole))->getAll($params);
+        $response = $this->api->opencastapi->seriesApi->runWithRoles([$ownerrole])->getAll($params);
         if ($response['code'] == 200) {
             $series = $response['body'];
             return array_column($series, 'identifier');
         }
-        return array();
+        return [];
     }
 
     /**
      * Retrieves all videos that are owned by the specified user.
      * @param int $userid
-     * @return \stdClass
-     * @throws \coding_exception
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function get_videos_owned_by($userid) {
         global $SITE;
         // Course id should not be used in owner role, so we can use the site id.
         $ownerrole = self::get_owner_role_for_user($userid, $SITE->id);
 
-        $result = new \stdClass();
-        $result->videos = array();
+        $result = new stdClass();
+        $result->videos = [];
         $result->error = 0;
 
         if (!$ownerrole) {
@@ -2320,7 +2336,7 @@ class apibridge {
             'withpublications' => true,
             'onlyWithWriteAccess' => true,
         ];
-        $response = $this->api->opencastapi->eventsApi->runWithRoles(array($ownerrole))->getAll($params);
+        $response = $this->api->opencastapi->eventsApi->runWithRoles([$ownerrole])->getAll($params);
         if ($response['code'] == 200) {
             if (!$videos = $response['body']) {
                 return $result;
@@ -2350,14 +2366,14 @@ class apibridge {
      * @param string $seriesid identifier of the series
      * @param array $metadata collection of metadata
      * @return bool
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function update_series_metadata($seriesid, $metadata) {
         $response = $this->api->opencastapi->seriesApi->updateMetadata($seriesid, $metadata);
         if ($response['code'] == 200) {
             return true;
-        };
+        }
         return false;
     }
 
@@ -2430,11 +2446,11 @@ class apibridge {
      * @param string $seriesid Series ID.
      * @param int $userid User ID.
      *
-     * @return \stdClass $result
+     * @return stdClass $result
      */
     public function import_series_to_course_with_acl_change($courseid, $seriesid, $userid) {
         // Define result object to return.
-        $result = new \stdClass();
+        $result = new stdClass();
         // Assume there is no error at all.
         $result->error = 0;
         $result->seriesid = $seriesid;
@@ -2445,7 +2461,7 @@ class apibridge {
         $videos = $this->get_series_videos($seriesid);
 
         // Put events data in one place to make it simpler to use later.
-        $eventsaclchangeobject = new \stdClass();
+        $eventsaclchangeobject = new stdClass();
         // If there are vidoes.
         if ($videos && $videos->error == 0) {
             // Defining count will help with further process of result.
@@ -2510,13 +2526,13 @@ class apibridge {
         $roles = $this->getroles();
         foreach ($roles as $role) {
             // Initialize the role object to have a better grip.
-            $roleobject = new \stdClass();
+            $roleobject = new stdClass();
 
             foreach ($role->actions as $action) {
                 // Define role object.
-                $roleobject = (object)array('allow' => true,
+                $roleobject = (object)['allow' => true,
                     'role' => self::replace_placeholders($role->rolename, $courseid, null, $userid)[0],
-                    'action' => $action);
+                    'action' => $action, ];
 
                 // Check if the role object already exists in the acl list.
                 $existingacl = array_filter($acl, function ($v, $k) use ($roleobject) {
@@ -2562,7 +2578,7 @@ class apibridge {
             $visibilychanged = $this->change_visibility($identifier, $courseid, block_opencast_renderer::VISIBLE);
             // In order to resolve the return result of the change_visibility method, we assume non (false) values as true.
             return ($visibilychanged !== false) ? true : false;
-        } catch (\moodle_exception $e) {
+        } catch (moodle_exception $e) {
             // It is unlikely, but who knows.
             return false;
         }
@@ -2576,8 +2592,8 @@ class apibridge {
      */
     private function map_imported_series_to_course($courseid, $seriesid) {
         // Get the current record.
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid,
-            'series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid), true);
+        $mapping = seriesmapping::get_record(['courseid' => $courseid,
+            'series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid, ], true);
 
         // If the mapping record does not exists, we create one.
         if (!$mapping) {
@@ -2587,8 +2603,8 @@ class apibridge {
             $mapping->set('series', $seriesid);
 
             // Try to check if there is any default series for this course.
-            $defaultcourseseries = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-                'courseid' => $courseid, 'isdefault' => 1), true);
+            $defaultcourseseries = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+                'courseid' => $courseid, 'isdefault' => 1, ], true);
             // In case there is no default series for this course, this series will be the default.
             $isdefault = $defaultcourseseries ? 0 : 1;
 
@@ -2608,8 +2624,8 @@ class apibridge {
      * @param string $seriesid Series Identifier.
      *
      * @return bool
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function unlink_series_from_course($courseid, $seriesid) {
         // Step 1: Remove all related course ACLs from series event one by one.
@@ -2652,7 +2668,7 @@ class apibridge {
         $groups = groupaccess::get_record(
             [
                 'opencasteventid' => $eventidentifier,
-                'ocinstanceid' => $this->ocinstanceid
+                'ocinstanceid' => $this->ocinstanceid,
             ]
         );
         $groupsarray = $groups ? explode(',', $groups->get('moodlegroups')) : null;
@@ -2677,7 +2693,7 @@ class apibridge {
         $jsonacl = $response['body'];
 
         // Preparing dummy event to handle acls properly.
-        $event = new \block_opencast\local\event();
+        $event = new event();
         $event->set_json_acl($jsonacl);
         // Going through current event acls to delete course acls.
         foreach ($event->get_acl() as $eventrole) {
@@ -2767,7 +2783,7 @@ class apibridge {
      * @return string|bool
      * The requested config as string or false, if the corresponding config was not found.
      *
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function get_lti_consumerkey() {
         return settings_api::get_lticonsumerkey($this->ocinstanceid);
@@ -2779,7 +2795,7 @@ class apibridge {
      * @return string|bool
      * The requested config as string or false, if the corresponding config was not found.
      *
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function get_lti_consumersecret() {
         return settings_api::get_lticonsumersecret($this->ocinstanceid);
@@ -2791,8 +2807,8 @@ class apibridge {
      * @param string $eventid event id in the opencast system.
      *
      * @return string event's mediapackage
-     * @throws \dml_exception
-     * @throws \moodle_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws opencast_connection_exception
      */
     public function get_event_media_package($eventid) {
@@ -2818,7 +2834,7 @@ class apibridge {
         // We would also need to make sure that workflow for transcription is configured.
         if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
-            $context = \context_course::instance($courseid);
+            $context = context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
         }
 
@@ -2836,33 +2852,33 @@ class apibridge {
         // Getting the duplicated video object.
         $duplicatedvideo = $this->get_opencast_video($duplicatedeventid);
         if ($duplicatedvideo->error || !$this->can_update_event_metadata($duplicatedvideo->video, $courseid, false)) {
-            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_PENDING;
+            return process_duplicated_event_visibility_change::TASK_PENDING;
         }
         // Getting the source video object.
         $sourcevideo = $this->get_opencast_video($sourceeventid);
         if ($sourcevideo->error || empty($sourcevideo->video->is_part_of)) {
-            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+            return process_duplicated_event_visibility_change::TASK_FAILED;
         }
         // Extracting source series.
         $sourceseries = $sourcevideo->video->is_part_of;
         // Get series mapping.
-        $mapping = seriesmapping::get_record(array('ocinstanceid' => $this->ocinstanceid,
-            'series' => $sourceseries, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['ocinstanceid' => $this->ocinstanceid,
+            'series' => $sourceseries, 'isdefault' => '1', ]);
         // Extracting source course id to get the inital visibiltiy of the source event.
         if (!$mapping || !($sourcecourseid = $mapping->get('courseid'))) {
-            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+            return process_duplicated_event_visibility_change::TASK_FAILED;
         }
 
         // Now we decide the visibiltiy.
-        $targetvisibiltiy = \block_opencast_renderer::VISIBLE;
+        $targetvisibiltiy = block_opencast_renderer::VISIBLE;
         $sourcevisibility = $this->is_event_visible($sourceeventid, $sourcecourseid);
         // Anything other than VISIBLE, we consider as HIDDEN.
-        if ($sourcevisibility !== \block_opencast_renderer::VISIBLE) {
-            $targetvisibiltiy = \block_opencast_renderer::HIDDEN;
+        if ($sourcevisibility !== block_opencast_renderer::VISIBLE) {
+            $targetvisibiltiy = block_opencast_renderer::HIDDEN;
         }
         // Grouping does not applying here, therefore we leave it empty.
         $groups = [];
-        $event = new \block_opencast\local\event();
+        $event = new event();
         // Gathering acls for the duplicated event.
         $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups);
         $newacls = array_merge($newacls, $this->get_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups));
@@ -2875,15 +2891,15 @@ class apibridge {
         $response = $this->api->opencastapi->eventsApi->updateAcl($duplicatedeventid, $acl);
 
         if ($response['code'] != 204) {
-            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_PENDING;
+            return process_duplicated_event_visibility_change::TASK_PENDING;
         }
 
         // Finally, when the acls are in place we run the update metadata.
         if ($this->update_metadata($duplicatedeventid)) {
-            return \block_opencast\task\process_duplicated_event_visibility_change::TASK_COMPLETED;
+            return process_duplicated_event_visibility_change::TASK_COMPLETED;
         }
 
-        return \block_opencast\task\process_duplicated_event_visibility_change::TASK_FAILED;
+        return process_duplicated_event_visibility_change::TASK_FAILED;
     }
 
     /**
@@ -2937,7 +2953,7 @@ class apibridge {
         // Only when the video processing is SUCCEEDED, to avoid any misunderstanding.
         if ($video->is_downloadable && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
-                $coursecontext = \context_course::instance($courseid);
+                $coursecontext = context_course::instance($courseid);
                 return has_capability('block/opencast:downloadvideo', $coursecontext);
             } else {
                 return true;
@@ -2957,7 +2973,7 @@ class apibridge {
         // Only when the video processing is SUCCEEDED, to avoid any misunderstanding.
         if ($video->is_accessible && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
-                $coursecontext = \context_course::instance($courseid);
+                $coursecontext = context_course::instance($courseid);
                 return has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext);
             } else {
                 return true;
@@ -2981,7 +2997,7 @@ class apibridge {
         }
         $studiourlpath = '/studio';
         $queryparams = [
-            'upload.seriesId=' . $seriesid
+            'upload.seriesId=' . $seriesid,
         ];
         // Check if Studio return button is enabled.
         if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
@@ -2993,8 +3009,8 @@ class apibridge {
             }
 
             // Initializing default studio return url.
-            $studioreturnurl = new \moodle_url('/blocks/opencast/index.php',
-                array('courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid));
+            $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
+                ['courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid]);
             // Check if custom return url is configured.
             if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
                 // Prepare the custom url.
@@ -3020,7 +3036,7 @@ class apibridge {
                 }
 
                 if (!empty($customurl)) {
-                    $studioreturnurl = new \moodle_url($customurl, $customurldata);
+                    $studioreturnurl = new moodle_url($customurl, $customurldata);
                 }
             }
 

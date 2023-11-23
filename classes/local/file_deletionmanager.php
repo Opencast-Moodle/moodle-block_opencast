@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use stored_file;
+
 /**
  * Manager to enable ad hoc file deletion
  *
@@ -32,6 +34,7 @@ namespace block_opencast\local;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class file_deletionmanager extends \file_system_filedir {
+
 
     /**
      * Delete all the users draft file entries that belongs to a videofile within
@@ -52,7 +55,7 @@ class file_deletionmanager extends \file_system_filedir {
             'filearea' => 'draft',
             'contenthash' => $contenthash,
             'filename' => '.',
-            'contextid' => $coursecontextid
+            'contextid' => $coursecontextid,
         ];
 
         // Get draft entries belonging to stored file.
@@ -96,7 +99,7 @@ class file_deletionmanager extends \file_system_filedir {
             'contenthash' => 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
             'filename' => '.',
             'contextid' => $coursecontextid,
-            'itemid' => $itemid
+            'itemid' => $itemid,
         ];
 
         // Get dot entries belonging to stored file.
@@ -133,7 +136,7 @@ class file_deletionmanager extends \file_system_filedir {
 
         $params = [
             'contextid' => $coursecontextid,
-            'itemid' => $itemid
+            'itemid' => $itemid,
         ];
 
         // Moodle generates a new itemid for filemanager, so we know that $itemid
@@ -147,7 +150,7 @@ class file_deletionmanager extends \file_system_filedir {
         $record = (object)[
             'contextid' => $coursecontextid,
             'itemid' => $itemid,
-            'timecreated' => time()
+            'timecreated' => time(),
         ];
         $DB->insert_record('block_opencast_draftitemid', $record);
     }
@@ -175,7 +178,7 @@ class file_deletionmanager extends \file_system_filedir {
      * We are aware of this, but according to the use cast this is done intentional (file
      * must not be transferred again as it is already on opencast server.
      *
-     * @param \stored_file $storedfile
+     * @param stored_file $storedfile
      */
     public static function fulldelete_file($storedfile) {
         $filedir = new file_system_filedir();

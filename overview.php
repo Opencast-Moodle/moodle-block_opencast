@@ -25,17 +25,19 @@ require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
+use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
+use core\notification;
 use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', 20, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 $PAGE->set_context(context_system::instance());
 
@@ -63,7 +65,7 @@ echo html_writer::tag('p', get_string('seriesoverviewexplanation', 'block_openca
 
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
-$myseries = array();
+$myseries = [];
 
 if (count($courses) > 0) {
     $courseids = array_column($courses, 'id');
@@ -78,22 +80,22 @@ $ownedseries = $apibridge->get_series_owned_by($USER->id);
 $myseries = array_values(array_unique(array_merge($myseries, $ownedseries)));
 
 // Build course table.
-$columns = array('owner', 'series', 'linked', 'activities', 'videos');
-$headers = array(
+$columns = ['owner', 'series', 'linked', 'activities', 'videos'];
+$headers = [
     get_string('owner', 'block_opencast'),
     get_string('series', 'block_opencast'),
     get_string('linkedinblock', 'block_opencast'),
     get_string('embeddedasactivity', 'block_opencast'),
-    get_string('showvideos', 'block_opencast'));
+    get_string('showvideos', 'block_opencast'), ];
 $table = $renderer->create_series_courses_tables('ignore', $headers, $columns, $baseurl);
 $sortcolumns = $table->get_sort_columns();
 
-$activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+$activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
 for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); $i++) {
-    $row = array();
+    $row = [];
 
     // Try to retrieve name from opencast.
     $ocseries = $apibridge->get_series_by_identifier($myseries[$i], true);
@@ -102,7 +104,7 @@ for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); 
     if (in_array($myseries[$i], $ownedseries) || ($ocseries && !$apibridge->has_owner($ocseries->acl))) {
         if ($showchangeownerlink) {
             $row[] = html_writer::link(new moodle_url('/blocks/opencast/changeowner.php',
-                array('ocinstanceid' => $ocinstanceid, 'identifier' => $myseries[$i], 'isseries' => true)),
+                ['ocinstanceid' => $ocinstanceid, 'identifier' => $myseries[$i], 'isseries' => true]),
                 $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast')));
         } else {
             $row[] = $OUTPUT->pix_icon('i/user', get_string('changeowner', 'block_opencast'));
@@ -119,13 +121,13 @@ for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); 
         $row[] = $myseries[$i];
     }
 
-    $blocklinks = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i]));
+    $blocklinks = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i]]);
     $blocklinks = array_column($blocklinks, 'courseid');
 
-    $activitylinks = array();
+    $activitylinks = [];
     if ($activityinstalled) {
-        $activitylinks = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
-            'opencastid' => $myseries[$i], 'type' => opencasttype::SERIES));
+        $activitylinks = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
+            'opencastid' => $myseries[$i], 'type' => opencasttype::SERIES, ]);
         $activitylinks = array_column($activitylinks, 'course');
     }
 
@@ -143,15 +145,15 @@ for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); 
 
         if (in_array($course, $blocklinks)) {
             $rowblocks[] = html_writer::link(new moodle_url('/blocks/opencast/index.php',
-                array('ocinstanceid' => $ocinstanceid, 'courseid' => $mc->id)),
+                ['ocinstanceid' => $ocinstanceid, 'courseid' => $mc->id]),
                 $mc->fullname);
         }
 
         if (in_array($course, $activitylinks)) {
             // Get activity.
-            $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_series($ocinstanceid, $mc->id, $myseries[$i]);
+            $moduleid = activitymodulemanager::get_module_for_series($ocinstanceid, $mc->id, $myseries[$i]);
 
-            $rowactivities[] = html_writer::link(new moodle_url('/mod/opencast/view.php', array('id' => $moduleid)),
+            $rowactivities[] = html_writer::link(new moodle_url('/mod/opencast/view.php', ['id' => $moduleid]),
                 $mc->fullname);
         }
     }
@@ -159,7 +161,7 @@ for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); 
     $row[] = join("<br>", $rowblocks);
     $row[] = join("<br>", $rowactivities);
     $row[] = html_writer::link(new moodle_url('/blocks/opencast/overview_videos.php',
-        array('ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i])),
+        ['ocinstanceid' => $ocinstanceid, 'series' => $myseries[$i]]),
         $OUTPUT->pix_icon('i/messagecontentvideo', get_string('showvideos', 'block_opencast')));
 
     $table->add_data($row);
@@ -175,19 +177,19 @@ $ownedvideos = array_filter($ownedvideos->videos, function ($v) use ($myseries) 
 });
 
 if (count($ownedvideos) > 0) {
-    echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'), 2, array('mt-4'));
+    echo $OUTPUT->heading(get_string('ownedvideosoverview', 'block_opencast'), 2, ['mt-4']);
     echo html_writer::tag('p', get_string('ownedvideosoverview_explanation', 'block_opencast'));
 
-    $columns = array('owner', 'videos', 'linked', 'activities', 'action');
-    $headers = array(
+    $columns = ['owner', 'videos', 'linked', 'activities', 'action'];
+    $headers = [
         get_string('owner', 'block_opencast'),
         get_string('video', 'block_opencast'),
         get_string('embeddedasactivity', 'block_opencast'),
         get_string('embeddedasactivitywolink', 'block_opencast'),
-        get_string('heading_actions', 'block_opencast'));
+        get_string('heading_actions', 'block_opencast'), ];
     $table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
 
-    $activityinstalled = \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+    $activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     $showchangeownerlink = course_can_view_participants(context_system::instance());
 
     foreach ($renderer->create_overview_videos_rows($ownedvideos, $apibridge, $ocinstanceid,
@@ -200,7 +202,7 @@ if (count($ownedvideos) > 0) {
 }
 
 if ($opencasterror) {
-    \core\notification::error($opencasterror);
+    notification::error($opencasterror);
 }
 
 echo $OUTPUT->footer();

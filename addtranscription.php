@@ -23,8 +23,11 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\addtranscription_form;
 use block_opencast\local\apibridge;
 use block_opencast\local\attachment_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 
@@ -32,13 +35,13 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$indexurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/addtranscriptions.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -59,11 +62,11 @@ $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
-        get_string('unabletoaddnewtranscription', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+        get_string('unabletoaddnewtranscription', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }
 
-$addtranscriptionform = new \block_opencast\local\addtranscription_form(null,
-        array('courseid' => $courseid, 'identifier' => $identifier, 'ocinstanceid' => $ocinstanceid));
+$addtranscriptionform = new addtranscription_form(null,
+    ['courseid' => $courseid, 'identifier' => $identifier, 'ocinstanceid' => $ocinstanceid]);
 
 if ($addtranscriptionform->is_cancelled()) {
     redirect($redirecturl);
@@ -71,21 +74,21 @@ if ($addtranscriptionform->is_cancelled()) {
 
 if ($data = $addtranscriptionform->get_data()) {
     $storedfile = $addtranscriptionform->save_stored_file('transcription_file', $coursecontext->id,
-                        'block_opencast', attachment_helper::OC_FILEAREA_ATTACHMENT, $data->transcription_file);
+        'block_opencast', attachment_helper::OC_FILEAREA_ATTACHMENT, $data->transcription_file);
     $flavor = $data->transcription_flavor;
     if (isset($storedfile) && $storedfile && !empty($flavor)) {
         $success = attachment_helper::upload_single_transcription($storedfile, $flavor, $ocinstanceid, $identifier);
         $message = get_string('transcriptionuploadsuccessed', 'block_opencast');
-        $status = \core\output\notification::NOTIFY_SUCCESS;
+        $status = notification::NOTIFY_SUCCESS;
         if (!$success) {
             $message = get_string('transcriptionuploadfailed', 'block_opencast');
-            $status = \core\output\notification::NOTIFY_ERROR;
+            $status = notification::NOTIFY_ERROR;
         }
         attachment_helper::remove_single_transcription_file($storedfile->get_itemid());
         redirect($redirecturl, $message, null, $status);
     } else {
         redirect($redirecturl,
-            get_string('missingtranscriptionuploadparams', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+            get_string('missingtranscriptionuploadparams', 'block_opencast'), null, notification::NOTIFY_ERROR);
     }
 }
 

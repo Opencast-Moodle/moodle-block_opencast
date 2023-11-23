@@ -24,6 +24,10 @@
 
 namespace block_opencast\local;
 
+use core\message\message;
+use core_user;
+use Exception;
+
 /**
  * Notifications for block_opencast.
  *
@@ -32,6 +36,7 @@ namespace block_opencast\local;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class notifications {
+
 
     /**
      * Helperfunction to send all following messages .
@@ -44,11 +49,11 @@ class notifications {
      */
     private static function send_message($messagetype, $touser, $subject, $body, $format = FORMAT_PLAIN) {
 
-        $message = new \core\message\message();
+        $message = new message();
         $message->courseid = SITEID;
         $message->component = 'block_opencast';
         $message->name = $messagetype;
-        $message->userfrom = \core_user::get_user(\core_user::NOREPLY_USER);
+        $message->userfrom = core_user::get_user(core_user::NOREPLY_USER);
         $message->userto = $touser;
         $message->subject = $subject;
         $message->fullmessage = html_to_text($body);
@@ -123,9 +128,9 @@ class notifications {
      * Notify administrator upon an exception error.
      *
      * @param string $identifier
-     * @param \Exception $e
+     * @param Exception $e
      */
-    public static function notify_error($identifier, \Exception $e = null) {
+    public static function notify_error($identifier, Exception $e = null) {
 
         $subject = get_string('erroremailsubj', 'block_opencast');
 
@@ -133,7 +138,7 @@ class notifications {
         $errorstr = get_string($identifier, 'block_opencast', $identifier);
         $a = (object)[
             'message' => $message,
-            'errorstr' => $errorstr
+            'errorstr' => $errorstr,
         ];
 
         $body = get_string('erroremailbody', 'block_opencast', $a);
@@ -242,7 +247,7 @@ class notifications {
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'seriesid' => $seriesid
+            'seriesid' => $seriesid,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -274,7 +279,7 @@ class notifications {
             'courseid' => $courseid,
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast')
+            'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -311,7 +316,7 @@ class notifications {
             'sourcecourseid' => $sourcecourseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'sourcecoursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
-            'seriesid' => $seriesid
+            'seriesid' => $seriesid,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -344,7 +349,7 @@ class notifications {
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'videotitle' => $video->title,
             'videoidentifier' => $video->identifier,
-            'statusmessage' => $message
+            'statusmessage' => $message,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -371,7 +376,7 @@ class notifications {
             'courseid' => $courseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'videotitle' => $videotitle,
-            'waitingnum' => $waitingnum
+            'waitingnum' => $waitingnum,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {
@@ -392,14 +397,14 @@ class notifications {
      * @param string $exceptionmessage extra exception message to pass along the normal message.
      */
     public static function notify_cleanup_imported_modules_force_deletion($courseid, $workflowid, $notificationtype,
-                                                                            $exceptionmessage = '') {
+                                                                          $exceptionmessage = '') {
         global $DB;
 
         $a = (object)[
             'courseid' => $courseid,
             'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
             'workflowid' => $workflowid,
-            'exceptionmessage' => $exceptionmessage
+            'exceptionmessage' => $exceptionmessage,
         ];
 
         if ($course = $DB->get_record('course', ['id' => $courseid])) {

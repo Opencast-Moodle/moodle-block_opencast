@@ -27,11 +27,21 @@ defined('MOODLE_INTERNAL') || die();
 
 use advanced_testcase;
 use backup;
+use backup_block_opencast_setting;
 use backup_controller;
+use block_opencast\local\apibridge;
+use block_opencast\task\process_duplicate_event;
 use block_opencast_apibridge_testable;
+use coding_exception;
 use context_course;
+use core\cron;
+use core\lock\lock_config;
+use dml_exception;
+use DOMDocument;
+use restore_block_opencast_setting;
 use restore_controller;
 use restore_dbops;
+use stdClass;
 use tool_opencast\seriesmapping;
 
 global $CFG;
@@ -53,17 +63,18 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  */
 class backup_test extends advanced_testcase {
 
+
     /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
 
     public function setUp(): void {
         parent::setUp();
-        \block_opencast\local\apibridge::set_testing(true);
+        apibridge::set_testing(true);
     }
 
     public function tearDown(): void {
         parent::tearDown();
-        \block_opencast\local\apibridge::set_testing(false);
+        apibridge::set_testing(false);
     }
 
     /**
@@ -101,7 +112,7 @@ class backup_test extends advanced_testcase {
         $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
             backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
         foreach ($bc->get_plan()->get_settings() as $setting) {
-            if ($setting instanceof \backup_block_opencast_setting) {
+            if ($setting instanceof backup_block_opencast_setting) {
                 $setting->set_value($includevideos);
             }
         }
@@ -142,13 +153,13 @@ class backup_test extends advanced_testcase {
         $this->assertTrue($rc->execute_precheck());
 
         foreach ($rc->get_plan()->get_settings() as $setting) {
-            if ($setting instanceof \restore_block_opencast_setting) {
+            if ($setting instanceof restore_block_opencast_setting) {
                 $setting->set_value($includevideos);
             }
         }
         $rc->execute_plan();
 
-        $course = $DB->get_record('course', array('id' => $rc->get_courseid()));
+        $course = $DB->get_record('course', ['id' => $rc->get_courseid()]);
 
         $rc->destroy();
         unset($rc);
@@ -157,16 +168,16 @@ class backup_test extends advanced_testcase {
 
     /**
      *  Execute an adhoc task like via cron function.
-     * @param \stdClass $taskrecord
+     * @param stdClass $taskrecord
      */
     private function execute_adhoc_task($taskrecord) {
         global $CFG;
 
-        $task = new \block_opencast\task\process_duplicate_event();
+        $task = new process_duplicate_event();
         $task->set_id($taskrecord->id);
         $task->set_custom_data_as_string($taskrecord->customdata);
 
-        $cronlockfactory = \core\lock\lock_config::get_lock_factory('cron');
+        $cronlockfactory = lock_config::get_lock_factory('cron');
         $lock = $cronlockfactory->get_lock('adhoc_' . $taskrecord->id, 0);
         $lock->release();
 
@@ -179,7 +190,7 @@ class backup_test extends advanced_testcase {
         if ($CFG->version < 2023042400) {
             cron_run_inner_adhoc_task($task);
         } else {
-            \core\cron::run_inner_adhoc_task($task);
+            cron::run_inner_adhoc_task($task);
         }
         return ob_get_clean();
     }
@@ -188,8 +199,8 @@ class backup_test extends advanced_testcase {
      * Check if task failed with error.
      * @param string $expectederrortextkey
      * @param int $expectedfailedcount
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     private function check_task_fail_with_error($expectederrortextkey, $expectedfailedcount) {
         global $DB;
@@ -197,7 +208,7 @@ class backup_test extends advanced_testcase {
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $a = json_decode($taskrecord->customdata);
-        $course = $DB->get_record('course', array('id' => $a->courseid));
+        $course = $DB->get_record('course', ['id' => $a->courseid]);
         $a->coursefullname = $course->fullname;
         $a->taskid = $taskrecord->id;
         $a->duplicateworkflow = block_opencast_apibridge_testable::DUPLICATE_WORKFLOW;
@@ -228,7 +239,7 @@ class backup_test extends advanced_testcase {
 
         // Configure all necessary plugin configuration to allow video backups.
         // If this is not done, video backups are not offered by the backup wizard at all.
-        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+        $apibridge = apibridge::get_instance(1);
         set_config('apiurl_1', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
         set_config('importvideosenabled_1', true, 'block_opencast');
@@ -281,7 +292,7 @@ class backup_test extends advanced_testcase {
         set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
 
         // But delete the course series in Moodle.
-        $mapping = seriesmapping::get_record(array('courseid' => $newcourse->id, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['courseid' => $newcourse->id, 'isdefault' => '1']);
         $mapping->delete();
 
         // The series is now missing, so the task should fail.
@@ -381,7 +392,7 @@ class backup_test extends advanced_testcase {
         $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
 
         // Setup simulation data for api.
-        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+        $apibridge = apibridge::get_instance(1);
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
 
         // Backup with videos.
@@ -461,7 +472,7 @@ class backup_test extends advanced_testcase {
         $opencastblock = $generator->create_block('opencast', ['parentcontextid' => $coursecontext->id]);
 
         // Check, whether the testable apibridge work as expected.
-        $apibridge = \block_opencast\local\apibridge::get_instance(1);
+        $apibridge = apibridge::get_instance(1);
         $coursevideos = $apibridge->get_course_videos_for_backup($course->id);
         $this->assertEmpty($coursevideos);
 
@@ -485,7 +496,7 @@ class backup_test extends advanced_testcase {
         // Backup with videos.
         $backupid = $this->backup_course($course->id, true, $USER->id);
 
-        $doc = new \DOMDocument('1.0', 'utf8');
+        $doc = new DOMDocument('1.0', 'utf8');
         $doc->load($this->get_backup_filename($course->id, $opencastblock->id));
 
         // Check site identifier.

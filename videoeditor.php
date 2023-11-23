@@ -20,6 +20,12 @@
  * @copyright  2021 Farbod Zamani Boroujeni - ELAN e.V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\apibridge;
+use block_opencast\local\lti_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
@@ -30,11 +36,11 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/videoeditor.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -49,7 +55,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('videoeditor_short', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+$endpoint = settings_api::get_apiurl($ocinstanceid);
 
 $editorendpoint = get_config('block_opencast', 'editorendpointurl_' . $ocinstanceid);
 if (empty($editorendpoint)) {
@@ -67,7 +73,7 @@ if (strpos($editorbaseurl, 'http') !== 0) {
     $editorbaseurl = 'http://' . $editorbaseurl;
 }
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 
 $consumerkey = $opencast->get_lti_consumerkey();
 $consumersecret = $opencast->get_lti_consumersecret();
@@ -83,11 +89,11 @@ $video = $opencast->get_opencast_video($identifier);
 // Validate the video and make sure the video can be edited by the editor (double check).
 if ((empty($editorbaseurl) || empty($editorendpoint) ||
     !$video || $video->error == true || !$opencast->can_edit_event_in_editor($video->video, $courseid))) {
-    redirect($redirecturl, get_string('videoeditorinvalidconfig', 'block_opencast'), null, \core\output\notification::NOTIFY_ERROR);
+    redirect($redirecturl, get_string('videoeditorinvalidconfig', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }
 
 // Create parameters.
-$params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $editorendpoint);
+$params = lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $editorendpoint);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 

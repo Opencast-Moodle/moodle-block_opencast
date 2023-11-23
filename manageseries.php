@@ -21,6 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use core\persistent;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
@@ -33,14 +34,14 @@ require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $coursecontext = context_course::instance($courseid);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 // Passing optional param createseries to perform click on Create new series button.
 $createseries = optional_param('createseries', 0, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/manageseries.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/manageseries.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
-$series = $DB->get_records('tool_opencast_series', array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+$series = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
 // Transform isdefault to int.
 array_walk($series, function ($item) {
     $item->isdefault = intval($item->isdefault);
@@ -53,7 +54,7 @@ $PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init',
 $PAGE->requires->css('/blocks/opencast/css/tabulator.min.css');
 $PAGE->requires->css('/blocks/opencast/css/tabulator_bootstrap4.min.css');
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -70,7 +71,7 @@ $PAGE->navbar->add(get_string('manageseriesforcourse', 'block_opencast'), $baseu
 // Capability check.
 require_capability('block/opencast:defineseriesforcourse', $coursecontext);
 
-$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 
 
 /** @var block_opencast_renderer $renderer */

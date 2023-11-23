@@ -24,6 +24,8 @@
 
 namespace block_opencast;
 
+use admin_setting_configtext;
+
 /**
  * Admin setting class which provides a configtext with custom validation function.
  *
@@ -31,7 +33,8 @@ namespace block_opencast;
  * @copyright  2022 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configtextvalidate extends \admin_setting_configtext {
+class admin_setting_configtextvalidate extends admin_setting_configtext {
+
     /** @var callable|null Validation function */
     protected $validatefunction = null;
 

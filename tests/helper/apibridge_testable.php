@@ -21,12 +21,14 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_opencast\local\apibridge;
 use tool_opencast\seriesmapping;
 
 /**
  * Test apibridge.
  */
-class block_opencast_apibridge_testable extends \block_opencast\local\apibridge {
+class block_opencast_apibridge_testable extends apibridge {
+
 
     /** @var array register for possible function results. */
     private $register = [];
@@ -126,8 +128,8 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      */
     public function get_course_videos($courseid, $sortcolumns = null) {
 
-        $result = new \stdClass();
-        $result->videos = array();
+        $result = new stdClass();
+        $result->videos = [];
         $result->error = 0;
 
         if (!$value = $this->get_testdata('get_course_videos', $courseid)) {
@@ -144,11 +146,11 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param bool $withpublications If true, publications are included
      * @param bool $withacl If true, ACLs are included
      * @param bool $includingmedia If true, media files are included
-     * @return \stdClass Video
+     * @return stdClass Video
      */
     public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
-                                        bool $includingmedia = false) {
-        $result = new \stdClass();
+                                       bool $includingmedia = false) {
+        $result = new stdClass();
         $result->video = false;
         $result->error = 0;
 
@@ -185,7 +187,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $video->is_downloadable = false;
             $video->is_accessible = false;
             $video->location = '';
-            $video->publication_status = array();
+            $video->publication_status = [];
             $result->videos = [$video];
         } else {
             $result->videos = json_decode($value);
@@ -202,13 +204,13 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      */
     public function get_block_videos($courseid, $withmetadata = false) {
         // Used for behat test.
-        $result = new \stdClass();
+        $result = new stdClass();
         $result->count = 0;
         $result->more = false;
-        $result->videos = array();
+        $result->videos = [];
         $result->error = 0;
 
-        $series = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => 1));
+        $series = seriesmapping::get_record(['courseid' => $courseid, 'isdefault' => 1]);
         if ($series) {
             $video = new stdClass();
             $video->identifier = '1111-2222-3333-4444';
@@ -222,7 +224,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
             $video->is_downloadable = false;
             $video->is_accessible = false;
             $video->location = '';
-            $video->publication_status = array();
+            $video->publication_status = [];
 
             $result->count = 1;
             $result->videos = [$video];
@@ -238,19 +240,19 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param string $seriestitle
      * @param int $userid
      * @return boolean
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function create_course_series($courseid, $seriestitle = null, $userid = null) {
 
-        $mapping = seriesmapping::get_record(array('courseid' => $courseid, 'isdefault' => '1'));
+        $mapping = seriesmapping::get_record(['courseid' => $courseid, 'isdefault' => '1']);
         if ($mapping && $seriesid = $mapping->get('series')) {
-            throw new \moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
+            throw new moodle_exception(get_string('series_already_exists', 'block_opencast', $seriesid));
         }
 
         // Simulate new series.
         if ($identifier = $this->get_testdata('create_course_series', 'newcourse')) {
             $series = (object)[
-                'identifier' => $identifier
+                'identifier' => $identifier,
             ];
         }
 
@@ -330,7 +332,7 @@ class block_opencast_apibridge_testable extends \block_opencast\local\apibridge 
      * @param false $returnworkflowid
      * @return bool|int|mixed|null
      */
-    public function start_workflow($eventid, $duplicateworkflow, $params = array(), $returnworkflowid = false) {
+    public function start_workflow($eventid, $duplicateworkflow, $params = [], $returnworkflowid = false) {
         return $this->get_testdata('start_workflow', $duplicateworkflow);
     }
 

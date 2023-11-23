@@ -21,18 +21,26 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast\task;
+
+use block_opencast\local\attachment_helper;
+use coding_exception;
+use core\task\scheduled_task;
+use dml_exception;
+use lang_string;
 
 /**
  * Task for processing event's attachment upload jobs.
  * @package block_opencast
  */
-class process_attachment_cron extends \core\task\scheduled_task {
+class process_attachment_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
-     * @return \lang_string|string
-     * @throws \coding_exception
+     * @return lang_string|string
+     * @throws coding_exception
      */
     public function get_name() {
         return get_string('processattachment', 'block_opencast');
@@ -40,10 +48,10 @@ class process_attachment_cron extends \core\task\scheduled_task {
 
     /**
      * Executes the task.
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function execute() {
-        $attachmenthelper = new \block_opencast\local\attachment_helper();
+        $attachmenthelper = new attachment_helper();
         $attachmenthelper->cron();
     }
 }

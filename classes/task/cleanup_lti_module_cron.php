@@ -27,6 +27,8 @@ namespace block_opencast\task;
 
 use block_opencast\local\apibridge;
 use block_opencast\local\ltimodulemanager;
+use core\task\scheduled_task;
+use moodle_exception;
 use tool_opencast\local\settings_api;
 
 /**
@@ -37,7 +39,8 @@ use tool_opencast\local\settings_api;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cleanup_lti_module_cron extends \core\task\scheduled_task {
+class cleanup_lti_module_cron extends scheduled_task {
+
 
     /**
      * Get the task name.
@@ -49,7 +52,6 @@ class cleanup_lti_module_cron extends \core\task\scheduled_task {
 
     /**
      * Execute the task.
-     * @throws moodle_exception upon which the task will be teminated.
      */
     public function execute() {
         try {
@@ -75,7 +77,7 @@ class cleanup_lti_module_cron extends \core\task\scheduled_task {
             $deletemodulesnum = ltimodulemanager::cleanup_lti_module_entries();
             mtrace("... ($deletemodulesnum) modules deleted during final cleanup.");
 
-        } catch (\moodle_exception $e) {
+        } catch (moodle_exception $e) {
             mtrace('... cleanup process failed:');
             mtrace($e->getMessage());
         }

@@ -27,8 +27,17 @@ namespace block_opencast\local;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/lib/filelib.php');
 
+use block_opencast\event\upload_failed;
+use block_opencast\event\upload_succeeded;
 use block_opencast\opencast_state_exception;
+use context_block;
+use context_course;
+use core_user\fields;
+use dml_exception;
+use lang_string;
 use local_chunkupload\chunkupload_form_element;
+use moodle_exception;
+use stdClass;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
@@ -40,6 +49,7 @@ use tool_opencast\seriesmapping;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class upload_helper {
+
 
     /** @var string File area id where videos are uploaded */
     const OC_FILEAREA = 'videotoupload';
@@ -65,7 +75,7 @@ class upload_helper {
     /**
      * Get explaination string for status code
      * @param int $statuscode Status code
-     * @return \lang_string|string Name of status code or empty if not found.
+     * @return lang_string|string Name of status code or empty if not found.
      */
     public static function get_status_string($statuscode) {
 
@@ -98,7 +108,7 @@ class upload_helper {
         global $DB, $CFG;
 
         if ($CFG->branch >= 311) {
-            $allnamefields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+            $allnamefields = fields::for_name()->get_sql('u', false, '', '', false)->selects;
         } else {
             $allnamefields = get_all_user_name_fields(true, 'u');
         }
@@ -151,7 +161,7 @@ class upload_helper {
         $params = [];
         $params['component'] = 'block_opencast';
         $params['filearea'] = self::OC_FILEAREA;
-        $items = array();
+        $items = [];
 
         if (isset($options->presentation) && !empty($options->presentation)) {
             $items[] = $options->presentation;
@@ -174,7 +184,7 @@ class upload_helper {
             "AND f.itemid {$insql}";
 
         $currentjobfiles = $DB->get_records_sql($sql, $params);
-        $job = new \stdClass();
+        $job = new stdClass();
         foreach ($currentjobfiles as $file) {
             if (isset($options->presenter) && $options->presenter == $file->itemid) {
                 $job->presenter_fileid = $file->id;
@@ -189,14 +199,14 @@ class upload_helper {
         // Add chunkupload references.
         if (class_exists('\local_chunkupload\chunkupload_form_element')) {
             if (isset($options->chunkupload_presenter) && $options->chunkupload_presenter) {
-                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presenter),
+                $record = $DB->get_record('local_chunkupload_files', ['id' => $options->chunkupload_presenter],
                     '*', IGNORE_MISSING);
                 if ($record && $record->state == 2) {
                     $job->chunkupload_presenter = $options->chunkupload_presenter;
                 }
             }
             if (isset($options->chunkupload_presentation) && $options->chunkupload_presentation) {
-                $record = $DB->get_record('local_chunkupload_files', array('id' => $options->chunkupload_presentation),
+                $record = $DB->get_record('local_chunkupload_files', ['id' => $options->chunkupload_presentation],
                     '*', IGNORE_MISSING);
                 if ($record && $record->state == 2) {
                     $job->chunkupload_presentation = $options->chunkupload_presentation;
@@ -280,9 +290,9 @@ class upload_helper {
      * deletes the video file from file system and removes the job from upload queue as if the video had never been uploaded
      * deletes only if the status is STATUS_READY_TO_UPLOAD
      *
-     * @param \stdClass $jobtodelete
+     * @param stdClass $jobtodelete
      * @return bool
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public static function delete_video_draft($jobtodelete) {
         global $DB;
@@ -294,7 +304,7 @@ class upload_helper {
             $DB->delete_records('block_opencast_metadata', ['uploadjobid' => $jobtodelete->id]);
             // Delete from files table.
             $fs = get_file_storage();
-            $files = array();
+            $files = [];
             $jobtodelete->presenter_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presenter_fileid) : null;
             $jobtodelete->presentation_fileid ? $files[] = $fs->get_file_by_id($jobtodelete->presentation_fileid) : null;
             foreach ($files as $file) {
@@ -342,24 +352,24 @@ class upload_helper {
         // Delete from files table.
         $fs = get_file_storage();
 
-        $files = array();
+        $files = [];
         $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : null;
         $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : null;
-        $filenames = array();
+        $filenames = [];
         foreach ($files as $file) {
             $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
         }
 
         // Trigger event.
-        $context = \context_course::instance($job->courseid);
-        $event = \block_opencast\event\upload_succeeded::create(
-            array(
+        $context = context_course::instance($job->courseid);
+        $event = upload_succeeded::create(
+            [
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
                 'userid' => $job->userid,
-                'other' => array('filename' => implode(' & ', $filenames), 'ocinstanceid' => $job->ocinstanceid)
-            )
+                'other' => ['filename' => implode(' & ', $filenames), 'ocinstanceid' => $job->ocinstanceid],
+            ]
         );
 
         $event->trigger();
@@ -383,7 +393,7 @@ class upload_helper {
         }
 
         // Change visibility record status to done and perform the post upload visibility stuff.
-        $visibilityjob = $DB->get_record('block_opencast_visibility', array('uploadjobid' => $job->id));
+        $visibilityjob = $DB->get_record('block_opencast_visibility', ['uploadjobid' => $job->id]);
         if (!empty($visibilityjob)) {
             if (empty($visibilityjob->scheduledvisibilitytime)) {
                 // Change the status to complete, since the job finishes here and has no scheduling any more.
@@ -415,30 +425,30 @@ class upload_helper {
 
         // Get file information.
         $fs = get_file_storage();
-        $files = array();
+        $files = [];
         $job->presenter_fileid ? $files[] = $fs->get_file_by_id($job->presenter_fileid) : null;
         $job->presentation_fileid ? $files[] = $fs->get_file_by_id($job->presentation_fileid) : null;
 
-        $filenames = array();
+        $filenames = [];
         foreach ($files as $file) {
             $filenames[] = (!$file) ? 'unknown' : $file->get_filename();
         }
 
         // Trigger event.
-        $context = \context_course::instance($job->courseid);
-        $event = \block_opencast\event\upload_failed::create(
-            array(
+        $context = context_course::instance($job->courseid);
+        $event = upload_failed::create(
+            [
                 'context' => $context,
                 'objectid' => $job->id,
                 'courseid' => $job->courseid,
                 'userid' => $job->userid,
-                'other' => array(
+                'other' => [
                     'filename' => /* $filename */ implode(' & ', $filenames),
                     'errormessage' => $errormessage,
                     'countfailed' => $job->countfailed,
-                    'ocinstanceid' => $job->ocinstanceid
-                )
-            )
+                    'ocinstanceid' => $job->ocinstanceid,
+                ],
+            ]
         );
 
         $event->trigger();
@@ -478,7 +488,7 @@ class upload_helper {
      * @param object $job represents the upload job.
      *
      * @return false | object either false -> rerun later or object -> upload successful.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     protected function process_upload_job($job) {
         global $DB, $SITE;
@@ -541,17 +551,17 @@ class upload_helper {
                     break;
                 }
 
-                $eventids = array();
+                $eventids = [];
 
                 if ($job->opencasteventid) {
                     array_push($eventids, $job->opencasteventid);
                 } else if (get_config('block_opencast', 'reuseexistingupload_' . $job->ocinstanceid)) {
                     // Check, whether this file was uploaded any time before.
-                    $params = array(
+                    $params = [
                         'contenthash_presenter' => $job->contenthash_presenter,
                         'contenthash_presentation' => $job->contenthash_presentation,
-                        'ocinstanceid' => $job->ocinstanceid
-                    );
+                        'ocinstanceid' => $job->ocinstanceid,
+                    ];
 
                     // Search for files already uploaded to opencast.
                     $sql = "SELECT opencasteventid " .
@@ -573,7 +583,7 @@ class upload_helper {
 
                 // Check result.
                 if (!isset($event->identifier)) {
-                    throw new \moodle_exception('missingevent', 'block_opencast');
+                    throw new moodle_exception('missingevent', 'block_opencast');
                 } else {
                     mtrace('... video uploaded');
                     $this->update_status($job, self::STATUS_UPLOADED);
@@ -605,10 +615,10 @@ class upload_helper {
 
                 // Verify the upload.
                 if (!$job->opencasteventid) {
-                    throw new \moodle_exception('missingeventidentifier', 'block_opencast');
+                    throw new moodle_exception('missingeventidentifier', 'block_opencast');
                 }
 
-                if (!($event = $apibridge->get_already_existing_event(array($job->opencasteventid)))) {
+                if (!($event = $apibridge->get_already_existing_event([$job->opencasteventid]))) {
                     mtrace('... event does not exist');
                     break;
                 }
@@ -634,7 +644,7 @@ class upload_helper {
                 // Ensure the assignment of a course series.
                 $assignedseries = $event->is_part_of;
                 $courseseries = $DB->get_records('tool_opencast_series',
-                    array('courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid));
+                    ['courseid' => $job->courseid, 'ocinstanceid' => $job->ocinstanceid]);
 
                 if (array_search($assignedseries, array_column($courseseries, 'series')) === false &&
                     $job->courseid !== $SITE->id) {
@@ -684,7 +694,7 @@ class upload_helper {
                 $limituploadjobs = 0;
             }
 
-            $jobs = $DB->get_records_sql($sql, array(self::STATUS_TRANSFERRED, $ocinstance->id), 0, $limituploadjobs);
+            $jobs = $DB->get_records_sql($sql, [self::STATUS_TRANSFERRED, $ocinstance->id], 0, $limituploadjobs);
 
             if (!$jobs) {
                 mtrace('...no jobs to proceed for instance "' . $ocinstance->name . '"');
@@ -693,7 +703,7 @@ class upload_helper {
             foreach ($jobs as $job) {
                 mtrace('proceed: ' . $job->id);
                 try {
-                    $joboptions = $DB->get_record('block_opencast_metadata', array('uploadjobid' => $job->id),
+                    $joboptions = $DB->get_record('block_opencast_metadata', ['uploadjobid' => $job->id],
                         $fields = 'metadata', $strictness = IGNORE_MISSING);
                     if ($joboptions) {
                         $job = (object)array_merge((array)$job, (array)$joboptions);
@@ -706,7 +716,7 @@ class upload_helper {
                     } else {
                         mtrace('job ' . $job->id . ' is postponed');
                     }
-                } catch (\moodle_exception $e) {
+                } catch (moodle_exception $e) {
                     mtrace('Job failed due to: ' . $e);
                     $this->upload_failed($job, $e->getMessage());
                 }
@@ -733,14 +743,14 @@ class upload_helper {
         $params = [
             'contextlevel' => CONTEXT_COURSE,
             'blockname' => 'opencast',
-            'instanceid' => $courseid
+            'instanceid' => $courseid,
         ];
 
         if (!$blockinstance = $DB->get_record_sql($sql, $params)) {
-            return \context_course::instance($courseid);
+            return context_course::instance($courseid);
         }
 
-        return \context_block::instance($blockinstance->id);
+        return context_block::instance($blockinstance->id);
     }
 
     // Metadata.
@@ -758,7 +768,7 @@ class upload_helper {
 
     /**
      * Ensures that the series exists.
-     * @param \stdClass $job
+     * @param stdClass $job
      * @param object $apibridge
      */
     public static function ensure_series_metadata($job, $apibridge) {
@@ -776,7 +786,7 @@ class upload_helper {
             if ($mtseries !== false) {
                 $metadata[$mtseries]->value = $series->identifier;
             } else {
-                $metadata[] = array('id' => 'isPartOf', 'value' => $series->identifier);
+                $metadata[] = ['id' => 'isPartOf', 'value' => $series->identifier];
             }
             $job->metadata = json_encode($metadata);
         }

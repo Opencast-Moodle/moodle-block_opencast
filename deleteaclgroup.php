@@ -23,17 +23,19 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteaclgroup.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -42,7 +44,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('deleteaclgroup', 'block_opencast'), $baseurl);
 
@@ -50,7 +52,7 @@ $PAGE->navbar->add(get_string('deleteaclgroup', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 $video = $opencast->get_opencast_video($identifier);
 
 if (($action == 'delete') && confirm_sesskey()) {

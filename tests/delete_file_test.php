@@ -21,6 +21,7 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast;
 defined('MOODLE_INTERNAL') || die();
 
@@ -28,6 +29,7 @@ global $CFG;
 
 use advanced_testcase;
 use block_opencast\local\file_deletionmanager;
+use block_opencast\local\file_system_filedir;
 
 /**
  * Test class for the block opencast.
@@ -38,6 +40,7 @@ use block_opencast\local\file_deletionmanager;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class delete_file_test extends advanced_testcase {
+
 
     /**
      * Test how trash deletion works.
@@ -65,7 +68,7 @@ class delete_file_test extends advanced_testcase {
             'filearea' => $filearea,
             'itemid' => $itemid,
             'filepath' => '/',
-            'filename' => 'test'
+            'filename' => 'test',
         ];
         $fs->create_file_from_string($filerecord, 'test');
 
@@ -106,7 +109,7 @@ class delete_file_test extends advanced_testcase {
         file_deletionmanager::track_draftitemid($contextid, $draftideditor);
 
         // Check trashdir.
-        $filedir = new \block_opencast\local\file_system_filedir();
+        $filedir = new file_system_filedir();
         $contenthash = $storedfile->contenthash;
 
         // File may not be in trash, because user draft entry exists.

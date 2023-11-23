@@ -29,39 +29,42 @@
     {{#listhascontent}}
         <table class="table table-striped" id="transcriptionstable">
             <thead>
-                <tr>
+            <tr>
+                <th>
+                    {{# str}}transcriptionflavor_thead, block_opencast {{/ str}}
+                </th>
+                {{#hasactions}}
                     <th>
-                        {{# str}}transcriptionflavor_thead, block_opencast {{/ str}}
+                        {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
                     </th>
-                    {{#hasactions}}
-                        <th>
-                            {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
-                        </th>
-                    {{/hasactions}}
-                </tr>
+                {{/hasactions}}
+            </tr>
             </thead>
             <tbody>
-                {{#list}}
-                    <tr>
-                        <td>
-                            {{flavor}}
+            {{#list}}
+                <tr>
+                    <td>
+                        {{flavor}}
+                    </td>
+                    {{#hasactions}}
+                        <td width="10%">
+                            {{#allowdownload}}
+                                <a class="iconsmall" target="_blank"
+                                   title="{{#str}} downloadtranscription, block_opencast {{/str}}"
+                                   href="{{downloadurl}}">
+                                    {{#pix}} i/down, core{{/pix}}
+                                </a>
+                            {{/allowdownload}}
+                            {{#candelete}}
+                                <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}"
+                                   href="{{deleteurl}}">
+                                    {{#pix}} i/delete, core{{/pix}}
+                                </a>
+                            {{/candelete}}
                         </td>
-                        {{#hasactions}}
-                            <td width="10%">
-                                {{#allowdownload}}
-                                    <a class="iconsmall" target="_blank" title="{{#str}} downloadtranscription, block_opencast {{/str}}" href="{{downloadurl}}">
-                                        {{#pix}} i/down, core{{/pix}}
-                                    </a>
-                                {{/allowdownload}}
-                                {{#candelete}}
-                                    <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}" href="{{deleteurl}}">
-                                        {{#pix}} i/delete, core{{/pix}}
-                                    </a>
-                                {{/candelete}}
-                            </td>
-                        {{/hasactions}}
-                    </tr>
-                {{/list}}
+                    {{/hasactions}}
+                </tr>
+            {{/list}}
             </tbody>
         </table>
     {{/listhascontent}}
@@ -70,7 +73,7 @@
     {{/listhascontent}}
 </div>
 {{#addnewurl}}
-<a type="button" class="btn btn-primary mt-3" id="createnewtranscription" href="{{addnewurl}}">
-    {{# str}}addnewtranscription, block_opencast {{/ str}}
-</a>
+    <a type="button" class="btn btn-primary mt-3" id="createnewtranscription" href="{{addnewurl}}">
+        {{# str}}addnewtranscription, block_opencast {{/ str}}
+    </a>
 {{/addnewurl}}

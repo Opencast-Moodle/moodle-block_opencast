@@ -33,6 +33,7 @@ use oauth_helper;
  */
 class lti_helper {
 
+
     /**
      * Create necessary lti parameters.
      * @param string $consumerkey LTI consumer key.
@@ -45,11 +46,11 @@ class lti_helper {
     public static function create_lti_parameters($consumerkey, $consumersecret, $endpoint, $customtool) {
         global $CFG, $COURSE, $USER;
 
-        $helper = new oauth_helper(array('oauth_consumer_key' => $consumerkey,
-            'oauth_consumer_secret' => $consumersecret));
+        $helper = new oauth_helper(['oauth_consumer_key' => $consumerkey,
+            'oauth_consumer_secret' => $consumersecret, ]);
 
         // Set all necessary parameters.
-        $params = array();
+        $params = [];
         $params['oauth_version'] = '1.0';
         $params['oauth_nonce'] = $helper->get_nonce();
         $params['oauth_timestamp'] = $helper->get_timestamp();

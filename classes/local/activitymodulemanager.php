@@ -24,7 +24,11 @@
 
 namespace block_opencast\local;
 
+use core_completion\manager;
+use core_plugin_manager;
+use course_modinfo;
 use mod_opencast\local\opencasttype;
+use stdClass;
 
 /**
  * LTI module management for block_opencast.
@@ -35,6 +39,7 @@ use mod_opencast\local\opencasttype;
  */
 class activitymodulemanager {
 
+
     /**
      * Helperfunction to get the status of the Opencast series feature.
      * This consists of a check if the feature is enabled by the admin.
@@ -44,7 +49,7 @@ class activitymodulemanager {
      */
     public static function is_enabled_and_working_for_series($ocinstanceid): bool {
         return get_config('block_opencast', 'addactivityenabled_' . $ocinstanceid) != false &&
-            \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+            core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
     /**
@@ -56,7 +61,7 @@ class activitymodulemanager {
      */
     public static function is_enabled_and_working_for_episodes($ocinstanceid) {
         return get_config('block_opencast', 'addactivityepisodeenabled_' . $ocinstanceid) != false &&
-            \core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
+            core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
     /**
@@ -87,7 +92,7 @@ class activitymodulemanager {
         }
 
         // Get the id of the installed Opencast plugin.
-        $pluginid = $DB->get_field('modules', 'id', array('name' => 'opencast'));
+        $pluginid = $DB->get_field('modules', 'id', ['name' => 'opencast']);
 
         // If the Opencast plugin is not found, something is wrong.
         if (!$pluginid) {
@@ -104,7 +109,7 @@ class activitymodulemanager {
 
         // Create an LTI modinfo object.
         $moduleinfo = self::build_activity_modinfo($pluginid, $course, $ocinstanceid, $title, $sectionid, $seriesid,
-                opencasttype::SERIES, $introtext, $introformat, $availability, $allowdownload);
+            opencasttype::SERIES, $introtext, $introformat, $availability, $allowdownload);
 
         // Add the Opencast Activity series module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
@@ -142,7 +147,7 @@ class activitymodulemanager {
         }
 
         // Get the id of the installed Opencast plugin.
-        $pluginid = $DB->get_field('modules', 'id', array('name' => 'opencast'));
+        $pluginid = $DB->get_field('modules', 'id', ['name' => 'opencast']);
 
         // If the Opencast plugin is not found, something is wrong.
         if (!$pluginid) {
@@ -163,7 +168,7 @@ class activitymodulemanager {
 
         // Add the Opencast Activity episode module to the given course.
         // This does not check any capabilities to add modules to courses by purpose.
-        \add_moduleinfo($moduleinfo, $course);
+        add_moduleinfo($moduleinfo, $course);
 
         return true;
     }
@@ -172,7 +177,7 @@ class activitymodulemanager {
      * Helperfunction to create a modinfo class, holding the Opencast LTI module information.
      *
      * @param int $pluginid
-     * @param \stdClass $course
+     * @param stdClass $course
      * @param int $ocinstanceid Opencast instance id
      * @param string $title
      * @param int $sectionid
@@ -191,7 +196,7 @@ class activitymodulemanager {
         global $DB;
 
         // Create standard class object.
-        $moduleinfo = new \stdClass();
+        $moduleinfo = new stdClass();
 
         // Populate the modinfo object with standard parameters.
         $moduleinfo->modulename = 'opencast';
@@ -219,8 +224,8 @@ class activitymodulemanager {
         $moduleinfo->ocinstanceid = $ocinstanceid;
 
         // Apply completion defaults.
-        $module = $DB->get_record('modules', array('name' => 'opencast'), '*', MUST_EXIST);
-        $defaults = \core_completion\manager::get_default_completion($course, $module);
+        $module = $DB->get_record('modules', ['name' => 'opencast'], '*', MUST_EXIST);
+        $defaults = manager::get_default_completion($course, $module);
         foreach ($defaults as $key => $value) {
             $moduleinfo->$key = $value;
         }
@@ -244,12 +249,12 @@ class activitymodulemanager {
 
         // Get the Opencast Activity series module id.
         if (get_config('mod_opencast', 'version') >= 2021091200) {
-            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
-                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
+            $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
+                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, 'ocinstanceid' => $ocinstanceid, ], IGNORE_MULTIPLE);
         } else {
             // Ensure backwards compatibility since ocinstanceid does not exist before.
-            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
-                'type' => opencasttype::SERIES, 'opencastid' => $seriesid), IGNORE_MULTIPLE);
+            $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
+                'type' => opencasttype::SERIES, 'opencastid' => $seriesid, ], IGNORE_MULTIPLE);
         }
 
         // If there is a Opencast Activity series module found.
@@ -285,11 +290,11 @@ class activitymodulemanager {
 
         // Get the Opencast Activity series module id.
         if (get_config('mod_opencast', 'version') >= 2021091200) {
-            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
-                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid), IGNORE_MULTIPLE);
+            $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, 'ocinstanceid' => $ocinstanceid, ], IGNORE_MULTIPLE);
         } else {
-            $instance = $DB->get_field('opencast', 'id', array('course' => $courseid,
-                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE), IGNORE_MULTIPLE);
+            $instance = $DB->get_field('opencast', 'id', ['course' => $courseid,
+                'opencastid' => $episodeuuid, 'type' => opencasttype::EPISODE, ], IGNORE_MULTIPLE);
         }
 
         // If there is a Opencast Activity series module found.
@@ -342,7 +347,7 @@ class activitymodulemanager {
      */
     public static function get_default_title_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);
@@ -377,7 +382,7 @@ class activitymodulemanager {
      */
     public static function get_default_intro_for_episode($ocinstanceid, $episodeuuid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the episode information.
         $info = $apibridge->get_opencast_video($episodeuuid);
@@ -420,15 +425,15 @@ class activitymodulemanager {
 
         // If the course format does not use sections at all, we are already done.
         if (!$courseformat->uses_sections()) {
-            return array();
+            return [];
         }
 
         // Get list of sections.
-        $coursemodinfo = \course_modinfo::instance($courseid);
+        $coursemodinfo = course_modinfo::instance($courseid);
         $sections = $coursemodinfo->get_section_info_all();
 
         // Extract section titles and build section menu.
-        $sectionmenu = array();
+        $sectionmenu = [];
         foreach ($sections as $id => $section) {
             $sectionmenu[$id] = get_section_name($courseid, $id);
         }
@@ -451,16 +456,16 @@ class activitymodulemanager {
         global $DB;
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
-        $modules = array();
+        $modules = [];
 
         // Get the course series of the referenced course.
         foreach ($apibridge->get_course_series($referencedcourseid) as $series) {
-            $seriesmodules = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+            $seriesmodules = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
                 'type' => opencasttype::SERIES,
                 'course' => $courseid,
-                'opencastid' => $series->series));
+                'opencastid' => $series->series, ]);
 
             // If there are any existing series modules in this course.
             if (count($seriesmodules) > 0) {
@@ -494,10 +499,10 @@ class activitymodulemanager {
     public static function get_modules_for_episodes_linking_to_other_course($ocinstanceid, $modulecourseid, $referencedcourseid,
                                                                             $onlytheseepisodes = null) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Initialize modules to be returned as empty array.
-        $modules = array();
+        $modules = [];
 
         // Get the course series of the referenced course.
         foreach ($apibridge->get_course_series($referencedcourseid) as $series) {
@@ -538,13 +543,13 @@ class activitymodulemanager {
     public static function get_modules_for_episode_linking_to_other_course($ocinstanceid, $courseid, $referencedepisodeid) {
         global $DB;
 
-        $episodemodules = $DB->get_records('opencast', array('ocinstanceid' => $ocinstanceid,
+        $episodemodules = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
             'course' => $courseid,
             'type' => opencasttype::EPISODE,
-            'opencastid' => $referencedepisodeid));
+            'opencastid' => $referencedepisodeid, ]);
 
         // Initialize modules to be returned as empty array.
-        $modules = array();
+        $modules = [];
 
         // If there are any existing episode modules in this course.
         if (count($episodemodules) > 0) {
@@ -584,7 +589,7 @@ class activitymodulemanager {
         foreach ($episodemodules as $module) {
             $cm = get_fast_modinfo($courseid)->get_cm($module);
             $success = $success && $DB->set_field('opencast', 'opencastid', $episodeid,
-                    array('id' => $cm->instance));
+                    ['id' => $cm->instance]);
         }
 
         return $success;
@@ -604,15 +609,15 @@ class activitymodulemanager {
         global $DB;
 
         // Get old series id.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get new series id.
         $courseseries = $apibridge->get_stored_seriesid($modulecourseid);
 
         $success = true;
         foreach ($referencedseries as $series) {
-            $success = $success && $DB->set_field('opencast', 'opencastid', $courseseries, array('ocinstanceid' => $ocinstanceid,
-                    'type' => opencasttype::SERIES, 'opencastid' => $series, 'course' => $modulecourseid));
+            $success = $success && $DB->set_field('opencast', 'opencastid', $courseseries, ['ocinstanceid' => $ocinstanceid,
+                    'type' => opencasttype::SERIES, 'opencastid' => $series, 'course' => $modulecourseid, ]);
         }
 
         return $success;

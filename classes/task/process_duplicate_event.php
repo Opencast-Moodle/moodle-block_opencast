@@ -24,6 +24,16 @@
 
 namespace block_opencast\task;
 
+use block_opencast\local\apibridge;
+use block_opencast\local\notifications;
+use core\task\adhoc_task;
+use core\task\manager;
+use DateTime;
+use DateTimeZone;
+use Exception;
+use moodle_exception;
+use stdClass;
+
 /**
  * Task for starting workflow to copy events.
  *
@@ -31,7 +41,8 @@ namespace block_opencast\task;
  * @copyright 2018 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_duplicate_event extends \core\task\adhoc_task {
+class process_duplicate_event extends adhoc_task {
+
 
     /** @var int max number of retries for one task */
     const MAX_COUNT_RETRIES = 10;
@@ -55,7 +66,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
 
         // Adhoc task will be deleted by task manager after successful execution.
         // So abort - without an error - when course does not exist (no duplcation necessary anymore).
-        $course = $DB->get_record('course', array('id' => $data->courseid));
+        $course = $DB->get_record('course', ['id' => $data->courseid]);
         if (!$course) {
             mtrace("course to reset does not exist, ID: $data->courseid, deleting adhoc task.");
             return;
@@ -72,49 +83,49 @@ class process_duplicate_event extends \core\task\adhoc_task {
             // Get duplication workflow.
             $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $data->ocinstanceid);
             if (empty($duplicateworkflow)) {
-                throw new \moodle_exception('error_workflow_setup_missing', 'block_opencast');
+                throw new moodle_exception('error_workflow_setup_missing', 'block_opencast');
             }
             // Add to string information for later use.
             $a->duplicateworkflow = $duplicateworkflow;
 
             // Series checks.
             if (empty($data->seriesid)) { // Should not happen as seriesid is checked during restore.
-                throw new \moodle_exception('error_seriesid_taskdata_missing', 'block_opencast', '', $a);
+                throw new moodle_exception('error_seriesid_taskdata_missing', 'block_opencast', '', $a);
             }
 
             // Check, whether seriesid of course exists...
-            $apibridge = \block_opencast\local\apibridge::get_instance($data->ocinstanceid);
+            $apibridge = apibridge::get_instance($data->ocinstanceid);
             if (!$seriesid = $apibridge->get_stored_seriesid($course->id)) {
-                throw new \moodle_exception('error_seriesid_missing_course', 'block_opencast', '', $a);
+                throw new moodle_exception('error_seriesid_missing_course', 'block_opencast', '', $a);
             }
 
             // ...and matches the id of task.
             if ($seriesid != $data->seriesid) {
-                throw new \moodle_exception('error_seriesid_not_matching', 'block_opencast', '', $a);
+                throw new moodle_exception('error_seriesid_not_matching', 'block_opencast', '', $a);
             }
 
             // Check, whether series exists in opencast system.
             $series = $apibridge->get_default_course_series($course->id);
             if (!isset($series)) {
-                throw new \moodle_exception('error_seriesid_missing_opencast', 'block_opencast', '', $a);
+                throw new moodle_exception('error_seriesid_missing_opencast', 'block_opencast', '', $a);
             }
 
             // Event checks.
             // Intentionally no check, whether event exists on opencast system as customer required (May be done by the opencast).
             if (empty($data->eventid)) {
-                throw new \moodle_exception('error_eventid_taskdata_missing', 'block_opencast', '', $a);
+                throw new moodle_exception('error_eventid_taskdata_missing', 'block_opencast', '', $a);
             }
 
             // Workflow checks.
             if (!$apibridge->check_if_workflow_exists($duplicateworkflow)) {
-                throw new \moodle_exception('error_workflow_not_exists', 'block_opencast', '', $a);
+                throw new moodle_exception('error_workflow_not_exists', 'block_opencast', '', $a);
             }
 
             // Set workflow configuration. It is necessary to set the following for default duplicate-event workflow.
             $configuration['mpTitle'] = 'Duplicated Event';
             $configuration['seriesId'] = $data->seriesid;
-            $configuration['startDateTime'] = (new \DateTime('now',
-                new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
+            $configuration['startDateTime'] = (new DateTime('now',
+                new DateTimeZone('UTC')))->format('Y-m-d\TH:i:s\Z');
             $configuration['numberOfEvents'] = "1";
             $configuration['noCopySuffix'] = "false";
             $sourcevideo = $apibridge->get_opencast_video($data->eventid);
@@ -123,7 +134,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
             }
 
             $params = [
-                'configuration' => json_encode((object) $configuration)
+                'configuration' => json_encode((object)$configuration),
             ];
 
             // Start workflow in Opencast and remember the workflow ID.
@@ -131,7 +142,7 @@ class process_duplicate_event extends \core\task\adhoc_task {
 
             // If the workflow was not started.
             if (!$ocworkflowid) {
-                throw new \moodle_exception('error_workflow_not_started', 'block_opencast', '', $a);
+                throw new moodle_exception('error_workflow_not_started', 'block_opencast', '', $a);
             }
 
             // If requested and only if we have a OC workflow ID, schedule the Opencast LTI episode module to be cleaned up
@@ -145,8 +156,8 @@ class process_duplicate_event extends \core\task\adhoc_task {
                 foreach ($data->episodemodules as $coursemoduleid => $oldepisodeid) {
                     // Just proceed if the record does not already exist for some reason.
                     if (!$DB->record_exists('block_opencast_ltiepisode_cu',
-                        array('cmid' => $coursemoduleid, 'ocinstanceid' => $data->ocinstanceid))) {
-                        $record = new \stdClass();
+                        ['cmid' => $coursemoduleid, 'ocinstanceid' => $data->ocinstanceid])) {
+                        $record = new stdClass();
                         $record->courseid = $course->id;
                         $record->cmid = $coursemoduleid;
                         $record->ocworkflowid = $ocworkflowid;
@@ -167,13 +178,13 @@ class process_duplicate_event extends \core\task\adhoc_task {
                     'ocinstanceid' => $data->ocinstanceid,
                     'courseid' => $course->id,
                     'sourceeventid' => $data->eventid,
-                    'ocworkflowid' => $ocworkflowid
+                    'ocworkflowid' => $ocworkflowid,
                 ];
                 $task->set_custom_data($visibiltytaskdata);
-                return \core\task\manager::queue_adhoc_task($task, true);
+                return manager::queue_adhoc_task($task, true);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
             // Increase failure counter.
             if (isset($data->countfailed)) {
@@ -186,11 +197,11 @@ class process_duplicate_event extends \core\task\adhoc_task {
 
             // Re-throw exeption to keep task alive, if counter < MAX_COUNT_RETRIES.
             if ($data->countfailed < 10) {
-                throw new \moodle_exception('errorduplicatetaskretry', 'block_opencast', '', $e->getMessage());
+                throw new moodle_exception('errorduplicatetaskretry', 'block_opencast', '', $e->getMessage());
             } else {
 
                 // Terminate (do not throw error) and notify admin.
-                \block_opencast\local\notifications::notify_error('errorduplicatetaskterminate', $e);
+                notifications::notify_error('errorduplicatetaskterminate', $e);
             }
         }
     }

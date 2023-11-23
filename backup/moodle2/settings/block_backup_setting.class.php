@@ -31,6 +31,7 @@
  */
 class backup_block_opencast_setting extends backup_setting {
 
+
     /**
      * Create an instance of this class. Note that this is used to control level and layout of this setting.
      *

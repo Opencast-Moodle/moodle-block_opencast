@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use html_writer;
+
 /**
  * Video live update Helper.
  * @package    block_opencast
@@ -32,6 +34,7 @@ namespace block_opencast\local;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class liveupdate_helper {
+
     /**
      * Returns the processing state live update hidden input flag.
      *
@@ -40,11 +43,11 @@ class liveupdate_helper {
      * @return string a hidden input as processing state item
      */
     public static function get_liveupdate_processing_hidden_input($identifier, $eventtitle) {
-        $attributes = array('type' => 'hidden', 'name' => 'liveupdate_processing_item', 'value' => $identifier);
+        $attributes = ['type' => 'hidden', 'name' => 'liveupdate_processing_item', 'value' => $identifier];
         if (!empty($eventtitle)) {
             $attributes['data-title'] = $eventtitle;
         }
-        return \html_writer::empty_tag('input', $attributes);
+        return html_writer::empty_tag('input', $attributes);
     }
 
     /**
@@ -55,11 +58,11 @@ class liveupdate_helper {
      * @return string a hidden input for uploading job item
      */
     public static function get_liveupdate_uploading_hidden_input($jobid, $jobtitle) {
-        $attributes = array('type' => 'hidden', 'name' => 'liveupdate_uploading_item', 'value' => $jobid);
+        $attributes = ['type' => 'hidden', 'name' => 'liveupdate_uploading_item', 'value' => $jobid];
         if (!empty($jobtitle)) {
             $attributes['data-title'] = $jobtitle;
         }
-        return \html_writer::empty_tag('input', $attributes);
+        return html_writer::empty_tag('input', $attributes);
     }
 
     /**
@@ -111,7 +114,7 @@ class liveupdate_helper {
         $sql = "SELECT status, countfailed FROM {block_opencast_uploadjob} " .
             "WHERE id = :uploadjobid";
         $params = [
-            'uploadjobid' => $uploadjobid
+            'uploadjobid' => $uploadjobid,
         ];
         $uploadjob = $DB->get_record_sql($sql, $params);
         // If something went wrong, we return empty string to remove the live update item.

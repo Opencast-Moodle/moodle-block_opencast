@@ -20,18 +20,26 @@
  * @copyright 2017 Andreas Wagner, Synergy Learning
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace block_opencast\task;
+
+use block_opencast\local\upload_helper;
+use coding_exception;
+use core\task\scheduled_task;
+use dml_exception;
+use lang_string;
 
 /**
  * Task for processing the upload jobs.
  * @package block_opencast
  */
-class process_upload_cron extends \core\task\scheduled_task {
+class process_upload_cron extends scheduled_task {
+
 
     /**
      * Get the name of the task.
-     * @return \lang_string|string
-     * @throws \coding_exception
+     * @return lang_string|string
+     * @throws coding_exception
      */
     public function get_name() {
         return get_string('processupload', 'block_opencast');
@@ -39,10 +47,10 @@ class process_upload_cron extends \core\task\scheduled_task {
 
     /**
      * Executes the task.
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public function execute() {
-        $ulpoadhelper = new \block_opencast\local\upload_helper();
+        $ulpoadhelper = new upload_helper();
         $ulpoadhelper->cron();
     }
 }

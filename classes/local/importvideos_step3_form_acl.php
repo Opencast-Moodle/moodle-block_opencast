@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +37,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2021 Farbod Zamani Boroujeni, ELAN e.V. <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_step3_form_acl extends \moodleform {
+class importvideos_step3_form_acl extends moodleform {
+
 
     /**
      * Form definition.
@@ -60,7 +63,7 @@ class importvideos_step3_form_acl extends \moodleform {
         $mform->setType('ocinstanceid', PARAM_INT);
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($this->_customdata['ocinstanceid']);
+        $apibridge = apibridge::get_instance($this->_customdata['ocinstanceid']);
 
         if ($this->_customdata['series']) {
             $seriesobject = $apibridge->get_series_by_identifier($this->_customdata['series']);

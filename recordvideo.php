@@ -20,6 +20,11 @@
  * @copyright  2020 Farbod Zamani Boroujeni - ELAN e.V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_opencast\local\apibridge;
+use block_opencast\local\lti_helper;
+use tool_opencast\local\settings_api;
+
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
@@ -29,9 +34,9 @@ global $PAGE, $OUTPUT, $CFG, $USER, $SITE;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/recordvideo.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -46,7 +51,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+$endpoint = settings_api::get_apiurl($ocinstanceid);
 
 if (!empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
     $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
@@ -58,7 +63,7 @@ if (strpos($endpoint, 'http') !== 0) {
 
 $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
-$apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$apibridge = apibridge::get_instance($ocinstanceid);
 
 // Get series ID, create a new one if necessary.
 $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
@@ -69,7 +74,7 @@ $customtool = $apibridge->generate_studio_url_path($courseid, $seriesid);
 // Create parameters.
 $consumerkey = $apibridge->get_lti_consumerkey();
 $consumersecret = $apibridge->get_lti_consumersecret();
-$params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
+$params = lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
 
 $renderer = $PAGE->get_renderer('block_opencast');
 

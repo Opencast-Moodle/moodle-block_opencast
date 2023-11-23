@@ -24,6 +24,8 @@
 
 namespace block_opencast\privacy;
 
+use context;
+use context_course;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -40,6 +42,7 @@ use core_privacy\local\request\helper;
  */
 class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\plugin\provider {
 
+
     /**
      *  Return the fields which contain personal data.
      * @param collection $collection a reference to the collection to use to store the metadata.
@@ -53,12 +56,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             'status' => 'privacy:metadata:block_opencast_uploadjob:status',
             'courseid' => 'privacy:metadata:block_opencast_uploadjob:courseid',
             'timecreated' => 'privacy:metadata:block_opencast_uploadjob:timecreated',
-            'timemodified' => 'privacy:metadata:block_opencast_uploadjob:timemodified'
+            'timemodified' => 'privacy:metadata:block_opencast_uploadjob:timemodified',
         ], 'privacy:metadata:block_opencast_uploadjob');
 
         // Uploads files to opencast.
         $collection->add_external_location_link('opencast', [
-            'file' => 'privacy:metadata:opencast:file'
+            'file' => 'privacy:metadata:opencast:file',
         ], 'privacy:metadata:opencast');
 
         return $collection;
@@ -72,7 +75,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @return contextlist $contextlist The list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
-        $contextlist = new \core_privacy\local\request\contextlist();
+        $contextlist = new contextlist();
 
         // Since we can have only one block instance per course, we can use the course context.
         // Therefore we take each course, in which the user uploaded a video.
@@ -84,7 +87,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         $params = [
             'contextcourse' => CONTEXT_COURSE,
-            'userid' => $userid
+            'userid' => $userid,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -128,7 +131,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
             $params = [
                 'userid' => $user->id,
-                'courseid' => $courseid
+                'courseid' => $courseid,
             ];
 
             $jobs = $DB->get_records_sql($sql, $params);
@@ -140,12 +143,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             }
 
             $data = (object)[
-                'upload_jobs' => $jobs
+                'upload_jobs' => $jobs,
             ];
 
             // The block_opencast data export is organised in: {Course Context}/Opencast/data.json.
             $subcontext = [
-                get_string('pluginname', 'block_opencast')
+                get_string('pluginname', 'block_opencast'),
             ];
 
             writer::with_context($context)->export_data($subcontext, $data)->export_area_files(
@@ -161,7 +164,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      *
      * @param context $context The specific context to delete data for.
      */
-    public static function delete_data_for_all_users_in_context(\context $context) {
+    public static function delete_data_for_all_users_in_context(context $context) {
         global $DB;
 
         if ($context->contextlevel != CONTEXT_COURSE) {
@@ -202,12 +205,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
             $DB->delete_records('block_opencast_uploadjob',
                 [
                     'userid' => $user->id,
-                    'courseid' => $courseid
+                    'courseid' => $courseid,
                 ]);
 
             // Delete all uploaded but not processed files.
             get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
-                " = 0 AND userid = :userid", array('userid' => $user->id));
+                " = 0 AND userid = :userid", ['userid' => $user->id]);
         }
     }
 
@@ -219,12 +222,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
 
-        if (!is_a($context, \context_course::class)) {
+        if (!is_a($context, context_course::class)) {
             return;
         }
 
         $params = [
-            'courseid' => $context->instanceid
+            'courseid' => $context->instanceid,
         ];
 
         // From uploadjobs.
@@ -246,7 +249,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         global $DB;
 
         $context = $userlist->get_context();
-        if (!is_a($context, \context_course::class)) {
+        if (!is_a($context, context_course::class)) {
             return;
         }
 

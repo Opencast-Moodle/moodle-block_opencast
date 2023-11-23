@@ -24,6 +24,8 @@
 
 namespace block_opencast\local;
 
+use moodleform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -35,7 +37,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @copyright  2020 Alexander Bias, Ulm University <alexander.bias@uni-ulm.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class importvideos_select_series_form extends \moodleform {
+class importvideos_select_series_form extends moodleform {
+
 
     /**
      * Form definition.
@@ -71,13 +74,13 @@ class importvideos_select_series_form extends \moodleform {
         // This is just there to let us attach an validation error message as this can't be attached to the checkbox group.
         $mform->addElement('static', 'coursevideosvalidation', '', '');
 
-        $radioarray = array();
+        $radioarray = [];
         foreach ($courseseries as $id => $title) {
-            $radioarray[] = $mform->createElement('radio', 'series', '', $title, $id, array());
+            $radioarray[] = $mform->createElement('radio', 'series', '', $title, $id, []);
         }
         $mform->addGroup($radioarray, 'series',
             get_string('importvideos_wizard_availableseries', 'block_opencast',
-                get_course($this->_customdata['sourcecourseid'])->fullname), array('<br>'), false);
+                get_course($this->_customdata['sourcecourseid'])->fullname), ['<br>'], false);
 
         // Add action buttons.
         $this->add_action_buttons(true, get_string('importvideos_wizardstepbuttontitlecontinue', 'block_opencast'));

@@ -23,20 +23,22 @@
  */
 require_once('../../config.php');
 
+use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 
 $identifier = required_param('identifier', PARAM_ALPHANUMEXT);
 $courseid = required_param('courseid', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteevent.php',
-    array('identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'redirectpage' => $redirectpage, 'series' => $series));
+    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'redirectpage' => $redirectpage, 'series' => $series, ]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -46,12 +48,12 @@ $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 if ($redirectpage == 'overviewvideos') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', array('ocinstanceid' => $ocinstanceid,
-        'series' => $series));
+    $redirecturl = new moodle_url('/blocks/opencast/overview_videos.php', ['ocinstanceid' => $ocinstanceid,
+        'series' => $series, ]);
 } else if ($redirectpage == 'overview') {
-    $redirecturl = new moodle_url('/blocks/opencast/overview.php', array('ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]);
 } else {
-    $redirecturl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 }
 
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
@@ -61,7 +63,7 @@ $PAGE->navbar->add(get_string('deleteevent', 'block_opencast'), $baseurl);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:deleteevent', $coursecontext);
 
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 $video = $opencast->get_opencast_video($identifier);
 
 if (($action == 'delete') && confirm_sesskey()) {

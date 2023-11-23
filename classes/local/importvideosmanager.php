@@ -25,6 +25,10 @@
 namespace block_opencast\local;
 
 use context_course;
+use core\output\notification;
+use core_plugin_manager;
+use dml_exception;
+use stdClass;
 
 /**
  * Import videos management for block_opencast.
@@ -34,6 +38,7 @@ use context_course;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class importvideosmanager {
+
 
     /**
      * Helperfunction to get the status of the manual import videos feature.
@@ -53,7 +58,7 @@ class importvideosmanager {
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -142,7 +147,7 @@ class importvideosmanager {
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -195,7 +200,7 @@ class importvideosmanager {
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -226,7 +231,7 @@ class importvideosmanager {
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the APIbridge configuration status.
         $apibridgeworking = $apibridge->check_api_configuration();
@@ -256,16 +261,16 @@ class importvideosmanager {
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Initialize course videos as empty array.
-        $courseseries = array();
+        $courseseries = [];
 
         // If the user is not allowed to import from the given course at all, return.
-        $coursecontext = \context_course::instance($sourcecourseid);
+        $coursecontext = context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $coursecontext) != true) {
             return $courseseries;
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get course series with videos which are qualified to be imported.
         $coursebackupseries = $apibridge->get_course_series_and_videos_for_backup($sourcecourseid);
@@ -282,7 +287,7 @@ class importvideosmanager {
             if (!$title) {
                 $title = $identifier;
             }
-            $courseseries[$identifier] = array('title' => $title, 'videos' => array());
+            $courseseries[$identifier] = ['title' => $title, 'videos' => []];
 
             foreach ($videos as $videoid => $video) {
                 $courseseries[$identifier]['videos'][$videoid] = $renderer->course_video_menu_entry($video);
@@ -309,21 +314,21 @@ class importvideosmanager {
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Initialize course videos summary as empty array.
-        $coursevideossummary = array();
+        $coursevideossummary = [];
 
         // If the user is not allowed to import from the given course at all, return.
-        $coursecontext = \context_course::instance($sourcecourseid);
+        $coursecontext = context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $coursecontext) != true) {
             return $coursevideossummary;
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Iterate over all course videos which have been selected to be imported.
         foreach ($selectedcoursevideos as $identifier => $checked) {
             // If the event does not exist anymore in Opencast in the meantime, skip it silently.
-            $video = $apibridge->get_already_existing_event(array($identifier));
+            $video = $apibridge->get_already_existing_event([$identifier]);
             if ($video == false) {
                 continue;
             }
@@ -341,7 +346,7 @@ class importvideosmanager {
                 if (!$title) {
                     $title = $video->is_part_of;
                 }
-                $coursevideossummary[$video->is_part_of] = array('title' => $title, 'videos' => array());
+                $coursevideossummary[$video->is_part_of] = ['title' => $title, 'videos' => []];
             }
             $coursevideossummary[$video->is_part_of]['videos'][$identifier] = $renderer->course_video_menu_entry($video);
 
@@ -356,13 +361,13 @@ class importvideosmanager {
      * @param int $ocinstanceid Opencast instance id.
      * @param int $sourcecourseid
      * @return array
-     * @throws \dml_exception
+     * @throws dml_exception
      */
     public static function get_import_source_course_series($ocinstanceid, $sourcecourseid) {
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
         $series = $apibridge->get_course_series($sourcecourseid);
-        $serieswithnames = array();
+        $serieswithnames = [];
 
         foreach ($series as $s) {
             $ocseries = $apibridge->get_series_by_identifier($s->series);
@@ -381,29 +386,29 @@ class importvideosmanager {
      * @param array $coursevideos The array of video identifiers to be duplicated.
      * @param bool $modulecleanup (optional) The switch if we want to cleanup the episode modules.
      *
-     * @return \stdClass
+     * @return stdClass
      */
     public static function duplicate_videos($ocinstanceid, $sourcecourseid, $targetcourseid,
                                             $coursevideos, $modulecleanup = false) {
         global $USER;
-        $result = new \stdClass();
+        $result = new stdClass();
 
         // If the user is not allowed to import from the source course at all, return.
-        $sourcecoursecontext = \context_course::instance($sourcecourseid);
+        $sourcecoursecontext = context_course::instance($sourcecourseid);
         if (has_capability('block/opencast:manualimportsource', $sourcecoursecontext) != true) {
             $result->error = true;
             return $result;
         }
 
         // If the user is not allowed to import to the target course at all, return.
-        $targetcoursecontext = \context_course::instance($targetcourseid);
+        $targetcoursecontext = context_course::instance($targetcourseid);
         if (has_capability('block/opencast:manualimporttarget', $targetcoursecontext) != true) {
             $result->error = true;
             return $result;
         }
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get source course series ID.
         $sourceseries = array_column($apibridge->get_course_series($sourcecourseid), 'series');
@@ -411,12 +416,12 @@ class importvideosmanager {
         // Get target course series ID, create a new one if necessary.
         $targetseriesid = $apibridge->get_stored_seriesid($targetcourseid, true, $USER->id);
 
-        $duplicatedsourceseries = array();
+        $duplicatedsourceseries = [];
 
         // Process the array of course videos.
         foreach ($coursevideos as $identifier => $checked) {
             // Get the existing event from Opencast.
-            $event = $apibridge->get_already_existing_event(array($identifier));
+            $event = $apibridge->get_already_existing_event([$identifier]);
 
             // If the event does not exist anymore in Opencast in the meantime, skip it silently.
             if (!$event) {
@@ -439,16 +444,16 @@ class importvideosmanager {
             // If cleanup of the episode modules was requested, look for existing modules.
             if ($modulecleanup == true) {
                 // Get the episode modules to be cleaned up.
-                $episodemodules = array();
+                $episodemodules = [];
 
                 // For LTI check if capability is fulfilled.
-                if (\block_opencast\local\ltimodulemanager::is_working_for_episodes($ocinstanceid) &&
+                if (ltimodulemanager::is_working_for_episodes($ocinstanceid) &&
                     has_capability('block/opencast:addltiepisode', context_course::instance($targetcourseid))) {
                     $episodemodules = ltimodulemanager::get_modules_for_episode_linking_to_other_course(
                         $ocinstanceid, $targetcourseid, $identifier);
                 }
 
-                if (\core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
+                if (core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null) {
                     $episodemodules += activitymodulemanager::get_modules_for_episode_linking_to_other_course(
                         $ocinstanceid, $targetcourseid, $identifier);
                 }
@@ -496,7 +501,7 @@ class importvideosmanager {
         $renderer = $PAGE->get_renderer('block_opencast', 'importvideos');
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get course videos which are qualified to be imported.
         $result = $apibridge->get_series_videos($seriesid);
@@ -544,14 +549,14 @@ class importvideosmanager {
         global $USER, $PAGE;
 
         // Initialize the result as empty object to handle it later on.
-        $aclchangeresult = new \stdClass();
+        $aclchangeresult = new stdClass();
 
         // Assuming that everything goes fine, we define the return result variable.
         $aclchangeresult->message = get_string('importvideos_importjobaclchangedone', 'block_opencast');
-        $aclchangeresult->type = \core\output\notification::NOTIFY_SUCCESS;
+        $aclchangeresult->type = notification::NOTIFY_SUCCESS;
 
         // Get an APIbridge instance.
-        $apibridge = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+        $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Import series and course videos into the targeted course.
         $result = $apibridge->import_series_to_course_with_acl_change($targetcourseid, $sourcecourseseries, $USER->id);
@@ -562,26 +567,26 @@ class importvideosmanager {
             if (!$result->seriesaclchange) {
                 // 1. When there is error with changing Series ACL.
                 $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesfailed', 'block_opencast');
-                $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
+                $aclchangeresult->type = notification::NOTIFY_ERROR;
             } else if (!$result->seriesmapped) {
                 // 2. When there is error with mapping series to the course correctly.
                 // It is very unlikely to happen but it is important if it does.
                 $aclchangeresult->message = get_string('importvideos_importjobaclchangeseriesmappingfailed', 'block_opencast');
-                $aclchangeresult->type = \core\output\notification::NOTIFY_ERROR;
+                $aclchangeresult->type = notification::NOTIFY_ERROR;
             } else if (count($result->eventsaclchange->failed) > 1) {
                 // 3. Error might happen during events ACL changes, but it should not be as important as other errors,
                 // only a notification would be enough.
                 // If all videos have failed, we notify user as a warning.
                 if (count($result->eventsaclchange->failed) == $result->eventsaclchange->total) {
                     $aclchangeresult->message = get_string('importvideos_importjobaclchangealleventsfailed', 'block_opencast');
-                    $aclchangeresult->type = \core\output\notification::NOTIFY_WARNING;
+                    $aclchangeresult->type = notification::NOTIFY_WARNING;
                 } else {
                     // But if some of them have failed, we notify user as warning with the id of the events.
                     // Get renderer.
                     $renderer = $PAGE->get_renderer('block_opencast');
                     $aclchangeresult->message = get_string('importvideos_importjobaclchangeeventsfailed', 'block_opencast');
                     $aclchangeresult->message .= $renderer->render_list($result->eventsaclchange->failed);
-                    $aclchangeresult->type = \core\output\notification::NOTIFY_WARNING;
+                    $aclchangeresult->type = notification::NOTIFY_WARNING;
                 }
             }
         }

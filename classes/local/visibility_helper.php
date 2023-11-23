@@ -25,6 +25,10 @@
 namespace block_opencast\local;
 
 use block_opencast_renderer;
+use coding_exception;
+use dml_exception;
+use moodle_exception;
+use stdClass;
 
 /**
  * Event Visibility Helper.
@@ -34,6 +38,7 @@ use block_opencast_renderer;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class visibility_helper {
+
     /** @var int visibility change failed */
     const STATUS_FAILED = 0;
 
@@ -68,13 +73,13 @@ class visibility_helper {
             mtrace('proceed: ' . $job->id);
             try {
                 $this->process_scheduled_change_visibility_job($job);
-            } catch (\moodle_exception $e) {
+            } catch (moodle_exception $e) {
                 mtrace('Event change visibility job failed due to: ' . $e);
             }
         }
 
         // Cleanup the visibility jobs.
-        $sql = "SELECT * FROM {block_opencast_visibility}".
+        $sql = "SELECT * FROM {block_opencast_visibility}" .
             " WHERE status = :status";
         $params = [];
         $params['status'] = self::STATUS_DONE;
@@ -87,7 +92,7 @@ class visibility_helper {
             mtrace('cleaning-up: ' . $job->id);
             try {
                 $this->cleanup_visibility_job($job);
-            } catch (\moodle_exception $e) {
+            } catch (moodle_exception $e) {
                 mtrace('Cleanup visibility job failed due to: ' . $e);
             }
         }
@@ -99,7 +104,7 @@ class visibility_helper {
      * @param object $job represents the visibility job.
      *
      * @return boolean
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     protected function process_scheduled_change_visibility_job($job) {
         $status = self::STATUS_FAILED;
@@ -117,8 +122,8 @@ class visibility_helper {
         $groups = json_decode($job->scheduledvisibilitygroups);
         $apibridge = apibridge::get_instance($ocinstanceid);
 
-        $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
-            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
+        $allowedvisibilitystates = [block_opencast_renderer::VISIBLE,
+            block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP, ];
 
         if (!in_array($visibility, $allowedvisibilitystates)) {
             mtrace('job ' . $job->id . ':(ERROR) Has invalid visibility state.');
@@ -225,7 +230,7 @@ class visibility_helper {
     public static function delete_visibility_job($visibility) {
         global $DB;
         // Delete the visibility record.
-        return $DB->delete_records('block_opencast_visibility', array('id' => $visibility->id));
+        return $DB->delete_records('block_opencast_visibility', ['id' => $visibility->id]);
     }
 
     /**
@@ -268,11 +273,11 @@ class visibility_helper {
      */
     public static function change_job_status($job, $status) {
         global $DB;
-        $allowedjobstatus = array(self::STATUS_PENDING, self::STATUS_DONE,
-            self::STATUS_FAILED);
+        $allowedjobstatus = [self::STATUS_PENDING, self::STATUS_DONE,
+            self::STATUS_FAILED, ];
 
         if (!in_array($status, $allowedjobstatus)) {
-            throw new \coding_exception('Invalid job status code.');
+            throw new coding_exception('Invalid job status code.');
         }
         // Set the pending status.
         $job->status = $status;
@@ -283,14 +288,14 @@ class visibility_helper {
     /**
      * Return the Visibility object containing ACL roles based on initial visibility configs.
      *
-     * @param \stdClass $uploadjob upload job to be checked
-     * @return \stdClass $initialvisibility initial visibility object.
-     * @throws \dml_exception A DML specific exception is thrown for any errors.
+     * @param stdClass $uploadjob upload job to be checked
+     * @return stdClass $initialvisibility initial visibility object.
+     * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     public static function get_initial_visibility($uploadjob) {
         global $DB;
         // Get the visibility record.
-        $visibilityrecord = $DB->get_record('block_opencast_visibility', array('uploadjobid' => $uploadjob->id));
+        $visibilityrecord = $DB->get_record('block_opencast_visibility', ['uploadjobid' => $uploadjob->id]);
         // Initialize the visibility as Visible.
         $visibility = block_opencast_renderer::VISIBLE;
 
@@ -308,18 +313,18 @@ class visibility_helper {
             }
 
             // Checking the visibility value against the allowed visibility states.
-            $allowedvisibilitystates = array(block_opencast_renderer::VISIBLE,
-                block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP);
+            $allowedvisibilitystates = [block_opencast_renderer::VISIBLE,
+                block_opencast_renderer::HIDDEN, block_opencast_renderer::GROUP, ];
 
             if (!in_array($visibility, $allowedvisibilitystates)) {
-                throw new \coding_exception('Invalid visibility state.');
+                throw new coding_exception('Invalid visibility state.');
             }
         }
 
         // Get all related acls.
         $acls = self::get_acl_roles($uploadjob, $visibility, $groups);
         // Create an object to be consumed later.
-        $initialvisibility = new \stdClass();
+        $initialvisibility = new stdClass();
         $initialvisibility->roles = $acls;
 
         return $initialvisibility;
@@ -328,11 +333,11 @@ class visibility_helper {
     /**
      * Gets acls for the initial visibility of an upload job, based on requested initial visibility.
      *
-     * @param \stdClass $uploadjob upload job to be checked.
+     * @param stdClass $uploadjob upload job to be checked.
      * @param int $visibility the initial visibility state.
      * @param array $groups the initial groups.
      * @return array $acls initial acls.
-     * @throws \dml_exception A DML specific exception is thrown for any errors.
+     * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     private static function get_acl_roles($uploadjob, $visibility, $groups) {
         // Retrieve required values from upload job object.
@@ -357,11 +362,11 @@ class visibility_helper {
                         $rolenameformatted = $apibridge::replace_placeholders($role->rolename,
                             $courseid, null, $uploadjob->userid)[0];
                         if ($rolenameformatted) {
-                            $acls[] = (object)array(
+                            $acls[] = (object)[
                                 'allow' => true,
                                 'action' => $action,
                                 'role' => $rolenameformatted,
-                            );
+                            ];
                         }
                     }
                 }
@@ -372,18 +377,18 @@ class visibility_helper {
                         foreach ($apibridge::replace_placeholders($role->rolename,
                             $courseid, $groups, $uploadjob->userid) as $rule) {
                             if ($rule) {
-                                $acls[] = (object)array(
+                                $acls[] = (object)[
                                     'allow' => true,
                                     'action' => $action,
                                     'role' => $rule,
-                                );
+                                ];
                             }
                         }
                     }
                 }
                 break;
             default:
-                throw new \coding_exception('The provided visibility status is not valid!');
+                throw new coding_exception('The provided visibility status is not valid!');
         }
 
         return $acls;
@@ -393,7 +398,7 @@ class visibility_helper {
      * Performs a cleanup operation on the visibility job.
      *
      * @param object $job represents the visibility job.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     protected function cleanup_visibility_job($job) {
         global $DB;
@@ -406,7 +411,7 @@ class visibility_helper {
         }
 
         // Delete the visibility record otherwise.
-        $DB->delete_records('block_opencast_visibility', array('id' => $job->id));
+        $DB->delete_records('block_opencast_visibility', ['id' => $job->id]);
         mtrace('job ' . $job->id . ' removed');
     }
 
@@ -439,13 +444,13 @@ class visibility_helper {
         if (empty($courseid) && !empty($job->courseid)) {
             $courseid = $job->courseid;
         }
-         // Next, we look for the eventidentifier, if it is not set yet and this job has it, we take it.
+        // Next, we look for the eventidentifier, if it is not set yet and this job has it, we take it.
         if (empty($opencasteventid) && !empty($job->opencasteventid)) {
             $opencasteventid = $job->opencasteventid;
         }
 
         // Finally, we return the array of parameters.
-        return array($ocinstanceid, $courseid, $opencasteventid);
+        return [$ocinstanceid, $courseid, $opencasteventid];
     }
 
     /**
@@ -474,7 +479,7 @@ class visibility_helper {
                     $waitingtime += ($minutes * 60);
             }
         }
-        return array($waitingtime, $configwaitingtime);
+        return [$waitingtime, $configwaitingtime];
     }
 
     /**
@@ -491,16 +496,16 @@ class visibility_helper {
         // Now that we have two different options in visibility table, we need to prepare a comprehensive sql.
         // Assuming that the visibility was requested by changevisibility form, not the addvideo (not uploadjob).
         $select = "SELECT * FROM {block_opencast_visibility}";
-        $params = array(
+        $params = [
             'ocinstanceid' => $ocinstanceid,
             'courseid' => $courseid,
             'opencasteventid' => $opencasteventid,
-        );
-        $where = array(
+        ];
+        $where = [
             'ocinstanceid = :ocinstanceid',
             'courseid = :courseid',
             'opencasteventid = :opencasteventid',
-        );
+        ];
         $sql = $select . ' WHERE ' . implode(' AND ', $where);
         $visibility = $DB->get_record_sql($sql, $params);
         // If the record exists already, we return it. Otherwise, we will give it another chance with uploadjobid.
@@ -510,12 +515,12 @@ class visibility_helper {
         // However, here we look to see if the uploadjob for that event exists.
         $uploadjob = $DB->get_record('block_opencast_uploadjob', $params);
         if (!empty($uploadjob)) {
-            $params = array(
+            $params = [
                 'uploadjobid' => intval($uploadjob->id),
-            );
-            $where = array(
+            ];
+            $where = [
                 'uploadjobid = :uploadjobid',
-            );
+            ];
         }
         $sql = $select . ' WHERE ' . implode(' AND ', $where);
         $visibility = $DB->get_record_sql($sql, $params);
@@ -534,9 +539,9 @@ class visibility_helper {
         global $DB;
         $sql = "SELECT * FROM {block_opencast_visibility}" .
             " WHERE uploadjobid = :uploadjobid";
-        $params = array(
+        $params = [
             'uploadjobid' => intval($uploadjobid),
-        );
+        ];
         if ($onlyscheduled) {
             $sql .= " AND scheduledvisibilitytime IS NOT NULL";
         }

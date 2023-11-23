@@ -25,6 +25,9 @@ require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/lib/oauthlib.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\lti_helper;
+use core\output\notification;
+use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG;
 
@@ -34,16 +37,16 @@ $courseid = required_param('courseid', PARAM_INT);
 $identifier = required_param('video_identifier', PARAM_ALPHANUMEXT);
 $type = required_param('attachment_type', PARAM_ALPHANUMEXT);
 $domain = optional_param('domain', '', PARAM_ALPHA);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$indexurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$indexurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
-    array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'video_identifier' => $identifier, 'attachment_type' => $type));
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+        'video_identifier' => $identifier, 'attachment_type' => $type, ]);
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',
-    array('video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
 require_login($courseid, false);
 
@@ -64,7 +67,7 @@ if (empty($downloadenabled)) {
     redirect($redirecturl,
         get_string('unabletodownloadtranscription', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }
 
 $apibridge = apibridge::get_instance($ocinstanceid);
@@ -102,7 +105,7 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
         redirect($redirecturl,
             get_string('unabletodownloadtranscription', 'block_opencast'),
             null,
-            \core\output\notification::NOTIFY_ERROR);
+            notification::NOTIFY_ERROR);
     }
 
     // Get the LTI required credentials.
@@ -117,7 +120,7 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     }
 
     if ($performlti) {
-        $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+        $endpoint = settings_api::get_apiurl($ocinstanceid);
 
         // Make sure the endpoint is correct.
         if (strpos($endpoint, 'http') !== 0) {
@@ -127,7 +130,7 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
         $ltiendpoint = rtrim($endpoint, '/') . '/lti';
 
         // Create parameters.
-        $params = \block_opencast\local\lti_helper::create_lti_parameters($consumerkey, $consumersecret,
+        $params = lti_helper::create_lti_parameters($consumerkey, $consumersecret,
             $ltiendpoint, $downloadurl);
 
         $renderer = $PAGE->get_renderer('block_opencast');
@@ -135,7 +138,7 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
         echo $OUTPUT->heading(get_string('downloadtranscription', 'block_opencast'));
         echo $renderer->render_lti_form($ltiendpoint, $params);
         $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
-        $htmlreturnlink = html_writer::link($redirecturl,  get_string('transcriptionreturntomanagement', 'block_opencast'));
+        $htmlreturnlink = html_writer::link($redirecturl, get_string('transcriptionreturntomanagement', 'block_opencast'));
         echo html_writer::tag('p', get_string('transcriptionltidownloadcompleted', 'block_opencast', $htmlreturnlink));
         echo $OUTPUT->footer();
     } else {
@@ -164,5 +167,5 @@ if (!$result->error || $result->video->processing_state != 'SUCCEEDED' ||
     redirect($redirecturl,
         get_string('unabletodownloadtranscription', 'block_opencast'),
         null,
-        \core\output\notification::NOTIFY_ERROR);
+        notification::NOTIFY_ERROR);
 }

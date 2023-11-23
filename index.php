@@ -24,16 +24,22 @@
 require_once('../../config.php');
 require_once($CFG->dirroot . '/lib/tablelib.php');
 
+use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
+use block_opencast\local\importvideosmanager;
 use block_opencast\local\liveupdate_helper;
+use block_opencast\local\ltimodulemanager;
+use block_opencast\local\upload_helper;
+use block_opencast\opencast_connection_exception;
+use core\notification;
 use tool_opencast\local\settings_api;
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
 $courseid = required_param('courseid', PARAM_INT);
-$ocinstanceid = optional_param('ocinstanceid', \tool_opencast\local\settings_api::get_default_ocinstance()->id, PARAM_INT);
+$ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
-$baseurl = new moodle_url('/blocks/opencast/index.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$baseurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $PAGE->set_url($baseurl);
 
 require_login($courseid, false);
@@ -46,22 +52,22 @@ $apibridge = apibridge::get_instance($ocinstanceid);
 $opencasterror = null;
 
 try {
-    $workflows = array();
+    $workflows = [];
     if (!empty(get_config('block_opencast', 'workflow_tags_' . $ocinstanceid))) {
         $tags = explode(',', get_config('block_opencast', 'workflow_tags_' . $ocinstanceid));
         $tags = array_map('trim', $tags);
         $workflows = $apibridge->get_existing_workflows($tags, false);
     }
-} catch (\block_opencast\opencast_connection_exception $e) {
+} catch (opencast_connection_exception $e) {
     $opencasterror = $e->getMessage();
 }
 $workflowsavailable = count($workflows) > 0;
 
 foreach ($workflows as $workflow) {
     if (empty($workflow->title)) {
-        $workflowsjs[$workflow->identifier] = array('title' => $workflow->identifier, 'description' => $workflow->description);
+        $workflowsjs[$workflow->identifier] = ['title' => $workflow->identifier, 'description' => $workflow->description];
     } else {
-        $workflowsjs[$workflow->identifier] = array('title' => $workflow->title, 'description' => $workflow->description);
+        $workflowsjs[$workflow->identifier] = ['title' => $workflow->title, 'description' => $workflow->description];
     }
 }
 // Get live update config settings.
@@ -73,7 +79,7 @@ if ($liveupdatereloadtimeout < 0) {
 }
 $liveupdate = [
     'enabled' => $liveupdateenabled,
-    'timeout' => $liveupdatereloadtimeout
+    'timeout' => $liveupdatereloadtimeout,
 ];
 $PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid, $coursecontext->id, $liveupdate]);
 $PAGE->set_pagelayout('incourse');
@@ -88,13 +94,13 @@ if (settings_api::num_ocinstances() > 1) {
 $PAGE->navbar->add(get_string('overview', 'block_opencast'), $baseurl);
 
 // Invalidate Block cache.
-cache_helper::invalidate_by_event('viewopencastvideolist', array($courseid));
+cache_helper::invalidate_by_event('viewopencastvideolist', [$courseid]);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 
 // Start the columns and headers array with the (mandatory) start date column.
-$columns = array('start_date');
-$headers = array('start_date');
+$columns = ['start_date'];
+$headers = ['start_date'];
 
 // If configured, add the end date column.
 if (get_config('block_opencast', 'showenddate_' . $ocinstanceid)) {
@@ -136,17 +142,17 @@ $columns[] = 'action';
 $headers[] = 'action';
 
 // If enabled and working, add the provide-activity column.
-if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+if (activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
     $columns[] = 'provide-activity';
     $headers[] = 'provide';
 }
 
 // If enabled and working, add the provide column.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+if (ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
     $columns[] = 'provide';
 
     // Use different string if activits is also enabled.
-    if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+    if (activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
         $headers[] = 'providelti';
     } else {
         $headers[] = 'provide';
@@ -165,7 +171,7 @@ foreach ($headers as $i => $header) {
     // We add customized help icons to the status and visibility headers.
     if ($header == 'visibility' || $header == 'workflow_state') {
         // Preparing the context for the template.
-        $context = new \stdClass();
+        $context = new stdClass();
         // Passing proper flag to the template context to render related data.
         if ($header == 'visibility') {
             $context->visibilityhelpicon = true;
@@ -179,7 +185,7 @@ foreach ($headers as $i => $header) {
 }
 
 $perpage = optional_param('perpage', 20, PARAM_INT);
-$opencast = \block_opencast\local\apibridge::get_instance($ocinstanceid);
+$opencast = apibridge::get_instance($ocinstanceid);
 $table = $renderer->create_videos_tables('ignore', $headers, $columns, $baseurl);
 $sortcolumns = $table->get_sort_columns();
 
@@ -231,7 +237,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
     }
 
     // Show "Add video" button.
-    $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+    $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
     echo html_writer::div($addvideobutton);
 
@@ -246,7 +252,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
         if (empty($apibridge->get_lti_consumerkey($ocinstanceid))) {
             if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
-                $endpoint = \tool_opencast\local\settings_api::get_apiurl($ocinstanceid);
+                $endpoint = settings_api::get_apiurl($ocinstanceid);
             } else {
                 $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
             }
@@ -259,19 +265,19 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
             $studiourlpath = $apibridge->generate_studio_url_path($courseid, $seriesid);
             $url = $endpoint . $studiourlpath;
             $recordvideobutton = $OUTPUT->action_link($url, get_string('recordvideo', 'block_opencast'),
-                null, array('class' => 'btn btn-secondary', 'target' => $target));
+                null, ['class' => 'btn btn-secondary', 'target' => $target]);
             echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
         } else {
             $recordvideo = new moodle_url('/blocks/opencast/recordvideo.php',
-                array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+                ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
             $recordvideobutton = $OUTPUT->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-                null, array('class' => 'btn btn-secondary', 'target' => $target));
+                null, ['class' => 'btn btn-secondary', 'target' => $target]);
             echo html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap');
         }
     }
 
     // If there are upload jobs scheduled, show the upload queue table.
-    $videojobs = \block_opencast\local\upload_helper::get_upload_jobs($ocinstanceid, $courseid);
+    $videojobs = upload_helper::get_upload_jobs($ocinstanceid, $courseid);
     if (count($videojobs) > 0) {
         // Show heading.
         echo $OUTPUT->heading(get_string('uploadqueuetoopencast', 'block_opencast'));
@@ -285,12 +291,12 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
 echo $OUTPUT->heading(get_string('videosavailable', 'block_opencast'));
 
 // If enabled and working, fetch the data for the LTI episodes feature.
-if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+if (ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
     // Fetch existing LTI episode modules for this course.
-    $episodemodules = \block_opencast\local\ltimodulemanager::get_modules_for_episodes($ocinstanceid, $courseid);
+    $episodemodules = ltimodulemanager::get_modules_for_episodes($ocinstanceid, $courseid);
 }
 
-$courseseries = $DB->get_records('tool_opencast_series', array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+$courseseries = $DB->get_records('tool_opencast_series', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $seriesvideodata = array_fill_keys(array_column($courseseries, 'series'), null);
 $errors = 0;
 
@@ -314,21 +320,21 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
             if (empty($privacynoticetitle)) {
                 $privacynoticetitle = get_string('privacynoticedefaulttitle', 'block_opencast');
             }
-            $targetedworkflows = array();
+            $targetedworkflows = [];
             $swprivacynoticewfds = get_config('block_opencast', 'swprivacynoticewfds_' . $ocinstanceid);
             if (!empty($swprivacynoticewfds)) {
                 $targetedworkflows = explode(',', $swprivacynoticewfds);
                 $targetedworkflows = array_map('trim', $targetedworkflows);
             }
-            $workflowprivacynoticediv = html_writer::start_tag('div', array('class' => 'd-none', 'id' => 'workflowprivacynotice'));
-            $workflowprivacynoticediv .= html_writer::tag('p', $privacynoticetitle, array('id' => 'swprivacynoticetitle'));
+            $workflowprivacynoticediv = html_writer::start_tag('div', ['class' => 'd-none', 'id' => 'workflowprivacynotice']);
+            $workflowprivacynoticediv .= html_writer::tag('p', $privacynoticetitle, ['id' => 'swprivacynoticetitle']);
             $workflowprivacynoticediv .= html_writer::div(
                 format_text(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid), FORMAT_HTML, []),
                 '',
-                array('id' => 'swprivacynoticeinfotext')
+                ['id' => 'swprivacynoticeinfotext']
             );
             $workflowprivacynoticediv .= html_writer::tag('p',
-                json_encode($targetedworkflows), array('id' => 'swprivacynoticewfds'));
+                json_encode($targetedworkflows), ['id' => 'swprivacynoticewfds']);
             $workflowprivacynoticediv .= html_writer::end_tag('div');
             echo $workflowprivacynoticediv;
         }
@@ -337,9 +343,9 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
 
 // If enabled and working, add Opencast Activity series module feature.
 
-if ((\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+if ((activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
         has_capability('block/opencast:addactivity', $coursecontext)) || (
-        \block_opencast\local\ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
+        ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
         has_capability('block/opencast:addlti', $coursecontext))) {
 
     // Show explanation.
@@ -367,12 +373,12 @@ foreach ($seriesvideodata as $series => $videodata) {
     if ($videodata->error == 0) {
         echo html_writer::start_div('position-relative');
         $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);
-        $deletedvideos = $DB->get_records("block_opencast_deletejob", array(), "", "opencasteventid");
+        $deletedvideos = $DB->get_records("block_opencast_deletejob", [], "", "opencasteventid");
         $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
 
         foreach ($videodata->videos as $video) {
 
-            $row = array();
+            $row = [];
 
             // Start date column.
             $row[] = $renderer->render_created($video->start);
@@ -390,8 +396,8 @@ foreach ($seriesvideodata as $series => $videodata) {
             // Title column.
             if ($engageurl) {
                 $row[] = html_writer::link(new moodle_url('/blocks/opencast/engageredirect.php',
-                    array('identifier' => $video->identifier, 'courseid' => $courseid,
-                        'ocinstanceid' => $ocinstanceid)), $video->title, array('target' => '_blank'));
+                    ['identifier' => $video->identifier, 'courseid' => $courseid,
+                        'ocinstanceid' => $ocinstanceid, ]), $video->title, ['target' => '_blank']);
             } else {
                 $row[] = $video->title;
             }
@@ -420,12 +426,12 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $row[] = "";
 
                 // Provide activity column.
-                if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid)) {
+                if (activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid)) {
                     $row[] = "";
                 }
 
                 // Provide LTI column.
-                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid)) {
+                if (ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid)) {
                     $row[] = "";
                 }
 
@@ -485,9 +491,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $row[] = $actions;
 
                 // Provide Opencast Activity episode module column.
-                if (\block_opencast\local\activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+                if (activitymodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
                     // Pick existing Opencast Activity episode module for this episode.
-                    $moduleid = \block_opencast\local\activitymodulemanager::get_module_for_episode($courseid,
+                    $moduleid = activitymodulemanager::get_module_for_episode($courseid,
                         $video->identifier, $ocinstanceid);
 
                     $activityicon = '';
@@ -507,9 +513,9 @@ foreach ($seriesvideodata as $series => $videodata) {
                 }
 
                 // Provide column.
-                if (\block_opencast\local\ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
+                if (ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true) {
                     // Pick existing LTI episode module for this episode.
-                    $moduleid = \block_opencast\local\ltimodulemanager::pick_module_for_episode($ocinstanceid,
+                    $moduleid = ltimodulemanager::pick_module_for_episode($ocinstanceid,
                         $episodemodules, $courseid, $video->identifier);
                     $ltiicon = '';
                     // If there is already a LTI episode module created for this episode.
@@ -539,7 +545,7 @@ foreach ($seriesvideodata as $series => $videodata) {
 }
 
 // If enabled and working, add manual import videos feature.
-if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == true) {
+if (importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == true) {
     // Check if the user is allowed to import videos.
     if (has_capability('block/opencast:manualimporttarget', $coursecontext)) {
         // Show heading.
@@ -558,7 +564,7 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 
             // Check if the maximum number of series is already reached.
             $courseseries = $DB->get_records('tool_opencast_series',
-                array('ocinstanceid' => $ocinstanceid, 'courseid' => $courseid));
+                ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
             if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
                 $renderimport = false;
             }
@@ -571,7 +577,7 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
         if ($renderimport) {
             // Show "Import videos" button.
             $importvideosurl = new moodle_url('/blocks/opencast/importvideos.php',
-                array('courseid' => $courseid, 'ocinstanceid' => $ocinstanceid));
+                ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
             $importvideosbutton = $OUTPUT->single_button($importvideosurl,
                 get_string('importvideos_importbuttontitle', 'block_opencast'), 'get');
             echo html_writer::div($importvideosbutton);
@@ -582,11 +588,11 @@ if (\block_opencast\local\importvideosmanager::is_enabled_and_working_for_manual
 }
 
 if (empty($seriesvideodata)) {
-    echo \html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
+    echo html_writer::tag('p', (get_string('nothingtodisplay', 'block_opencast')));
 }
 
 if ($opencasterror) {
-    \core\notification::error($opencasterror);
+    notification::error($opencasterror);
 }
 
 echo $OUTPUT->footer();

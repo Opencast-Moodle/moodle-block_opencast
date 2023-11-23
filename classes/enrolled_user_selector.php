@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/user/selector/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_enrolled_user_selector extends user_selector_base {
+
     /** @var bool|context|context_system|mixed|null Moodle context, usually course */
     protected $context;
 
@@ -97,7 +98,7 @@ class block_opencast_enrolled_user_selector extends user_selector_base {
         $availableusers = $DB->get_records_sql($fields . $sql . $order, array_merge($params, $sortparams));
 
         if (empty($availableusers)) {
-            return array();
+            return [];
         }
 
         if ($search) {
@@ -106,6 +107,6 @@ class block_opencast_enrolled_user_selector extends user_selector_base {
             $groupname = get_string('potusers', 'core_role');
         }
 
-        return array($groupname => $availableusers);
+        return [$groupname => $availableusers];
     }
 }
