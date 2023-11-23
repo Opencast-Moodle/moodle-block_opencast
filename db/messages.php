@@ -22,7 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-
+if ($CFG->version <= 2021051718) {
+    define('MESSAGE_DEFAULT_ENABLED', 0x01); // 0001.
+}
 $messageproviders = [
     'error' => [
         'defaults' => [
