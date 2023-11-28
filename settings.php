@@ -273,6 +273,11 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('limitvideosdesc', 'block_opencast'), 5, PARAM_INT));
 
             $generalsettings->add(
+                new admin_setting_configcheckbox('block_opencast/keepseriesmappingblockdelete_' . $instance->id,
+                    get_string('keepseriesmappingblockdelete', 'block_opencast'),
+                    get_string('keepseriesmappingblockdelete_desc', 'block_opencast'), 0));
+
+            $generalsettings->add(
                 new admin_setting_heading('block_opencast/groupseries_header_' . $instance->id,
                     get_string('groupseries_header', 'block_opencast'),
                     ''));

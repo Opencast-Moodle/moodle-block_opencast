@@ -166,8 +166,12 @@ class block_opencast extends block_base {
 
         $mappings = seriesmapping::get_records(['courseid' => $COURSE->id]);
         foreach ($mappings as $mapping) {
-            if (!$mapping->delete()) {
-                $success = false;
+            $ocinstanceid = $mapping->get('ocinstanceid');
+            $keepseriesmappingconfig = get_config('block_opencast', 'keepseriesmappingblockdelete_' . $ocinstanceid);
+            if (empty($keepseriesmappingconfig)) {
+                if (!$mapping->delete()) {
+                    $success = false;
+                }
             }
         }
 
