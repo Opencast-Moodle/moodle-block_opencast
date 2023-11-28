@@ -106,27 +106,27 @@ Feature: Manage series as Teacher
     And I wait "2" seconds
     Then I should not see "The series could not be imported"
 
-    @javascript
-    Scenario: When manually deleting a block, keep the series mapping when setting is activated, and remove the series mapping when setting is deactivated
-      Given the following config values are set as admin:
-        | keepseriesmappingblockdelete_1    | 1                                               | block_opencast |
-      And I open the action menu in "Opencast Videos" "block"
-      And I click on "Delete Opencast Videos block" "link"
-      And I click on "Delete" "button" in the "Delete block?" "dialogue"
-      And I reload the page
-      And I add the "Opencast Videos" block
-      And I click on "Go to overview..." "link"
-      And I click on "Manage series" "link"
-      Then I should see "Test series"
-      When I am on "Course 1" course homepage with editing mode on
-      And the following config values are set as admin:
-        | keepseriesmappingblockdelete_1    | 0                                               | block_opencast |
-      And I open the action menu in "Opencast Videos" "block"
-      And I click on "Delete Opencast Videos block" "link"
-      And I click on "Delete" "button" in the "Delete block?" "dialogue"
-      And I reload the page
-      And I add the "Opencast Videos" block
-      And I reload the page
-      When I click on "Go to overview..." "link"
-      And I click on "Manage series" "link"
-      Then I should see "No series is defined yet."
+  @javascript
+  Scenario: When manually deleting a block, keep the series mapping when setting is activated, and remove the series mapping when setting is deactivated
+    Given the following config values are set as admin:
+      | keepseriesmappingblockdelete_1    | 1                                               | block_opencast |
+    And I open the action menu in "Opencast Videos" "block"
+    And I click on "Delete Opencast Videos block" "link"
+    And I click on "Delete" "button" in the "Delete block?" "dialogue"
+    And I reload the page
+    And I add the "Opencast Videos" block
+    And I click on "Go to overview..." "link"
+    And I click on "Manage series" "link"
+    Then I should see "Test series"
+    When I am on "Course 1" course homepage with editing mode on
+    And the following config values are set as admin:
+      | keepseriesmappingblockdelete_1    | 0                                               | block_opencast |
+    And I open the action menu in "Opencast Videos" "block"
+    And I click on "Delete Opencast Videos block" "link"
+    And I click on "Delete" "button" in the "Delete block?" "dialogue"
+    And I reload the page
+    And I add the "Opencast Videos" block
+    And I reload the page
+    When I click on "Go to overview..." "link"
+    And I click on "Manage series" "link"
+    Then I should see "No series is defined yet."
