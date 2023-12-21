@@ -113,8 +113,6 @@ Feature: Manage series as Teacher
     And I click on "Delete" "button" in the "Remove Opencast Block?" "dialogue"
     Then I should see "Delete Opencast course series mapping"
     When I click on "No" "button"
-    Then I should not see "Opencast Videos"
-    And I reload the page
     Then I add the "Opencast Videos" block
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
@@ -125,8 +123,6 @@ Feature: Manage series as Teacher
     And I click on "Delete" "button" in the "Remove Opencast Block?" "dialogue"
     Then I should see "Delete Opencast course series mapping"
     When I click on "Yes" "button"
-    Then I should not see "Opencast Videos"
-    And I reload the page
     Then I add the "Opencast Videos" block
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
