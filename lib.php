@@ -139,6 +139,6 @@ function block_opencast_pre_block_delete($instance) {
             throw new moodle_exception('error_block_delete_seriesmapping', 'block_opencast');
         }
     }
-    // we let the process continue if the flag 'removeseriesmapping' is set to 0,
+    // We let the process continue if the flag 'removeseriesmapping' is set to 0,
     // which means it is decided not to delete series mapping.
 }

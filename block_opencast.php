@@ -189,7 +189,10 @@ class block_opencast extends block_base {
     }
 
     /**
-     * @inheritDoc
+     * Return a block_contents object representing the full contents of this block.
+     *
+     * This internally calls ->get_content(), and then adds the editing controls etc.
+     *
      * Overwritten method from parent class (block_base)
      *
      * @param \core_renderer $output
@@ -222,7 +225,7 @@ class block_opencast extends block_base {
             if (!empty($deleteactionfiltered)) {
                 $index = key($deleteactionfiltered);
                 $deleteaction = reset($deleteactionfiltered);
-                // Replace the action link's text
+                // Replace the action link's text.
                 if (isset($deleteaction->text)) {
                     $deleteaction->text = get_string('delete_block_action_item_keepseriesmapping_text', 'block_opencast');
                 }
@@ -244,7 +247,13 @@ class block_opencast extends block_base {
             // A new action link item that is meant to delete the seariemapping as well,
             // only by passing the 'removeseriesmapping' flag set to 1.
             $deleteurl = new moodle_url('/course/view.php',
-                ['id' => $COURSE->id, 'sesskey' => sesskey(), 'bui_deleteid' =>  $this->instance->id, 'bui_confirm' => 1, 'removeseriesmapping' => 1]
+                [
+                    'id' => $COURSE->id,
+                    'sesskey' => sesskey(),
+                    'bui_deleteid' => $this->instance->id,
+                    'bui_confirm' => 1,
+                    'removeseriesmapping' => 1
+                ]
             );
             $str = get_string('delete_block_action_item_noseriesmapping_text', 'block_opencast');
             $deleteseriesmappinglink = new action_menu_link_secondary(
