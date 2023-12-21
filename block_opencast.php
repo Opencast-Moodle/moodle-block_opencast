@@ -258,7 +258,7 @@ class block_opencast extends block_base {
                     'data-modal-content-str' => json_encode(['deletecheck_noseriesmapping_content_modal', 'block_opencast']),
                     'data-modal-yes-button-str' => json_encode(['delete', 'core']),
                     'data-modal-toast' => 'true',
-                    'data-modal-toast-confirmation-str' => json_encode(['deleteblockinprogress', 'block', $blocktitle]),
+                    'data-modal-toast-confirmation-str' => json_encode(['deleteblockinprogress', 'block', $title]),
                     'data-modal-destination' => $deleteurl->out(false),
                 ]
             );
