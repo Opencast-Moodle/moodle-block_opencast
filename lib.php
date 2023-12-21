@@ -105,3 +105,40 @@ function block_opencast_pre_course_delete(stdClass $course) {
         $mapping->delete();
     }
 }
+
+
+/**
+ * Pre-delete block hook to show a confirmation message or to perform cleaup the related series and videos.
+ *
+ * @param object $instance a row from the block_instances table
+ *
+ * @throws moodle_exception
+ */
+function block_opencast_pre_block_delete($instance) {
+
+    // We make sure if the deleting block is Opencast block, otherwise we do nothing!
+    if ($instance->blockname !== 'opencast') {
+        return;
+    }
+
+    // Get the course and context base don block instance parentcontextid.
+    list($context, $course, $cm) = get_context_info_array($instance->parentcontextid);
+
+    // We get the flag 'removeseriesmapping' to decide whether to delete the series mapping.
+    $removeseriesmapping = optional_param('removeseriesmapping', null, PARAM_INT);
+    // We only perform the series mapping deletion if the flag is set to 1.
+    if ($removeseriesmapping === 1) {
+        $success = true;
+        $mappings = seriesmapping::get_records(['courseid' => $course->id]);
+        foreach ($mappings as $mapping) {
+            if (!$mapping->delete()) {
+                $success = false;
+            }
+        }
+        if (!$success) {
+            throw new moodle_exception('error_block_delete_seriesmapping', 'block_opencast');
+        }
+    }
+    // we let the process continue if the flag 'removeseriesmapping' is set to 0,
+    // which means it is decided not to delete series mapping.
+}
