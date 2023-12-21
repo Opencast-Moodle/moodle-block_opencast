@@ -891,5 +891,12 @@ $string['directaccess_copy_no_link'] = 'Invalid direct access link';
 $string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
 $string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
 $string['opencast:autocompleteteacherroles'] = 'Teacher roles to be extracted and provided in the autocomplete list';
+$string['delete_block_action_item_text'] = 'Remove Opencast Block';
+$string['deletecheck_title_modal'] = 'Remove Opencast Block?';
+$string['deletecheck_content_modal'] = 'Are you sure you want to remove the Opencast block from the course?<br /> <small>You get to decide whether to remove the series mapping in the next step.</small>';
+$string['confirm_delete_seriesmapping_title_page'] = 'Opencast Block: Delete series mapping';
+$string['confirm_delete_seriesmapping_title_confirm'] = 'Delete Opencast course series mapping';
+$string['confirm_delete_seriesmapping_content_confirm'] = 'Do you also want to delete the course series mapping of this block?<br /><br /><small><b>NOTE:</b> If the course series mapping is deleted, it is not possible to retrieve the current series to this course anymore.</small>';
+$string['error_block_delete_seriesmapping'] = 'Unfortunately, there was an error during course series mapping deletion, please contact the system administrator.';
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

@@ -156,22 +156,13 @@ class block_opencast extends block_base {
     }
 
     /**
-     * Deletes the series mappings when a block is deleted.
-     * @return bool
-     * @throws coding_exception
+     * Perform actions when the block instance is deleting.
+     * @see block_opencast_pre_block_delete method in lib.php, by which completes this function purpose by providing
+     * a new confirmation message.
+     * @return void
      */
     public function instance_delete() {
-        global $COURSE;
-        $success = true;
-
-        $mappings = seriesmapping::get_records(['courseid' => $COURSE->id]);
-        foreach ($mappings as $mapping) {
-            if (!$mapping->delete()) {
-                $success = false;
-            }
-        }
-
-        return $success;
+        // Please see block_opencast_pre_block_delete before implementing anything here.
     }
 
     /**
@@ -195,5 +186,61 @@ class block_opencast extends block_base {
             }
         }
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     * Overwritten method from parent class (block_base)
+     *
+     * @param \core_renderer $output
+     * @return block_contents a representation of the block, for rendering.
+     */
+    public function get_content_for_output($output) {
+
+        // Get the block_contents object from parent class.
+        $bc = parent::get_content_for_output($output);
+
+        // We prepare the data to use and replace the existing action link contents.
+        $title = $this->title;
+        $defaultdeletestr = get_string('deleteblock', 'block', $this->title);
+
+        // Check if the block_contents has controls.
+        if (!empty($bc->controls)) {
+
+            // We filter the controls to find the delete action link.
+            $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) use ($defaultdeletestr, $title) {
+                // Get the text from action link.
+                $actionlinktext = $actionlink->text;
+                // Get the text if it is a type of lang_string via __toString.
+                if ($actionlinktext instanceof \lang_string) {
+                    $actionlinktext = $actionlinktext->__toString();
+                }
+                return $actionlinktext === $defaultdeletestr;
+            });
+
+            // In case the delete action link could be found, we try to replace its properties.
+            if (!empty($deleteactionfiltered)) {
+                $index = key($deleteactionfiltered);
+                $deleteaction = reset($deleteactionfiltered);
+                // Replace the action link's text
+                if (isset($deleteaction->text)) {
+                    $deleteaction->text = get_string('delete_block_action_item_text', 'block_opencast');
+                }
+                if (isset($deleteaction->attributes)) {
+                    if (isset($deleteaction->attributes['data-modal-title-str'])) {
+                        $deleteaction->attributes['data-modal-title-str'] = json_encode(
+                            ['deletecheck_title_modal', 'block_opencast']
+                        );
+                    }
+                    if (isset($deleteaction->attributes['data-modal-content-str'])) {
+                        $deleteaction->attributes['data-modal-content-str'] = json_encode(
+                            ['deletecheck_content_modal', 'block_opencast']
+                        );
+                    }
+                }
+                $bc->controls[$index] = $deleteaction;
+            }
+        }
+        return $bc;
     }
 }
