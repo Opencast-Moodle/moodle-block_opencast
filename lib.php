@@ -139,7 +139,12 @@ function block_opencast_pre_block_delete($instance) {
         }
         // The default delete url.
         $deleteurl = new moodle_url('/course/view.php',
-            ['id' => $course->id, 'sesskey' => sesskey(), 'bui_deleteid' =>  $instance->id, 'bui_confirm' => 1]
+            [
+                'id' => $course->id,
+                'sesskey' => sesskey(),
+                'bui_deleteid' => $instance->id,
+                'bui_confirm' => 1
+            ]
         );
         $deletepage->set_url($deleteurl);
         $deletepage->set_block_actions_done();
@@ -182,6 +187,6 @@ function block_opencast_pre_block_delete($instance) {
             throw new moodle_exception('error_block_delete_seriesmapping', 'block_opencast');
         }
     }
-    // we let the process continue if the flag 'removeseriesmapping' is set to 0,
+    // We let the process continue if the flag 'removeseriesmapping' is set to 0,
     // which means it is decided not to delete series mapping.
 }

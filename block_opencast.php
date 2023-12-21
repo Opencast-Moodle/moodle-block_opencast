@@ -189,7 +189,10 @@ class block_opencast extends block_base {
     }
 
     /**
-     * @inheritDoc
+     * Return a block_contents object representing the full contents of this block.
+     *
+     * This internally calls ->get_content(), and then adds the editing controls etc.
+     *
      * Overwritten method from parent class (block_base)
      *
      * @param \core_renderer $output
@@ -222,7 +225,7 @@ class block_opencast extends block_base {
             if (!empty($deleteactionfiltered)) {
                 $index = key($deleteactionfiltered);
                 $deleteaction = reset($deleteactionfiltered);
-                // Replace the action link's text
+                // Replace the action link's text.
                 if (isset($deleteaction->text)) {
                     $deleteaction->text = get_string('delete_block_action_item_text', 'block_opencast');
                 }
