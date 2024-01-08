@@ -41,7 +41,7 @@ $functions = [
         'description' => 'Retrieves series titles',
         'type' => 'read',
         'ajax' => true,
-        'capabilities' => 'block/opencast:defineseriesforcourse',
+        'capabilities' => 'block/opencast:manageseriesforcourse',
     ],
     'block_opencast_import_series' => [
         'classname' => 'block_opencast_external',

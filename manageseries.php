@@ -69,7 +69,7 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('manageseriesforcourse', 'block_opencast'), $baseurl);
 
 // Capability check.
-require_capability('block/opencast:defineseriesforcourse', $coursecontext);
+require_capability('block/opencast:manageseriesforcourse', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 
