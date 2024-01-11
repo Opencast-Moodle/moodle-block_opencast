@@ -199,7 +199,7 @@ class block_opencast extends block_base {
      * @return block_contents a representation of the block, for rendering.
      */
     public function get_content_for_output($output) {
-        global $COURSE, $PAGE;
+        global $COURSE;
 
         // Get the block_contents object from parent class.
         $bc = parent::get_content_for_output($output);
@@ -238,7 +238,7 @@ class block_opencast extends block_base {
                         'bui_confirm' => 1,
                         'sesskey' => sesskey()
                 ]);
-                $PAGE->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
+                $this->page->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
                         [$this->context->id, $deleteurl->out(false)]);
             }
         }
