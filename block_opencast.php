@@ -199,49 +199,47 @@ class block_opencast extends block_base {
      * @return block_contents a representation of the block, for rendering.
      */
     public function get_content_for_output($output) {
+        global $COURSE, $PAGE;
 
         // Get the block_contents object from parent class.
         $bc = parent::get_content_for_output($output);
 
-        // We prepare the data to use and replace the existing action link contents.
-        $title = $this->title;
-        $defaultdeletestr = get_string('deleteblock', 'block', $this->title);
+        // Check whether the user can manually delete series mapping.
+        if (!has_capability('block/opencast:manageseriesforcourse', $this->context)) {
+            return $bc;
+        }
 
         // Check if the block_contents has controls.
         if (!empty($bc->controls)) {
 
             // We filter the controls to find the delete action link.
-            $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) use ($defaultdeletestr, $title) {
-                // Get the text from action link.
-                $actionlinktext = $actionlink->text;
-                // Get the text if it is a type of lang_string via __toString.
-                if ($actionlinktext instanceof \lang_string) {
-                    $actionlinktext = $actionlinktext->__toString();
-                }
-                return $actionlinktext === $defaultdeletestr;
+            $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) {
+                return str_contains($actionlink->attributes['class'], 'editing_delete');
             });
 
             // In case the delete action link could be found, we try to replace its properties.
             if (!empty($deleteactionfiltered)) {
                 $index = key($deleteactionfiltered);
                 $deleteaction = reset($deleteactionfiltered);
-                // Replace the action link's text.
-                if (isset($deleteaction->text)) {
-                    $deleteaction->text = get_string('delete_block_action_item_text', 'block_opencast');
-                }
+
+                // Delete all modal-related attributes.
                 if (isset($deleteaction->attributes)) {
-                    if (isset($deleteaction->attributes['data-modal-title-str'])) {
-                        $deleteaction->attributes['data-modal-title-str'] = json_encode(
-                            ['deletecheck_title_modal', 'block_opencast']
-                        );
+                    foreach ($deleteaction->attributes as $k => $v) {
+                        if (str_starts_with($k, 'data-modal')) {
+                            unset($deleteaction->attributes[$k]);
+                        }
                     }
-                    if (isset($deleteaction->attributes['data-modal-content-str'])) {
-                        $deleteaction->attributes['data-modal-content-str'] = json_encode(
-                            ['deletecheck_content_modal', 'block_opencast']
-                        );
-                    }
+                    $deleteaction->attributes['class'] .= ' block_opencast_delete';
                 }
                 $bc->controls[$index] = $deleteaction;
+                $deleteurl = new moodle_url('/course/view.php', [
+                        'id' => $COURSE->id,
+                        'bui_deleteid' => $this->instance->id,
+                        'bui_confirm' => 1,
+                        'sesskey' => sesskey()
+                ]);
+                $PAGE->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
+                        [$this->context->id, $deleteurl->out(false)]);
             }
         }
         return $bc;

@@ -1,0 +1,35 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_opencast/delete_block_modal
+
+    This template renders the delete modal
+
+    Example context (json):
+    {
+        "deleteblockurl": "https://moodle.local/blocks/opencast/managedefaults.php?courseid=3&ocinstanceid=1"
+    }
+}}
+{{#str}} delete_mapping_explanation, block_opencast {{/str}}
+<div class="d-flex justify-content-end mt-3">
+    <div class="btn btn-primary mx-1 block_opencast-delete-mapping">
+        {{#str}} delete_block_and_mapping, block_opencast {{/str}}
+    </div>
+    <a class='btn btn-primary mx-1 block_opencast-keep-mapping' href="{{{deleteblockurl}}}">
+        {{#str}} only_delete_block, block_opencast {{/str}}
+    </a>
+</div>

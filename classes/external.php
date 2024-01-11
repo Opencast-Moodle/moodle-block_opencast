@@ -299,17 +299,21 @@ class block_opencast_external extends external_api {
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        $mapping = seriesmapping::get_record(['ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
-            'series' => $params['seriesid'], ], true);
+        if ($params['seriesid'] === 'all') {
+            $mappings = seriesmapping::get_records(['courseid' => $course->id]);
+        } else {
+            $mappings = seriesmapping::get_records(['ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
+                    'series' => $params['seriesid']]);
+        }
 
-        if ($mapping) {
+        foreach ($mappings as $mapping) {
             if (!$mapping->delete()) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
 
             // Unlinking series from course.
-            $apibridge = apibridge::get_instance($params['ocinstanceid']);
-            $seriesunlinked = $apibridge->unlink_series_from_course($course->id, $params['seriesid']);
+            $apibridge = apibridge::get_instance($mapping->get('ocinstanceid'));
+            $seriesunlinked = $apibridge->unlink_series_from_course($course->id, $mapping->get('series'));
 
             if (!$seriesunlinked) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
