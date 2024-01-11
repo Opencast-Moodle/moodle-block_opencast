@@ -25,7 +25,7 @@ import ModalFactory from 'core/modal_factory';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Prefetch from "core/prefetch";
-import {getString} from 'core/str';
+import {get_string} from 'core/str';
 import Notification from "core/notification";
 
 export const init = (contextid, deleteurl) => {
@@ -42,7 +42,7 @@ export const init = (contextid, deleteurl) => {
         const modal = await ModalFactory.create({
             type: ModalFactory.types.CANCEL,
             body: html,
-            title: await getString('deletecheck_title_modal', 'block_opencast'),
+            title: await get_string('deletecheck_title_modal', 'block_opencast'),
             large: true
         });
         await modal.show();

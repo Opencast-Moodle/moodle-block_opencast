@@ -110,9 +110,8 @@ Feature: Manage series as Teacher
   Scenario: When manually deleting a block, teacher will be asked to decide whether to delete seriesmapping in a confirmation.
     When I open the action menu in "Opencast Videos" "block"
     And I click on "Delete Opencast Videos block" "link"
-    And I click on "Delete" "button" in the "Remove Opencast Block?" "dialogue"
-    Then I should see "Delete Opencast course series mapping"
-    When I click on "No" "button"
+    Then I should see "Remove Opencast Block?"
+    When I click on "Delete block, but keep series mapping" "link"
     Then I add the "Opencast Videos" block
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
@@ -120,9 +119,8 @@ Feature: Manage series as Teacher
     When I am on "Course 1" course homepage with editing mode on
     When I open the action menu in "Opencast Videos" "block"
     And I click on "Delete Opencast Videos block" "link"
-    And I click on "Delete" "button" in the "Remove Opencast Block?" "dialogue"
-    Then I should see "Delete Opencast course series mapping"
-    When I click on "Yes" "button"
+    When I click on "Delete block and series mapping" "text"
+    And I wait to be redirected
     Then I add the "Opencast Videos" block
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
