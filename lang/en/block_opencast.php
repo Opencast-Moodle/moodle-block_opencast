@@ -890,5 +890,13 @@ $string['directaccess_copy_no_link'] = 'Invalid direct access link';
 $string['directaccess_copy_success'] = 'The direct access link has been successfully copied to clipboard.';
 $string['directaccess_copytoclipboard_unavialable'] = 'It seems that your browser does not support the copy to clipboard functionality, try to copy the link manually from the dropdown item.';
 $string['opencast:autocompleteteacherroles'] = 'Teacher roles to be extracted and provided in the autocomplete list';
+// Strings for delete block modal.
+$string['deletecheck_title_modal'] = 'Remove Opencast Block?';
+$string['error_block_delete_seriesmapping'] = 'Unfortunately, there was an error during course series mapping deletion, please contact the system administrator.';
+
+$string['delete_mapping_explanation'] = 'The Opencast Block tracks which Opencast Series is mapped to the course.<br> You can choose whether to delete the mapping.<br> If you delete it, the series will no longer appear when you create the opencast block again.';
+$string['only_delete_block'] = 'Delete block, but keep series mapping';
+$string['delete_block_and_mapping'] = 'Delete block and series mapping';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

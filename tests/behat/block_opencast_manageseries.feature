@@ -105,3 +105,23 @@ Feature: Manage series as Teacher
     And I click on "Import series" "button" in the ".modal" "css_element"
     And I wait "2" seconds
     Then I should not see "The series could not be imported"
+
+  @javascript
+  Scenario: When manually deleting a block, teacher will be asked to decide whether to delete seriesmapping in a confirmation.
+    When I open the action menu in "Opencast Videos" "block"
+    And I click on "Delete Opencast Videos block" "link"
+    Then I should see "Remove Opencast Block?"
+    When I click on "Delete block, but keep series mapping" "link"
+    Then I add the "Opencast Videos" block
+    And I click on "Go to overview..." "link"
+    And I click on "Manage series" "link"
+    Then I should see "Test series"
+    When I am on "Course 1" course homepage with editing mode on
+    When I open the action menu in "Opencast Videos" "block"
+    And I click on "Delete Opencast Videos block" "link"
+    When I click on "Delete block and series mapping" "text"
+    And I wait to be redirected
+    Then I add the "Opencast Videos" block
+    And I click on "Go to overview..." "link"
+    And I click on "Manage series" "link"
+    Then I should see "No series is defined yet."

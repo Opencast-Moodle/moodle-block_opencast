@@ -156,22 +156,13 @@ class block_opencast extends block_base {
     }
 
     /**
-     * Deletes the series mappings when a block is deleted.
-     * @return bool
-     * @throws coding_exception
+     * Perform actions when the block instance is deleting.
+     * @see block_opencast_pre_block_delete method in lib.php, by which completes this function purpose by providing
+     * a new confirmation message.
+     * @return void
      */
     public function instance_delete() {
-        global $COURSE;
-        $success = true;
-
-        $mappings = seriesmapping::get_records(['courseid' => $COURSE->id]);
-        foreach ($mappings as $mapping) {
-            if (!$mapping->delete()) {
-                $success = false;
-            }
-        }
-
-        return $success;
+        // Please see block_opencast_pre_block_delete before implementing anything here.
     }
 
     /**
@@ -195,5 +186,62 @@ class block_opencast extends block_base {
             }
         }
         return true;
+    }
+
+    /**
+     * Return a block_contents object representing the full contents of this block.
+     *
+     * This internally calls ->get_content(), and then adds the editing controls etc.
+     *
+     * Overwritten method from parent class (block_base)
+     *
+     * @param \core_renderer $output
+     * @return block_contents a representation of the block, for rendering.
+     */
+    public function get_content_for_output($output) {
+        global $COURSE;
+
+        // Get the block_contents object from parent class.
+        $bc = parent::get_content_for_output($output);
+
+        // Check whether the user can manually delete series mapping.
+        if (!has_capability('block/opencast:manageseriesforcourse', $this->context)) {
+            return $bc;
+        }
+
+        // Check if the block_contents has controls.
+        if (!empty($bc->controls)) {
+
+            // We filter the controls to find the delete action link.
+            $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) {
+                return str_contains($actionlink->attributes['class'], 'editing_delete');
+            });
+
+            // In case the delete action link could be found, we try to replace its properties.
+            if (!empty($deleteactionfiltered)) {
+                $index = key($deleteactionfiltered);
+                $deleteaction = reset($deleteactionfiltered);
+
+                // Delete all modal-related attributes.
+                if (isset($deleteaction->attributes)) {
+                    foreach ($deleteaction->attributes as $k => $v) {
+                        if (str_starts_with($k, 'data-modal')) {
+                            unset($deleteaction->attributes[$k]);
+                        }
+                    }
+                    $deleteaction->attributes['class'] .= ' block_opencast_delete';
+                }
+                $bc->controls[$index] = $deleteaction;
+                $deleteurl = new moodle_url('/course/view.php', [
+                        'id' => $COURSE->id,
+                        'bui_deleteid' => $this->instance->id,
+                        'bui_confirm' => 1,
+                        'sesskey' => sesskey()
+                ]);
+                $this->page->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
+                        [$this->context->id, $deleteurl->out(false)]);
+            }
+        }
+        return $bc;
     }
 }
