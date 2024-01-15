@@ -217,7 +217,7 @@ class block_opencast_external extends external_api {
 
         $context = context::instance_by_id($params['contextid']);
         self::validate_context($context);
-        require_capability('block/opencast:defineseriesforcourse', $context);
+        require_capability('block/opencast:manageseriesforcourse', $context);
 
         $serialiseddata = json_decode($params['series']);
         $seriestitles = [];

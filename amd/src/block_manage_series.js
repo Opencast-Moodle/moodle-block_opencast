@@ -97,8 +97,8 @@ function submitFormAjax(e) {
                 seriestable.addRow({'seriesname': s.seriestitle, 'series': s.series, 'isdefault': s.isdefault});
 
                 if (seriestable.getRows().length >= numseriesallowed) {
-                    $("#createseries").hide();
-                    $("#importseries").hide();
+                    $("#createseries")?.hide();
+                    $("#importseries")?.hide();
                 }
             }
         },
@@ -325,10 +325,10 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                                 cell.getRow().delete();
                                                 const createseries = $("#createseries");
                                                 const importseries = $("#importseries");
-                                                createseries.show();
-                                                createseries.removeClass('d-none');
-                                                importseries.show();
-                                                importseries.removeClass('d-none');
+                                                createseries?.show();
+                                                createseries?.removeClass('d-none');
+                                                importseries?.show();
+                                                importseries?.removeClass('d-none');
                                             }
                                         },
                                         fail: function(e) {
@@ -349,7 +349,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
 
         // Create new series in modal
         // Button for connection a new series
-        $('#createseries').click(function() {
+        $('#createseries')?.click(function() {
             ModalFactory.create({
                 type: ModalFactory.types.SAVE_CANCEL,
                 title: jsstrings[4],
@@ -388,7 +388,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
         });
 
         // Import new series in modal
-        $('#importseries').click(function() {
+        $('#importseries')?.click(function() {
             let context = {
                 label: jsstrings[12],
                 required: false,
@@ -431,8 +431,8 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                     seriestable.addRow({'seriesname': s.title, 'series': s.id, 'isdefault': s.isdefault});
 
                                     if (seriestable.getRows().length >= numseriesallowed) {
-                                        $("#createseries").hide();
-                                        $("#importseries").hide();
+                                        $("#createseries")?.hide();
+                                        $("#importseries")?.hide();
                                     }
                                 }
                             },

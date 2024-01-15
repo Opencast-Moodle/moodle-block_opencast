@@ -198,15 +198,14 @@ $seriesid = $apibridge->get_stored_seriesid($courseid);
 $ocseriesid = $apibridge->get_default_course_series($courseid);
 
 if ($seriesid && !$ocseriesid) {
-    if (has_capability('block/opencast:defineseriesforcourse', $coursecontext)) {
+    if (has_capability('block/opencast:importseriesintocourse', $coursecontext)) {
         echo $OUTPUT->notification(get_string('series_does_not_exist_admin', 'block_opencast', $seriesid));
     } else {
         echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast'));
     }
 }
 
-if (!$opencasterror && (has_capability('block/opencast:createseriesforcourse', $coursecontext)
-        || has_capability('block/opencast:defineseriesforcourse', $coursecontext))) {
+if (!$opencasterror && has_capability('block/opencast:manageseriesforcourse', $coursecontext)) {
     echo $renderer->render_series_settings_actions($ocinstanceid, $courseid);
 }
 

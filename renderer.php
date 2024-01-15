@@ -1328,10 +1328,13 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_manage_series_table($ocinstanceid, $courseid) {
         global $DB;
-        $series = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
+        $coursecontext = context_course::instance($courseid);
+        $countseries = $DB->count_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
 
         $context = new stdClass();
-        $context->addseriesallowed = count($series) < get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+        $context->maxseriesreached = $countseries >= get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+        $context->cancreateseries = has_capability('block/opencast:createseriesforcourse', $coursecontext);
+        $context->canimportseries = has_capability('block/opencast:importseriesintocourse', $coursecontext);
 
         return $this->render_from_template('block_opencast/series_table', $context);
     }

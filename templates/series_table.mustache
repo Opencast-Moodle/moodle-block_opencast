@@ -21,25 +21,20 @@
 
     Example context (json):
     {
-        "series": "",
-        "numseriesallowed": 3,
-        "addseriesallowed": true
+        "cancreateseries": true,
+        "canimportseries": false,
+        "maxseriesreached": false
     }
 }}
 <div class="mt-3" id="seriestable">
 </div>
-{{#addseriesallowed}}
-    <button type="button" class="btn btn-primary mt-3" id="createseries">
+{{#cancreateseries}}
+    <button type="button" class="btn btn-primary mt-3 {{#maxseriesreached}}d-none{{/maxseriesreached}}" id="createseries">
         {{# str}}createseriesforcourse, block_opencast {{/ str}}
     </button>
-    <button type="button" class="btn btn-primary mt-3" id="importseries">
-    {{# str}}importseries, block_opencast {{/ str}}
-{{/addseriesallowed}}
-{{^addseriesallowed}}
-        <button type="button" class="btn btn-primary mt-3 d-none" id="createseries">
-            {{# str}}createseriesforcourse, block_opencast {{/ str}}
-        </button>
-    <button type="button" class="btn btn-primary mt-3 d-none" id="importseries">
-    {{# str}}importseries, block_opencast {{/ str}}
-{{/addseriesallowed}}
-</button>
+{{/cancreateseries}}
+{{#canimportseries}}
+    <button type="button" class="btn btn-primary mt-3 {{#maxseriesreached}}d-none{{/maxseriesreached}}" id="importseries">
+        {{# str}}importseries, block_opencast {{/ str}}
+    </button>
+{{/canimportseries}}

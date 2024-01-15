@@ -112,14 +112,6 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-    'block/opencast:defineseriesforcourse' => [
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
     'block/opencast:importseriesintocourse' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
@@ -160,6 +152,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         ],
     ],
     'block/opencast:manageseriesforcourse' => [
@@ -168,6 +161,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
         ],
     ],
     'block/opencast:deleteevent' => [
