@@ -767,6 +767,21 @@ class upload_helper {
     }
 
     /**
+     * Gets the catalog of metadata fields from database for batch video upload
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @return array $metadatacatalog the metadata catalog array of stdClasses for batch upload
+     */
+    public static function get_opencast_metadata_catalog_batch($ocinstanceid) {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        // As for batch video upload we don't need the single title catalog and only those that are marked for batchable.
+        $batchmetadatacatalog = array_filter($metadatacatalog, function ($metadata) {
+            return $metadata->name !== 'title' && !empty($metadata->batchable);
+        });
+        return !empty($batchmetadatacatalog) ? $batchmetadatacatalog : [];
+    }
+
+    /**
      * Ensures that the series exists.
      * @param stdClass $job
      * @param object $apibridge

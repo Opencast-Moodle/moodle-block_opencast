@@ -148,6 +148,8 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'helpbtndescription_' . $instance->id, 'descriptionmdfd', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpdefaultable_' . $instance->id,
                 'helpbtndefaultable_' . $instance->id, 'descriptionmddefaultable', 'block_opencast'));
+            $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpbatchable_' . $instance->id,
+                'helpbtnbatchable_' . $instance->id, 'descriptionmdbatchable', 'block_opencast'));
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpreadonly_' . $instance->id,
                 'helpbtnreadonly_' . $instance->id, 'descriptionmdreadonly', 'block_opencast'));
 
@@ -260,6 +262,22 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $generalsettings->add(new admin_setting_configtext('block_opencast/maxseries_' . $instance->id,
                 new lang_string('maxseries', 'block_opencast'),
                 get_string('maxseriesdesc', 'block_opencast'), 3, PARAM_INT
+            ));
+
+            // Batch upload setting.
+            $uploadtimeouturl = new moodle_url('/admin/settings.php?section=block_opencast_sharedsettings');
+            $uploadtimeoutlink = html_writer::link($uploadtimeouturl,
+                get_string('uploadtimeout', 'block_opencast'), ['target' => '_blank']);
+            $toolopencastinstanceurl = new moodle_url('admin/settings.php?section=tool_opencast_configuration_' . $instance->id);
+            $toolopencastinstancelink = html_writer::link($toolopencastinstanceurl,
+                get_string('configuration_instance', 'tool_opencast', $instance->name), ['target' => '_blank']);
+            $stringobj = new \stdClass();
+            $stringobj->uploadtimeoutlink = $uploadtimeoutlink;
+            $stringobj->toolopencastinstancelink = $toolopencastinstancelink;
+            $generalsettings->add(new admin_setting_configcheckbox('block_opencast/batchuploadenabled_' . $instance->id,
+                get_string('batchupload_setting', 'block_opencast'),
+                get_string('batchupload_setting_desc', 'block_opencast', $stringobj),
+                1
             ));
 
             $generalsettings->add(

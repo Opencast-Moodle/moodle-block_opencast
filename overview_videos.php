@@ -128,6 +128,14 @@ $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', ['courseid' => $S
 $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
 echo html_writer::div($addvideobutton);
 
+// Show "Add videos (batch)" button.
+if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
+    $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
+        ['courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'series' => $series]);
+    $batchuploadbutton = $OUTPUT->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
+    echo html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap');
+}
+
 // If there are upload jobs scheduled, show the upload queue table.
 $videojobs = upload_helper::get_upload_jobs($ocinstanceid, $SITE->id);
 if (count($videojobs) > 0) {

@@ -488,6 +488,14 @@ class block_opencast_renderer extends plugin_renderer_base {
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
+            // Show "Add videos (batch)" button.
+            if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstance->id)) {
+                $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
+                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
+                $batchuploadbutton = $this->output->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
+                $html .= html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap overview');
+            }
+
             if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
                 // Initialize the link target to open in the same tab.
                 $target = '_self';
