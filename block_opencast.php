@@ -214,7 +214,8 @@ class block_opencast extends block_base {
 
             // We filter the controls to find the delete action link.
             $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) {
-                return str_contains($actionlink->attributes['class'], 'editing_delete');
+                // Using strpos in order to make the plugin PHP 7 backward compatible.
+                return strpos($actionlink->attributes['class'], 'editing_delete') !== false;
             });
 
             // In case the delete action link could be found, we try to replace its properties.
@@ -225,7 +226,8 @@ class block_opencast extends block_base {
                 // Delete all modal-related attributes.
                 if (isset($deleteaction->attributes)) {
                     foreach ($deleteaction->attributes as $k => $v) {
-                        if (str_starts_with($k, 'data-modal')) {
+                        // Using substr in order to make the plugin PHP 7 backward compatible.
+                        if (substr($k, 0, 10) === 'data-modal') {
                             unset($deleteaction->attributes[$k]);
                         }
                     }
