@@ -443,10 +443,12 @@ class ltimodulemanager {
         $moduleinfo->availability = $availability;
 
         // Apply completion defaults.
-        $module = $DB->get_record('modules', ['name' => 'opencast'], '*', MUST_EXIST);
+        $module = $DB->get_record('modules', ['name' => 'opencast']);
         $defaults = manager::get_default_completion($course, $module);
-        foreach ($defaults as $key => $value) {
-            $moduleinfo->$key = $value;
+        if ($module) {
+            foreach ($defaults as $key => $value) {
+                $moduleinfo->$key = $value;
+            }
         }
 
         // Populate the modinfo object with LTI specific parameters.
