@@ -66,12 +66,17 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
     /**
      * Sets data.
      * @see backup_opencast_block_task::define_my_steps() Usage.
-     * @param array data the information about backup structure.
+     * @param array $data the information about backup structure.
      */
     public function set_data($data) {
         $this->data = $data;
     }
 
+    /**
+     * Defines the structure of the block backup.
+     *
+     * @return backup_nested_element
+     */
     protected function define_structure() {
 
         // Extracting ocinstanceid from the structure.

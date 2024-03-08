@@ -1523,7 +1523,7 @@ class ltimodulemanager {
     /**
      * Looks up for series LTI modules in a new (imported) course that has faulty (old) series id.
      * Repairs the faulty LTI module by replacing the new series id and inserts the series module in "block_opencast_ltimodule".
-     * @used-by importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
+     * @see importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid New course id.
@@ -1584,7 +1584,7 @@ class ltimodulemanager {
     /**
      * Looks up for episode LTI modules in a new (imported) course that has faulty (old) event id.
      * Repairs the faulty LTI module by replacing the new event id and inserts the episode module in "block_opencast_ltiepisode".
-     * @used-by importvideosmanager::fix_imported_episode_modules_in_new_course() in Adhoc task "process_duplicated_event_module_fix"
+     * @see importvideosmanager::fix_imported_episode_modules_in_new_course() in task "process_duplicated_event_module_fix"
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $targetcourseid New course id.
@@ -1605,7 +1605,7 @@ class ltimodulemanager {
         // Get the id of the preconfigured tool.
         $toolid = self::get_preconfigured_tool_for_episode($ocinstanceid);
 
-        // Get the LTI episode module(s) in the new course which point to the old event id
+        // Get the LTI episode module(s) in the new course which point to the old event id.
         $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
             'JOIN {course_modules} cm ' .
             'ON l.id = cm.instance ' .

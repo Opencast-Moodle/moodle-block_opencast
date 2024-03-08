@@ -119,9 +119,9 @@ class process_duplicated_event_module_fix extends adhoc_task {
             importvideosmanager::update_import_mapping_record($mapping);
         } catch (moodle_exception $e) {
             $retry = false;
-            $mapping->attemptcount = intVal($mapping->attemptcount) + 1;
+            $mapping->attemptcount = intval($mapping->attemptcount) + 1;
             importvideosmanager::update_import_mapping_record($mapping);
-            if (intVal($mapping->attemptcount) <= self::MAX_COUNT_PENDING) {
+            if (intval($mapping->attemptcount) <= self::MAX_COUNT_PENDING) {
                 $retry = true;
             }
             if ($retry) {

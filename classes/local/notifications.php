@@ -434,7 +434,7 @@ class notifications {
      * Send notifications to admins, when import mapping of series was not fully covered during restore.
      *
      * @param int $courseid Course id
-     * @param array $missingimportmappingseriesids Missing series ids
+     * @param array $missingimportmappingids Missing series/event ids
      * @param string $type either series or event
      */
     public static function notify_missing_import_mapping($courseid, $missingimportmappingids, $type = 'series') {

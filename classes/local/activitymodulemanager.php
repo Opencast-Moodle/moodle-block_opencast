@@ -626,7 +626,7 @@ class activitymodulemanager {
     /**
      * Looks up for series Activity modules in a new (imported) course that has faulty (old) series id.
      * Repairs the faulty Activity module by replacing the new series id in the db record.
-     * @used-by importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
+     * @see importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid New course id.
@@ -666,7 +666,7 @@ class activitymodulemanager {
     /**
      * Looks up for episode Activity modules in a new (imported) course that has faulty (old) event id.
      * Repairs the faulty Activity module by replacing the new event id in the db record.
-     * @used-by importvideosmanager::fix_imported_episode_modules_in_new_course() in Adhoc task "process_duplicated_event_module_fix"
+     * @see importvideosmanager::fix_imported_episode_modules_in_new_course() in task "process_duplicated_event_module_fix"
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param int $targetcourseid New course id.

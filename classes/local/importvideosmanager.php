@@ -807,7 +807,7 @@ class importvideosmanager {
 
     /**
      * Sets the completion status of a restore session.
-     * @used-by restore_opencast_block_structure_step::after_restore() to make sure the restore session is completed
+     * @see restore_opencast_block_structure_step::after_restore() to make sure the restore session is completed
      *  and we can proceed with the after import module fixes
      *
      * @param string $restoreuid the restore session unique identifier

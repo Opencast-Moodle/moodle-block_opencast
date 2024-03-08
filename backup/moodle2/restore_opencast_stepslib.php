@@ -182,7 +182,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                     $this->missingimportmappingeventids[] = $eventid;
                 }
 
-                // Add the duplication task
+                // Add the duplication task.
                 event::create_duplication_task(
                     $this->ocinstanceid,
                     $courseid,
