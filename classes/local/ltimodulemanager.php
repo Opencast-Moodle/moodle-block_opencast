@@ -1528,7 +1528,7 @@ class ltimodulemanager {
      * @param int $ocinstanceid Opencast instance id.
      * @param int $courseid New course id.
      * @param string $sourceseriesid Old series id.
-     * @param string $sourcenewseriesidseriesid New series id.
+     * @param string $newseriesid New series id.
      *
      * @return void
      */
