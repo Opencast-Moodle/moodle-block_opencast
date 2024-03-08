@@ -40,6 +40,27 @@ use stdClass;
 class importvideosmanager {
 
 
+    /** @var int course wizard restore status is started */
+    const RESTORE_STATUS_STARTED = 0;
+
+    /** @var int course wizard restore status is completed */
+    const RESTORE_STATUS_COMPLETED = 1;
+
+    /** @var int Episode import mapping type */
+    const MAPPING_TYPE_EPISODE = 1;
+
+    /** @var int Series import mapping type */
+    const MAPPING_TYPE_SERIES = 2;
+
+    /** @var int Import mapping status success */
+    const MAPPING_STATUS_SUCCESS = 1;
+
+    /** @var int Import mapping status pending */
+    const MAPPING_STATUS_PENDING = 0;
+
+    /** @var int Import mapping status failed */
+    const MAPPING_STATUS_FAILED = 2;
+
     /**
      * Helperfunction to get the status of the manual import videos feature.
      * This consists of a check if the feature is enabled by the admin and a check if a duplicate workflow is configured.
@@ -593,5 +614,259 @@ class importvideosmanager {
 
         // Finall, we return the object containing the information about all 3 steps in this method.
         return $aclchangeresult;
+    }
+
+    /**
+     * Gets the import mapping records of series and perform the lookup and fix.
+     * It also cleans up after the attemp is completed.
+     * @uses ltimodulemanager::fix_imported_series_modules_in_new_course() to lookup and fix series LTI modules.
+     * @uses activitymodulemanager::fix_imported_series_modules_in_new_course() to lookup and fix series Activity modules.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid Course id.
+     * @param string $newseriesid The newly created series id in the new course.
+     * @param string $restoreuid The restore unique id.
+     *
+     * @return void
+     */
+    public static function fix_imported_series_modules_in_new_course($ocinstanceid, $courseid, $newseriesid, $restoreuid) {
+
+        $seriesimportmapping = self::get_import_mapping_records([
+            'restoreuid' => $restoreuid,
+            'ocinstanceid' => $ocinstanceid,
+            'type' => self::MAPPING_TYPE_SERIES,
+            'targetcourseid' => $courseid,
+        ]);
+
+        foreach ($seriesimportmapping as $mapping) {
+            // LTI Modules.
+            ltimodulemanager::fix_imported_series_modules_in_new_course(
+                $ocinstanceid, $courseid, $mapping->sourceseriesid, $newseriesid
+            );
+
+            // Activity modules.
+            activitymodulemanager::fix_imported_series_modules_in_new_course(
+                $ocinstanceid, $courseid, $mapping->sourceseriesid, $newseriesid
+            );
+
+            // At this point, we have no use for the series import mapping record anymore,
+            // and we remove it from db.
+            self::delete_import_mapping_record(['id' => $mapping->id]);
+        }
+    }
+
+    /**
+     * Performs the look up and fix for the episode LTI & Activity modules in the newly imported course.
+     * @uses ltimodulemanager::fix_imported_episode_modules_in_new_course() to lookup and fix episode LTI modules.
+     * @uses activitymodulemanager::fix_imported_episode_modules_in_new_course() to lookup and fix episode Activity modules.
+     *
+     * @param stdClass $mapping The import mapping object.
+     * @param string $duplicatedeventid TThe duplicated event id.
+     *
+     * @return void
+     */
+    public static function fix_imported_episode_modules_in_new_course($mapping, $duplicatedeventid) {
+        // LTI modules in the new course.
+        ltimodulemanager::fix_imported_episode_modules_in_new_course(
+            $mapping->ocinstanceid,
+            $mapping->targetcourseid,
+            $mapping->sourceeventid,
+            $duplicatedeventid
+        );
+
+        // Activity Modules in the new course.
+        activitymodulemanager::fix_imported_episode_modules_in_new_course(
+            $mapping->ocinstanceid,
+            $mapping->targetcourseid,
+            $mapping->sourceeventid,
+            $duplicatedeventid
+        );
+    }
+
+    /**
+     * Saves the series import mapping record.
+     *
+     * @param int $ocinstanceid The OC instance id.
+     * @param int $targetcourseid The new course id.
+     * @param string $sourceseriesid The source series id.
+     * @param string $restoreuniqueid The unique id of the restore session.
+     *
+     * @return bool Whether the mapping record is inserted into db or not.
+     */
+    public static function save_series_import_mapping_record($ocinstanceid, $targetcourseid,
+        $sourceseriesid, $restoreuniqueid) {
+        $mappingobj = new \stdClass();
+        $mappingobj->type = self::MAPPING_TYPE_SERIES;
+        $mappingobj->restoreuid  = $restoreuniqueid;
+        $mappingobj->ocinstanceid = $ocinstanceid;
+        $mappingobj->targetcourseid = $targetcourseid;
+        $mappingobj->sourceseriesid = $sourceseriesid;
+        return self::save_import_mapping_record($mappingobj);
+    }
+
+    /**
+     * Saves the episode import mapping record.
+     *
+     * @param int $ocinstanceid The OC instance id.
+     * @param int $targetcourseid The new course id.
+     * @param string $sourceeventid The source event id.
+     * @param string $restoreuniqueid The unique id of the restore session.
+     *
+     * @return bool Whether the mapping record is inserted into db or not.
+     */
+    public static function save_episode_import_mapping_record($ocinstanceid, $targetcourseid,
+        $sourceeventid, $restoreuniqueid) {
+        $mappingobj = new \stdClass();
+        $mappingobj->type = self::MAPPING_TYPE_EPISODE;
+        $mappingobj->restoreuid  = $restoreuniqueid;
+        $mappingobj->ocinstanceid = $ocinstanceid;
+        $mappingobj->targetcourseid = $targetcourseid;
+        $mappingobj->sourceeventid = $sourceeventid;
+        return self::save_import_mapping_record($mappingobj);
+    }
+
+    /**
+     * Inserts a mapping record into db. It also validates the mapping object.
+     *
+     * @param stdClass $mapping the mapping object.
+     *
+     * @return bool whether the mapping record is inserted successfully.
+     */
+    public static function save_import_mapping_record($mapping) {
+        global $DB;
+        // Set the started status.
+        $mapping->restorecompleted = self::RESTORE_STATUS_STARTED;
+        $mapping->status = self::MAPPING_STATUS_PENDING;
+        $mapping->timecreated = time();
+        if (!self::validate_mapping_record($mapping)) {
+            return false;
+        }
+        // Save into db.
+        return $DB->insert_record('block_opencast_importmapping', $mapping);
+    }
+
+    /**
+     * Updates the improt mapping record. It perform a validation before updating as well.
+     *
+     * @param stdClass $mapping The import mapping record object.
+     *
+     * @return boolean Whether the update was valid and successful.
+     */
+    public static function update_import_mapping_record($mapping) {
+        global $DB;
+        $mapping->timemodified = time();
+        if (!self::validate_mapping_record($mapping)) {
+            return false;
+        }
+        // Update the record in db.
+        return $DB->update_record('block_opencast_importmapping', $mapping);
+    }
+
+    /**
+     * Finds and returns the import mapping record based on a where clause.
+     *
+     * @param array $where The array of where clauses to look for.
+     *
+     * @return stdClass|null The import mapping record object or null if not found.
+     */
+    public static function get_import_mapping_record($where) {
+        global $DB;
+        if ($DB->record_exists('block_opencast_importmapping', $where)) {
+            return $DB->get_record('block_opencast_importmapping', $where);
+        }
+        return null;
+    }
+
+    /**
+     * Finds and returns the list import mapping records based on a where clause.
+     *
+     * @param array $where The array of where clauses to look for.
+     *
+     * @return array An array of import mapping record objects.
+     */
+    public static function get_import_mapping_records($where) {
+        global $DB;
+        $records = $DB->get_records('block_opencast_importmapping', $where);
+        return $records ?? [];
+    }
+
+    /**
+     * Deletes an import mapping record.
+     *
+     * @param array $where the array of where clause.
+     *
+     * @return bool whether the deletion was successful
+     */
+    public static function delete_import_mapping_record($where) {
+        global $DB;
+        if ($DB->record_exists('block_opencast_importmapping', $where)) {
+            return $DB->delete_records('block_opencast_importmapping', $where);
+        }
+        return false;
+    }
+
+    /**
+     * Sets the completion status of a restore session.
+     * @used-by restore_opencast_block_structure_step::after_restore() to make sure the restore session is completed
+     *  and we can proceed with the after import module fixes
+     *
+     * @param string $restoreuid the restore session unique identifier
+     * @param int $status the status id
+     *
+     * @return bool|array true if the status of all records under restore unique id have been changed,
+     *  array mapping ids of unchanged otherwise.
+     */
+    public static function set_import_mapping_completion_status($restoreuid, $status = self::RESTORE_STATUS_COMPLETED) {
+        global $DB;
+        $records = $DB->get_records('block_opencast_importmapping', ['restoreuid' => $restoreuid]);
+        $unchanged = [];
+        foreach ($records as $record) {
+            $record->restorecompleted = $status;
+            $record->timemodified = time();
+            $success = $DB->update_record('block_opencast_importmapping', $record, true);
+            // We track the success of changes to report back,
+            // however series are not neccessary and we escape them,
+            // because they are waiting for the restore session to be completed.
+            if (!$success && $record->type == self::MAPPING_TYPE_EPISODE) {
+                $unchanged[] = $record->sourceeventid ?? 'Mapping id: ' . $record->id;
+            }
+        }
+        return empty($unchanged) ? true : $unchanged;
+    }
+
+    /**
+     * Finds the mapping record of the event and sets the ocworkflowid
+     *
+     * @param array $where the array of where clause.
+     * @param int $ocworkflowid the id of duplicating workflow that holds the new event id later on.
+     *
+     * @return int|false the id of the mapping record of successful, false otherwise.
+     */
+    public static function set_import_mapping_workflowid($where, $ocworkflowid) {
+        $mapping = self::get_import_mapping_record($where);
+        if (!empty($mapping)) {
+            $mapping->ocworkflowid = $ocworkflowid;
+            $mapping->status = self::MAPPING_STATUS_PENDING;
+            if (self::update_import_mapping_record($mapping)) {
+                return $mapping->id;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the mapping object before interacting with db.
+     *
+     * @param stdClass $mapping the mapping object
+     *
+     * @return bool whether the mapping is valid.
+     */
+    public static function validate_mapping_record($mapping) {
+        $isvalid = true;
+        if (empty($mapping->restoreuid) || empty($mapping->ocinstanceid)
+            || empty($mapping->targetcourseid) || empty($mapping->type)) {
+            $isvalid = false;
+        }
+        return $isvalid;
     }
 }

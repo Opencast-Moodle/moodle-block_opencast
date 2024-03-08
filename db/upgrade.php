@@ -829,5 +829,37 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022111000, 'opencast');
     }
 
+    if ($oldversion < 2024030600) {
+
+        // Define field id to be added to block_opencast_importmapping.
+        $table = new xmldb_table('block_opencast_importmapping');
+
+        // Define fields.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('restoreuid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('ocinstanceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'restoreuid');
+        $table->add_field('type', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null, 'ocinstanceid');
+        $table->add_field('targetcourseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'type');
+        $table->add_field('sourceseriesid', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'targetcourseid');
+        $table->add_field('sourceeventid', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'sourceseriesid');
+        $table->add_field('ocworkflowid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'sourceeventid');
+        $table->add_field('restorecompleted', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'ocworkflowid');
+        $table->add_field('attemptcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'restorecompleted');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'attemptcount');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'status');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'timecreated');
+
+        // Add key.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_opencast_visibility.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2024030600, 'opencast');
+    }
+
     return true;
 }

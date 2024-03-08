@@ -429,4 +429,66 @@ class notifications {
         $admin = get_admin();
         self::send_message('error', $admin, $subject, $body);
     }
+
+    /**
+     * Send notifications to admins, when import mapping of series was not fully covered during restore.
+     *
+     * @param int $courseid Course id
+     * @param array $missingimportmappingseriesids Missing series ids
+     * @param string $type either series or event
+     */
+    public static function notify_missing_import_mapping($courseid, $missingimportmappingids, $type = 'series') {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('errorrestoremissingimportmapping_subj', 'block_opencast');
+        $body = get_string('errorrestoremissingimportmappingseries_body', 'block_opencast', $a);
+        if ($type == 'events') {
+            $body = get_string('errorrestoremissingimportmappingevents_body', 'block_opencast', $a);
+        }
+
+        // Add all backup eventids.
+        $renderer = $PAGE->get_renderer('block_opencast');
+        $body .= $renderer->render_list($missingimportmappingids);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
+
+    /**
+     * Send notifications to admins, if the import mapping records could not get the status of completion.
+     *
+     * @param int $courseid Course id
+     * @param array $incompletedeventids Incompleted mapping event ids
+     */
+    public static function notify_incompleted_import_mapping_records($courseid, $incompletedeventids) {
+        global $DB, $PAGE;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('errorrestoremissingimportmapping_subj', 'block_opencast');
+        $body = get_string('errorrestoreincompletedimportmapping_body', 'block_opencast', $a);
+
+        // Add all backup eventids.
+        $renderer = $PAGE->get_renderer('block_opencast');
+        $body .= $renderer->render_list($incompletedeventids);
+
+        $admin = get_admin();
+        self::send_message('error', $admin, $subject, $body);
+    }
 }
