@@ -76,7 +76,7 @@ class process_duplicated_event_module_fix extends adhoc_task {
             $deleted = importvideosmanager::delete_import_mapping_record(['id' => $mapping->id]);
             $logmessage = "The import mapping record for event id: {$mapping->sourceeventid}" .
                 " with ocworkflowid: {$mapping->ocworkflowid} & duplicated event id: {$data->duplicatedeventid}" .
-                " in course (ID: {$mapping->targetcourseid}) after {$mapping->attempcount} attempt(s) %s";
+                " in course (ID: {$mapping->targetcourseid}) after {$mapping->attemptcount} attempt(s) %s";
             $status = 'was successful';
             if ($mapping->status == importvideosmanager::MAPPING_STATUS_FAILED) {
                 $status = 'failed';
@@ -143,6 +143,7 @@ class process_duplicated_event_module_fix extends adhoc_task {
         if ($mapping->status != importvideosmanager::MAPPING_STATUS_PENDING) {
             $this->set_next_run_time(strtotime("+1 min"));
             $this->set_custom_data($data);
+            throw new moodle_exception('importmapping_modulesfixtaskretry', 'block_opencast', '', 'performing cleanup repeat...');
         }
     }
 }
