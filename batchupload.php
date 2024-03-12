@@ -30,7 +30,6 @@ use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
 use core\output\notification;
 use tool_opencast\local\settings_api;
-use moodle_exception;
 
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 
@@ -87,8 +86,8 @@ if ($courseid == $SITE->id) {
     $records = $DB->get_records('tool_opencast_series', ['series' => $series, 'ocinstanceid' => $ocinstanceid]);
     $haspermission = false;
     foreach ($records as $record) {
-        $cc = context_course::instance($record->courseid, IGNORE_MISSING);
-        if ($cc && has_capability('block/opencast:addvideo', $cc)) {
+        $coursecontext = context_course::instance($record->courseid, IGNORE_MISSING);
+        if ($coursecontext && has_capability('block/opencast:addvideo', $coursecontext)) {
             $haspermission = true;
             break;
         }
@@ -199,7 +198,7 @@ if ($data = $batchuploadform->get_data()) {
         $id = $field->name;
         if (property_exists($data, $field->name) && $data->$id) {
             if ($field->name == 'subjects') {
-                !is_array($data->$id) ? $data->$id = [$data->$id] : $data->$id = $data->$id;
+                $data->$id = !is_array($data->$id) ? [$data->$id] : $data->$id;
             }
             $obj = [
                 'id' => $id,

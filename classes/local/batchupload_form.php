@@ -30,10 +30,8 @@ use block_opencast_renderer;
 use coding_exception;
 use core\notification;
 use html_writer;
-use local_chunkupload\chunkupload_form_element;
 use moodle_url;
 use moodleform;
-use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -55,7 +53,7 @@ class batchupload_form extends moodleform {
      * Form definition.
      */
     public function definition() {
-        global $CFG, $DB, $PAGE , $OUTPUT;
+        global $DB, $PAGE;
         // Get the renderer to use its methods.
         $renderer = $PAGE->get_renderer('block_opencast');
         $ocinstanceid = $this->_customdata['ocinstanceid'];
