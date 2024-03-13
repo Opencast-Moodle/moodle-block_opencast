@@ -915,5 +915,7 @@ $string['batchupload_filemanager_presenter_title'] = 'Presenter videos';
 $string['batchupload_emptyvideosuploaderror'] = 'You must upload at least one presenter video file.';
 $string['batchupload_jobssaved'] = 'Batch of {$a} Video(s) successfully uploaded. <br> The videos are queued for transferring to Opencast. Therefore, you do not need to wait on this page for them to finish.';
 $string['batchupload_errorsaveuploadjobs'] = 'There were errors uploading {$a->count} out of {$a->total} video(s).';
+$string['batchupload_errorseriesmismatched'] = 'Unfortunately the series is not defined in this course.';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';
