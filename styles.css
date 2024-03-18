@@ -3,12 +3,20 @@
     text-align: center;
 }
 
+.opencast-batchupload-wrap.overview {
+    text-align: center;
+}
+
 .opencast-recordvideo-wrap.overview {
     text-align: center;
 }
 
 /* Styles for the buttons on the overview page */
 .opencast-recordvideo-wrap {
+    margin: 10px 0;
+}
+
+.opencast-batchupload-wrap {
     margin: 10px 0;
 }
 
