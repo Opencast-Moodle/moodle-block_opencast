@@ -119,18 +119,6 @@ if ($courseid == $SITE->id) {
     if (!isset($apibridge)) {
         $apibridge = apibridge::get_instance($ocinstanceid);
     }
-
-    // Double check if the series is related to the course, which never happens, but we check anyway.
-    // In case $courseid == $SITE->id, the course series relation will be verified already.
-    if (!empty($series)) {
-        $courseseries = $apibridge->get_course_series($courseid);
-        $seriesfound = array_filter($courseseries, function ($cs) use($series) {
-            return $cs->series == $series;
-        });
-        if (empty($seriesfound)) {
-            throw new moodle_exception('batchupload_errorseriesmismatched', 'block_opencast', $redirecturl);
-        }
-    }
 }
 
 $batchmetadatacatalog = upload_helper::get_opencast_metadata_catalog_batch($ocinstanceid);
