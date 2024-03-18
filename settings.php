@@ -50,6 +50,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
     $ADMIN->add('blocksettings', $settingscategory);
 
     $ocinstances = settings_api::get_ocinstances();
+    $multiocinstance = count($ocinstances) > 1;
 
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
@@ -268,7 +269,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $uploadtimeouturl = new moodle_url('/admin/settings.php?section=block_opencast_sharedsettings');
             $uploadtimeoutlink = html_writer::link($uploadtimeouturl,
                 get_string('uploadtimeout', 'block_opencast'), ['target' => '_blank']);
-            $toolopencastinstanceurl = new moodle_url('/admin/settings.php?section=tool_opencast_configuration_' . $instance->id);
+
+            $octoolshorturl = '/admin/settings.php?section=tool_opencast_configuration';
+            if ($multiocinstance) {
+                $octoolshorturl .= '_' . $instance->id;
+            }
+            $toolopencastinstanceurl = new moodle_url($octoolshorturl);
             $toolopencastinstancelink = html_writer::link($toolopencastinstanceurl,
                 get_string('configuration_instance', 'tool_opencast', $instance->name), ['target' => '_blank']);
             $stringobj = new \stdClass();
