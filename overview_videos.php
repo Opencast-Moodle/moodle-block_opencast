@@ -131,7 +131,7 @@ echo html_writer::div($addvideobutton);
 // Show "Add videos (batch)" button.
 if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
     $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
-        ['courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'series' => $series]);
+        ['courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'intoseries' => $series]);
     $batchuploadbutton = $OUTPUT->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
     echo html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap');
 }
