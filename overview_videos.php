@@ -124,7 +124,7 @@ echo html_writer::tag('p', get_string('uploadvideosexplanation', 'block_opencast
 
 // Show "Add video" button.
 $addvideourl = new moodle_url('/blocks/opencast/addvideo.php', ['courseid' => $SITE->id,
-    'ocinstanceid' => $ocinstanceid, 'series' => $series, ]);
+    'ocinstanceid' => $ocinstanceid, 'intoseries' => $series, ]);
 $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
 echo html_writer::div($addvideobutton);
 

@@ -35,10 +35,9 @@ global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-if ($courseid == $SITE->id) {
-    $series = optional_param('series', null, PARAM_ALPHANUMEXT);
-} else {
-    $series = null;
+$series = optional_param('intoseries', null, PARAM_ALPHANUMEXT);
+if ($series && $courseid != $SITE->id) {
+    throw new coding_exception('intoseries parameter is not allowed in connection with a non-frontpage course.');
 }
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
@@ -47,7 +46,7 @@ $baseurlparams = [
     'courseid' => $courseid,
 ];
 if ($series) {
-    $baseurlparams['series'] = $series;
+    $baseurlparams['intoseries'] = $series;
 }
 $baseurl = new moodle_url('/blocks/opencast/addvideo.php', $baseurlparams);
 
@@ -121,12 +120,12 @@ $userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults,
 $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
 
 if ($series) {
-    $addvideoform = new addvideo_form(null,
+    $addvideoform = new addvideo_form($PAGE->url,
         ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
             'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, 'series' => $series, ]
     );
 } else {
-    $addvideoform = new addvideo_form(null,
+    $addvideoform = new addvideo_form($PAGE->url,
         ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
             'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, ]
     );
