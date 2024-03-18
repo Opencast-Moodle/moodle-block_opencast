@@ -36,7 +36,10 @@ global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-$series = optional_param('series', null, PARAM_ALPHANUMEXT);
+$series = optional_param('intoseries', null, PARAM_ALPHANUMEXT);
+if ($series && $courseid != $SITE->id) {
+    throw new coding_exception('intoseries parameter is not allowed in connection with a non-frontpage course.');
+}
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurlparams = [
@@ -44,7 +47,7 @@ $baseurlparams = [
     'courseid' => $courseid,
 ];
 if ($series) {
-    $baseurlparams['series'] = $series;
+    $baseurlparams['intoseries'] = $series;
 }
 $baseurl = new moodle_url('/blocks/opencast/batchupload.php', $baseurlparams);
 
@@ -160,7 +163,7 @@ $filemanageroptions = [
 
 $customdata['filemanageroptions'] = $filemanageroptions;
 
-$batchuploadform = new batchupload_form(null, $customdata);
+$batchuploadform = new batchupload_form($PAGE->url, $customdata);
 
 if ($batchuploadform->is_cancelled()) {
     redirect($redirecturl);
