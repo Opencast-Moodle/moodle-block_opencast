@@ -33,6 +33,7 @@ use DateTimeZone;
 use Exception;
 use moodle_exception;
 use stdClass;
+use block_opencast\local\importvideosmanager;
 
 /**
  * Task for starting workflow to copy events.
@@ -170,8 +171,32 @@ class process_duplicate_event extends adhoc_task {
                 }
             }
 
-            // Now, we prepare and queue another adhoc task to change the visibility of the duplicated event.
             if (is_number($ocworkflowid)) {
+                // In case the restore unique id exists, that means it is coming directly from course backup/restore session,
+                // therefore, we proceed to look up and fix the duplicated event LTI/ACtivity module.
+                if (!empty($data->restoreuniqueid)) {
+                    // We prepare the mapping where clause in an array.
+                    $where = [
+                        'restoreuid' => $data->restoreuniqueid,
+                        'ocinstanceid' => $data->ocinstanceid,
+                        'type' => importvideosmanager::MAPPING_TYPE_EPISODE,
+                        'targetcourseid' => $course->id,
+                        'sourceeventid' => $data->eventid,
+                    ];
+                    // Pass the ocworkflowid to extract and insert the new event id.
+                    $mappingid = importvideosmanager::set_import_mapping_workflowid($where, $ocworkflowid);
+                    // In case updating the ocworkflowid was successful.
+                    if (!empty($mappingid)) {
+                        // At this point we pass the import mapping id to the adhoc task to proceed with the fix later.
+                        $modulefixtask = new process_duplicated_event_module_fix();
+                        $modulefixtaskdata = (object)[
+                            'mappingid' => $mappingid,
+                        ];
+                        $modulefixtask->set_custom_data($modulefixtaskdata);
+                        manager::queue_adhoc_task($modulefixtask, true);
+                    }
+                }
+                // Now, we prepare and queue another adhoc task to change the visibility of the duplicated event.
                 $task = new process_duplicated_event_visibility_change();
 
                 $visibiltytaskdata = (object)[

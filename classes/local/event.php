@@ -294,10 +294,11 @@ class event {
      * @param string $eventid The event identifier.
      * @param bool $modulecleanup (optional) The switch if we want to cleanup the episode modules.
      * @param array|null $episodemodules (optional) The array of episode modules to be cleaned up.
+     * @param string $restoreuniqueid (optional) The restore unique id to keep track of restore session.
      * @return mixed false if task could not be created, id of inserted task otherwise.
      */
     public static function create_duplication_task($ocinstanceid, $courseid, $seriesid,
-                                                   $eventid, $modulecleanup = false, $episodemodules = null) {
+                                            $eventid, $modulecleanup = false, $episodemodules = null, $restoreuniqueid = null) {
 
         $task = new process_duplicate_event();
 
@@ -308,6 +309,7 @@ class event {
             'eventid' => $eventid,
             'schedulemodulecleanup' => $modulecleanup,
             'episodemodules' => $episodemodules,
+            'restoreuniqueid' => $restoreuniqueid,
         ];
         $task->set_custom_data($data);
         return manager::queue_adhoc_task($task, true);

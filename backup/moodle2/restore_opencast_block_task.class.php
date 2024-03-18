@@ -19,6 +19,7 @@
  *
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,6 +35,11 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_res
 
 /**
  * Define settings of the restore tasks for the opencast block.
+ *
+ * @package    block_opencast
+ * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_opencast_block_task extends restore_block_task {
 
@@ -84,8 +90,18 @@ class restore_opencast_block_task extends restore_block_task {
             $canrestore = $this->can_restore_events($ocinstance->id);
             $locktype = ($canrestore) ? backup_setting::NOT_LOCKED : backup_setting::LOCKED_BY_CONFIG;
 
-            $setting = new restore_block_opencast_setting('opencast_videos_include_' . $ocinstance->id, base_setting::IS_BOOLEAN,
-                $canrestore, backup_setting::VISIBLE, $locktype);
+            // NOTE: At the moment we don't offer any selection here,
+            // because it is a job that needs to be done in backup step more efficiently.
+
+            $settingname = 'opencast_videos_' . $ocinstance->id . '_included';
+            $setting = new restore_block_opencast_setting(
+                $settingname,
+                base_setting::IS_BOOLEAN,
+                $canrestore,
+                restore_block_opencast_setting::COURSE_LEVEL,
+                backup_setting::VISIBLE,
+                $locktype
+            );
             $setting->get_ui()->set_label(get_string('restoreopencastvideos', 'block_opencast', $ocinstance->name));
 
             $this->add_setting($setting);
@@ -103,12 +119,13 @@ class restore_opencast_block_task extends restore_block_task {
         }
 
         foreach ($ocinstances as $ocinstance) {
+            $settingname = 'opencast_videos_' . $ocinstance->id . '_included';
             // Settings, does not exists, if opencast system does not support copying workflow.
-            if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
+            if (!$this->setting_exists($settingname)) {
                 continue;
             }
 
-            if (!$this->get_setting_value('opencast_videos_include_' . $ocinstance->id) &&
+            if (!$this->get_setting_value($settingname) &&
                 ($this->plan->get_mode() != backup::MODE_IMPORT)) {
                 continue;
             }
