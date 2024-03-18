@@ -35,11 +35,7 @@ global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 require_once($CFG->dirroot . '/repository/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
-if ($courseid == $SITE->id) {
-    $series = optional_param('series', null, PARAM_ALPHANUMEXT);
-} else {
-    $series = null;
-}
+$series = optional_param('series', null, PARAM_ALPHANUMEXT);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
 
 $baseurlparams = [
