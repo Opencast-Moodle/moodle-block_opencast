@@ -52,9 +52,6 @@ class addtranscription_form extends moodleform {
         // Get the renderer to use its methods.
         $this->renderer = $PAGE->get_renderer('block_opencast');
         $ocinstanceid = $this->_customdata['ocinstanceid'];
-        $identifier = $this->_customdata['identifier'];
-        $courseid = $this->_customdata['courseid'];
-
         $mform = $this->_form;
 
         $explanation = html_writer::tag('p', get_string('addnewtranscription_desc', 'block_opencast'));
