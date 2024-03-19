@@ -238,7 +238,7 @@ class block_opencast extends block_base {
                         'id' => $COURSE->id,
                         'bui_deleteid' => $this->instance->id,
                         'bui_confirm' => 1,
-                        'sesskey' => sesskey()
+                        'sesskey' => sesskey(),
                 ]);
                 $this->page->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
                         [$this->context->id, $deleteurl->out(false)]);
