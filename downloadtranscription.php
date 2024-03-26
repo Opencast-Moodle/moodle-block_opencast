@@ -42,7 +42,7 @@ $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinsta
 $indexurl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 $baseurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
     ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-        'video_identifier' => $identifier, 'transcription_identifier' => $transcriptionid,]);
+        'video_identifier' => $identifier, 'transcription_identifier' => $transcriptionid, ]);
 $PAGE->set_url($baseurl);
 
 $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',

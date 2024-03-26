@@ -1515,8 +1515,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
         if (array_key_exists('generatortype', $tagdataarr)) {
             $stringkey = $tagdataarr['generatortype'] == 'auto' ? 'transcriptionauto' : 'transcriptionmanual';
-            $generator_type = get_string($stringkey, 'block_opencast');
-            $titlearr[] = "({$generator_type})";
+            $generatortype = get_string($stringkey, 'block_opencast');
+            $titlearr[] = "({$generatortype})";
         }
         if (array_key_exists('type', $tagdataarr)) {
             $type = ucfirst($tagdataarr['type']);

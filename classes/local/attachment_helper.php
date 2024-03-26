@@ -298,7 +298,7 @@ class attachment_helper {
                 // We need to perform extracting the existing media items again, because overwrite existing in add track endpoint
                 // does not work as expected!
                 foreach ($removedmediaids as $mediaid) {
-                    list($mediapackagestr,,) = self::remove_existing_flavor_from_mediapackage(
+                    list($mediapackagestr, $unusedmediaids, $unusedattachmentids) = self::remove_existing_flavor_from_mediapackage(
                         $ocinstanceid, $mediapackagestr, 'id', $mediaid);
                 }
             }

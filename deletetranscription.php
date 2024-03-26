@@ -95,7 +95,8 @@ if (($action == 'delete') && confirm_sesskey()) {
 
     $deleted = false;
     if (!empty($transcriptiontodelete)) {
-        $deleted = attachment_helper::delete_transcription($ocinstanceid, $videoidentifier, $transcriptiontodelete, $publicationtype);
+        $deleted = attachment_helper::delete_transcription($ocinstanceid, $videoidentifier, $transcriptiontodelete,
+            $publicationtype);
     }
 
     $message = get_string('transcriptiondeletionsucceeded', 'block_opencast');
