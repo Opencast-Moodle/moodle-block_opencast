@@ -60,7 +60,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
-$video = $apibridge->get_opencast_video($videoidentifier);
+$video = $apibridge->get_opencast_video($videoidentifier, true);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid)) ||
     empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
@@ -69,7 +69,34 @@ if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
 }
 
 if (($action == 'delete') && confirm_sesskey()) {
-    $deleted = attachment_helper::delete_transcription($ocinstanceid, $videoidentifier, $identifier);
+    // In order to remove the transcription from the media package we need to look it up in publication first,
+    // then we find it in the media package based on flavor and tags, because we maintain the compatibility of both ways.
+
+    // 1. Find it in publications.
+    $transcriptiontodelete = null;
+    $publicationtype = 'media'; // For opencast 13 and above, this would be always media, unless intentianly configured otherwise.
+    foreach ($video->video->publications as $publication) {
+        // Search the attachments.
+        foreach ($publication->attachments as $attachment) {
+            if ($attachment->id == $identifier) {
+                $transcriptiontodelete = $attachment;
+                $publicationtype = 'attachments';
+                break 2;
+            }
+        }
+        // Search the media.
+        foreach ($publication->media as $media) {
+            if ($media->id == $identifier) {
+                $transcriptiontodelete = $media;
+                break 2;
+            }
+        }
+    }
+
+    $deleted = false;
+    if (!empty($transcriptiontodelete)) {
+        $deleted = attachment_helper::delete_transcription($ocinstanceid, $videoidentifier, $transcriptiontodelete, $publicationtype);
+    }
 
     $message = get_string('transcriptiondeletionsucceeded', 'block_opencast');
     $status = notification::NOTIFY_SUCCESS;

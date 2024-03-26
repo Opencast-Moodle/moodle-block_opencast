@@ -833,6 +833,8 @@ $string['deletetranscription_desc'] = 'You are about to delete the transcription
 $string['unabletodownloadtranscription'] = 'Unable to download transcription';
 $string['transcriptionltidownloadcompleted'] = 'The transcription is successfully downloaded. {$a}';
 $string['transcriptionreturntomanagement'] = 'Go back to transcription management page';
+$string['transcriptionmanual'] = 'Manual';
+$string['transcriptionauto'] = 'Auto';
 // Strings for live update feature.
 $string['liveupdate_settingheader'] = 'Live Status Update';
 $string['liveupdate_settingenabled'] = 'Enable live status update feature';

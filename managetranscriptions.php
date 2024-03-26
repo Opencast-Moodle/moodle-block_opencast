@@ -24,6 +24,7 @@
 require_once('../../config.php');
 
 use block_opencast\local\apibridge;
+use block_opencast\local\attachment_helper;
 use core\output\notification;
 use tool_opencast\local\settings_api;
 
@@ -53,7 +54,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
-$video = $apibridge->get_opencast_video($identifier);
+$video = $apibridge->get_opencast_video($identifier, true);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
     empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
@@ -87,34 +88,46 @@ $renderer = $PAGE->get_renderer('block_opencast');
 // Check if download is enabled.
 $allowdownload = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
 
-// Extract caption from attachments/media.
 $list = [];
-$mediapackagestring = $apibridge->get_event_media_package($identifier);
-$mediapackagexml = simplexml_load_string($mediapackagestring);
-
-// First try to get attachments.
 $attachmentitems = [];
-if (property_exists($mediapackagexml, 'attachments')) {
-    $attachments = [];
-    foreach ($mediapackagexml->attachments->attachment as $attachment) {
-        $attachments[] = $attachment;
-    }
-    $attachmentitems = $renderer->prepare_transcription_items_for_the_menu($attachments, $courseid, $ocinstanceid, $identifier,
-        'attachments', $flavors);
-}
-
-// Then try to get media.
 $mediaitems = [];
-if (property_exists($mediapackagexml, 'media')) {
-    $mediatracks = [];
-    foreach ($mediapackagexml->media->track as $track) {
-        $mediatracks[] = $track;
+// We check the publications to extract attachments as well as media.
+if ($video->video->publications) {
+    $attachments = [];
+    $medias = [];
+    // Look through publications one by one.
+    foreach ($video->video->publications as $publication) {
+        // Check the attachments.
+        if (!empty($publication->attachments)) {
+            foreach ($publication->attachments as $attachment) {
+                // When the attachment has the mediatype, we record it.
+                if (!isset($attachments[$attachment->id]) && $attachment->mediatype == attachment_helper::TRANSCRIPTION_MEDIATYPE) {
+                    $attachments[$attachment->id] = $attachment;
+                }
+            }
+        }
+        // Check the media.
+        if (!empty($publication->media)) {
+            foreach ($publication->media as $media) {
+                // When the media has the mediatype, we record it.
+                if (!isset($medias[$media->id]) && $media->mediatype == attachment_helper::TRANSCRIPTION_MEDIATYPE) {
+                    $medias[$media->id] = $media;
+                }
+            }
+        }
     }
-    $mediaitems = $renderer->prepare_transcription_items_for_the_menu($mediatracks, $courseid, $ocinstanceid, $identifier,
-        'media', $flavors);
+    // We prepare the list items out of the caption attachments.
+    foreach ($attachments as $attachment) {
+        $attachmentitems[] = $renderer->prepare_transcription_item_for_the_menu($attachment, $courseid, $ocinstanceid, $identifier,
+            'attachment', $flavors);
+    }
+    // We prepare the list items out of the caption media.
+    foreach ($medias as $media) {
+        $mediaitems[] = $renderer->prepare_transcription_item_for_the_menu($media, $courseid, $ocinstanceid, $identifier,
+            'media', $flavors);
+    }
 }
-
-// After that, we merge everything together.
+// Then we combine the items together to display them in the list.
 $list = array_merge($mediaitems, $attachmentitems);
 
 echo $OUTPUT->header();
