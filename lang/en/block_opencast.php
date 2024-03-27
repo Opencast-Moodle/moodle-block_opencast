@@ -812,6 +812,7 @@ $string['processattachment'] = 'Process attachment upload jobs';
 $string['managetranscriptions'] = 'Manage Transcriptions';
 $string['managetranscriptions_header'] = 'Manage Event\'s Transcriptions';
 $string['unabletomanagetranscriptions'] = 'Due to an active processing state or an ongoing workflow, managing the event\'s transcriptions is not possible at the moment.';
+$string['managetranscription_overwrite_info'] = 'Overwriting subtitles is only available for manually uploaded subtitles via this plugin, auto generated subtitles and those that are uploaded outside this plugin which do not have the same caption flavor cannot be overwritten.';
 $string['addnewtranscription'] = 'Add new transcription';
 $string['unabletoaddnewtranscription'] = 'Unable to add new transcription';
 $string['addnewtranscription_desc'] = 'Please select a service type in which your transcription should be represented, and then upload the file with requiured extensions.<br>

@@ -132,5 +132,6 @@ $list = array_merge($mediaitems, $attachmentitems);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managetranscriptions_header', 'block_opencast'));
+echo \core\notification::info(get_string('managetranscription_overwrite_info', 'block_opencast'));
 echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete, $allowdownload);
 echo $OUTPUT->footer();
