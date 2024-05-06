@@ -2088,7 +2088,7 @@ class apibridge {
         // We check if the basic editor integration configs are set, the video processing state is succeeded
         // (to avoid process failure) and there is internal publication status (to avoid error 400 in editor).
         if (get_config('block_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
-            isset($video->processing_state) && $video->processing_state == "SUCCEEDED" &&
+            isset($video->processing_state) && in_array($video->processing_state, ["SUCCEEDED", "NEEDSCUTTING"])  &&
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('internal', $video->publication_status)) {
             $context = context_course::instance($courseid);
