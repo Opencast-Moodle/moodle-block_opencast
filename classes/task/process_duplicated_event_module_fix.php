@@ -29,7 +29,6 @@ use block_opencast\local\apibridge;
 use block_opencast\local\notifications;
 use block_opencast\local\importvideosmanager;
 use core\task\adhoc_task;
-use Exception;
 use moodle_exception;
 
 /**
@@ -43,9 +42,7 @@ use moodle_exception;
 class process_duplicated_event_module_fix extends adhoc_task {
 
     /** @var int max number of pending retries for one task */
-    const MAX_COUNT_PENDING = 240;
-    /** @var int max number of minutes to wait before next run */
-    const WAITING_INTERVALS_MINUTES = 1;
+    const MAX_COUNT_PENDING = 20;
 
     /**
      * Create a fix module task.
@@ -118,17 +115,10 @@ class process_duplicated_event_module_fix extends adhoc_task {
             $mapping->status = importvideosmanager::MAPPING_STATUS_SUCCESS;
             importvideosmanager::update_import_mapping_record($mapping);
         } catch (moodle_exception $e) {
-            $retry = false;
             $mapping->attemptcount = intval($mapping->attemptcount) + 1;
             importvideosmanager::update_import_mapping_record($mapping);
-            if (intval($mapping->attemptcount) <= self::MAX_COUNT_PENDING) {
-                $retry = true;
-            }
-            if ($retry) {
-                $interval = self::WAITING_INTERVALS_MINUTES;
-                $intervalstring = "+$interval min" . ($interval > 1 ? 's' : '');
-                $futuretime = strtotime($intervalstring);
-                $this->set_next_run_time($futuretime);
+            // Check whether to retry.
+            if ($mapping->attemptcount <= self::MAX_COUNT_PENDING) {
                 $this->set_custom_data($data);
                 throw new moodle_exception('importmapping_modulesfixtaskretry', 'block_opencast', '', $e->getMessage());
             } else {
@@ -139,7 +129,7 @@ class process_duplicated_event_module_fix extends adhoc_task {
         }
 
         // By the time we hit here and the process is not pending,
-        // we proceed with one last itteration to cleanup the import mapping record.
+        // we proceed with one last iteration to cleanup the import mapping record.
         if ($mapping->status != importvideosmanager::MAPPING_STATUS_PENDING) {
             $this->set_next_run_time(strtotime("+1 min"));
             $this->set_custom_data($data);
