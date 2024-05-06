@@ -373,6 +373,6 @@ class block_opencast_apibridge_testable extends apibridge {
      */
     public function get_duplicated_episodeid($workflowid) {
 
-        return $value = $this->get_testdata('get_duplicated_episodeid', $workflowid);
+        return $this->get_testdata('get_duplicated_episodeid', $workflowid);
     }
 }
