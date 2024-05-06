@@ -1573,12 +1573,13 @@ class apibridge {
      * @param int $courseid id of the course the event belongs to.
      * @param int $visibility visibility of the event.
      * @param array|null $groups array of group ids used for replacing the placeholders
+     * @param bool $forceonhidden flag to force return the acls when hidden.
      * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
      * @throws dml_exception
      * @throws coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
-    private function get_permanent_acl_rules_for_status($courseid, $visibility, $groups = null) {
-        return $this->get_acl_rules_for_status($courseid, $visibility, true, $groups);
+    private function get_permanent_acl_rules_for_status($courseid, $visibility, $groups = null, $forceonhidden = false) {
+        return $this->get_acl_rules_for_status($courseid, $visibility, true, $groups, $forceonhidden);
     }
 
     /**
@@ -1588,11 +1589,12 @@ class apibridge {
      * @param int $visibility visibility of the event.
      * @param bool $permanent whether to get permanent or non-permanent acl rules.
      * @param array|null $groups array of group ids used for replacing the placeholders
+     * @param bool $forceonhidden flag to force return the acls when hidden.
      * @return array of objects representing acl rules, each with the fields 'allow', 'action' and 'role'.
      * @throws dml_exception
      * @throws coding_exception In case of an invalid visibility status. Only [0,1,2] are allowed.
      */
-    private function get_acl_rules_for_status($courseid, $visibility, $permanent, $groups = null) {
+    private function get_acl_rules_for_status($courseid, $visibility, $permanent, $groups = null, $forceonhidden = false) {
         $roles = $this->getroles($permanent ? 1 : 0);
 
         $result = [];
@@ -1614,6 +1616,21 @@ class apibridge {
                 }
                 break;
             case block_opencast_renderer::HIDDEN:
+                if ($permanent && $forceonhidden) {
+                    foreach ($roles as $role) {
+                        foreach ($role->actions as $action) {
+                            $rolenameformatted = self::replace_placeholders($role->rolename, $courseid)[0];
+                            // Might return null if USERNAME cannot be replaced.
+                            if ($rolenameformatted) {
+                                $result[] = (object)[
+                                    'allow' => true,
+                                    'action' => $action,
+                                    'role' => $rolenameformatted,
+                                ];
+                            }
+                        }
+                    }
+                }
                 break;
             case block_opencast_renderer::GROUP:
                 foreach ($roles as $role) {
@@ -2881,7 +2898,7 @@ class apibridge {
         $event = new event();
         // Gathering acls for the duplicated event.
         $newacls = $this->get_non_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups);
-        $newacls = array_merge($newacls, $this->get_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups));
+        $newacls = array_merge($newacls, $this->get_permanent_acl_rules_for_status($courseid, $targetvisibiltiy, $groups, true));
         foreach ($newacls as $acl) {
             $event->add_acl($acl->allow, $acl->action, $acl->role);
         }

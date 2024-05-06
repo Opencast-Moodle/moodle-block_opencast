@@ -113,7 +113,7 @@ class process_duplicated_event_visibility_change extends adhoc_task {
             $event = $apibridge->get_already_existing_event([$data->duplicatedeventid]);
             if (!$event || !in_array($event->status, ['EVENTS.EVENTS.STATUS.PROCESSED', 'EVENTS.EVENTS.STATUS.PROCESSING_FAILURE'])
                 || count($event->publication_status) == 0
-                || count($event->publication_status) == 1 && $event->publication_status[0] === 'internal') {
+                || (count($event->publication_status) == 1 && $event->publication_status[0] === 'internal')) {
                 throw new moodle_exception('error_duplicated_event_id_not_ready', 'block_opencast', '', $a);
             }
 
