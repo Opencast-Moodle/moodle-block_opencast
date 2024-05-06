@@ -15,15 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Allows users to upload videos.
+ * Allows users to upload videos in batch.
  *
  * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
+ * @copyright  2024 Farbod Zamani Boroujeni, ELAN e.V.
+ * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
 
-use block_opencast\local\addvideo_form;
+use block_opencast\local\batchupload_form;
 use block_opencast\local\apibridge;
 use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
@@ -48,7 +49,7 @@ $baseurlparams = [
 if ($series) {
     $baseurlparams['intoseries'] = $series;
 }
-$baseurl = new moodle_url('/blocks/opencast/addvideo.php', $baseurlparams);
+$baseurl = new moodle_url('/blocks/opencast/batchupload.php', $baseurlparams);
 
 $PAGE->set_url($baseurl);
 
@@ -61,15 +62,20 @@ if ($courseid == $SITE->id && $series) {
 
 require_login($courseid, false);
 
+// Check if the setting is on.
+if (empty(get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid))) {
+    throw new moodle_exception('batchupload_errornotenabled', 'block_opencast', $redirecturl);
+}
+
 // Use block context for this page to ignore course file upload limit.
 $pagecontext = upload_helper::get_opencast_upload_context($courseid);
 $PAGE->set_context($pagecontext);
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title(get_string('addvideo', 'block_opencast'));
+$PAGE->set_title(get_string('batchupload', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
-$PAGE->navbar->add(get_string('addvideo', 'block_opencast'), $baseurl);
+$PAGE->navbar->add(get_string('batchupload', 'block_opencast'), $baseurl);
 
 // Capability check.
 if ($courseid == $SITE->id) {
@@ -83,8 +89,8 @@ if ($courseid == $SITE->id) {
     $records = $DB->get_records('tool_opencast_series', ['series' => $series, 'ocinstanceid' => $ocinstanceid]);
     $haspermission = false;
     foreach ($records as $record) {
-        $cc = context_course::instance($record->courseid, IGNORE_MISSING);
-        if ($cc && has_capability('block/opencast:addvideo', $cc)) {
+        $coursecontext = context_course::instance($record->courseid, IGNORE_MISSING);
+        if ($coursecontext && has_capability('block/opencast:addvideo', $coursecontext)) {
             $haspermission = true;
             break;
         }
@@ -111,83 +117,81 @@ if ($courseid == $SITE->id) {
 } else {
     $coursecontext = context_course::instance($courseid);
     require_capability('block/opencast:addvideo', $coursecontext);
+
+    // Make sure apibridge is available to use.
+    if (!isset($apibridge)) {
+        $apibridge = apibridge::get_instance($ocinstanceid);
+    }
 }
 
-$metadatacatalog = upload_helper::get_opencast_metadata_catalog($ocinstanceid);
+$batchmetadatacatalog = upload_helper::get_opencast_metadata_catalog_batch($ocinstanceid);
 
 $userdefaultsrecord = $DB->get_record('block_opencast_user_default', ['userid' => $USER->id]);
 $userdefaults = $userdefaultsrecord ? json_decode($userdefaultsrecord->defaults, true) : [];
 $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] : [];
 
+$customdata = [
+    'courseid' => $courseid, 'metadata_catalog' => $batchmetadatacatalog,
+    'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid
+];
 if ($series) {
-    $addvideoform = new addvideo_form($PAGE->url,
-        ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
-            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, 'series' => $series, ]
-    );
+    $customdata['series'] = $series;
+}
+$maxuploadsize = (int) get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
+
+$videotypescfg = get_config('block_opencast', 'uploadfileextensions_' . $ocinstanceid);
+if (empty($videotypescfg)) {
+    // Fallback. Use Moodle defined video file types.
+    $videotypes = ['video'];
 } else {
-    $addvideoform = new addvideo_form($PAGE->url,
-        ['courseid' => $courseid, 'metadata_catalog' => $metadatacatalog,
-            'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid, ]
-    );
+    $videotypes = [];
+    foreach (explode(',', $videotypescfg) as $videotype) {
+        if (empty($videotype)) {
+            continue;
+        }
+        $videotypes[] = $videotype;
+    }
 }
 
-if ($addvideoform->is_cancelled()) {
+$filemanageroptions = [
+    'accepted_types' => $videotypes,
+    'maxbytes' => $maxuploadsize ,
+    'subdirs' => false,
+    'maxfiles' => -1,
+    'mainfile' => false,
+];
+
+$customdata['filemanageroptions'] = $filemanageroptions;
+
+$batchuploadform = new batchupload_form($PAGE->url, $customdata);
+
+if ($batchuploadform->is_cancelled()) {
     redirect($redirecturl);
 }
 
-if ($data = $addvideoform->get_data()) {
-    $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
+if ($data = $batchuploadform->get_data()) {
+    $itemid = file_get_unused_draft_itemid();
+    file_save_draft_area_files(
+        $data->batchuploadedvideos,
+        $coursecontext->id,
+        'block_opencast',
+        upload_helper::OC_FILEAREA,
+        $itemid,
+        $filemanageroptions
+    );
+    $fs = get_file_storage();
+    $batchuploadedfiles = $fs->get_area_files($coursecontext->id, 'block_opencast', upload_helper::OC_FILEAREA, $itemid);
 
-    // Record the user draft area in this context.
-    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
-        property_exists($data, 'presenter_already_uploaded') && $data->presenter_already_uploaded) {
-        $storedfilepresenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id,
-            'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
-    } else {
-        $chunkuploadpresenter = $data->video_presenter_chunk;
-    }
-    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
-        property_exists($data, 'presentation_already_uploaded') && $data->presentation_already_uploaded) {
-        $storedfilepresentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id,
-            'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
-    } else {
-        $chunkuploadpresentation = $data->video_presentation_chunk;
-    }
-
-    if (isset($storedfilepresenter) && $storedfilepresenter) {
-        file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresenter->get_itemid());
-    }
-    if (isset($storedfilepresentation) && $storedfilepresentation) {
-        file_deletionmanager::track_draftitemid($coursecontext->id, $storedfilepresentation->get_itemid());
-    }
-
-    // Transcription files.
-    $transcriptions = [];
-    if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-        $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
-        // If the max upload limit is not set we assume only 1 field set.
-        if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
-            $maxtranscriptionupload = 1;
-        }
-        for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
-            $fileelm = "transcription_file_{$transcriptionindex}";
-            $flavorelm = "transcription_flavor_{$transcriptionindex}";
-            if (property_exists($data, $fileelm) && property_exists($data, $flavorelm)) {
-                $storedfile = $addvideoform->save_stored_file($fileelm, $coursecontext->id,
-                    'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
-                $flavor = $data->{$flavorelm};
-                if (isset($storedfile) && $storedfile) {
-                    $transcriptions[] = [
-                        'file_itemid' => $storedfile->get_itemid(),
-                        'file_id' => $storedfile->get_id(),
-                        'file_contenhash' => $storedfile->get_contenthash(),
-                        'flavor' => $flavor,
-                    ];
-                }
-            }
+    // Cleanup the drafts.
+    $usercontext = \context_user::instance($USER->id);
+    $draftfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $data->batchuploadedvideos, 'id', false);
+    if (!empty($draftfiles)) {
+        foreach ($draftfiles as $draftfile) {
+            file_deletionmanager::fulldelete_file($draftfile);
         }
     }
 
+    // Preparing batch metadata to use.
     $metadata = [];
 
     if (property_exists($data, 'series')) {
@@ -197,17 +201,12 @@ if ($data = $addvideoform->get_data()) {
         ];
     }
 
-    $gettitle = true; // Make sure title (required) is added into metadata.
-
     // Adding data into $metadata based on $metadata_catalog.
-    foreach ($metadatacatalog as $field) {
+    foreach ($batchmetadatacatalog as $field) {
         $id = $field->name;
         if (property_exists($data, $field->name) && $data->$id) {
-            if ($field->name == 'title') { // Make sure the title is received!
-                $gettitle = false;
-            }
             if ($field->name == 'subjects') {
-                !is_array($data->$id) ? $data->$id = [$data->$id] : $data->$id = $data->$id;
+                $data->$id = !is_array($data->$id) ? [$data->$id] : $data->$id;
             }
             $obj = [
                 'id' => $id,
@@ -215,15 +214,6 @@ if ($data = $addvideoform->get_data()) {
             ];
             $metadata[] = $obj;
         }
-    }
-
-    // If admin forgets/mistakenly deletes the title from metadata_catalog the system will create a title!
-    if ($gettitle) {
-        $titleobj = [
-            'id' => 'title',
-            'value' => $data->title ? $data->title : 'upload-task',
-        ];
-        $metadata[] = $titleobj;
     }
 
     $sd = new DateTime("now", new DateTimeZone("UTC"));
@@ -239,21 +229,6 @@ if ($data = $addvideoform->get_data()) {
     $metadata[] = $startdate;
     $metadata[] = $starttime;
 
-    $options = new stdClass();
-    $options->metadata = json_encode($metadata);
-    $options->presenter = isset($storedfilepresenter) && $storedfilepresenter ? $storedfilepresenter->get_itemid() : '';
-    $options->presentation = isset($storedfilepresentation) && $storedfilepresentation ? $storedfilepresentation->get_itemid() : '';
-    $options->chunkupload_presenter = isset($chunkuploadpresenter) ? $chunkuploadpresenter : '';
-    $options->chunkupload_presentation = isset($chunkuploadpresentation) ? $chunkuploadpresentation : '';
-
-    // Prepare attachment object.
-    $attachments = new stdClass();
-    if (isset($transcriptions) && !empty($transcriptions)) {
-        $attachments->transcriptions = $transcriptions;
-    }
-    // Adding attachment object to the options.
-    $options->attachments = $attachments;
-
     // Prepare the visibility object.
     $visibility = new stdClass();
     $visibility->initialvisibilitystatus = !isset($data->initialvisibilitystatus) ?
@@ -268,15 +243,71 @@ if ($data = $addvideoform->get_data()) {
             json_encode($data->scheduledvisibilitygroups) : null;
     }
 
-    // Update all upload jobs.
-    upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
-    redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, notification::NOTIFY_SUCCESS);
+    $error = null;
+    $totalfiles = count($batchuploadedfiles);
+    // Loop through the files and proceed with the upload and cleanup records.
+    if (!empty($batchuploadedfiles)) {
+        $errorcount = 0;
+        foreach ($batchuploadedfiles as $uploadedfile) {
+            try {
+                if ($uploadedfile->get_filename() === '.') {
+                    file_deletionmanager::fulldelete_file($uploadedfile);
+                    $totalfiles--;
+                    continue;
+                }
+
+                $newfileitemid = file_get_unused_draft_itemid();
+                $newfilerecord = array(
+                    'contextid' => $uploadedfile->get_contextid(),
+                    'component' => $uploadedfile->get_component(),
+                    'filearea' => $uploadedfile->get_filearea(),
+                    'itemid' => $newfileitemid,
+                    'timemodified' => time()
+                );
+                $newfile = $fs->create_file_from_storedfile($newfilerecord, $uploadedfile);
+                // Delete the old job.
+                file_deletionmanager::fulldelete_file($uploadedfile);
+                // Cleaup the batch uploaded files.
+                file_deletionmanager::track_draftitemid($newfile->get_contextid(), $newfile->get_itemid());
+
+                $metadataclone = $metadata;
+                // Prepare title metadata, extracted from the file name.
+                $filename = pathinfo($newfile->get_filename(), \PATHINFO_FILENAME) ?? 'uploaded-video';
+                $metadataclone[] = [
+                    'id' => 'title',
+                    'value' => $filename,
+                ];
+
+                // Prepare the upload job options object.
+                $options = new stdClass();
+                $options->metadata = json_encode($metadataclone);
+                $options->presenter = $newfile->get_itemid();
+
+                // Save the upload job.
+                upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
+            } catch (moodle_exception $e) {
+                $errorcount++;
+            }
+        }
+        if ($errorcount > 0) {
+            $obj = new stdClass();
+            $obj->error = $errorcount;
+            $obj->total = $totalfiles;
+            $error = get_string('batchupload_errorsaveuploadjobs', 'block_opencast', $obj);
+        }
+    } else {
+        $error = get_string('batchupload_emptyvideosuploaderror', 'block_opencast');
+    }
+
+    $notinicationstatus = !empty($error) ? notification::NOTIFY_ERROR : notification::NOTIFY_SUCCESS;
+    $message = $error ?? get_string('batchupload_jobssaved', 'block_opencast', $totalfiles);
+    redirect($redirecturl, $message, null, $notinicationstatus);
 }
 
 $PAGE->requires->js_call_amd('block_opencast/block_form_handler', 'init');
 $renderer = $PAGE->get_renderer('block_opencast');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('addvideo', 'block_opencast'));
-$addvideoform->display();
+echo $OUTPUT->heading(get_string('batchupload', 'block_opencast'));
+$batchuploadform->display();
 echo $OUTPUT->footer();

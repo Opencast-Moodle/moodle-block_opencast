@@ -915,5 +915,25 @@ $string['importmapping_modulesfixtaskretry'] = 'An error occured by executing a 
     The task will be processed again later.';
 $string['importmapping_modulesfixtasktermination'] = 'An error occured by executing a task for fixing the duplicated event\'s modules: {$a}
     After trying serveral time the task will be terminated now.';
+// Batch upload.
+$string['batchupload_setting'] = 'Enable batch video upload';
+$string['batchupload_setting_desc'] = 'By enabling this option, the Opencast instance will provide a separate page to the users to upload videos in batch at once. Please note that for this upload mode, some features in comparision to normal single upload may not be provided.<br /> To avoid cluttering the upload job queue up as well as decreasing the upload process time, it is recommended to increase the "Limit upload job by cron".<br /> To avoid any timeout error during video uploads, it is recommended to adjust timeout options in the following settings according to your needs: <br /> {$a->uploadtimeoutlink} <br /> {$a->toolopencastinstancelink} ';
+$string['batchupload'] = 'Add videos (batch)';
+$string['batchupload_errornotenabled'] = 'Unfortunately the batch video upload feature is unavailable for this Opencast instance, please try to contanct your system administrator.';
+$string['batchupload_metadata_header'] = 'Batch Metadata';
+$string['batchupload_metadata_desc'] = 'By uploading a batch of videos to Opencast at once, the following metadata will be set for each video.';
+$string['batchupload_visibility_header'] = 'Batch Visibility';
+$string['batchupload_visibility_desc'] = 'The batch visibility setting will be applied for each uploaded video in the batch.';
+$string['heading_batchable'] = 'Batchable';
+$string['descriptionmdbatchable'] = 'Batchable';
+$string['descriptionmdbatchable_help'] = 'When enabled, the metadata field can be set for batch video upload.';
+$string['batchupload_form_header'] = 'Batch Upload Files';
+$string['batchuploadexplanation'] = 'In this section you are able to upload multiple files at once. <br /> NOTE: Please keep in mind that the batch video upload is only available for presenter flavors.';
+$string['batchupload_filemanager_presenter_title'] = 'Presenter videos';
+$string['batchupload_emptyvideosuploaderror'] = 'You must upload at least one presenter video file.';
+$string['batchupload_jobssaved'] = 'Batch of {$a} Video(s) successfully uploaded. <br> The videos are queued for transferring to Opencast. Therefore, you do not need to wait on this page for them to finish.';
+$string['batchupload_errorsaveuploadjobs'] = 'There were errors uploading {$a->count} out of {$a->total} video(s).';
+$string['batchupload_errorseriesmismatched'] = 'Unfortunately the series is not defined in this course.';
+
 // Deprecated since version 2021062300.
 $string['video_already_uploaded'] = 'Video already uploaded';

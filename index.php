@@ -240,6 +240,14 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
     $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
     echo html_writer::div($addvideobutton);
 
+    // Show "Add videos (batch)" button.
+    if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
+        $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
+            ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
+        $batchuploadbutton = $OUTPUT->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
+        echo html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap');
+    }
+
     // If Opencast Studio is enabled, show "Record video" button.
     if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         $target = '_self';

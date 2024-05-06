@@ -52,6 +52,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'transcription_flavor_delete', component: 'block_opencast'},
         {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'},
         {key: 'readonly_disabled_tooltip_text', component: 'block_opencast'},
+        {key: 'heading_batchable', component: 'block_opencast'},
     ];
     str.get_strings(strings).then(function(jsstrings) {
         // We need to check and apply the transcription section first,
@@ -335,6 +336,24 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             input.checked = cell.getValue();
                             input.addEventListener('click', function() {
                                 cell.getRow().update({'defaultable': $(this).prop('checked') ? 1 : 0});
+                            });
+
+                            return input;
+                        }
+                },
+                {
+                    title: jsstrings[20] + '   ' + $('#helpbtnbatchable_' + ocinstanceid).html(),
+                    field: "batchable", hozAlign: "center", widthGrow: 0, headerSort: false, formatter:
+                        function(cell) {
+                            if (cell.getRow().getCell("name").getValue() == 'title') {
+                                return null;
+                            }
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.style.cursor = 'pointer';
+                            input.checked = cell.getValue();
+                            input.addEventListener('click', function() {
+                                cell.getRow().update({'batchable': $(this).prop('checked') ? 1 : 0});
                             });
 
                             return input;
