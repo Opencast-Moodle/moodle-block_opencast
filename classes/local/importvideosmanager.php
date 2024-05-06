@@ -742,7 +742,7 @@ class importvideosmanager {
             return false;
         }
         // Save into db.
-        return $DB->insert_record('block_opencast_importmapping', $mapping);
+        return (bool) $DB->insert_record('block_opencast_importmapping', $mapping);
     }
 
     /**
@@ -771,10 +771,7 @@ class importvideosmanager {
      */
     public static function get_import_mapping_record($where) {
         global $DB;
-        if ($DB->record_exists('block_opencast_importmapping', $where)) {
-            return $DB->get_record('block_opencast_importmapping', $where);
-        }
-        return null;
+        return $DB->get_record('block_opencast_importmapping', $where) ?: null;
     }
 
     /**
@@ -786,8 +783,7 @@ class importvideosmanager {
      */
     public static function get_import_mapping_records($where) {
         global $DB;
-        $records = $DB->get_records('block_opencast_importmapping', $where);
-        return $records ?? [];
+        return $DB->get_records('block_opencast_importmapping', $where);
     }
 
     /**
@@ -799,10 +795,7 @@ class importvideosmanager {
      */
     public static function delete_import_mapping_record($where) {
         global $DB;
-        if ($DB->record_exists('block_opencast_importmapping', $where)) {
-            return $DB->delete_records('block_opencast_importmapping', $where);
-        }
-        return false;
+        return $DB->delete_records('block_opencast_importmapping', $where);
     }
 
     /**

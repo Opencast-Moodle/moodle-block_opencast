@@ -1550,7 +1550,7 @@ class ltimodulemanager {
             ' ORDER BY cm.added ASC';
         $params = ['toolid' => $toolid,
             'course' => $courseid,
-            'sourceseriesid' => '%' . $sourceseriesid . '%', ];
+            'sourceseriesid' => '%' . $DB->sql_like_escape($sourceseriesid) . '%', ];
         $seriesmodules = $DB->get_fieldset_sql($sql, $params);
 
         // If there are any existing series modules in this course.

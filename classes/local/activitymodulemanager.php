@@ -638,8 +638,6 @@ class activitymodulemanager {
     public static function fix_imported_series_modules_in_new_course(
         $ocinstanceid, $courseid, $sourceseriesid, $newseriesid) {
         global $DB, $CFG;
-        // Require grade library. For an unknown reason, this is needed when updating the module.
-        require_once($CFG->libdir . '/gradelib.php');
 
         // Find the faulty series activity modules in new course.
         $seriesmodules = $DB->get_records('opencast', [
@@ -679,8 +677,6 @@ class activitymodulemanager {
         $ocinstanceid, $targetcourseid, $sourceeventid, $duplicatedeventid
     ) {
         global $DB, $CFG;
-        // Require grade library. For an unknown reason, this is needed when updating the module.
-        require_once($CFG->libdir . '/gradelib.php');
 
         $episodemodules = $DB->get_records('opencast', [
             'ocinstanceid' => $ocinstanceid,

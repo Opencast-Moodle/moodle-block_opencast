@@ -382,7 +382,7 @@ class backup_test extends advanced_testcase {
      *  Execute an adhoc task to fix modules.
      * @param stdClass $taskrecord
      */
-    private function execute_moduel_fix_adhoc_task($taskrecord) {
+    private function execute_module_fix_adhoc_task($taskrecord) {
         global $CFG;
 
         $task = new process_duplicated_event_module_fix();
@@ -559,12 +559,12 @@ class backup_test extends advanced_testcase {
         $apibridge->set_testdata('get_duplicated_episodeid', $dummyworkflowid, $this->newepisodeid);
         $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
-        $modulefixoutput = $this->execute_moduel_fix_adhoc_task($modulefixtaskrecord);
+        $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Run adhoc task again to go to cleaup process.
         $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
-        $modulefixoutput = $this->execute_moduel_fix_adhoc_task($modulefixtaskrecord);
+        $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Check if the module fix adhoc task was successfully terminated.
         $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);

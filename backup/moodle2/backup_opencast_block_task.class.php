@@ -102,6 +102,7 @@ class backup_opencast_block_task extends backup_block_task {
                         if (!$ocinstanceisincluded) {
                             $this->add_setting($setting);
                             $this->plan->get_setting('blocks')->add_dependency($setting);
+                            $ocinstanceisincluded = true;
                         }
                         // Section Level setting for series.
                         $seriessettingname = 'opencast_videos_series_' . $seriesobj->identifier . '_included';
@@ -114,7 +115,7 @@ class backup_opencast_block_task extends backup_block_task {
                         $stringobj = new \stdClass();
                         $stringobj->title = $seriesobj->title;
                         // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
-                        $stringobj->identifier = '***' . substr($seriesobj->identifier, strlen($seriesobj->identifier) - 6, 6);
+                        $stringobj->identifier = '***' . substr($seriesobj->identifier, -6);
                         $seriessetting->get_ui()->set_label(
                             get_string('importvideos_wizard_series_cb_title', 'block_opencast', $stringobj)
                         );
@@ -147,7 +148,7 @@ class backup_opencast_block_task extends backup_block_task {
                             $stringobj = new \stdClass();
                             $stringobj->title = $bkvideo->title;
                             // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
-                            $stringobj->identifier = '***' . substr($bkvideo->identifier, strlen($bkvideo->identifier) - 6, 6);
+                            $stringobj->identifier = '***' . substr($bkvideo->identifier, -6);
                             $episodesetting->get_ui()->set_label(
                                 get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
                             );

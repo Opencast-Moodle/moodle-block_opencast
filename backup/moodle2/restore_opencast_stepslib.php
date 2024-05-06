@@ -146,7 +146,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
 
         // Proceed with the backedup series, to save the mapping and repair the modules.
         foreach ($data->import[0]['series'] as $series) {
-            $seriesid = $series['seriesid'];
+            $seriesid = $series['seriesid'] ?? null;
             // Skip when there is no original series, or the series is invalid.
             if (empty($seriesid) || !$apibridge->ensure_series_is_valid($seriesid)) {
                 continue;
@@ -164,7 +164,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         }
 
         foreach ($data->events['event'] as $event) {
-            $eventid = $event['eventid'];
+            $eventid = $event['eventid'] ?? null;
             $this->backupeventids[] = $eventid;
 
             // Only duplicate, when the event exists in opencast.
