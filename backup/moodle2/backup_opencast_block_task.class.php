@@ -105,7 +105,8 @@ class backup_opencast_block_task extends backup_block_task {
                             $ocinstanceisincluded = true;
                         }
                         // Section Level setting for series.
-                        $seriessettingname = 'opencast_videos_series_' . $seriesobj->identifier . '_included';
+                        $seriessettingname =
+                            'opencast_videos_' . $ocinstance->id . '_series_' . $seriesobj->identifier . '_included';
                         $seriessetting = new backup_block_opencast_setting(
                             $seriessettingname,
                             base_setting::IS_BOOLEAN,
@@ -138,7 +139,7 @@ class backup_opencast_block_task extends backup_block_task {
                             }
 
                             $episodesetting = new backup_block_opencast_setting(
-                                'opencast_videos_episode_' . $bkvideo->identifier . '_included',
+                                'opencast_videos_' . $ocinstance->id . '_episode_' . $bkvideo->identifier . '_included',
                                 base_setting::IS_BOOLEAN,
                                 true,
                                 backup_block_opencast_setting::ACTIVITY_LEVEL,
@@ -190,7 +191,8 @@ class backup_opencast_block_task extends backup_block_task {
                 $seriestobackup = $apibridge->get_course_series($courseid);
                 foreach ($seriestobackup as $series) {
                     // Checking the series inclusion.
-                    $seriessettingname = 'opencast_videos_series_' . $series->series . '_included';
+                    $seriessettingname =
+                            'opencast_videos_' . $ocinstance->id . '_series_' . $series->series . '_included';
                     if (!$this->setting_exists($seriessettingname) || empty($this->get_setting_value($seriessettingname))) {
                         continue;
                     }
@@ -199,7 +201,7 @@ class backup_opencast_block_task extends backup_block_task {
                     $result = $apibridge->get_series_videos($series->series);
                     foreach ($result->videos as $video) {
                         // Checking the episode inclusion.
-                        $episodesettingname = 'opencast_videos_episode_' . $video->identifier . '_included';
+                        $episodesettingname = 'opencast_videos_' . $ocinstance->id . '_episode_' . $video->identifier . '_included';
                         if (!$this->setting_exists($episodesettingname) || empty($this->get_setting_value($episodesettingname))) {
                             continue;
                         }

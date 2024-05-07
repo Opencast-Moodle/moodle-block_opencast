@@ -639,6 +639,11 @@ class activitymodulemanager {
         $ocinstanceid, $courseid, $sourceseriesid, $newseriesid) {
         global $DB, $CFG;
 
+        // Check if mod_opencast is installed.
+        if (empty(core_plugin_manager::instance()->get_plugin_info('mod_opencast'))) {
+            return;
+        }
+
         // Find the faulty series activity modules in new course.
         $seriesmodules = $DB->get_records('opencast', [
             'ocinstanceid' => $ocinstanceid,
@@ -677,6 +682,11 @@ class activitymodulemanager {
         $ocinstanceid, $targetcourseid, $sourceeventid, $duplicatedeventid
     ) {
         global $DB, $CFG;
+
+        // Check if mod_opencast is installed.
+        if (empty(core_plugin_manager::instance()->get_plugin_info('mod_opencast'))) {
+            return;
+        }
 
         $episodemodules = $DB->get_records('opencast', [
             'ocinstanceid' => $ocinstanceid,
