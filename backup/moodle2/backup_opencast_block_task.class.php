@@ -80,6 +80,7 @@ class backup_opencast_block_task extends backup_block_task {
                     true
                 );
                 $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
+                $setting->set_value(boolval($defaultimportvalue));
 
                 foreach ($seriestobackup as $series) {
                     $seriesobj = $apibridge->get_series_by_identifier($series->series, false);
@@ -113,6 +114,7 @@ class backup_opencast_block_task extends backup_block_task {
                             true,
                             backup_block_opencast_setting::SECTION_LEVEL
                         );
+                        $seriessetting->set_value(boolval($defaultimportvalue));
                         $stringobj = new \stdClass();
                         $stringobj->title = $seriesobj->title;
                         // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
@@ -128,7 +130,7 @@ class backup_opencast_block_task extends backup_block_task {
                             );
                         }
                         $this->add_setting($seriessetting);
-                        $this->get_setting($includesettingname)->add_dependency($seriessetting);
+                        $this->get_setting($includesettingname)->add_dependency($seriessetting, setting_dependency::DISABLED_NOT_CHECKED);
 
                         foreach ($videostobackup as $bkvideo) {
                             // Activity level settings for episodes.
@@ -146,6 +148,7 @@ class backup_opencast_block_task extends backup_block_task {
                                 backup_block_opencast_setting::VISIBLE,
                                 $status
                             );
+                            $episodesetting->set_value(boolval($defaultimportvalue));
                             $stringobj = new \stdClass();
                             $stringobj->title = $bkvideo->title;
                             // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
@@ -154,16 +157,10 @@ class backup_opencast_block_task extends backup_block_task {
                                 get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
                             );
                             $this->add_setting($episodesetting);
-                            $this->get_setting($seriessettingname)->add_dependency($episodesetting);
+                            $this->get_setting($seriessettingname)->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
                         }
-                        // We only set value after the child setting are added, this is important because the value change affects
-                        // the dependencies in moodle core.
-                        $seriessetting->set_value(true);
                     }
                 }
-                // We only set value after the child setting are added, this is important because the value change affects
-                // the dependencies in moodle core.
-                $setting->set_value(boolval($defaultimportvalue));
             }
         }
     }
