@@ -57,7 +57,7 @@ class backup_opencast_block_task extends backup_block_task {
             if (importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
                 // Get default value, to include opencast video.
-                $defaultimportvalue = get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id);
+                $defaultimportvalue = boolvar(get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
 
                 // Get import mode, to determine whether to offer selective feature or not.
                 // Duplicate videos mode is capable of selection.
@@ -77,10 +77,9 @@ class backup_opencast_block_task extends backup_block_task {
                 $setting = new backup_block_opencast_setting(
                     $includesettingname,
                     base_setting::IS_BOOLEAN,
-                    true
+                    $defaultimportvalue
                 );
                 $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
-                $setting->set_value(boolval($defaultimportvalue));
 
                 foreach ($seriestobackup as $series) {
                     $seriesobj = $apibridge->get_series_by_identifier($series->series, false);
@@ -111,10 +110,9 @@ class backup_opencast_block_task extends backup_block_task {
                         $seriessetting = new backup_block_opencast_setting(
                             $seriessettingname,
                             base_setting::IS_BOOLEAN,
-                            true,
+                            $defaultimportvalue,
                             backup_block_opencast_setting::SECTION_LEVEL
                         );
-                        $seriessetting->set_value(boolval($defaultimportvalue));
                         $stringobj = new \stdClass();
                         $stringobj->title = $seriesobj->title;
                         // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
@@ -143,12 +141,11 @@ class backup_opencast_block_task extends backup_block_task {
                             $episodesetting = new backup_block_opencast_setting(
                                 'opencast_videos_' . $ocinstance->id . '_episode_' . $bkvideo->identifier . '_included',
                                 base_setting::IS_BOOLEAN,
-                                true,
+                                $defaultimportvalue,
                                 backup_block_opencast_setting::ACTIVITY_LEVEL,
                                 backup_block_opencast_setting::VISIBLE,
                                 $status
                             );
-                            $episodesetting->set_value(boolval($defaultimportvalue));
                             $stringobj = new \stdClass();
                             $stringobj->title = $bkvideo->title;
                             // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
