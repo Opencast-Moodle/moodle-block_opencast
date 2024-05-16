@@ -57,7 +57,7 @@ class backup_opencast_block_task extends backup_block_task {
             if (importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
                 // Get default value, to include opencast video.
-                $defaultimportvalue = boolvar(get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
+                $defaultimportvalue = boolval(get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
 
                 // Get import mode, to determine whether to offer selective feature or not.
                 // Duplicate videos mode is capable of selection.
