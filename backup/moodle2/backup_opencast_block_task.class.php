@@ -130,7 +130,7 @@ class backup_opencast_block_task extends backup_block_task {
                                 $stringobj = new \stdClass();
                                 $stringobj->title = $videotobackup->title;
                                 $stringobj->identifier = '***' . substr($videotobackup->identifier, -6);
-                                $videolist []= "- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
+                                $videolist[] = "- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
                             }
                             // The label does not support any html, so we need to use the text for line breaks.
                             $seriessetting->get_ui()->set_text(join('<br>', $videolist));
@@ -158,8 +158,7 @@ class backup_opencast_block_task extends backup_block_task {
                                     get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
                                 );
                                 $this->add_setting($episodesetting);
-                                $this->get_setting($seriessettingname)
-                                        ->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
+                                $this->get_setting($seriessettingname)->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
                             }
                         }
                     }
