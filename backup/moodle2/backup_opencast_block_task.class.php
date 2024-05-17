@@ -117,44 +117,52 @@ class backup_opencast_block_task extends backup_block_task {
                         $stringobj->title = $seriesobj->title;
                         // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
                         $stringobj->identifier = '***' . substr($seriesobj->identifier, -6);
-                        $seriessetting->get_ui()->set_label(
-                            get_string('importvideos_wizard_series_cb_title', 'block_opencast', $stringobj)
-                        );
+                        $seriessettinglabel = get_string('importvideos_wizard_series_cb_title', 'block_opencast', $stringobj);
                         // Adding the help button to emphasize that in ACL Change only series selection is possible.
                         if ($importmode === 'acl') {
                             $seriessetting->set_help(
                                 'importvideos_wizard_unselectableeventreason',
                                 'block_opencast'
                             );
+
+                            foreach ($videostobackup as $videotobackup) {
+                                // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
+                                $stringobj = new \stdClass();
+                                $stringobj->title = $videotobackup->title;
+                                $stringobj->identifier = '***' . substr($videotobackup->identifier, -6);
+                                $seriessettinglabel .= "<br>- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
+                            }
+                            // The label does not support any html, so we need to use the text for line breaks.
+                            $seriessetting->get_ui()->set_label('');
+                            $seriessetting->get_ui()->set_text($seriessettinglabel);
+                        } else {
+                            $seriessetting->get_ui()->set_label($seriessettinglabel);
                         }
+
                         $this->add_setting($seriessetting);
                         $this->get_setting($includesettingname)->add_dependency($seriessetting, setting_dependency::DISABLED_NOT_CHECKED);
 
-                        foreach ($videostobackup as $bkvideo) {
-                            // Activity level settings for episodes.
-                            $status = backup_block_opencast_setting::NOT_LOCKED;
-                            // Locking the video selection in ACL Change.
-                            if ($importmode === 'acl') {
-                                $status = backup_block_opencast_setting::LOCKED_BY_CONFIG;
+                        if ($importmode !== 'acl') {
+                            foreach ($videostobackup as $bkvideo) {
+                                // Activity level settings for episodes.
+                                $episodesetting = new backup_block_opencast_setting(
+                                    'opencast_videos_' . $ocinstance->id . '_episode_' . $bkvideo->identifier . '_included',
+                                    base_setting::IS_BOOLEAN,
+                                    $defaultimportvalue,
+                                    backup_block_opencast_setting::ACTIVITY_LEVEL,
+                                    backup_block_opencast_setting::VISIBLE,
+                                );
+                                $stringobj = new \stdClass();
+                                $stringobj->title = $bkvideo->title;
+                                // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
+                                $stringobj->identifier = '***' . substr($bkvideo->identifier, -6);
+                                $episodesetting->get_ui()->set_label(
+                                    get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
+                                );
+                                $this->add_setting($episodesetting);
+                                $this->get_setting($seriessettingname)
+                                        ->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
                             }
-
-                            $episodesetting = new backup_block_opencast_setting(
-                                'opencast_videos_' . $ocinstance->id . '_episode_' . $bkvideo->identifier . '_included',
-                                base_setting::IS_BOOLEAN,
-                                $defaultimportvalue,
-                                backup_block_opencast_setting::ACTIVITY_LEVEL,
-                                backup_block_opencast_setting::VISIBLE,
-                                $status
-                            );
-                            $stringobj = new \stdClass();
-                            $stringobj->title = $bkvideo->title;
-                            // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
-                            $stringobj->identifier = '***' . substr($bkvideo->identifier, -6);
-                            $episodesetting->get_ui()->set_label(
-                                get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
-                            );
-                            $this->add_setting($episodesetting);
-                            $this->get_setting($seriessettingname)->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
                         }
                     }
                 }
