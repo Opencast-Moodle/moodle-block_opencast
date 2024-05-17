@@ -124,20 +124,18 @@ class backup_opencast_block_task extends backup_block_task {
                                 'importvideos_wizard_unselectableeventreason',
                                 'block_opencast'
                             );
-
+                            $videolist = [];
                             foreach ($videostobackup as $videotobackup) {
                                 // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
                                 $stringobj = new \stdClass();
                                 $stringobj->title = $videotobackup->title;
                                 $stringobj->identifier = '***' . substr($videotobackup->identifier, -6);
-                                $seriessettinglabel .= "<br>- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
+                                $videolist []= "- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
                             }
                             // The label does not support any html, so we need to use the text for line breaks.
-                            $seriessetting->get_ui()->set_label('');
-                            $seriessetting->get_ui()->set_text($seriessettinglabel);
-                        } else {
-                            $seriessetting->get_ui()->set_label($seriessettinglabel);
+                            $seriessetting->get_ui()->set_text(join('<br>', $videolist));
                         }
+                        $seriessetting->get_ui()->set_label($seriessettinglabel);
 
                         $this->add_setting($seriessetting);
                         $this->get_setting($includesettingname)->add_dependency($seriessetting, setting_dependency::DISABLED_NOT_CHECKED);
