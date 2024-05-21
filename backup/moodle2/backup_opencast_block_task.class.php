@@ -174,6 +174,7 @@ class backup_opencast_block_task extends backup_block_task {
         $ocinstances = settings_api::get_ocinstances();
         $courseid = $this->get_courseid();
         foreach ($ocinstances as $ocinstance) {
+            $importmode = get_config('block_opencast', 'importmode_' . $ocinstance->id);
             $includesettingname = 'opencast_videos_' . $ocinstance->id . '_included';
             // Checking the main level inclusion.
             if (!$this->setting_exists($includesettingname)) {
@@ -201,11 +202,10 @@ class backup_opencast_block_task extends backup_block_task {
                     foreach ($result->videos as $video) {
                         // Checking the episode inclusion.
                         $episodesettingname = 'opencast_videos_' . $ocinstance->id . '_episode_' . $video->identifier . '_included';
-                        if (!$this->setting_exists($episodesettingname) || empty($this->get_setting_value($episodesettingname))) {
-                            continue;
+                        if ($importmode === 'acl' || $this->setting_exists($episodesettingname) && $this->get_setting_value($episodesettingname)) {
+                            // We store the episode of series in backupstructuredata.
+                            $backupstructuredata[$series->series][] = $video->identifier;
                         }
-                        // We store the episode of series in backupstructuredata.
-                        $backupstructuredata[$series->series][] = $video->identifier;
                     }
                 }
 
