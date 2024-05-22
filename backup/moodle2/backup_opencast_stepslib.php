@@ -19,6 +19,8 @@
  *
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,6 +38,8 @@ require_once($CFG->dirroot . '/backup/moodle2/backup_stepslib.php');
  *
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_opencast_block_structure_step extends backup_block_structure_step {
@@ -47,9 +51,48 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
      * @throws base_step_exception
      * @throws dml_exception
      */
+
+    /** @var array data The information about backup structure */
+    private $data = [];
+
+    /**
+     * Returns data.
+     * @return array data
+     */
+    public function get_data() {
+        return $this->data;
+    }
+
+    /**
+     * Sets data.
+     * @see backup_opencast_block_task::define_my_steps() Usage.
+     * @param array $data the information about backup structure.
+     */
+    public function set_data($data) {
+        $this->data = $data;
+    }
+
+    /**
+     * Defines the structure of the block backup.
+     *
+     * @return backup_nested_element
+     */
     protected function define_structure() {
+
+        // Extracting ocinstanceid from the structure.
         $ocinstanceid = intval(ltrim($this->get_name(), "opencast_structure_"));
 
+        // Extracting selected series and events from the data structure.
+        $selectedseriestobackup = [];
+        $selectedvideostobackup = [];
+        if (!empty($this->data)) {
+            foreach ($this->data as $seriesid => $eventslist) {
+                if (!empty($eventslist)) {
+                    $selectedseriestobackup[] = $seriesid;
+                    $selectedvideostobackup = array_merge($eventslist, $selectedvideostobackup);
+                }
+            }
+        }
         // Root.
         $opencast = new backup_nested_element('opencast');
 
@@ -79,7 +122,10 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
         $list = [];
         // Add course videos.
         foreach ($coursevideos as $video) {
-            $list[] = (object)['eventid' => $video->identifier];
+            // Check if they are selected.
+            if (in_array($video->identifier, $selectedvideostobackup)) {
+                $list[] = (object)['eventid' => $video->identifier];
+            }
         }
 
         // Define sources.
@@ -96,7 +142,10 @@ class backup_opencast_block_structure_step extends backup_block_structure_step {
 
         $list = [];
         foreach ($courseseries as $series) {
-            $list[] = (object)['seriesid' => $series->series];
+            // Check if it is selected.
+            if (in_array($series->series, $selectedseriestobackup)) {
+                $list[] = (object)['seriesid' => $series->series];
+            }
         }
         $serieselement->set_source_array($list);
 

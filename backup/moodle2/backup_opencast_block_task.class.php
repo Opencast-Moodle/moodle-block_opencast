@@ -20,6 +20,7 @@
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -40,6 +41,7 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_bac
  * @package    block_opencast
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_opencast_block_task extends backup_block_task {
@@ -55,15 +57,38 @@ class backup_opencast_block_task extends backup_block_task {
             if (importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
                 // Get default value, to include opencast video.
-                $defaultimportvalue = get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id);
+                $defaultimportvalue = boolval(get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
+
+                // Get import mode, to determine whether to offer selective feature or not.
+                // Duplicate videos mode is capable of selection.
+                // ACL Change mode is not, due to changing the acl of the whole series at once.
+                $importmode = get_config('block_opencast', 'importmode_' . $ocinstance->id);
+
                 // Check, whether there are course videos available.
                 $apibridge = apibridge::get_instance($ocinstance->id);
                 $courseid = $this->get_courseid();
 
                 $seriestobackup = $apibridge->get_course_series($courseid);
 
+                // A flag to check if the main include is added.
+                $ocinstanceisincluded = false;
+                $includesettingname = 'opencast_videos_' . $ocinstance->id . '_included';
+                // Course level setting inclusion.
+                $setting = new backup_block_opencast_setting(
+                    $includesettingname,
+                    base_setting::IS_BOOLEAN,
+                    $defaultimportvalue
+                );
+                $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
+
                 foreach ($seriestobackup as $series) {
-                    $result = $apibridge->get_series_videos($series->series);
+                    $seriesobj = $apibridge->get_series_by_identifier($series->series, false);
+
+                    if (empty($seriesobj)) {
+                        continue;
+                    }
+
+                    $result = $apibridge->get_series_videos($seriesobj->identifier);
 
                     $videostobackup = [];
                     foreach ($result->videos as $video) {
@@ -73,12 +98,69 @@ class backup_opencast_block_task extends backup_block_task {
                     }
 
                     if (count($videostobackup) > 0) {
-                        $setting = new backup_block_opencast_setting('opencast_videos_include_' . $ocinstance->id,
-                            base_setting::IS_BOOLEAN, boolval($defaultimportvalue));
-                        $setting->get_ui()->set_label(get_string('backupopencastvideos', 'block_opencast', $ocinstance->name));
-                        $this->add_setting($setting);
-                        $this->plan->get_setting('blocks')->add_dependency($setting);
-                        break;
+                        // Here we make sure that the main inclusion happens only once.
+                        if (!$ocinstanceisincluded) {
+                            $this->add_setting($setting);
+                            $this->plan->get_setting('blocks')->add_dependency($setting);
+                            $ocinstanceisincluded = true;
+                        }
+                        // Section Level setting for series.
+                        $seriessettingname =
+                            'opencast_videos_' . $ocinstance->id . '_series_' . $seriesobj->identifier . '_included';
+                        $seriessetting = new backup_block_opencast_setting(
+                            $seriessettingname,
+                            base_setting::IS_BOOLEAN,
+                            $defaultimportvalue,
+                            backup_block_opencast_setting::SECTION_LEVEL
+                        );
+                        $stringobj = new \stdClass();
+                        $stringobj->title = $seriesobj->title;
+                        // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
+                        $stringobj->identifier = '***' . substr($seriesobj->identifier, -6);
+                        $seriessettinglabel = get_string('importvideos_wizard_series_cb_title', 'block_opencast', $stringobj);
+                        // Adding the help button to emphasize that in ACL Change only series selection is possible.
+                        if ($importmode === 'acl') {
+                            $seriessetting->set_help(
+                                'importvideos_wizard_unselectableeventreason',
+                                'block_opencast'
+                            );
+                            $videolist = [];
+                            foreach ($videostobackup as $videotobackup) {
+                                // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
+                                $stringobj = new \stdClass();
+                                $stringobj->title = $videotobackup->title;
+                                $stringobj->identifier = '***' . substr($videotobackup->identifier, -6);
+                                $videolist[] = "- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
+                            }
+                            // The label does not support any html, so we need to use the text for line breaks.
+                            $seriessetting->get_ui()->set_text(join('<br>', $videolist));
+                        }
+                        $seriessetting->get_ui()->set_label($seriessettinglabel);
+
+                        $this->add_setting($seriessetting);
+                        $this->get_setting($includesettingname)->add_dependency($seriessetting, setting_dependency::DISABLED_NOT_CHECKED);
+
+                        if ($importmode !== 'acl') {
+                            foreach ($videostobackup as $bkvideo) {
+                                // Activity level settings for episodes.
+                                $episodesetting = new backup_block_opencast_setting(
+                                    'opencast_videos_' . $ocinstance->id . '_episode_' . $bkvideo->identifier . '_included',
+                                    base_setting::IS_BOOLEAN,
+                                    $defaultimportvalue,
+                                    backup_block_opencast_setting::ACTIVITY_LEVEL,
+                                    backup_block_opencast_setting::VISIBLE,
+                                );
+                                $stringobj = new \stdClass();
+                                $stringobj->title = $bkvideo->title;
+                                // To avoid cluttered ui and ugly display, we present only the last 6 digit of the id.
+                                $stringobj->identifier = '***' . substr($bkvideo->identifier, -6);
+                                $episodesetting->get_ui()->set_label(
+                                    get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
+                                );
+                                $this->add_setting($episodesetting);
+                                $this->get_setting($seriessettingname)->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
+                            }
+                        }
                     }
                 }
             }
@@ -90,14 +172,48 @@ class backup_opencast_block_task extends backup_block_task {
      */
     protected function define_my_steps() {
         $ocinstances = settings_api::get_ocinstances();
+        $courseid = $this->get_courseid();
         foreach ($ocinstances as $ocinstance) {
-            if (!$this->setting_exists('opencast_videos_include_' . $ocinstance->id)) {
+            $importmode = get_config('block_opencast', 'importmode_' . $ocinstance->id);
+            $includesettingname = 'opencast_videos_' . $ocinstance->id . '_included';
+            // Checking the main level inclusion.
+            if (!$this->setting_exists($includesettingname)) {
                 continue;
             }
 
-            if ($this->get_setting_value('opencast_videos_include_' . $ocinstance->id)) {
-                $this->add_step(new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id,
-                    'opencast_' . $ocinstance->id . '.xml'));
+             // If the main level is included.
+            if ($this->get_setting_value($includesettingname)) {
+                // Get API Bridge to get data.
+                $apibridge = apibridge::get_instance($ocinstance->id);
+                $backupstructuredata = [];
+
+                // Get course series to loop through and verify.
+                $seriestobackup = $apibridge->get_course_series($courseid);
+                foreach ($seriestobackup as $series) {
+                    // Checking the series inclusion.
+                    $seriessettingname =
+                            'opencast_videos_' . $ocinstance->id . '_series_' . $series->series . '_included';
+                    if (!$this->setting_exists($seriessettingname) || empty($this->get_setting_value($seriessettingname))) {
+                        continue;
+                    }
+
+                    // Get the series video to lopp through and check the inclusion.
+                    $result = $apibridge->get_series_videos($series->series);
+                    foreach ($result->videos as $video) {
+                        // Checking the episode inclusion.
+                        $episodesettingname = 'opencast_videos_' . $ocinstance->id . '_episode_' . $video->identifier . '_included';
+                        if ($importmode === 'acl' || $this->setting_exists($episodesettingname) && $this->get_setting_value($episodesettingname)) {
+                            // We store the episode of series in backupstructuredata.
+                            $backupstructuredata[$series->series][] = $video->identifier;
+                        }
+                    }
+                }
+
+                // Pass the collected backup data into the step.
+                $backupstep = new backup_opencast_block_structure_step('opencast_structure_' . $ocinstance->id,
+                    'opencast_' . $ocinstance->id . '.xml');
+                $backupstep->set_data($backupstructuredata);
+                $this->add_step($backupstep);
             }
         }
     }

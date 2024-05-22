@@ -336,4 +336,43 @@ class block_opencast_apibridge_testable extends apibridge {
         return $this->get_testdata('start_workflow', $duplicateworkflow);
     }
 
+    /**
+     * Simulates an API call to check, whether series exists in opencast system.
+     *
+     * @param int $seriesid
+     * @param bool $withacl If true, ACLs are included
+     * @return null|stdClass series if it exists in the opencast system.
+     */
+    public function get_series_by_identifier($seriesid, bool $withacl = false) {
+        if (empty($seriesid)) {
+            return null;
+        }
+
+        if ($value = $this->get_testdata('get_series_by_identifier', $seriesid)) {
+            return json_decode($value);
+        }
+
+        return null;
+    }
+
+    /**
+     * Simulates the check if the series ID exists in the Opencast system.
+     * @param string $seriesid Series id
+     * @return bool true, if the series exists. Otherwise false.
+     */
+    public function ensure_series_is_valid($seriesid) {
+        return true;
+    }
+
+    /**
+     * Simulate getting the episode id of the episode which was created in a duplication workflow.
+     *
+     * @param int $workflowid The workflow ID of the dupliation workflow.
+     *
+     * @return string|bool The episode ID, false if not found.
+     */
+    public function get_duplicated_episodeid($workflowid) {
+
+        return $this->get_testdata('get_duplicated_episodeid', $workflowid);
+    }
 }
