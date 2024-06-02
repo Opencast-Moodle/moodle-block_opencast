@@ -214,6 +214,9 @@ Feature: Add Opencast LTI series module as Teacher
     Given the following config values are set as admin:
       | addltisection_1 | 1 | block_opencast |
     And I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    And I edit the section "1" and I fill the form with:
+      | Section name      | Topic 1 |
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
     And I click on "Add Opencast LTI series module to course" "link"
