@@ -130,7 +130,7 @@ class notifications {
      * @param string $identifier
      * @param Exception $e
      */
-    public static function notify_error($identifier, Exception $e = null) {
+    public static function notify_error($identifier, ?Exception $e = null) {
 
         $subject = get_string('erroremailsubj', 'block_opencast');
 

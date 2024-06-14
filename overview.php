@@ -21,15 +21,15 @@
  * @copyright  2021 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
-require_once($CFG->dirroot . '/lib/tablelib.php');
-require_once($CFG->dirroot . '/course/lib.php');
 
 use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
 use core\notification;
 use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
@@ -61,7 +61,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('seriesoverview', 'block_opencast'));
 echo html_writer::tag('p', get_string('seriesoverviewexplanation', 'block_opencast'));
 
-// TODO handle opencast connection error. Break as soon as first error occurs.
+// Should Do handle opencast connection error. Break as soon as first error occurs.
 
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');

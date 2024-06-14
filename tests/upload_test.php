@@ -44,7 +44,7 @@ global $CFG;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upload_test extends advanced_testcase {
+final class upload_test extends advanced_testcase {
 
 
     /** @var string Test api url. */
@@ -74,7 +74,7 @@ class upload_test extends advanced_testcase {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function test_upload() {
+    public function test_upload(): void {
         global $CFG, $DB;
 
         $this->resetAfterTest();

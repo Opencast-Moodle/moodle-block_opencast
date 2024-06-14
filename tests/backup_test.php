@@ -65,7 +65,7 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_test extends advanced_testcase {
+final class backup_test extends advanced_testcase {
 
 
     /** @var string for the testcase, must NOT be a real server! */
@@ -246,7 +246,7 @@ class backup_test extends advanced_testcase {
             'timecreated' => time(),
             'timemodified' => time(),
             'state' => LTI_TOOL_STATE_CONFIGURED,
-            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
         ];
         $seriessitetool = $sitetoolinfo;
         $seriessitetool['name'] = 'Opencast Series';
@@ -332,7 +332,7 @@ class backup_test extends advanced_testcase {
             'ocinstanceid' => 1,
             'course' => $this->newcourseid,
             'type' => opencasttype::SERIES,
-            'opencastid' => $this->newseriesid
+            'opencastid' => $this->newseriesid,
         ];
         $seriesactivitymoduleisfixed = $DB->record_exists('opencast', $seriesrecord);
 
@@ -340,7 +340,7 @@ class backup_test extends advanced_testcase {
             'ocinstanceid' => 1,
             'course' => $this->newcourseid,
             'type' => opencasttype::EPISODE,
-            'opencastid' => $this->newepisodeid
+            'opencastid' => $this->newepisodeid,
         ];
 
         $episodeactivitymoduleisfixed = $DB->record_exists('opencast', $episoderecord);
@@ -443,7 +443,7 @@ class backup_test extends advanced_testcase {
      *
      * @covers \restore_controller \backup_controller
      */
-    public function test_adhoctask_execution() {
+    public function test_adhoctask_execution(): void {
         global $USER, $DB;
 
         $this->resetAfterTest();
@@ -547,7 +547,7 @@ class backup_test extends advanced_testcase {
         $this->check_task_fail_with_error('error_workflow_not_started', 6);
 
         // Setup succesful start workflow in opencast system.
-        // $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, true);
+        // $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, true).
         $dummyworkflowid = 1234;
         $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, $dummyworkflowid);
 
@@ -557,17 +557,20 @@ class backup_test extends advanced_testcase {
 
         // Run adhoc task to fix modules.
         $apibridge->set_testdata('get_duplicated_episodeid', $dummyworkflowid, $this->newepisodeid);
-        $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Run adhoc task again to go to cleaup process.
-        $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Check if the module fix adhoc task was successfully terminated.
-        $modulefixtaskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
         $this->assertEquals(0, count($modulefixtaskrecords));
 
         // Check if modules are fixed.
