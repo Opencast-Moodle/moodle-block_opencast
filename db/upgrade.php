@@ -829,7 +829,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2022111000, 'opencast');
     }
 
-    if ($oldversion < 2024030600) {
+    if ($oldversion < 2024061400) {
 
         // Define field id to be added to block_opencast_importmapping.
         $table = new xmldb_table('block_opencast_importmapping');
@@ -858,7 +858,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         // Opencast savepoint reached.
-        upgrade_block_savepoint(true, 2024030600, 'opencast');
+        upgrade_block_savepoint(true, 2024061400, 'opencast');
     }
 
     return true;
