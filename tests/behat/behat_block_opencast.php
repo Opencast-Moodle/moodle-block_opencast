@@ -142,11 +142,12 @@ class behat_block_opencast extends behat_base {
     public function i_go_to_direct_access_link() {
         // Get the direct access link.
         if (empty($this->directaccesslink)) {
-            $csselement = '#opencast-videos-table-ID-blender-foundation_r0 .c3 .access-action-menu a.access-link-copytoclipboard';
+            $csselement = '#opencast-videos-table-ID-blender-foundation_r0 .c7 .access-action-menu a.access-link-copytoclipboard';
             try {
                 $this->find('css', $csselement);
             } catch (ElementNotFoundException $e) {
-                throw new ExpectationException('Targeted Element to copy direct access link could not be found.');
+                throw new ExpectationException('Targeted Element to copy direct access link could not be found.',
+                    $this->getSession());
             }
             $element = $this->find('css', $csselement);
             $this->directaccesslink = $element->getAttribute('href');

@@ -21,8 +21,6 @@
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
-require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\activitymodulemanager;
 use block_opencast\local\apibridge;
@@ -33,6 +31,8 @@ use block_opencast\local\upload_helper;
 use block_opencast\opencast_connection_exception;
 use core\notification;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
@@ -457,7 +457,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                         $video->processing_state !== "STOPPED") {
                         $row[] = "-";
                     } else {
-                        // TODO query alcs already at the beginning to avoid second rest call.
+                        // Should Do Query alcs already at the beginning to avoid second rest call.
                         $visible = $apibridge->is_event_visible($video->identifier, $courseid);
                         $row[] = $renderer->render_change_visibility_icon($ocinstanceid, $courseid, $video->identifier, $visible);
                     }

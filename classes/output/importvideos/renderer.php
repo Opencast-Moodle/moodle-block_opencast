@@ -55,8 +55,8 @@ class renderer extends core_backup_renderer {
      *
      * @return string
      */
-    public function importvideos_coursesearch(moodle_url                $nextstageurl,
-                                              importvideos_coursesearch $courses = null) {
+    public function importvideos_coursesearch(moodle_url $nextstageurl,
+                                              ?importvideos_coursesearch $courses = null) {
         $html = html_writer::start_tag('div', ['class' => 'import-course-selector']);
         $html .= $this->wizard_intro_notification(
             get_string('importvideos_wizardstep1intro', 'block_opencast'));

@@ -340,7 +340,8 @@ class apibridge {
                 'withacl' => true,
                 'withmetadata' => $withmetadata === true,
                 'withpublications' => true,
-                'includeInternalPublication' => false, // Somehow causes error in Opencast 15 if withpublications is used without it.
+                'includeInternalPublication' => false,
+                // Somehow causes error in Opencast 15 if withpublications is used without it.
                 'sort' => [
                     'start_date' => 'DESC',
                 ],

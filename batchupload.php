@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Allows users to upload videos in batch.
  *
@@ -22,7 +21,6 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
 
 use block_opencast\local\batchupload_form;
 use block_opencast\local\apibridge;
@@ -30,6 +28,7 @@ use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
 use core\output\notification;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 

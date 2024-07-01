@@ -39,7 +39,7 @@ use block_opencast\local\file_system_filedir;
  * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class delete_file_test extends advanced_testcase {
+final class delete_file_test extends advanced_testcase {
 
 
     /**
@@ -47,7 +47,7 @@ class delete_file_test extends advanced_testcase {
      *
      * @covers \block_opencast\local\file_deletionmanager
      */
-    public function test_delete_files() {
+    public function test_delete_files(): void {
         global $DB;
 
         // Set up.

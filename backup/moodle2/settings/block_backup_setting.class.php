@@ -76,7 +76,7 @@ class backup_block_opencast_setting extends backup_setting {
                 'monologo',
                 get_string('pluginname', 'block_opencast'),
                 'block_opencast',
-                array('class' => 'iconlarge icon-post ml-1')
+                ['class' => 'iconlarge icon-post ml-1']
             )
         );
 

@@ -21,11 +21,11 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
 
 use block_opencast\local\apibridge;
 use core\output\notification;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $SITE;
 

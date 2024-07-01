@@ -649,7 +649,7 @@ class activitymodulemanager {
             'ocinstanceid' => $ocinstanceid,
             'type' => opencasttype::SERIES,
             'course' => $courseid,
-            'opencastid' => $sourceseriesid
+            'opencastid' => $sourceseriesid,
         ]);
 
         // IF anything has been found.
@@ -692,7 +692,7 @@ class activitymodulemanager {
             'ocinstanceid' => $ocinstanceid,
             'course' => $targetcourseid,
             'type' => opencasttype::EPISODE,
-            'opencastid' => $sourceeventid
+            'opencastid' => $sourceeventid,
         ]);
 
         if (count($episodemodules) > 0) {
