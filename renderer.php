@@ -624,12 +624,12 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param array $uploadjobs array of uploadjob objects
-     * @param bool $showdeletebutton shows a delete button in the last column
+     * @param bool $showactionbuttons shows a delete button in the last column
      * @param string $redirectpage
      * @param string $seriesid
      * @return string
      */
-    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showdeletebutton = true,
+    public function render_upload_jobs($ocinstanceid, $uploadjobs, $showactionbuttons = true,
                                        $redirectpage = null, $seriesid = null) {
         // Set if visibility change is enabled.
         $canchangescheduledvisibility = false;
@@ -649,7 +649,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         if ($canchangescheduledvisibility) {
             $table->head[] = get_string('hscheduledvisibility', 'block_opencast');
         }
-        if ($showdeletebutton) {
+        if ($showactionbuttons) {
             $table->head[] = '';
         }
 
@@ -728,7 +728,8 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             $status = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             // Add live update flag item (hidden input) to the upload status column, if it is enabled.
-            if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid))) {
+            if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid)) &&
+                $uploadjob->status != upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD) {
                 $status .= liveupdate_helper::get_liveupdate_uploading_hidden_input($uploadjob->id, $title);
             }
             $row[] = $status;
@@ -736,13 +737,32 @@ class block_opencast_renderer extends plugin_renderer_base {
             if ($canchangescheduledvisibility) {
                 $row[] = $this->render_scheduled_visibility_icon($uploadjob);
             }
-            if ($showdeletebutton) {
+            if ($showactionbuttons) {
+                $actionbuttonshtml = '';
                 $coursecontext = context_course::instance($uploadjob->courseid);
-                // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
-                $row[] = ($uploadjob->status == upload_helper::STATUS_READY_TO_UPLOAD &&
-                    has_capability('block/opencast:addvideo', $coursecontext)) ?
-                    $this->render_delete_draft_icon($uploadjob->ocinstanceid, $uploadjob->courseid,
-                        $uploadjob->id, $redirectpage, $seriesid) : '';
+                if (has_capability('block/opencast:addvideo', $coursecontext)) {
+                    // Rendering a button to put the upload job back into the queue aka unarchive.
+                    if ($uploadjob->status == upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD) {
+                        $actionbuttonshtml .= $this->render_unarchive_uploadjob_icon(
+                            $uploadjob->ocinstanceid,
+                            $uploadjob->courseid,
+                            $uploadjob->id,
+                        );
+                    }
+                    // The one who is allowed to add the video is also allowed to delete the video before it is uploaded.
+                    if ($uploadjob->status == upload_helper::STATUS_READY_TO_UPLOAD ||
+                        $uploadjob->status == upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD) {
+                        $actionbuttonshtml .= $this->render_delete_draft_icon(
+                            $uploadjob->ocinstanceid,
+                            $uploadjob->courseid,
+                            $uploadjob->id,
+                            $redirectpage,
+                            $seriesid
+                        );
+                    }
+                }
+
+                $row[] = $actionbuttonshtml;
             }
 
             $table->data[] = $row;
@@ -986,6 +1006,28 @@ class block_opencast_renderer extends plugin_renderer_base {
         $icon = $this->output->pix_icon('t/delete', $text);
 
         return html_writer::link($url, $icon);
+    }
+
+    /**
+     * Render the link that unarchives the upload job.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid
+     * @param string $uploadjobid
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    private function render_unarchive_uploadjob_icon($ocinstanceid, $courseid, $uploadjobid) {
+        $text = get_string('unarchiveuploadjobbtntitle', 'block_opencast');
+
+        $icon = $this->output->pix_icon(
+            'i/reload',
+            $text,
+            'moodle'
+        );
+
+        return html_writer::link(new moodle_url('#'), $icon, ['class' => 'unarchive-uploadjob', 'data-id' => $uploadjobid]);
     }
 
     /**

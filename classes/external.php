@@ -26,6 +26,7 @@
 use block_opencast\local\apibridge;
 use block_opencast\local\series_form;
 use block_opencast\local\liveupdate_helper;
+use block_opencast\local\upload_helper;
 use tool_opencast\seriesmapping;
 
 defined('MOODLE_INTERNAL') || die;
@@ -118,6 +119,19 @@ class block_opencast_external extends external_api {
             'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
             'type' => new external_value(PARAM_TEXT, 'The type of domain to check the status from'),
             'identifier' => new external_value(PARAM_ALPHANUMEXT, 'Event id to observe its processing state'),
+        ]);
+    }
+
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function unarchive_uploadjob_parameters() {
+        return new external_function_parameters([
+            'contextid' => new external_value(PARAM_INT, 'The context id for the course'),
+            'ocinstanceid' => new external_value(PARAM_INT, 'The Opencast instance id'),
+            'uploadjobid' => new external_value(PARAM_INT, 'The upload job id'),
         ]);
     }
 
@@ -418,6 +432,49 @@ class block_opencast_external extends external_api {
     }
 
     /**
+     * Perform unarchiving an uploadjob.
+     *
+     * @param int $contextid The context id for the course.
+     * @param int $ocinstanceid Opencast instance id
+     * @param int $uploadjobid Uploadjob id
+     *
+     * @return string Latest update state info
+     */
+    public static function unarchive_uploadjob(int $contextid, int $ocinstanceid, int $uploadjobid) {
+        global $USER, $DB;
+        $params = self::validate_parameters(self::unarchive_uploadjob_parameters(), [
+            'contextid' => $contextid,
+            'ocinstanceid' => $ocinstanceid,
+            'uploadjobid' => $uploadjobid,
+        ]);
+
+        $context = context::instance_by_id($params['contextid']);
+        self::validate_context($context);
+        require_capability('block/opencast:addvideo', $context);
+
+        list($unused, $course, $cm) = get_context_info_array($context->id);
+
+        $params = [
+            'id' => $params['uploadjobid'],
+            'ocinstanceid' => $params['ocinstanceid'],
+            'courseid' => $course->id,
+            'status' => upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD
+        ];
+        $uploadjob = $DB->get_record('block_opencast_uploadjob', $params);
+
+        if (!empty($uploadjob)) {
+            $time = time();
+            $uploadjob->timemodified = $time;
+            $uploadjob->countfailed = 0;
+            $uploadjob->status = upload_helper::STATUS_READY_TO_UPLOAD;
+            $DB->update_record('block_opencast_uploadjob', $uploadjob);
+            return true;
+        }
+
+        throw new moodle_exception('uploadjobnotfound', 'block_opencast');
+    }
+
+    /**
      * Returns description of method result value
      *
      * @return external_description
@@ -469,5 +526,14 @@ class block_opencast_external extends external_api {
      */
     public static function get_liveupdate_info_returns() {
         return new external_value(PARAM_RAW, 'Json live update info');
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     */
+    public static function unarchive_uploadjob_returns() {
+        return new external_value(PARAM_BOOL, 'True if successful');
     }
 }

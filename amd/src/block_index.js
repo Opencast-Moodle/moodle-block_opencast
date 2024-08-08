@@ -452,6 +452,47 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 }
             });
         };
+        /*
+         * Initalizes the unarchive uploadjob package on button click with modal.
+         */
+        var initUnarchiveUploadJobModal = function(ocinstanceid, langstrings, contextid, liveupdate) {
+            $('.unarchive-uploadjob').on('click', function(e) {
+                e.preventDefault();
+                var targetBtn = $(e.currentTarget);
+                var uploadjobid = targetBtn.data('id');
+                ModalFactory.create({
+                    type: ModalFactory.types.SAVE_CANCEL,
+                    title: langstrings[9],
+                    body: langstrings[10]
+                })
+                .then(function(modal) {
+                    // Pause the live update if it is running.
+                    pauseLiveUpdate(liveupdate);
+                    modal.setSaveButtonText(langstrings[11]);
+                    var root = modal.getRoot();
+                    root.on(ModalEvents.save, function (e) {
+                        Ajax.call([{
+                            methodname: 'block_opencast_unarchive_uploadjob',
+                            args: {contextid: contextid, ocinstanceid: ocinstanceid, uploadjobid: uploadjobid},
+                            done: function() {
+                                window.location.reload();
+                            },
+                            fail: Notification.exception
+                        }]);
+                        e.preventDefault();
+                    });
+                    root.on(ModalEvents.hidden, function() {
+                        // Resume the live update if it was paused.
+                        resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
+                        // Destroy when hidden/closed.
+                        modal.destroy();
+                    });
+                    modal.show();
+                    return;
+                })
+                .catch(Notification.exception);
+            });
+        };
 
         /*
          * Initialise all of the modules for the opencast block.
@@ -494,11 +535,24 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 {
                     key: 'startworkflow_modal_configpanel_title',
                     component: 'block_opencast'
+                },
+                {
+                    key: 'unarchiveuploadjob',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'unarchiveuploadjobconfirmtext',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'unarchiveuploadjobconfirmbtn_save',
+                    component: 'block_opencast'
                 }
             ];
             str.get_strings(strings).then(function(results) {
                 initWorkflowModal(ocinstanceid, courseid, results, contextid, liveupdate);
                 initReportModal(ocinstanceid, courseid, results, contextid, liveupdate);
+                initUnarchiveUploadJobModal(ocinstanceid, results, contextid, liveupdate);
                 return;
             }).catch(Notification.exception);
             window.addEventListener('message', function(event) {
