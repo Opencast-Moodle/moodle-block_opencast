@@ -128,7 +128,7 @@ class notifications {
      * Notify administrator upon an exception error.
      *
      * @param string $identifier
-     * @param Exception $e
+     * @param Exception|null $e
      */
     public static function notify_error($identifier, ?Exception $e = null) {
 

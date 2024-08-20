@@ -51,7 +51,7 @@ class renderer extends core_backup_renderer {
      * with the goal to adapt the widget to our needs.
      *
      * @param moodle_url $nextstageurl
-     * @param importvideos_coursesearch $courses
+     * @param importvideos_coursesearch|null $courses
      *
      * @return string
      */
