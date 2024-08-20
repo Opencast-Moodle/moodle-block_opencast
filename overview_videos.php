@@ -21,14 +21,14 @@
  * @copyright  2021 Tamara Gunkel
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
-require_once($CFG->dirroot . '/lib/tablelib.php');
 
 use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
 use core\notification;
 use mod_opencast\local\opencasttype;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
+require_once($CFG->dirroot . '/lib/tablelib.php');
 
 global $PAGE, $OUTPUT, $CFG, $DB, $USER, $SITE;
 
@@ -149,7 +149,7 @@ if (count($videojobs) > 0) {
 
 echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_opencast'));
 
-// TODO handle opencast connection error. Break as soon as first error occurs.
+// Should Do handle opencast connection error. Break as soon as first error occurs.
 
 // Build table.
 $columns = ['owner', 'videos', 'linked', 'activities', 'action'];

@@ -51,12 +51,12 @@ class renderer extends core_backup_renderer {
      * with the goal to adapt the widget to our needs.
      *
      * @param moodle_url $nextstageurl
-     * @param importvideos_coursesearch $courses
+     * @param importvideos_coursesearch|null $courses
      *
      * @return string
      */
-    public function importvideos_coursesearch(moodle_url                $nextstageurl,
-                                              importvideos_coursesearch $courses = null) {
+    public function importvideos_coursesearch(moodle_url $nextstageurl,
+                                              ?importvideos_coursesearch $courses = null) {
         $html = html_writer::start_tag('div', ['class' => 'import-course-selector']);
         $html .= $this->wizard_intro_notification(
             get_string('importvideos_wizardstep1intro', 'block_opencast'));

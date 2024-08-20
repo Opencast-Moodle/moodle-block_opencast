@@ -21,12 +21,12 @@
  * @copyright  2021 Tamara Gunkel, University of Münster
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
 
 use block_opencast\local\apibridge;
 use block_opencast\local\notifications;
 use core\output\notification;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $USER, $COURSE;
 
