@@ -59,7 +59,8 @@ class setting_default_manager {
     public static function get_default_metadata() {
         return '[' .
             '{"name":"title","datatype":"text","required":1,"readonly":0,"param_json":"{\"style\":\"min-width: 27ch;\"}"},' .
-            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,"batchable":0},' .
+            '{"name":"subjects","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,' .
+            '"batchable":0},' .
             '{"name":"description","datatype":"textarea","required":0,"readonly":0,"param_json":' .
             '"{\"rows\":\"3\",\"cols\":\"19\"}","defaultable":0,"batchable":0},' .
             '{"name":"language","datatype":"select","required":0,"readonly":0,"param_json":"{\"\":\"No option selected\",' .
@@ -74,8 +75,10 @@ class setting_default_manager {
             '\"ALLRIGHTS\":\"All Rights Reserved\",\"CC0\":\"CC0\",\"CC-BY-ND\":\"CC BY-ND\",\"CC-BY-NC-ND\":\"CC BY-NC-ND\",' .
             '\"CC-BY-NC-SA\":\"CC BY-NC-SA\",\"CC-BY-SA\":\"CC BY-SA\",\"CC-BY-NC\":\"CC BY-NC\",\"CC-BY\":\"CC BY\"}",' .
             '"defaultable":0,"batchable":0},' .
-            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,"batchable":0},' .
-            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,"batchable":0}]';
+            '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,' .
+            '"batchable":0},' .
+            '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,' .
+            '"batchable":0}]';
     }
 
     /**
