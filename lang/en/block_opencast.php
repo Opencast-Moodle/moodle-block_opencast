@@ -17,9 +17,9 @@
 /**
  * Strings for component 'block_opencast', language 'en'
  *
- * @package    block_opencast
- * @copyright  2017 Andreas Wagner, SYNERGY LEARNING
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_opencast
+ * @copyright 2017 Andreas Wagner, SYNERGY LEARNING
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['accesspolicies'] = 'Access Policies';
@@ -555,6 +555,7 @@ $string['missingseriesassignment'] = 'Missing series assignment';
 $string['missingtranscriptionuploadparams'] = 'Required parameters to upload transcription are missing.';
 $string['morethanonedefaultserieserror'] = 'This course has more than one default series. Please contact your system administrator.';
 $string['morevideos'] = 'More videos...';
+$string['mstatearchived'] = 'Archived';
 $string['mstatecreatingevent'] = 'Uploading...';
 $string['mstatecreatinggroup'] = 'Creating Opencast Group...';
 $string['mstatecreatingseries'] = 'Creating Opencast Series...';
@@ -580,6 +581,8 @@ $string['notificationeventstatusdeletion_desc'] = 'This setting sets a deadline 
 $string['notificationeventstatusteachers'] = 'Notify all course teachers about the event process status';
 $string['notificationeventstatusteachers_desc'] = 'With this option, apart from the uploader of the video, all the teachers of the course where the video is uploaded from get notified about the Opencast processing status.';
 $string['notifications_settings_header'] = 'Notifications';
+$string['notificationuploadarchived_subj'] = 'Opencast Archived Event Upload Notification';
+$string['notificationuploadarchived_body'] = 'The upload job for the video titled "{$a->title}" in the course "{$a->coursefullname}" (ID: {$a->courseid}) has been archived due to reaching the limit of failed attempts. Your action is now required to either delete the job or manually put the job back into the queue. Please contact your system administrator to ensure the upload problem is resolved.';
 $string['notificationuploaduqeuestatus_body'] = 'Processing of this video: {$a->videotitle} in the course: {$a->coursefullname} (ID: {$a->courseid}) is queued, but has not yet started. The video is currently waiting behind {$a->waitingnum} other video(s) in the processing queue.';
 $string['notificationuploaduqeuestatus_subj'] = 'Opencast Event Upload Notification';
 $string['notpublished'] = 'Not published';
@@ -786,6 +789,10 @@ $string['unabletoaddnewtranscription'] = 'Unable to add new transcription';
 $string['unabletodeletetranscription'] = 'Unable to delete transcription';
 $string['unabletodownloadtranscription'] = 'Unable to download transcription';
 $string['unabletomanagetranscriptions'] = 'Due to an active processing state or an ongoing workflow, managing the event\'s transcriptions is not possible at the moment.';
+$string['unarchiveuploadjob'] = 'Unarchive video upload job';
+$string['unarchiveuploadjobbtntitle'] = 'Unarchive upload job';
+$string['unarchiveuploadjobconfirmbtn_save'] = 'Proceed';
+$string['unarchiveuploadjobconfirmtext'] = 'You are about to unarchive the video upload job. Please ensure that the upload issue has been resolved. Would you like to proceed?';
 $string['unexpected_api_response'] = 'Unexpected API response.';
 $string['updatemetadata'] = 'Update metadata for this event';
 $string['updatemetadata_short'] = 'Update metadata';
@@ -798,6 +805,7 @@ $string['uploadfileextensionsdesc'] = 'Comma separated list of allowed video fil
 $string['uploadfilelimit'] = 'Video size limit';
 $string['uploadfilelimitdesc'] = 'Limit the file size of uploaded videos through the chunkupload.';
 $string['uploadingeventfailed'] = 'Creating of event failed';
+$string['uploadjobnotfound'] = 'The video upload job could not be found.';
 $string['uploadjobssaved'] = 'Video upload successful.<br />The video is scheduled to be transferred to Opencast now. You do not need to wait on this page for this transfer to finish.';
 $string['uploadprocessingexplanation'] = 'These video files will be processed in Opencast and then made available in this course.';
 $string['uploadqueuetoopencast'] = 'Videos scheduled to be transferred to Opencast';
