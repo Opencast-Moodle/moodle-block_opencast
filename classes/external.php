@@ -458,7 +458,7 @@ class block_opencast_external extends external_api {
             'id' => $params['uploadjobid'],
             'ocinstanceid' => $params['ocinstanceid'],
             'courseid' => $course->id,
-            'status' => upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD
+            'status' => upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD,
         ];
         $uploadjob = $DB->get_record('block_opencast_uploadjob', $params);
 

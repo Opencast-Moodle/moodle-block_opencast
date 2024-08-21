@@ -461,7 +461,7 @@ class upload_helper {
                     'errormessage' => $errormessage,
                     'countfailed' => $job->countfailed,
                     'ocinstanceid' => $job->ocinstanceid,
-                    'archived' => $isarchived
+                    'archived' => $isarchived,
                 ],
             ]
         );
@@ -715,7 +715,8 @@ class upload_helper {
         $ocinstances = settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             // Get all waiting jobs.
-            $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? AND status <> ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
+            $sql = "SELECT * FROM {block_opencast_uploadjob}" .
+                " WHERE status < ? AND status <> ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
 
             $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $ocinstance->id);
 
@@ -726,7 +727,7 @@ class upload_helper {
             $params = [
                 self::STATUS_TRANSFERRED,
                 self::STATUS_ARCHIVED_FAILED_UPLOAD,
-                $ocinstance->id
+                $ocinstance->id,
             ];
 
             $jobs = $DB->get_records_sql($sql, $params, 0, $limituploadjobs);
