@@ -157,24 +157,19 @@ $string['addltiepisode_settingsection_desc'] = 'If enabled, teachers can choose 
 $string['addltiepisode_viewicontitle'] = 'View Opencast episode module in course';
 $string['addnewcatalogfield'] = 'A new field has been added to metadata catalog.';
 $string['addnewtranscription'] = 'Add new transcription';
-$string['addnewtranscription_desc'] = 'Please select a service type in which your transcription should be represented, and then upload the file with requiured extensions.<br>
-    NOTE: Uploading a new transcription with an already uploaded service type results in replacing that transcription, which might be useful for editing the current ones.';
+$string['addnewtranscription_desc'] = 'Please select a service type in which your transcription should be represented, and then upload the file with requiured extensions.<br> NOTE: Uploading a new transcription with an already uploaded service type results in replacing that transcription, which might be useful for editing the current ones.';
 $string['addrole'] = 'Add new role';
 $string['addtranscriptionflavor'] = 'Add new flavor option';
 $string['addvideo'] = 'Add video';
 $string['addvideonotallowed'] = 'You are not allowed to upload a video to this series.';
 $string['adhocfiledeletion'] = 'Delete videofile from moodle';
-$string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server.
-    Please note that the file will still remain in the file system, if it is used within other places in moodle.';
-
+$string['adhocfiledeletiondesc'] = 'If activated the plugin tries to delete the videofile from moodle\'s filessystem right after it was uploaded to opencast server. Please note that the file will still remain in the file system, if it is used within other places in moodle.';
 $string['adminchoice_noconnection'] = "-- Workflows could not be retrieved --";
 $string['adminchoice_noworkflow'] = "-- No workflow --";
 $string['allowdownloadtranscriptionsetting'] = 'Allow download transcriptions';
-$string['allowdownloadtranscriptionsetting_desc'] = 'When enabled, the transcription download button will be displayed in the manage transcriptions page, by which teachers are able to download the transcription\'s file.<br>
-    <b>Notice:</b> In case you are using Opencast 13 or later, you need to make sure that all prerequisites including LTI features and permissions to access /assets/ endpoint for LTI users, are set correctly as it is mandatory to perform LTI call.';
+$string['allowdownloadtranscriptionsetting_desc'] = 'When enabled, the transcription download button will be displayed in the manage transcriptions page, by which teachers are able to download the transcription\'s file. <br><b>Notice:</b> In case you are using Opencast 13 or later, you need to make sure that all prerequisites including LTI features and permissions to access /assets/ endpoint for LTI users, are set correctly as it is mandatory to perform LTI call.';
 $string['allowunassign'] = 'Allow unassign from course';
-$string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available,
-    when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
+$string['allowunassigndesc'] = 'Delete the assignment of a course series to control visibility in filepicker and course lists. This feature is only available, when it is possible to have events without series in opencast. Please ask the admistrator of the opencast system before activating this.';
 $string['appearance_overview_settingheader'] = 'Overview page';
 $string['appearance_overview_settingshowenddate'] = 'Show end date';
 $string['appearance_overview_settingshowenddate_desc'] = 'If enabled, the table of available videos on the overview page will contain a column which shows the end date of the Opencast episode.';
@@ -183,7 +178,6 @@ $string['appearance_overview_settingshowlocation_desc'] = 'If enabled, the table
 $string['appearance_overview_settingshowpublicationchannels'] = 'Show publication channels';
 $string['appearance_overview_settingshowpublicationchannels_desc'] = 'If enabled, the table of available videos on the overview page will contain a column which shows the publication channel of the Opencast episode. The same information will also be given on the Opencast episode deletion page.';
 $string['appearance_settings'] = 'Appearance';
-
 $string['backupopencastvideos'] = 'Include videos from Opencast instance {$a} in this course';
 $string['batchupload'] = 'Add videos (batch)';
 $string['batchupload_emptyvideosuploaderror'] = 'You must upload at least one presenter video file.';
@@ -201,7 +195,6 @@ $string['batchupload_visibility_desc'] = 'The batch visibility setting will be a
 $string['batchupload_visibility_header'] = 'Batch Visibility';
 $string['batchuploadexplanation'] = 'In this section you are able to upload multiple files at once. <br /> NOTE: Please keep in mind that the batch video upload is only available for presenter flavors.';
 $string['blocksettings'] = 'Settings for a block instance';
-
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['cachevalidtime'] = 'Cache valid time';
 $string['cachevalidtime_desc'] = 'Time in seconds, before the cache for the video data of each course is refreshed.';
@@ -209,12 +202,7 @@ $string['cantdeletedefaultseries'] = 'You cannot delete the default series. Plea
 $string['catalog_params_noarray'] = "Parameters have to be either empty or a JSON representation of an array or an object.";
 $string['catalog_static_params_empty'] = "Read only fields need to define a text in the parameters field.";
 $string['catalogparam'] = 'Parameters in JSON-Format';
-$string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br>
-                                <b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br>
-                                <b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show.
-                                <b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}No option selected{mlang}{mlang de}Keine Option ausgewählt{mlang}" or "{mlang en}English{mlang}{mlang de}Englisch{mlang}"<br>
-                                <b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br>
-                                <b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
+$string['catalogparam_help'] = '<b>JSON format:</b> {"param1":"value1", "param2":"value2"}<br><b>String (text), Long Text (textarea):</b> Parameters will be defined as attributes of the element. i.e. {"style":"min-width: 27ch;"} which defines the element´s style attribute <br><b>Drop Down (select):</b> Parameters will be defined as options of the select element. i.e. {"en": "English", "de": "German"} which takes the left side as value and right side as text to show.<b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}No option selected{mlang}{mlang de}Keine Option ausgewählt{mlang}" or "{mlang en}English{mlang}{mlang de}Englisch{mlang}"<br><b>Arrays (autocomplete):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#autocomplete">suggestions</a>. i.e. {"1": "Dr. Doe", "2": "Johnson"} which shows (Dr. Doe and Johnson) as suggestions<br><b>Date Time Selector (datetime):</b> Parameters will be defined as <a target="_blank" href="https://docs.moodle.org/dev/lib/formslib.php_Form_Definition#date_selector">date_selector variables</a> . i.e. {"startyear": "1990", "stopyear": "2020"} which defines date range to be selected between 1990 - 2020';
 $string['changeowner'] = 'Change owner';
 $string['changeowner_explanation'] = 'Currently, you are the owner of the video {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the video.';
 $string['changeownerseries_explanation'] = 'Currently, you are the owner of the series {$a}.<br>You can transfer the ownership to another person.<br><b>Notice:</b> You might loose the right to access the series.';
@@ -241,9 +229,7 @@ $string['createseriesforcourse'] = 'Create new series';
 $string['creator'] = 'Presenter(s)';
 $string['cronsettings'] = 'Settings for upload jobs';
 $string['date'] = 'Start Date';
-$string['dcmitermsnotice'] = '<br /><strong>IMPORTANT</strong>: Opencast supports standardized Dublin Core metadata set, therefore all metadata fields should follow DCMI terms,
-    otherwise attempting to add unknown metadata field will result in error.<br />
-    You can check the list of all available terms to use in <a target="_blank" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">DCMI Metadata Terms</a>.';
+$string['dcmitermsnotice'] = '<br /><strong>IMPORTANT</strong>: Opencast supports standardized Dublin Core metadata set, therefore all metadata fields should follow DCMI terms, otherwise attempting to add unknown metadata field will result in error.<br /> You can check the list of all available terms to use in <a target="_blank" href="https://www.dublincore.org/specifications/dublin-core/dcmi-terms/">DCMI Metadata Terms</a>.';
 $string['default'] = 'Default';
 $string['defaultssaved'] = 'Default values are saved.';
 $string['delete_block_and_mapping'] = 'Delete block and series mapping';
@@ -313,11 +299,9 @@ $string['emptyvisibilitygroups'] = 'At least one group must be selected.';
 $string['enablechunkupload'] = 'Enable Chunkupload';
 $string['enablechunkupload_desc'] = 'If Chunkupload is enabled it will be possible to upload videos using the chunkupload plugin';
 $string['enableopencasteditorlink'] = 'Show the link to opencast Editor in action menu';
-$string['enableopencasteditorlink_desc'] = 'This option renders a button to opencast editor in the block content and the block overview.
- The following settings as well lti credentials have to be configured as well.';
+$string['enableopencasteditorlink_desc'] = 'This option renders a button to opencast editor in the block content and the block overview. The following settings as well lti credentials have to be configured as well.';
 $string['enableopencaststudiolink'] = 'Show the link to opencast studio';
-$string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview.
-Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
+$string['enableopencaststudiolink_desc'] = 'This option renders a button to opencast studio in the block content and the block overview. Opencast studio has to run on your opencast admin node and the following lti settings have to be configured as well.';
 $string['enableopencaststudioreturnbtn'] = 'Show a redirect back button in Studio';
 $string['enableopencaststudioreturnbtn_desc'] = 'When enabled, Studio then renders an additional button "Exit and go back" after up- or downloading the recording.';
 $string['enableschedulingchangevisibility'] = 'Schedule a visibility change';
@@ -327,66 +311,44 @@ $string['engageredirect'] = 'Redirect to engage player';
 $string['engageurl'] = 'URL of the Opencast Engage server';
 $string['engageurl_desc'] = 'If empty, the video titles in the overview are not linked to the engage player.';
 $string['error_block_delete_seriesmapping'] = 'Unfortunately, there was an error during course series mapping deletion, please contact the system administrator.';
-$string['error_duplicated_event_acl_change'] = 'The visibility change for the duplicated event failed.
-    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
-$string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet.
-    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
-$string['error_eventid_taskdata_missing'] = 'The task data contains no event id.
-    Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
-$string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing.
-    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
-$string['error_no_duplicate_workflow_id'] = 'The duplicate workflow id is missing.
-    Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_duplicated_event_acl_change'] = 'The visibility change for the duplicated event failed. Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_duplicated_event_id_not_ready'] = 'The duplicated event is not available yet. Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_eventid_taskdata_missing'] = 'The task data contains no event id. Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_origin_event_id'] = 'The origin event id is missing. Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_no_duplicate_workflow_id'] = 'The duplicate workflow id is missing. Opencast duplicated event visibility change task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_seriesid_missing_course'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has no course series. The event ({$a->eventid}) could not be restored.';
-$string['error_seriesid_missing_opencast'] = 'The series of course {$a->coursefullname} (ID: {$a->courseid}) can not be found in the opencast system.
-    The event ({$a->eventid}) could not be restored.';
-$string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has a course series, that does not match the seriesid of the task.
-    The event ({$a->eventid}) could not be restored.';
-$string['error_seriesid_taskdata_missing'] = 'The task data contains no series id.
-    Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
-$string['error_workflow_not_exists'] = 'The workflow {$a->duplicateworkflow} can not be found in the opencast system.
-    The event ({$a->eventid}) could not be restored for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_seriesid_missing_opencast'] = 'The series of course {$a->coursefullname} (ID: {$a->courseid}) can not be found in the opencast system. The event ({$a->eventid}) could not be restored.';
+$string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has a course series, that does not match the seriesid of the task. The event ({$a->eventid}) could not be restored.';
+$string['error_seriesid_taskdata_missing'] = 'The task data contains no series id. Opencast duplicate event task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}).';
+$string['error_workflow_not_exists'] = 'The workflow {$a->duplicateworkflow} can not be found in the opencast system. The event ({$a->eventid}) could not be restored for course {$a->coursefullname} (ID: {$a->courseid}).';
 $string['error_workflow_not_started'] = 'The workflow to copy the video ({$a->eventid}) assigned to course {$a->coursefullname} (ID: {$a->courseid}) could not be started.';
 $string['error_workflow_setup_missing'] = 'The plugin block_opencast is not properly configurated. The duplication workflow is missing!';
 $string['errorduplicatedeventvisibilitytaskretry'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} Will try to start the workflow again by the next cron job.';
-$string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a}
-    After trying serveral time the task will be terminated now.';
+$string['errorduplicatedeventvisibilitytaskterminated'] = 'An error occured by executing a task for setting the duplicated event\'s visibility: {$a} After trying serveral time the task will be terminated now.';
 $string['errorduplicatetaskretry'] = 'An error occured by executing a task for duplication of an event: {$a} Will try to start the workflow again by the next cron job.';
-$string['errorduplicatetaskterminate'] = 'An error occured by executing a task for duplication of an event: {$a}
-    After trying serveral time the task will be terminated now.';
+$string['errorduplicatetaskterminate'] = 'An error occured by executing a task for duplication of an event: {$a} After trying serveral time the task will be terminated now.';
 $string['erroremailbody'] = '{$a->errorstr} Details: {$a->message}.';
 $string['erroremailsubj'] = 'Error while executing opencast process duplicate task';
 $string['errorgetblockvideos'] = 'List cannot be loaded (Error: {$a})';
-$string['errorrestorefailedeventsaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The visibility of the video(s) with the following identifier(s) could not be changed. This video(s) will not be accessible in the new course:';
+$string['errorrestorefailedeventsaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The visibility of the video(s) with the following identifier(s) could not be changed. This video(s) will not be accessible in the new course:';
 $string['errorrestorefailedeventsaclchange_subj'] = 'Opencast error during restore process';
-$string['errorrestorefailedseriesaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The series ACL could not be changed (series: {$a->seriesid}).';
+$string['errorrestorefailedseriesaclchange_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The series ACL could not be changed (series: {$a->seriesid}).';
 $string['errorrestorefailedseriesaclchange_subj'] = 'Opencast error during restore process';
-$string['errorrestorefailedseriesmapping_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    Mapping the series {$a->seriesid} to the new course failed.';
+$string['errorrestorefailedseriesmapping_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). Mapping the series {$a->seriesid} to the new course failed.';
 $string['errorrestorefailedseriesmapping_subj'] = 'Opencast error during restore process';
-$string['errorrestoreincompletedimportmapping_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The following events could not get the completion flag for the restore session, therefore they will not be processed later to fix the modules if any:';
-$string['errorrestoremissingevents_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The video(s) with the following identifier(s) could not be found in opencast system. This video(s) will not be restored:';
+$string['errorrestoreincompletedimportmapping_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The following events could not get the completion flag for the restore session, therefore they will not be processed later to fix the modules if any:';
+$string['errorrestoremissingevents_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The video(s) with the following identifier(s) could not be found in opencast system. This video(s) will not be restored:';
 $string['errorrestoremissingevents_subj'] = 'Opencast error during restore process';
 $string['errorrestoremissingimportmapping_subj'] = 'Opencast error during restore process (Import mapping)';
-$string['errorrestoremissingimportmappingevents_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The following events have no import mapping record, therefore, module fixing process might not be performed if exists:';
-$string['errorrestoremissingimportmappingseries_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    The following series have no import mapping record, therefore, module fixing process might not be performed if exists:';
-$string['errorrestoremissingimportmode_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    Import mode could not be identified, therefore restore task has failed.';
+$string['errorrestoremissingimportmappingevents_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The following events have no import mapping record, therefore, module fixing process might not be performed if exists:';
+$string['errorrestoremissingimportmappingseries_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). The following series have no import mapping record, therefore, module fixing process might not be performed if exists:';
+$string['errorrestoremissingimportmode_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). Import mode could not be identified, therefore restore task has failed.';
 $string['errorrestoremissingimportmode_subj'] = 'Opencast error during restore process';
-$string['errorrestoremissingseries_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    No opencast series could be created. Therefore, the following eventIDs could not be duplicated:';
+$string['errorrestoremissingseries_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). No opencast series could be created. Therefore, the following eventIDs could not be duplicated:';
 $string['errorrestoremissingseries_subj'] = 'Opencast error during restore process';
-$string['errorrestoremissingseriesid_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    Series id could not be found.';
+$string['errorrestoremissingseriesid_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). Series id could not be found.';
 $string['errorrestoremissingseriesid_subj'] = 'Opencast error during restore process';
-$string['errorrestoremissingsourcecourseid_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}).
-    Source course id could not be found.';
+$string['errorrestoremissingsourcecourseid_body'] = 'There was a problem in the restore process of the course {$a->coursefullname} (ID: {$a->courseid}). Source course id could not be found.';
 $string['errorrestoremissingsourcecourseid_subj'] = 'Opencast error during restore process';
 $string['eventdeleted'] = 'The video has been deleted.';
 $string['eventdeletedfailed'] = 'Failed to delete the event';
@@ -436,10 +398,8 @@ $string['hvisibility'] = 'Visibility';
 $string['hworkflow_state'] = 'Status';
 $string['identifier'] = 'Identifier';
 $string['importfailed'] = 'The series could not be imported.';
-$string['importmapping_modulesfixtaskretry'] = 'An error occured by executing a task for fixing the duplicated event\'s modules: {$a}
-    The task will be processed again later.';
-$string['importmapping_modulesfixtasktermination'] = 'An error occured by executing a task for fixing the duplicated event\'s modules: {$a}
-    After trying serveral time the task will be terminated now.';
+$string['importmapping_modulesfixtaskretry'] = 'An error occured by executing a task for fixing the duplicated event\'s modules: {$a} The task will be processed again later.';
+$string['importmapping_modulesfixtasktermination'] = 'An error occured by executing a task for fixing the duplicated event\'s modules: {$a} After trying serveral time the task will be terminated now.';
 $string['importmapping_no_duplicated_event_id_yet'] = 'The duplicated event is not available yet, therefore duplicated event modules fix task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}) has been postponed.';
 $string['importmapping_restore_still_in_progress'] = 'The restore process is still in progress, therefore duplicated event modules fix task ({$a->taskid}) for course {$a->coursefullname} (ID: {$a->courseid}) has been postponed.';
 $string['importmode'] = 'Import mode';
@@ -546,8 +506,6 @@ $string['legendvisibility_mixed'] = 'Invalid';
 $string['legendvisibility_mixeddesc'] = 'The visibility of the video is in an invalid status.';
 $string['legendvisibility_visible'] = 'Visible';
 $string['legendvisibility_visibledesc'] = 'The video is visible to all students of the course.';
-
-
 $string['license'] = 'License';
 $string['limituploadjobs'] = 'Limit upload job by cron';
 $string['limituploadjobsdesc'] = 'Limit the count of uploadjobs done by one cronjob. The cronjob can be scheduled here: {$a}';
@@ -566,9 +524,7 @@ $string['location'] = 'Location';
 $string['ltimodule_settings'] = 'LTI module features';
 $string['managedefaultredirectlinkwithexp'] = 'You can add default values for these metadata fields, using: ';
 $string['managedefaultsforuser'] = 'Manage default values';
-$string['managedefaultsforuser_desc'] = 'Here you can manage default values for metadata fields used to add videos as well create new series.
-    If you add a default value for a field here, it will be automatically inserted into the field as predefined value (default) inside those mentioned pages.<br />
-    NOTE: In case this page is empty, or you are looking for a field that does not exist here, please contact your system administrator and ask him/her to configure the metadata fields as defaultable.';
+$string['managedefaultsforuser_desc'] = 'Here you can manage default values for metadata fields used to add videos as well create new series. If you add a default value for a field here, it will be automatically inserted into the field as predefined value (default) inside those mentioned pages.<br />NOTE: In case this page is empty, or you are looking for a field that does not exist here, please contact your system administrator and ask him/her to configure the metadata fields as defaultable.';
 $string['manageseriesforcourse'] = 'Manage series';
 $string['managetranscriptions'] = 'Manage Transcriptions';
 $string['managetranscriptions_header'] = 'Manage Event\'s Transcriptions';
@@ -723,8 +679,7 @@ $string['reportproblem_subject'] = 'Moodle Opencast plugin: Problem reported';
 $string['reportproblem_success'] = 'The email was successfully sent to the support team.';
 $string['restoreopencastvideos'] = 'Restore videos from Opencast instance {$a}';
 $string['reuseexistingupload'] = 'Reuse existing uploads';
-$string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once.
-This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
+$string['reuseexistinguploaddesc'] = 'If activated, multiple videos with the same content hash are uploaded to opencast only once. This saves storage and processing power, but it might cause problems, when you use specific access policies based on opencast series.';
 $string['rightsHolder'] = 'Rights';
 $string['role_not_defined'] = 'The role is not defined in the ACL roles table.';
 $string['role_not_permanent'] = 'The role is not defined as permanent in the ACL roles table.';
@@ -752,17 +707,6 @@ $string['series_does_not_exist'] = 'The series assigned to this course is not va
 $string['series_does_not_exist_admin'] = 'The series with the identifier \'{$a}\' could not be retrieved from Opencast.';
 $string['series_name_empty'] = 'Series name must not be empty.';
 $string['series_not_found'] = 'The series {$a} could not be found in the opencast system.';
-
-
-
-
-
-
-
-
-
-
-
 $string['series_used'] = 'Used in {$a} courses';
 $string['seriescreated'] = 'Series was created.';
 $string['seriesidnotvalid'] = 'The series {$a} does not exist.';
@@ -796,7 +740,6 @@ $string['submit'] = 'Save changes';
 $string['support_setting'] = 'Support email';
 $string['support_setting_notset'] = 'Support email is not set. Please contact the administrator and resubmit the report.';
 $string['support_settingdesc'] = 'Email address to which reports are sent if users report problems with videos.';
-
 $string['swprivacynotice_settingheader'] = 'Workflows Privacy Notice';
 $string['swprivacynotice_settinginfotext'] = 'Workflow Privacy Notice Info Text';
 $string['swprivacynotice_settinginfotext_desc'] = 'This input is used to provide information about privacy notice for workflows in start workflow dialog.<br><strong>NOTE:</strong> If empty, no notice will be displayed.';
@@ -808,8 +751,7 @@ $string['swprivacynoticedefaulttitle'] = 'Privacy Notice';
 $string['termsofuse'] = 'Terms of use';
 $string['termsofuse_accept'] = 'I have read and agree to the {$a}.';
 $string['termsofuse_accept_toggle'] = 'terms of use';
-$string['termsofuse_desc'] = 'If you enter some text, a checkbox with the terms of use will appear on the "Video upload" page.
-The users must accept the entered terms of use before they can upload the video.';
+$string['termsofuse_desc'] = 'If you enter some text, a checkbox with the terms of use will appear on the "Video upload" page. The users must accept the entered terms of use before they can upload the video.';
 $string['title'] = 'Title';
 $string['tool_requirement_not_fulfilled'] = 'The required version of tool_opencast is not installed.';
 $string['transcription_flavor_confirm_delete'] = 'Are you sure you want to delete this flavor option pair?';
@@ -827,9 +769,7 @@ $string['transcriptionfilefield'] = 'Transcription file';
 $string['transcriptionflavor_thead'] = 'Service Type';
 $string['transcriptionflavorfield'] = 'Transcription service type';
 $string['transcriptionflavors'] = 'Transcription Service Types (Flavors)';
-$string['transcriptionflavors_desc'] = 'These service type (flavors) will be presented as a select (dropdown) options to select from when uploading transcriptions.
-    It is a key-value pair of information by which the keys are consumed by opencast and values are human readable information that describe the type of transcription service.<br>
-    <b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}Amberscript German{mlang}{mlang de}Amberscript Deutsch{mlang}"';
+$string['transcriptionflavors_desc'] = 'These service type (flavors) will be presented as a select (dropdown) options to select from when uploading transcriptions. It is a key-value pair of information by which the keys are consumed by opencast and values are human readable information that describe the type of transcription service.<br><b>(Multi-Language filters)</b> In order for each value of <i>Drop Down (select)</i> to get translated using filters such as <a target="_blank" href="https://moodle.org/plugins/filter_multilang2">Multi-Language Content (v2)</a>, each value should contain the placeholder, defined by that filter i.e. "{mlang en}Amberscript German{mlang}{mlang de}Amberscript Deutsch{mlang}"';
 $string['transcriptionheader'] = 'Upload Transcription Files';
 $string['transcriptionheaderexplanation'] = 'In this section you are able to upload a transcription file for each service type, with specified file extension, which then will be uploaded alongside the video and be processed accordingly to provide the (speech to text) capability.';
 $string['transcriptionltidownloadcompleted'] = 'The transcription is successfully downloaded. {$a}';
@@ -840,7 +780,6 @@ $string['transcriptionuploadsuccessed'] = 'Transcription is uploaded.';
 $string['transcriptionworkflow'] = 'Workflow for transcription (speech to text)';
 $string['transcriptionworkflow_desc'] = 'This workflow is triggered when transcription files are attached to the video. If not set, uploading and managing transcriptions is not provided.<br>By setting this workflow, a new section to upload transcription files in the add video page as well as a new action menu item in overview page is provided, to upload/handle the new/current transcriptions files.';
 $string['type'] = 'Media Type';
-
 $string['unabletoaddnewtranscription'] = 'Unable to add new transcription';
 $string['unabletodeletetranscription'] = 'Unable to delete transcription';
 $string['unabletodownloadtranscription'] = 'Unable to download transcription';
@@ -870,11 +809,9 @@ $string['uploadtranscritpion'] = 'Upload transcription set';
 $string['uploadvideos'] = 'Upload videos';
 $string['uploadvideosexplanation'] = 'In this section, you can upload existing video files to Moodle.';
 $string['uploadworkflow'] = 'Workflow to start after upload';
-$string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, that should be started after succesfully uploading a video file to opencast.
-    If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
+$string['uploadworkflowdesc'] = 'Setup the unique shortname of the workflow, that should be started after succesfully uploading a video file to opencast. If left blank the standard workflow (ng-schedule-and-upload) will be used. Ask for additional workflows that may have been created by the opencast administrator.';
 $string['usedefaultfilepicker'] = 'Use Moodle default file picker to access all repositories';
 $string['userisntowner'] = 'Only the owner of the video can change the ownership.';
-
 $string['video'] = 'Video';
 $string['video_already_uploaded'] = 'Video already uploaded';
 $string['video_not_accessible'] = 'This video was not published in the direct access channel.';
@@ -895,7 +832,6 @@ $string['visibility'] = 'Visibility of the video';
 $string['visibility_group'] = 'Allow all students belonging to selected groups to access the video';
 $string['visibility_hide'] = 'Prevent any student from accessing the video';
 $string['visibility_show'] = 'Allow all students of the course to access the video';
-
 $string['visibilityheader'] = 'Event Visibility';
 $string['visibilityheaderexplanation'] = 'You are able to set the initial visibility status of the video before upload, as well as scheduling a visibility change when it is configured to do so.';
 $string['workflow_invalid'] = 'This workflow does not exist or is not enabled.';
@@ -910,5 +846,4 @@ $string['workflowrolesname'] = 'Workflow for updating metadata';
 $string['workflowtags_setting'] = 'Workflow tags';
 $string['workflowtags_settingdesc'] = 'Comma separated list of tags for Opencast workflows that can be configured by the admin and manually started by teachers.';
 $string['worklowisrunning'] = 'A workflow is running. You cannot change the visibility at the moment.';
-$string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}.
-    Only video files are allowed!';
+$string['wrongmimetypedetected'] = 'An invalid mimetype was used while uploading the video {$a->filename} from course {$a->coursename}. Only video files are allowed!';
