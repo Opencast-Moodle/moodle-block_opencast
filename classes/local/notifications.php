@@ -128,9 +128,9 @@ class notifications {
      * Notify administrator upon an exception error.
      *
      * @param string $identifier
-     * @param Exception $e
+     * @param Exception|null $e
      */
-    public static function notify_error($identifier, Exception $e = null) {
+    public static function notify_error($identifier, ?Exception $e = null) {
 
         $subject = get_string('erroremailsubj', 'block_opencast');
 

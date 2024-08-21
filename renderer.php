@@ -492,7 +492,8 @@ class block_opencast_renderer extends plugin_renderer_base {
             if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstance->id)) {
                 $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
                     ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
-                $batchuploadbutton = $this->output->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
+                $batchuploadbutton = $this->output->single_button($batchuploadurl,
+                    get_string('batchupload', 'block_opencast'), 'get');
                 $html .= html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap overview');
             }
 

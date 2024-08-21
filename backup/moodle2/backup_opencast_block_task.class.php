@@ -130,7 +130,8 @@ class backup_opencast_block_task extends backup_block_task {
                                 $stringobj = new \stdClass();
                                 $stringobj->title = $videotobackup->title;
                                 $stringobj->identifier = '***' . substr($videotobackup->identifier, -6);
-                                $videolist[] = "- " . get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj);
+                                $videolist[] = "- " . get_string('importvideos_wizard_event_cb_title',
+                                        'block_opencast', $stringobj);
                             }
                             // The label does not support any html, so we need to use the text for line breaks.
                             $seriessetting->get_ui()->set_text(join('<br>', $videolist));
@@ -138,7 +139,8 @@ class backup_opencast_block_task extends backup_block_task {
                         $seriessetting->get_ui()->set_label($seriessettinglabel);
 
                         $this->add_setting($seriessetting);
-                        $this->get_setting($includesettingname)->add_dependency($seriessetting, setting_dependency::DISABLED_NOT_CHECKED);
+                        $this->get_setting($includesettingname)->add_dependency($seriessetting,
+                            setting_dependency::DISABLED_NOT_CHECKED);
 
                         if ($importmode !== 'acl') {
                             foreach ($videostobackup as $bkvideo) {
@@ -158,7 +160,8 @@ class backup_opencast_block_task extends backup_block_task {
                                     get_string('importvideos_wizard_event_cb_title', 'block_opencast', $stringobj)
                                 );
                                 $this->add_setting($episodesetting);
-                                $this->get_setting($seriessettingname)->add_dependency($episodesetting, setting_dependency::DISABLED_NOT_CHECKED);
+                                $this->get_setting($seriessettingname)->add_dependency($episodesetting,
+                                    setting_dependency::DISABLED_NOT_CHECKED);
                             }
                         }
                     }
@@ -202,7 +205,8 @@ class backup_opencast_block_task extends backup_block_task {
                     foreach ($result->videos as $video) {
                         // Checking the episode inclusion.
                         $episodesettingname = 'opencast_videos_' . $ocinstance->id . '_episode_' . $video->identifier . '_included';
-                        if ($importmode === 'acl' || $this->setting_exists($episodesettingname) && $this->get_setting_value($episodesettingname)) {
+                        if ($importmode === 'acl' || $this->setting_exists($episodesettingname) &&
+                            $this->get_setting_value($episodesettingname)) {
                             // We store the episode of series in backupstructuredata.
                             $backupstructuredata[$series->series][] = $video->identifier;
                         }
