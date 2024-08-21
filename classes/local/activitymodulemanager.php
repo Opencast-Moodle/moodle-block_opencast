@@ -622,4 +622,89 @@ class activitymodulemanager {
 
         return $success;
     }
+
+    /**
+     * Looks up for series Activity modules in a new (imported) course that has faulty (old) series id.
+     * Repairs the faulty Activity module by replacing the new series id in the db record.
+     * @see importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid New course id.
+     * @param string $sourceseriesid Old series id.
+     * @param string $newseriesid New series id.
+     *
+     * @return void
+     */
+    public static function fix_imported_series_modules_in_new_course(
+        $ocinstanceid, $courseid, $sourceseriesid, $newseriesid) {
+        global $DB, $CFG;
+
+        // Check if mod_opencast is installed.
+        if (empty(core_plugin_manager::instance()->get_plugin_info('mod_opencast'))) {
+            return;
+        }
+
+        // Find the faulty series activity modules in new course.
+        $seriesmodules = $DB->get_records('opencast', [
+            'ocinstanceid' => $ocinstanceid,
+            'type' => opencasttype::SERIES,
+            'course' => $courseid,
+            'opencastid' => $sourceseriesid,
+        ]);
+
+        // IF anything has been found.
+        if (!empty($seriesmodules)) {
+            foreach ($seriesmodules as $instance) {
+                // We also check the existance of the course moulde.
+                $cm = get_coursemodule_from_instance('opencast', $instance->id, $courseid);
+                if (!empty($cm)) {
+                    // We replace the old with new series id.
+                    $DB->set_field('opencast', 'opencastid', $newseriesid,
+                        ['id' => $instance->id]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Looks up for episode Activity modules in a new (imported) course that has faulty (old) event id.
+     * Repairs the faulty Activity module by replacing the new event id in the db record.
+     * @see importvideosmanager::fix_imported_episode_modules_in_new_course() in task "process_duplicated_event_module_fix"
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $targetcourseid New course id.
+     * @param string $sourceeventid Old event id.
+     * @param string $duplicatedeventid New event id.
+     *
+     * @return void
+     */
+    public static function fix_imported_episode_modules_in_new_course(
+        $ocinstanceid, $targetcourseid, $sourceeventid, $duplicatedeventid
+    ) {
+        global $DB, $CFG;
+
+        // Check if mod_opencast is installed.
+        if (empty(core_plugin_manager::instance()->get_plugin_info('mod_opencast'))) {
+            return;
+        }
+
+        $episodemodules = $DB->get_records('opencast', [
+            'ocinstanceid' => $ocinstanceid,
+            'course' => $targetcourseid,
+            'type' => opencasttype::EPISODE,
+            'opencastid' => $sourceeventid,
+        ]);
+
+        if (count($episodemodules) > 0) {
+            // Iterate over modules.
+            foreach ($episodemodules as $instance) {
+                // We also check the existance of the course moulde.
+                $cm = get_coursemodule_from_instance('opencast', $instance->id, $targetcourseid);
+                if (!empty($cm)) {
+                    $DB->set_field('opencast', 'opencastid', $duplicatedeventid,
+                        ['id' => $instance->id]);
+                }
+            }
+        }
+    }
 }

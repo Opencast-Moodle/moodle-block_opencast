@@ -22,7 +22,6 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require_once('../../config.php');
 
 use block_opencast\local\batchupload_form;
 use block_opencast\local\apibridge;
@@ -30,6 +29,7 @@ use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
 use core\output\notification;
 use tool_opencast\local\settings_api;
+require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
 
@@ -132,7 +132,7 @@ $usereventdefaults = (!empty($userdefaults['event'])) ? $userdefaults['event'] :
 
 $customdata = [
     'courseid' => $courseid, 'metadata_catalog' => $batchmetadatacatalog,
-    'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid
+    'eventdefaults' => $usereventdefaults, 'ocinstanceid' => $ocinstanceid,
 ];
 if ($series) {
     $customdata['series'] = $series;
@@ -257,13 +257,13 @@ if ($data = $batchuploadform->get_data()) {
                 }
 
                 $newfileitemid = file_get_unused_draft_itemid();
-                $newfilerecord = array(
+                $newfilerecord = [
                     'contextid' => $uploadedfile->get_contextid(),
                     'component' => $uploadedfile->get_component(),
                     'filearea' => $uploadedfile->get_filearea(),
                     'itemid' => $newfileitemid,
-                    'timemodified' => time()
-                );
+                    'timemodified' => time(),
+                ];
                 $newfile = $fs->create_file_from_storedfile($newfilerecord, $uploadedfile);
                 // Delete the old job.
                 file_deletionmanager::fulldelete_file($uploadedfile);

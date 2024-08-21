@@ -1519,4 +1519,128 @@ class ltimodulemanager {
         $series = $apibridge->get_series_by_identifier($identifier);
         return !empty($series);
     }
+
+    /**
+     * Looks up for series LTI modules in a new (imported) course that has faulty (old) series id.
+     * Repairs the faulty LTI module by replacing the new series id and inserts the series module in "block_opencast_ltimodule".
+     * @see importvideosmanager::fix_imported_series_modules_in_new_course() After the restore is completed.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $courseid New course id.
+     * @param string $sourceseriesid Old series id.
+     * @param string $newseriesid New series id.
+     *
+     * @return void
+     */
+    public static function fix_imported_series_modules_in_new_course(
+        $ocinstanceid, $courseid, $sourceseriesid, $newseriesid) {
+        global $CFG, $DB;
+        // Require grade library. For an unknown reason, this is needed when updating the module.
+        require_once($CFG->libdir . '/gradelib.php');
+
+        // Get the id of the preconfigured tool.
+        $toolid = self::get_preconfigured_tool_for_series($ocinstanceid);
+
+        $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
+            'JOIN {course_modules} cm ' .
+            'ON l.id = cm.instance ' .
+            'WHERE l.typeid = :toolid ' .
+            'AND cm.course = :course ' .
+            'AND ' . $DB->sql_like('l.instructorcustomparameters', ':sourceseriesid') .
+            ' ORDER BY cm.added ASC';
+        $params = ['toolid' => $toolid,
+            'course' => $courseid,
+            'sourceseriesid' => '%' . $DB->sql_like_escape($sourceseriesid) . '%', ];
+        $seriesmodules = $DB->get_fieldset_sql($sql, $params);
+
+        // If there are any existing series modules in this course.
+        if (count($seriesmodules) > 0) {
+            // Iterate over modules.
+            foreach ($seriesmodules as $cmid) {
+                $seriesmoduleobject = get_coursemodule_from_id('lti', $cmid, $courseid);
+                if (!empty($seriesmoduleobject)) {
+                    $courseobject = get_course($courseid);
+                    list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) =
+                        get_moduleinfo_data($seriesmoduleobject, $courseobject);
+
+                    // Replace the series identifier in the module info with the new one.
+                    $seriesmoduledata->instructorcustomparameters = 'series=' . $newseriesid;
+
+                    // Update the series identifier within the series module.
+                    update_module($seriesmoduledata);
+
+                    // Insert the data into db to make it visible to the plugin as well.
+                    $record = new stdClass();
+                    $record->courseid = $courseid;
+                    $record->cmid = $cmid;
+                    $record->ocinstanceid = $ocinstanceid;
+                    $record->seriesid = $newseriesid;
+                    $DB->insert_record('block_opencast_ltimodule', $record);
+                }
+            }
+        }
+    }
+
+    /**
+     * Looks up for episode LTI modules in a new (imported) course that has faulty (old) event id.
+     * Repairs the faulty LTI module by replacing the new event id and inserts the episode module in "block_opencast_ltiepisode".
+     * @see importvideosmanager::fix_imported_episode_modules_in_new_course() in task "process_duplicated_event_module_fix"
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @param int $targetcourseid New course id.
+     * @param string $sourceeventid Old event id.
+     * @param string $duplicatedeventid New event id.
+     *
+     * @return void
+     */
+    public static function fix_imported_episode_modules_in_new_course(
+        $ocinstanceid, $targetcourseid, $sourceeventid, $duplicatedeventid) {
+        global $CFG, $DB;
+        // Require course module library.
+        require_once($CFG->dirroot . '/course/modlib.php');
+
+        // Require grade library. For an unknown reason, this is needed when updating the module.
+        require_once($CFG->libdir . '/gradelib.php');
+
+        // Get the id of the preconfigured tool.
+        $toolid = self::get_preconfigured_tool_for_episode($ocinstanceid);
+
+        // Get the LTI episode module(s) in the new course which point to the old event id.
+        $sql = 'SELECT cm.id AS cmid FROM {lti} l ' .
+            'JOIN {course_modules} cm ' .
+            'ON l.id = cm.instance ' .
+            'WHERE l.typeid = :toolid ' .
+            'AND cm.course = :course ' .
+            'AND ' . $DB->sql_like('l.instructorcustomparameters', ':sourceeventid');
+        $params = ['toolid' => $toolid,
+            'course' => $targetcourseid,
+            'sourceeventid' => '%' . $sourceeventid . '%', ];
+        $episodemodules = $DB->get_fieldset_sql($sql, $params);
+
+        // If there are any existing episode modules in this course.
+        if (count($episodemodules) > 0) {
+            // Iterate over modules.
+            foreach ($episodemodules as $cmid) {
+                // Gather more information about this module so that we can update the module info in the end.
+                $episodemoduleobject = get_coursemodule_from_id('lti', $cmid, $targetcourseid);
+                $courseobject = get_course($targetcourseid);
+                list($unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw) =
+                    get_moduleinfo_data($episodemoduleobject, $courseobject);
+
+                // Replace the episode identifier in the module info.
+                $episodemoduledata->instructorcustomparameters = 'id=' . $duplicatedeventid;
+
+                // Update the episode identifier within the episode module.
+                update_module($episodemoduledata);
+
+                // Remember this episode module id as the episode module of the course.
+                $record = new stdClass();
+                $record->courseid = $targetcourseid;
+                $record->episodeuuid = $duplicatedeventid;
+                $record->cmid = $cmid;
+                $record->ocinstanceid = $ocinstanceid;
+                $DB->insert_record('block_opencast_ltiepisode', $record);
+            }
+        }
+    }
 }

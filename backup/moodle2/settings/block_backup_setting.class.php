@@ -19,6 +19,8 @@
  *
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,6 +29,8 @@
  *
  * @package    block_opencast
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
+ * @author     Andreas Wagner
+ * @author     Farbod Zamani Boroujeni (2024)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_block_opencast_setting extends backup_setting {
@@ -38,14 +42,45 @@ class backup_block_opencast_setting extends backup_setting {
      * @param string $name Name of the setting
      * @param string $vtype Type of the setting
      * @param mixed $value Value of the setting
+     * @param int $level Level of the setting
      * @param bool $visibility Is the setting visible in the UI
      * @param int $status Status of the setting with regards to the locking
+     * @param array $attributes The arrtibutes of uisetting element
      */
-    public function __construct($name, $vtype, $value = null, $visibility = self::VISIBLE, $status = self::NOT_LOCKED) {
+    public function __construct($name, $vtype, $value = null, $level = self::COURSE_LEVEL, $visibility = self::VISIBLE,
+        $status = self::NOT_LOCKED, $attributes = null) {
 
-        $this->level = self::COURSE_LEVEL;
+        // Set level.
+        $this->level = $level;
 
+        // In case attributes is empty, we set the default.
+        if (empty($attributes)) {
+            $attributes = [
+                'class' => 'block-opencast-include',
+            ];
+        }
+
+        // Parent construction.
         parent::__construct($name, $vtype, $value, $visibility, $status);
-        $this->uisetting = new backup_setting_ui_checkbox($this, $name, null, ['class' => 'block-opencast-include']);
+
+        // Making setting ui component (checkbox).
+        $uisetting = new backup_setting_ui_checkbox(
+            $this,
+            $name,
+            null,
+            $attributes
+        );
+        // Set the icon to make the setting option more recognizable.
+        $uisetting->set_icon(
+            new image_icon(
+                'monologo',
+                get_string('pluginname', 'block_opencast'),
+                'block_opencast',
+                ['class' => 'iconlarge icon-post ml-1']
+            )
+        );
+
+        // Set the setting ui component.
+        $this->uisetting = $uisetting;
     }
 }

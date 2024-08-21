@@ -31,6 +31,10 @@ use backup_block_opencast_setting;
 use backup_controller;
 use block_opencast\local\apibridge;
 use block_opencast\task\process_duplicate_event;
+use block_opencast\task\process_duplicated_event_module_fix;
+use block_opencast\local\activitymodulemanager;
+use block_opencast\local\ltimodulemanager;
+use mod_opencast\local\opencasttype;
 use block_opencast_apibridge_testable;
 use coding_exception;
 use context_course;
@@ -61,11 +65,26 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @copyright  2018 Andreas Wagner, SYNERGY LEARNING
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_test extends advanced_testcase {
+final class backup_test extends advanced_testcase {
 
 
     /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
+
+    /** @var int the episode lti module id */
+    private $episodeltimoduleid = 0;
+     /** @var int the series lti module id */
+    private $seriesltimoduleid = 0;
+    /** @var string old series id */
+    private $oldseriesid = '1234-5678-abcd-efgh';
+    /** @var string old episode id */
+    private $oldepisodeid = 'c0c8c98d-ad90-445c-b1be-be4944779a24';
+    /** @var string new series id */
+    private $newseriesid = '1234-1234-1234-1234';
+    /** @var string new episode id */
+    private $newepisodeid = '66c59fbc-77ca-401a-bb0f-3362bcd27b62';
+    /** @var int new course id created after restore */
+    private $newcourseid = 0;
 
     public function setUp(): void {
         parent::setUp();
@@ -148,6 +167,10 @@ class backup_test extends advanced_testcase {
             $courseid = restore_dbops::create_new_course('Tmp', 'tmp', $categoryid);
         }
 
+        $this->newcourseid = $courseid;
+        // Simulate the faulty LTI and Activity module creation in new course.
+        $this->restore_modules($courseid);
+
         $rc = new restore_controller($backupid, $courseid, backup::INTERACTIVE_NO, backup::MODE_GENERAL, $userid, $target);
         $target == backup::TARGET_NEW_COURSE ?: $rc->get_plan()->get_setting('overwrite_conf')->set_value(true);
         $this->assertTrue($rc->execute_precheck());
@@ -167,6 +190,166 @@ class backup_test extends advanced_testcase {
     }
 
     /**
+     * Simulate the creation of a new modules in new course with faulty data.
+     *
+     * @param int $courseid COurse id
+     */
+    private function restore_modules($courseid) {
+        global $USER, $DB, $CFG;
+        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/mod/lti/locallib.php');
+
+        // Get plugin ids.
+        $activitypluginid = $DB->get_field('modules', 'id', ['name' => 'opencast']);
+        $ltipluginid = $DB->get_field('modules', 'id', ['name' => 'lti']);
+
+        // Get new course object.
+        $course = \get_course($courseid);
+
+        // Prepare Dummy data.
+        $seriesmoduletitle = 'Test Series module to repair';
+        $episodemoduletitle = 'Test Episode module to repair';
+
+        // Build activity modinfo.
+        // Series activity module.
+        $activityseriesmoduleinfo = activitymodulemanager::build_activity_modinfo(
+            $activitypluginid,
+            $course,
+            1,
+            $seriesmoduletitle,
+            0,
+            $this->oldseriesid,
+            opencasttype::SERIES
+        );
+        $addedactivityseriesmoduleinfo = add_moduleinfo($activityseriesmoduleinfo, $course);
+        $this->assertNotEmpty($addedactivityseriesmoduleinfo);
+
+        // Episode activity module.
+        $activityepisodemoduleinfo = activitymodulemanager::build_activity_modinfo(
+            $activitypluginid,
+            $course,
+            1,
+            $episodemoduletitle,
+            0,
+            $this->oldepisodeid,
+            opencasttype::EPISODE
+        );
+        $addedactivityepisodemoduleinfo = add_moduleinfo($activityepisodemoduleinfo, $course);
+        $this->assertNotEmpty($addedactivityepisodemoduleinfo);
+
+        // Build LTI modules.
+        $sitetoolinfo = [
+            'baseurl' => rtrim($this->apiurl, '/') . '/lti',
+            'createdby' => $USER->id,
+            'course' => SITEID,
+            'ltiversion' => 'LTI-1p0',
+            'timecreated' => time(),
+            'timemodified' => time(),
+            'state' => LTI_TOOL_STATE_CONFIGURED,
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+        ];
+        $seriessitetool = $sitetoolinfo;
+        $seriessitetool['name'] = 'Opencast Series';
+        $seriessitetoolrecord = (object) $seriessitetool;
+        $seriestoolid = $DB->insert_record('lti_types', $seriessitetoolrecord);
+        set_config('addltipreconfiguredtool_1', $seriestoolid, 'block_opencast');
+
+        $episodesitetool = $sitetoolinfo;
+        $episodesitetool['name'] = 'Opencast Episode';
+        $episodesitetoolrecord = (object) $episodesitetool;
+        $episodetoolid = $DB->insert_record('lti_types', $episodesitetoolrecord);
+        set_config('addltiepisodepreconfiguredtool_1', $episodetoolid, 'block_opencast');
+
+        // Get the id of the installed LTI plugin.
+        // Series LTI module.
+        $ltiseriesmoduleinfo = ltimodulemanager::build_lti_modinfo(
+            $ltipluginid,
+            $course,
+            $seriesmoduletitle,
+            0,
+            $seriestoolid,
+            'series=' . $this->oldseriesid
+        );
+        $addedltiseriesmoduleinfo = add_moduleinfo($ltiseriesmoduleinfo, $course);
+        $this->seriesltimoduleid = $addedltiseriesmoduleinfo->coursemodule;
+        $this->assertNotEmpty($addedltiseriesmoduleinfo);
+
+        // Episode LTI module.
+        $ltiepisodemoduleinfo = ltimodulemanager::build_lti_modinfo(
+            $ltipluginid,
+            $course,
+            $episodemoduletitle,
+            0,
+            $episodetoolid,
+            'id=' . $this->oldepisodeid
+        );
+        $addedltiepisodemoduleinfo = add_moduleinfo($ltiepisodemoduleinfo, $course);
+        $this->episodeltimoduleid = $addedltiepisodemoduleinfo->coursemodule;
+        $this->assertNotEmpty($addedltiepisodemoduleinfo);
+    }
+
+    /**
+     * Checks whether the imported modules are fixed.
+     *
+     * @return boolean true if all modules are fixed, false otherwise
+     */
+    private function check_fixed_modules() {
+        global $CFG, $DB;
+
+        $seriesltimoduleisfixed = false;
+        $episodeltimoduleisfixed = false;
+        $episodeactivitymoduleisfixed = false;
+        $seriesactivitymoduleisfixed = false;
+
+        // Require grade library. For an unknown reason, this is needed when updating the module.
+        require_once($CFG->libdir . '/gradelib.php');
+
+        $courseobject = get_course($this->newcourseid);
+
+        // LTI modules.
+        if (!empty($this->seriesltimoduleid)) {
+            $seriesmoduleobject = get_coursemodule_from_id('lti', $this->seriesltimoduleid, $this->newcourseid);
+            list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) =
+                get_moduleinfo_data($seriesmoduleobject, $courseobject);
+
+            if (strpos($seriesmoduledata->instructorcustomparameters, $this->newseriesid) !== false) {
+                $seriesltimoduleisfixed = true;
+            }
+        }
+
+        if (!empty($this->episodeltimoduleid)) {
+            $episodemoduleobject = get_coursemodule_from_id('lti', $this->episodeltimoduleid, $this->newcourseid);
+            list($unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw) =
+                get_moduleinfo_data($episodemoduleobject, $courseobject);
+
+            if (strpos($episodemoduledata->instructorcustomparameters, $this->newepisodeid) !== false) {
+                $episodeltimoduleisfixed = true;
+            }
+        }
+
+        // Activity modules.
+        $seriesrecord = [
+            'ocinstanceid' => 1,
+            'course' => $this->newcourseid,
+            'type' => opencasttype::SERIES,
+            'opencastid' => $this->newseriesid,
+        ];
+        $seriesactivitymoduleisfixed = $DB->record_exists('opencast', $seriesrecord);
+
+        $episoderecord = [
+            'ocinstanceid' => 1,
+            'course' => $this->newcourseid,
+            'type' => opencasttype::EPISODE,
+            'opencastid' => $this->newepisodeid,
+        ];
+
+        $episodeactivitymoduleisfixed = $DB->record_exists('opencast', $episoderecord);
+
+        return $seriesltimoduleisfixed && $episodeltimoduleisfixed &&
+            $episodeactivitymoduleisfixed && $seriesactivitymoduleisfixed;
+    }
+
+    /**
      *  Execute an adhoc task like via cron function.
      * @param stdClass $taskrecord
      */
@@ -174,6 +357,35 @@ class backup_test extends advanced_testcase {
         global $CFG;
 
         $task = new process_duplicate_event();
+        $task->set_id($taskrecord->id);
+        $task->set_custom_data_as_string($taskrecord->customdata);
+
+        $cronlockfactory = lock_config::get_lock_factory('cron');
+        $lock = $cronlockfactory->get_lock('adhoc_' . $taskrecord->id, 0);
+        $lock->release();
+
+        $task->set_lock($lock);
+
+        $this->preventResetByRollback();
+        ob_start();
+
+        // In Moodle 4.2 version cron_run_inner_adhoc_task is depricated.
+        if ($CFG->version < 2023042400) {
+            cron_run_inner_adhoc_task($task);
+        } else {
+            cron::run_inner_adhoc_task($task);
+        }
+        return ob_get_clean();
+    }
+
+    /**
+     *  Execute an adhoc task to fix modules.
+     * @param stdClass $taskrecord
+     */
+    private function execute_module_fix_adhoc_task($taskrecord) {
+        global $CFG;
+
+        $task = new process_duplicated_event_module_fix();
         $task->set_id($taskrecord->id);
         $task->set_custom_data_as_string($taskrecord->customdata);
 
@@ -231,7 +443,7 @@ class backup_test extends advanced_testcase {
      *
      * @covers \restore_controller \backup_controller
      */
-    public function test_adhoctask_execution() {
+    public function test_adhoctask_execution(): void {
         global $USER, $DB;
 
         $this->resetAfterTest();
@@ -256,20 +468,21 @@ class backup_test extends advanced_testcase {
         $mapping = new seriesmapping();
         $mapping->set('ocinstanceid', 1);
         $mapping->set('courseid', $course->id);
-        $mapping->set('series', '1234-5678-abcd-efgh');
+        $mapping->set('series', $this->oldseriesid);
         $mapping->set('isdefault', 1);
         $mapping->create();
 
         // Setup simulation data for api.
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
-        $apibridge->set_testdata('get_series_videos', '1234-5678-abcd-efgh', 'file');
+        $apibridge->set_testdata('get_series_videos', $this->oldseriesid, 'file');
+        $apibridge->set_testdata('get_series_by_identifier', $this->oldseriesid, 'file');
 
         // Backup the course with videos.
         $backupid = $this->backup_course($course->id, true, $USER->id);
 
         // Prepare server simulation (via apibridge).
         $apibridge->set_testdata('supports_api_level', 'level', 'v1.1.0');
-        $apibridge->set_testdata('create_course_series', 'newcourse', '1234-1234-1234-1234');
+        $apibridge->set_testdata('create_course_series', 'newcourse', $this->newseriesid);
 
         // Restore the course with videos.
         $newcourse = $this->restore_course($backupid, 0, true, $USER->id);
@@ -328,17 +541,41 @@ class backup_test extends advanced_testcase {
 
         // Setup the mockuped workflow again.
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
-        $apibridge->set_testdata('get_opencast_video', 'c0c8c98d-ad90-445c-b1be-be4944779a24', 'file');
+        $apibridge->set_testdata('get_opencast_video', $this->oldepisodeid, 'file');
 
         // The workflow exists now, but it is not started.
         $this->check_task_fail_with_error('error_workflow_not_started', 6);
 
         // Setup succesful start workflow in opencast system.
-        $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, true);
+        // $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, true).
+        $dummyworkflowid = 1234;
+        $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, $dummyworkflowid);
 
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $output = $this->execute_adhoc_task($taskrecord);
+
+        // Run adhoc task to fix modules.
+        $apibridge->set_testdata('get_duplicated_episodeid', $dummyworkflowid, $this->newepisodeid);
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecord = array_shift($modulefixtaskrecords);
+        $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
+
+        // Run adhoc task again to go to cleaup process.
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecord = array_shift($modulefixtaskrecords);
+        $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
+
+        // Check if the module fix adhoc task was successfully terminated.
+        $modulefixtaskrecords = $DB->get_records('task_adhoc',
+            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+        $this->assertEquals(0, count($modulefixtaskrecords));
+
+        // Check if modules are fixed.
+        $modulesfixed = $this->check_fixed_modules();
+        $this->assertEquals(true, $modulesfixed);
 
         // Check that the task is deleted.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
