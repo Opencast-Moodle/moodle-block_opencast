@@ -301,10 +301,14 @@ class upload_helper {
      */
     public static function delete_video_draft($jobtodelete) {
         global $DB;
-        // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD.
-        if ($DB->record_exists('block_opencast_uploadjob',
-            ['id' => $jobtodelete->id, 'status' => self::STATUS_READY_TO_UPLOAD])) {
-
+        // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD or STATUS_ARCHIVED_FAILED_UPLOAD.
+        $selectwhere = "id = :id AND status IN (:statustransferred, :statusarchived)";
+        $params = [
+            'id' => $jobtodelete->id,
+            'statustransferred' => self::STATUS_TRANSFERRED,
+            'statusarchived' => self::STATUS_ARCHIVED_FAILED_UPLOAD,
+        ];
+        if ($DB->record_exists_select('block_opencast_uploadjob', $selectwhere, $params)) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $jobtodelete->id]);
             $DB->delete_records('block_opencast_metadata', ['uploadjobid' => $jobtodelete->id]);
             // Delete from files table.
