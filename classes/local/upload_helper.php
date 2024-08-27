@@ -305,7 +305,7 @@ class upload_helper {
         $selectwhere = "id = :id AND status IN (:statustransferred, :statusarchived)";
         $params = [
             'id' => $jobtodelete->id,
-            'statustransferred' => self::STATUS_TRANSFERRED,
+            'statustransferred' => self::STATUS_READY_TO_UPLOAD,
             'statusarchived' => self::STATUS_ARCHIVED_FAILED_UPLOAD,
         ];
         if ($DB->record_exists_select('block_opencast_uploadjob', $selectwhere, $params)) {
