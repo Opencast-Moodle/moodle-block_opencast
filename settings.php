@@ -115,6 +115,12 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('uploadtimeout', 'block_opencast'),
                 get_string('uploadtimeoutdesc', 'block_opencast'), 60, PARAM_INT));
 
+        // Failed upload retry limit.
+        $sharedsettings->add(
+            new admin_setting_configtext('block_opencast/faileduploadretrylimit',
+                get_string('faileduploadretrylimit', 'block_opencast'),
+                get_string('faileduploadretrylimitdesc', 'block_opencast'), 0, PARAM_INT));
+
         $ADMIN->add('block_opencast', $sharedsettings);
 
         foreach ($ocinstances as $instance) {

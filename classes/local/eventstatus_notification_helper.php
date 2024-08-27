@@ -236,9 +236,10 @@ class eventstatus_notification_helper {
             }
         }
 
-        $where = 'status <> :status';
+        $where = 'status NOT IN (:statustransferred, :statusarchived)';
         $params = [
-            'status' => upload_helper::STATUS_TRANSFERRED,
+            'statustransferred' => upload_helper::STATUS_TRANSFERRED,
+            'statusarchived' => upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD,
         ];
         $allqueuednum = $DB->count_records_select('block_opencast_uploadjob', $where, $params);
         $waitingnum = 0;
@@ -256,6 +257,48 @@ class eventstatus_notification_helper {
         // Notify users one by one.
         foreach ($usertolist as $userto) {
             notifications::notify_upload_queue_status($job->courseid, $userto, $waitingnum, $title);
+        }
+    }
+
+
+    /**
+     * Notify users about the failed upload being archived.
+     *
+     * @param object $job represents the upload job.
+     * @param string $title event title or filename.
+     *
+     */
+    public static function notify_users_archived_upload($job, $title) {
+        global $DB;
+        // Initialize the user list as an empty array.
+        $usertolist = [];
+        // Add uploader user object to the user list.
+        $usertolist[] = $DB->get_record('user', ['id' => $job->userid]);
+
+        // Get admin config to check if all teachers of the course should be notified as well.
+        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
+        if ($notifyteachers) {
+            // Get the role of teachers.
+            $role = $DB->get_record('role', ['shortname' => 'editingteacher']);
+            // Get the course context.
+            $context = context_course::instance($job->courseid);
+            // Get the teachers based on their role in the course context.
+            $teachers = get_role_users($role->id, $context);
+
+            // If teachers array list is not empty, we add them to the user list.
+            if (!empty($teachers)) {
+                foreach ($teachers as $teacher) {
+                    // We need to make sure that the uploader is not in the teachers list.
+                    if ($teacher->id != $job->userid) {
+                        $usertolist[] = $DB->get_record('user', ['id' => $teacher->id]);
+                    }
+                }
+            }
+        }
+
+        // Notify users one by one.
+        foreach ($usertolist as $userto) {
+            notifications::notify_archived_upload($job->courseid, $userto, $title);
         }
     }
 

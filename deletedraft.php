@@ -76,7 +76,11 @@ if (!$jobtodelete) {
     $message = get_string('videodraftnotfound', 'block_opencast');
     redirect($redirecturl, $message, null, notification::NOTIFY_WARNING);
 }
-if ($jobtodelete->status != upload_helper::STATUS_READY_TO_UPLOAD) {
+$allowedstatuses = [
+    upload_helper::STATUS_READY_TO_UPLOAD,
+    upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD,
+];
+if (!in_array($jobtodelete->status, $allowedstatuses)) {
     $message = get_string('videodraftnotdeletable', 'block_opencast',
         upload_helper::get_status_string($jobtodelete->status));
     redirect($redirecturl, $message, null, notification::NOTIFY_WARNING);
