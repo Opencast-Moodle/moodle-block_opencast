@@ -1889,6 +1889,8 @@ class apibridge {
     /**
      * Retrieves a workflow instance from Opencast.
      * @param string $id Workflow instance id
+     * @param bool $withoperations flag to get instance with operations
+     * @param bool $withconfiguration flag to get instance with configurations
      * @return false|mixed Workflow instance or false if not successful
      */
     public function get_workflow_instance($id, $withoperations = false, $withconfiguration = true) {
