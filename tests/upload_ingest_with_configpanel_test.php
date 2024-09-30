@@ -48,7 +48,7 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
 
 
     /** @var string Test api url. */
-    private $apiurl = 'https://stable.opencast.org';
+    private $apiurl = 'http://127.0.0.1:8080';
      /** @var string Test api version. */
     private $apiversion = 'v1.11.0';
     /** @var string Test api username. */
