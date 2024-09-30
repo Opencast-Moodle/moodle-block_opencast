@@ -861,5 +861,29 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024061400, 'opencast');
     }
 
+    if ($oldversion < 2024093000) {
+
+        $table = new xmldb_table('block_opencast_uploadjob');
+
+        // Define field workflowconfiguration to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('workflowconfiguration', XMLDB_TYPE_TEXT, null, null, null, null, null, 'mediapackage');
+
+        // Conditionally launch add field workflowconfiguration.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field workflowid to be added to block_opencast_uploadjob.
+        $field = new xmldb_field('workflowid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'workflowconfiguration');
+
+        // Conditionally launch add field workflowid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Opencast savepoint reached.
+        upgrade_block_savepoint(true, 2024093000, 'opencast');
+    }
+
     return true;
 }
