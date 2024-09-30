@@ -34,7 +34,7 @@ use mod_opencast\local\opencasttype;
 use block_opencast\local\liveupdate_helper;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
-
+use block_opencast\local\workflowconfiguration_helper;
 /**
  * Renderer class for block opencast.
  *
@@ -1465,5 +1465,217 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
         }
         return $items;
+    }
+
+    /**
+     * Looks through the html string of workflow configuration panel and
+     * converts select elements as well as input elements of types (checkbox, text, datetime, radio)
+     * into moodle form elements.
+     *
+     * @param MoodleQuickForm $mform referenced moodle form of upload videos single and batch.
+     * @param string $configurationpanelhtml workflow configuration panel html as string.
+     * @param array $alloweduploadwfconfigids list of allowed configuration element ids.
+     */
+    public function render_configuration_panel_form_elements(&$mform, $configurationpanelhtml, $alloweduploadwfconfigids = []) {
+
+        if (empty($configurationpanelhtml)) {
+            return;
+        }
+
+        // Make sure the html string is valid.
+        $html = $this->close_tags_in_html_string($configurationpanelhtml);
+
+        // Initialize the dom and xpath instances.
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->loadHTML($html);
+        $xpath = new \DOMXpath($dom);
+
+        // Extracting all inputs and selects in one loop to maintain the sequence and convert them into moodle form elements.
+        $elements = $xpath->query('//input | //select');
+        $radiotexts = [];
+        $defaults = [];
+        $configpanelelementmapping = [];
+        foreach ($elements as $element) {
+            $id = trim($element->getAttribute('id'));
+            // If it is decided to provide only allowed configs, we filter them here!
+            if (!empty($alloweduploadwfconfigids) && !in_array($id, $alloweduploadwfconfigids)) {
+                continue;
+            }
+            $nodetype = $element->tagName;
+            $name = trim($element->getAttribute('name'));
+            $required = $element->hasAttribute('required') ?? false;
+            $labeltext = $this->get_dom_label_text($xpath, $dom, $id);
+            $title = $labeltext ?? $id;
+            $default = null;
+            $moodleid = $id;
+            $mappingtype = 'text';
+
+            // Conver input to moodle form element.
+            if ($nodetype === 'input') {
+                $type = trim($element->getAttribute('type'));
+                $value = trim($element->getAttribute('value')) ?? null;
+
+                // Support for radio elements.
+                if ($type === 'radio') {
+                    $moodleid = $name;
+                    $parenttext = '';
+                    if (!array_key_exists($moodleid, $radiotexts)) {
+                        $parenttext = $this->get_parent_label_text($xpath, $dom, $id);
+                        $radiotexts[$moodleid] = $parenttext;
+                    }
+                    $mform->addElement('radio', $moodleid, $parenttext, $title, $value);
+                    $ischecked = $element->hasAttribute('checked');
+                    if (!empty($ischecked)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for number and text elements.
+                if ($type === 'number' || $type === 'text') {
+                    $mform->addElement('text', $moodleid, $title);
+                    $elementtype = $type === 'number' ? PARAM_INT : PARAM_TEXT;
+                    $mform->setType($moodleid, $elementtype);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for date and datetime elements.
+                if (substr($type, 0, 4) === 'date') {
+                    $mappingtype = 'date';
+                    $moodletype = substr($type, 0, 8) === 'datetime' ? 'date_time_selector' : 'date_selector';
+                    $mform->addElement($moodletype, $moodleid, $title);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for checkbox elements.
+                if ($type === 'checkbox') {
+                    $mappingtype = 'boolean';
+                    $mform->addElement('checkbox', $moodleid, $title);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+            } else if ($nodetype === 'select') { // Conver select to moodle form element.
+                // Extract options.
+                $options = [];
+                $optionnodes = $element->childNodes;
+                $selected = null;
+                foreach ($optionnodes as $node) {
+                    if ($node->tagName === 'option') {
+                        $optionvalue = $node->getAttribute('value');
+                        $options[$optionvalue] = $node->textContent;
+                        if ($node->hasAttribute('selected')) {
+                            $selected = $optionvalue;
+                        }
+                    }
+                }
+
+                $mform->addElement('select', $moodleid, $title, $options);
+                if (!is_null($selected)) {
+                    $default = $selected;
+                }
+            }
+
+            // Add required rule.
+            if ($required) {
+                $mform->addRule($moodleid, get_string('required'), 'required');
+            }
+
+            // Add default value.
+            if (!is_null($default)) {
+                $defaults[$moodleid] = $default;
+            }
+
+            // We need to keep track of moodleids and mapping types for the elements added by configuration panel.
+            if (!array_key_exists($moodleid, $configpanelelementmapping)) {
+                $configpanelelementmapping[$moodleid] = $mappingtype;
+            }
+        }
+
+        // Apply defaults.
+        if (!empty($defaults)) {
+            foreach ($defaults as $moodleid => $value) {
+                $mform->setDefault($moodleid, $value);
+            }
+        }
+
+        if (!empty($configpanelelementmapping)) {
+            $mform->addElement('hidden',
+                workflowconfiguration_helper::MAPPING_INPUT_HIDDEN_ID,
+                json_encode($configpanelelementmapping)
+            );
+            $mform->setType(workflowconfiguration_helper::MAPPING_INPUT_HIDDEN_ID, PARAM_TEXT);
+        }
+    }
+
+    /**
+     * Get the label text of an element.
+     * First lookign for "for" attribute, if not found, looks for preceding then following label element.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param DOMDocument $dom the dom object of the html
+     * @param string $id the element id to look for its label text.
+     *
+     * @return string | null the label text or null if not found.
+     */
+    private function get_dom_label_text($xpath, $dom, $id) {
+        $element = $dom->getElementById($id);
+        $parent = $element->parentNode;
+        $tagname = $element->tagName;
+        $directlabelquery = "//label[contains(@for, '{$id}')]";
+        $text = $this->get_text_from_domxpath($xpath, $directlabelquery, $parent);
+        // If the text is empty as of now, that means there is no direct label tag "for" this element.
+        // We try to look for any preceding or following label respectively.
+        if (empty($text)) {
+            // First preceding label.
+            $precedinglabelquery = "//{$tagname}[@id='{$id}']/preceding-sibling::label";
+            $text = $this->get_text_from_domxpath($xpath, $precedinglabelquery, $parent);
+
+            // If it is still empty, then following label.
+            if (empty($text)) {
+                $followinglabelquery = "//{$tagname}[@id='{$id}']/following-sibling::label";
+
+                // If it reaches here and is still null, then it is supposed to fallback to id!
+                $text = $this->get_text_from_domxpath($xpath, $followinglabelquery, $parent);
+            }
+        }
+        return $text;
+    }
+
+    /**
+     * Get the label text of the parent element.
+     * Considering the first label element of the parent.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param DOMDocument $dom the dom object of the html
+     * @param string $id the element id to look for its parent's label text.
+     *
+     * @return string | null the label text or null if not found.
+     */
+    private function get_parent_label_text($xpath, $dom, $id) {
+        $element = $dom->getElementById($id);
+        $parent = $element->parentNode;
+        return $this->get_text_from_domxpath($xpath, 'label[1]/text()', $parent);
+    }
+
+    /**
+     * A helper function to evalute a DOMXpath query string and return the node value (text) if found.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param string $query the xpat query to look for.
+     * @param DOMDocument $contextnode a portion or target dom object.
+     *
+     * @return string | null the text of the element, or null if not found.
+     */
+    private function get_text_from_domxpath($xpath, $query, $contextnode = null) {
+        $elementnodes = $xpath->evaluate($query, $contextnode);
+        if ($elementnodes->length > 0) {
+            return (string) $elementnodes->item(0)->nodeValue;
+        }
+        return null;
     }
 }
