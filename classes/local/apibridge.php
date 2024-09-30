@@ -1887,6 +1887,24 @@ class apibridge {
     }
 
     /**
+     * Retrieves a workflow instance from Opencast.
+     * @param string $id Workflow instance id
+     * @return false|mixed Workflow instance or false if not successful
+     */
+    public function get_workflow_instance($id, $withoperations = false, $withconfiguration = true) {
+        $response = $this->api->opencastapi->workflowsApi->get(
+            $id,
+            $withoperations,
+            $withconfiguration
+        );
+        if ($response['code'] === 200) {
+            return $response['body'];
+        }
+
+        return false;
+    }
+
+    /**
      * Helperfunction to get the list of available workflows to be used in the plugin's settings.
      *
      * @param string $stringtags comma separated list of tags. If not empty the workflows are filtered according to this tag.

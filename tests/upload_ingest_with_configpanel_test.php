@@ -64,7 +64,7 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
      * Uploads a file to the opencast server using ingest with user defined configration panel,
      * then checks if it was transmitted and the workflow configuration has been receieved by opencast correctly.
      *
-     * @covers \block_opencast\local\upload_helper block_opencast\local\workflowconfiguration_helper
+     * @covers \block_opencast\local\upload_helper \block_opencast\local\workflowconfiguration_helper
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -175,12 +175,9 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
         $this->assertNotEmpty($uploadjob->workflowid);
 
         $workflowinstanceid = $uploadjob->workflowid;
-        $response = $apibridge->api->opencastapi->workflowsApi->get($workflowinstanceid, false, true);
-        $this->assertEquals(200, $response['code']);
-
-        $workflow = $response['body'];
-        $this->assertNotEmpty($workflow);
-        $this->assertEquals("false", $workflow->configuration->straightToPublishing);
+        $workflowinstance = $apibridge->get_workflow_instance($workflowinstanceid);
+        $this->assertNotEmpty($workflowinstance);
+        $this->assertEquals("false", $workflowinstance->configuration->straightToPublishing);
     }
 
     /**
