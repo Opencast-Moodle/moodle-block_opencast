@@ -173,7 +173,7 @@ class workflowconfiguration_helper {
     /**
      * Gets the workflow processing data to pass to the event creation calls (api or ingest).
      *
-     * @param string $jobworkflowconfiguration the workflow configuration stored in the uploadjob.
+     * @param ?string $jobworkflowconfiguration the workflow configuration stored in the uploadjob or null if not defined.
      *
      * @return array the workflow processing data to pass to the event creation calls. It contains most usable output such as:
      * - workflow: the upload workflow
