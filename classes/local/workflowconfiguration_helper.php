@@ -182,7 +182,7 @@ class workflowconfiguration_helper {
      * - configuration_json: the json encoded string of configuration array
      * - configuration: the array list of all workflow configuration (defaults and user defineds).
      */
-    public function get_workflow_processing_data(string $jobworkflowconfiguration = ''): array {
+    public function get_workflow_processing_data(?string $jobworkflowconfiguration = null): array {
 
         $processing = [];
         $processing['workflow'] = $this->uploadworkflowid;
