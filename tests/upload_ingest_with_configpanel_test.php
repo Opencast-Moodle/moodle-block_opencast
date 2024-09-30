@@ -124,6 +124,9 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
         $options->presenter = $file ? $file->get_itemid() : '';
         $options->presentation = $file ? $file->get_itemid() : '';
 
+        apibridge::set_testing(false);
+        $apibridge = apibridge::get_instance(1, true);
+
         // Workflow configuration helper assertions.
         $wfconfighelper = workflowconfiguration_helper::get_instance(1);
         $this->assertTrue($wfconfighelper->can_provide_configuration_panel());
@@ -147,9 +150,6 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
         // Check upload job.
         $jobs = $DB->get_records('block_opencast_uploadjob');
         $this->assertCount(1, $jobs);
-
-        apibridge::set_testing(false);
-        $apibridge = apibridge::get_instance(1, true);
 
         $uploadhelper = new upload_helper();
         $isuploaded = false;
