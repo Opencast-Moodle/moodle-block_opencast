@@ -49,8 +49,6 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
 
     /** @var string Test api url. */
     private $apiurl = 'http://127.0.0.1:8080';
-     /** @var string Test api version. */
-    private $apiversion = 'v1.11.0';
     /** @var string Test api username. */
     private $apiusername = 'admin';
     /** @var string Test api password. */
@@ -85,7 +83,6 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
 
         // Tool settings.
         set_config('apiurl_1', $this->apiurl, 'tool_opencast');
-        set_config('apiversion_1', $this->apiversion, 'tool_opencast');
         set_config('apiusername_1', $this->apiusername, 'tool_opencast');
         set_config('apipassword_1', $this->apipassword, 'tool_opencast');
         set_config('apitimeout_1', $this->apitimeout, 'tool_opencast');
