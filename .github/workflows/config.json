@@ -1,0 +1,15 @@
+{
+  "main-moodle": "MOODLE_405_STABLE",
+  "main-php": "8.3",
+  "main-oc": "16.6",
+  "ocs": ["16.6", "15.11"],
+  "main-db": "mariadb",
+  "moodle-php": {
+    "MOODLE_401_STABLE": ["7.4", "8.0", "8.1"],
+    "MOODLE_402_STABLE": ["8.0", "8.1", "8.2"],
+    "MOODLE_403_STABLE": ["8.0", "8.1", "8.2"],
+    "MOODLE_404_STABLE": ["8.1", "8.2", "8.3"],
+    "MOODLE_405_STABLE": ["8.1", "8.2", "8.3"]
+  },
+  "moodle-plugin-ci": "4.4.5"
+}
