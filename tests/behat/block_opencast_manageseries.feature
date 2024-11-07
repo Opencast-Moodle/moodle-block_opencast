@@ -90,7 +90,7 @@ Feature: Manage series as Teacher
     Given I create a second series
     When I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
-    And I click on ".tabulator-row-even i.fa-trash-can" "css_element"
+    And I click on ".tabulator-row-even i.fa-trash" "css_element"
     Then I should see "Are you sure you want to delete this series"
     When I click on "Delete" "button" in the ".modal" "css_element"
     And I wait "2" seconds
