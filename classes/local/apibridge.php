@@ -3080,4 +3080,52 @@ class apibridge {
         // Finally we return the generate studio url path.
         return $studiourlpath;
     }
+
+    /**
+     * Checks if the user has the capability to update metadata for multiple events in a course.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_update_metadata_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:addvideo', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to delete multiple events in a course.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_delete_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:deleteevent', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to change the visibility of multiple events in a course.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_change_visibility_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:addvideo', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to start workflows for multiple events in a course.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_start_workflow_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:startworkflow', $context);
+    }
 }

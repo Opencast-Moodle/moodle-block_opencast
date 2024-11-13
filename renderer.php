@@ -28,6 +28,7 @@ use block_opencast\local\apibridge;
 use block_opencast\local\attachment_helper;
 use block_opencast\local\ingest_uploader;
 use block_opencast\local\ltimodulemanager;
+use block_opencast\local\massaction_helper;
 use block_opencast\local\upload_helper;
 use block_opencast\local\visibility_helper;
 use mod_opencast\local\opencasttype;
@@ -250,7 +251,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
         $table->set_attribute('cellpadding', '3');
-        $table->set_attribute('class', 'generaltable');
+        $table->set_attribute('class', 'generaltable opencast-videos-table');
         $table->set_attribute('id', $id);
         $table->headers = $headers;
         $table->define_columns($columns);
@@ -260,7 +261,31 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('provide');
         $table->no_sorting('provide-activity');
         $table->no_sorting('published');
+        $table->no_sorting('visibility'); // This column cannot be sortable because it does not mean anything to Opencast!
+        $table->no_sorting('select');
         $table->sortable(true, 'start_date', SORT_DESC);
+
+        $table->column_style('selectall', 'max-width', '40px');
+        $table->column_style('start_date', 'min-width', '125px');
+        $table->column_style('visibility', 'min-width', '120px');
+        $table->column_style('workflow_state', 'min-width', '120px');
+        $table->column_style('action', 'min-width', '100px');
+
+        $columnclasses = [
+            'selectall' => ['oc-col-select'],
+            'workflow_state' => ['oc-col-wfstatus'],
+            'visibility' => ['oc-col-visibility']
+        ];
+
+        foreach ($columns as $column) {
+            $classes = isset($columnclasses[$column]) ? $columnclasses[$column] : [];
+            if ($table->is_sortable($column)) {
+                $classes[] = 'oc-sortable-alignment';
+            }
+            if (!empty($classes)) {
+                $table->column_class($column, implode(' ', $classes));
+            }
+        }
 
         $table->pageable(true);
         $table->is_downloadable(false);
@@ -336,6 +361,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('owner');
         $table->no_sorting('linked');
         $table->no_sorting('activities');
+        $table->no_sorting('select');
+        $table->no_sorting('action');
         $table->sortable(true, 'videos', SORT_DESC);
 
         $table->pageable(true);
@@ -367,6 +394,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $hasdeletepermission
      * @param string $redirectpage
      * @param bool $hasaccesspermission
+     * @param ?massaction_helper $massaction
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -376,11 +404,17 @@ class block_opencast_renderer extends plugin_renderer_base {
                                                 $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
                                                 $hasaddvideopermissions = false, $hasdownloadpermission = false,
                                                 $hasdeletepermission = false,
-                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false) {
+                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false,
+                                                $massaction = null) {
         global $USER, $SITE, $DB;
         $rows = [];
 
         foreach ($videos as $video) {
+
+            // This flag here works in false case, because here in overview page we only offer update and delete mass action.
+            // We only offer them if the single action has been offered too.
+            $isselectable = false;
+
             $activitylinks = [];
             if ($activityinstalled) {
                 $activitylinks = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
@@ -434,6 +468,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             $actions = '';
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
+                if ($updatemetadata) {
+                    $isselectable = true;
+                }
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
                     false, null, false, false, false, 'overview', $video->is_part_of);
             }
@@ -448,6 +485,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             if ($hasdeletepermission && isset($video->processing_state) &&
                 ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+                $isselectable = true;
                 $url = new moodle_url('/blocks/opencast/deleteevent.php',
                     ['identifier' => $video->identifier, 'courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid,
                         'series' => $video->is_part_of, 'redirectpage' => $redirectpage, ]);
@@ -457,6 +495,13 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
 
             $row[] = $actions;
+
+            if (!is_null($massaction)) {
+                $selectcheckbox = $massaction->render_item_checkbox($video, $isselectable);
+                if (!empty($selectcheckbox)) {
+                    array_unshift($row, $selectcheckbox);
+                }
+            }
 
             $rows[] = $row;
         }

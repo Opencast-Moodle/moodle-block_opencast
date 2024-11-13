@@ -27,6 +27,7 @@ use block_opencast\local\apibridge;
 use block_opencast\local\importvideosmanager;
 use block_opencast\local\liveupdate_helper;
 use block_opencast\local\ltimodulemanager;
+use block_opencast\local\massaction_helper;
 use block_opencast\local\upload_helper;
 use block_opencast\opencast_connection_exception;
 use core\notification;
@@ -82,6 +83,14 @@ $liveupdate = [
     'timeout' => $liveupdatereloadtimeout,
 ];
 $PAGE->requires->js_call_amd('block_opencast/block_index', 'init', [$courseid, $ocinstanceid, $coursecontext->id, $liveupdate]);
+
+$PAGE->requires->js_call_amd('block_opencast/block_massaction', 'init',
+    [
+        $courseid,
+        $ocinstanceid,
+        massaction_helper::get_js_selectors()
+    ]
+);
 $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('pluginname', 'block_opencast'));
 
@@ -162,6 +171,34 @@ if (ltimodulemanager::is_enabled_and_working_for_episodes($ocinstanceid) == true
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 
+$massaction = new massaction_helper();
+
+// Mass-Action configuration for update metadata.
+if (!$apibridge->can_update_metadata_massaction($courseid)) {
+    $massaction->massaction_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
+}
+
+// Mass-Action configuration for delete.
+if (!$apibridge->can_delete_massaction($courseid)) {
+    $massaction->massaction_activation(massaction_helper::MASSACTION_DELETE, false);
+}
+
+// Mass-Action configuration for change visibility.
+if (!$apibridge->can_change_visibility_massaction($courseid) || !$toggleaclroles) {
+    $massaction->massaction_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
+}
+
+// Mass-Action configuration for start workflow.
+if (!$apibridge->can_start_workflow_massaction($courseid) || !$workflowsavailable) {
+    $massaction->massaction_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
+}
+
+// We add the select columns and headers into the beginning of the headers and columns arrays, when mass actions are there!
+if ($massaction->has_massactions()) {
+    array_unshift($headers, 'selectall');
+    array_unshift($columns, 'select');
+}
+
 foreach ($headers as $i => $header) {
     if (!empty($header)) {
         $headers[$i] = get_string('h' . $header, 'block_opencast');
@@ -181,6 +218,10 @@ foreach ($headers as $i => $header) {
         // Render from the template to show Status legend.
         $legendicon = $renderer->render_from_template('block_opencast/table_legend_help_icon', $context);
         $headers[$i] .= $legendicon;
+    }
+
+    if ($header == 'selectall') {
+        $headers[$i] = $massaction->render_master_checkbox();
     }
 }
 
@@ -378,12 +419,12 @@ foreach ($seriesvideodata as $series => $videodata) {
     }
 
     if ($videodata->error == 0) {
-        echo html_writer::start_div('position-relative');
         $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);
         $deletedvideos = $DB->get_records("block_opencast_deletejob", [], "", "opencasteventid");
         $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
-
         foreach ($videodata->videos as $video) {
+
+            $isselectable = true;
 
             $row = [];
 
@@ -421,6 +462,7 @@ foreach ($seriesvideodata as $series => $videodata) {
 
             // Workflow state and actions column, depending if the video is currently deleted or not.
             if (array_key_exists($video->identifier, $deletedvideos)) {
+                $isselectable = false;
                 // Workflow state column.
                 $row[] = $renderer->render_processing_state_icon("DELETING");
 
@@ -541,9 +583,28 @@ foreach ($seriesvideodata as $series => $videodata) {
                 }
 
             }
+
+            $selectcheckbox = $massaction->render_item_checkbox($video, $isselectable);
+            if (!empty($selectcheckbox)) {
+                array_unshift($row, $selectcheckbox);
+            }
+
             $table->add_data($row);
         }
+
+        // Last check to deactivate mass action, if there is nothing to display in the table.
+        if (!$table->started_output) {
+            $massaction->activate_massaction(false);
+        }
+        // Rendering the table containter div.
+        echo html_writer::start_div('position-relative');
+        // Rendering mass action on top.
+        echo $massaction->render_table_mass_actions_select('bulkselect-top');
+        // Rendering table.
         $table->finish_html();
+        // Rendering mass action on bottom
+        echo $massaction->render_table_mass_actions_select('bulkselect-bottom');
+        // Rendering closing table container div.
         echo html_writer::end_div();
     } else {
         echo html_writer::div(get_string('errorgetblockvideos', 'block_opencast', $videodata->error), 'opencast-bc-wrap');

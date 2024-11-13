@@ -68,7 +68,31 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                 $('.start-workflow').on('click', function(e) {
                     e.preventDefault();
+                    const detail = e?.detail || {};
+
                     var clickedVideo = $(e.currentTarget);
+                    var actionurl = url.relativeUrl('blocks/opencast/startworkflow.php', {
+                        'ocinstanceid': ocinstanceid,
+                        'courseid': courseid,
+                        'videoid': clickedVideo.data('id')
+                    });
+                    var ismassaction = false;
+                    var bulkinfodiv = '';
+                    if (detail?.type === 'bulk' && detail?.selectedids) {
+                        ismassaction = true;
+                        bulkinfodiv = '<div id="bulkinfodiv" class="w-100 mb-1">';
+                        bulkinfodiv += '<p>' + langstrings[9].replace('{$a}', detail.selectedtitles.join('</li><li>')) + '</p>';
+                        bulkinfodiv += '</div>';
+                        for (let videoid of detail.selectedids) {
+                            bulkinfodiv += '<input type="hidden" name="videoids[]" value="' + videoid + '">';
+                        }
+                        bulkinfodiv += '<input type="hidden" name="ismassaction" value="1">';
+                        actionurl = url.relativeUrl(detail.url, {
+                            'ocinstanceid': ocinstanceid,
+                            'courseid': courseid
+                        });
+                    }
+
                     var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
 
                     for (let workflow in workflows) {
@@ -95,11 +119,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
 
                     var body = '<form id="startWorkflowForm" method="post" action="' +
-                        url.relativeUrl('blocks/opencast/startworkflow.php', {
-                            'ocinstanceid': ocinstanceid,
-                            'courseid': courseid,
-                            'videoid': clickedVideo.data('id')
-                        }) + '"><div class="form-group">' +
+                        actionurl
+                        + '"><div class="form-group">' +
+                        bulkinfodiv +
                         '<p>' + langstrings[6] + '</p>' +
                         select +
                         workflowdescdiv +
@@ -110,7 +132,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
-                        title: langstrings[5],
+                        title: ismassaction ? langstrings[10] : langstrings[5],
                         body: body
                     }, undefined)
                         .then(function(modal) {
@@ -133,6 +155,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
                                 // Destroy when hidden/closed.
                                 modal.destroy();
+                                // Change the bulk action select back to choose...
+                                resetVideosTableBulkActions();
                             });
 
                             // Show description for initial value.
@@ -269,6 +293,11 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             var items = getLiveUpdateItems();
             if (items.length) {
                 window.liveUpdateInterval = setInterval(function() {
+                    // Adding the state checker here, in order to pause the live update from other js modules like block_massaction.
+                    if (window.liveUpdateState === 'paused') {
+                        console.info('live update has been paused.');
+                        return;
+                    }
                     var processingItems = getLiveUpdateProcessingItems();
                     var uploadingItems = getLiveUpdateUploadingItems();
                     if (processingItems.length == 0 && uploadingItems.length == 0) {
@@ -454,6 +483,15 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
         };
 
         /*
+         * Resets the bulk action select dropdowns and unchecks the select items.
+         */
+        var resetVideosTableBulkActions = function () {
+            $('.opencast-videos-table-massactions').val('');
+            $('.opencast-videos-table-massactions').attr('disabled', true);
+            $('input.opencast-videos-selectall, input.opencast-video-select').prop('checked', false);
+        };
+
+        /*
          * Initialise all of the modules for the opencast block.
          */
         var init = function(courseid, ocinstanceid, contextid, liveupdate) {
@@ -493,6 +531,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 },
                 {
                     key: 'startworkflow_modal_configpanel_title',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'videostable_massaction_startworkflow_modal_body',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'videostable_massaction_startworkflow_modal_title',
                     component: 'block_opencast'
                 }
             ];
