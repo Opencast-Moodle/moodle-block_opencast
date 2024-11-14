@@ -115,7 +115,7 @@ $PAGE->requires->js_call_amd('block_opencast/block_massaction', 'init',
     [
         $SITE->id,
         $ocinstanceid,
-        massaction_helper::get_js_selectors()
+        massaction_helper::get_js_selectors(),
     ]
 );
 echo $OUTPUT->header();
@@ -221,7 +221,7 @@ if (!$table->started_output) {
 echo $massaction->render_table_mass_actions_select('bulkselect-top');
 // Rendering table.
 $table->finish_html();
-// Rendering mass action on bottom
+// Rendering mass action on bottom.
 echo $massaction->render_table_mass_actions_select('bulkselect-bottom');
 
 if ($opencasterror) {

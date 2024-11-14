@@ -88,7 +88,7 @@ $PAGE->requires->js_call_amd('block_opencast/block_massaction', 'init',
     [
         $courseid,
         $ocinstanceid,
-        massaction_helper::get_js_selectors()
+        massaction_helper::get_js_selectors(),
     ]
 );
 $PAGE->set_pagelayout('incourse');
@@ -604,7 +604,7 @@ foreach ($seriesvideodata as $series => $videodata) {
         echo $massaction->render_table_mass_actions_select('bulkselect-top');
         // Rendering table.
         $table->finish_html();
-        // Rendering mass action on bottom
+        // Rendering mass action on bottom.
         echo $massaction->render_table_mass_actions_select('bulkselect-bottom');
         // Rendering closing table container div.
         echo html_writer::end_div();

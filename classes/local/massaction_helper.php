@@ -37,7 +37,6 @@ use html_writer;
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class massaction_helper {
 
     /** @var string Toggle group name. */
@@ -74,25 +73,25 @@ class massaction_helper {
             'path' => [
                 'url' => '/blocks/opencast/deleteevent_massaction.php',
             ],
-            'enable' => true
+            'enable' => true,
         ],
         self::MASSACTION_UPDATEMETADATA => [
             'path' => [
                 'url' => '/blocks/opencast/updatemetadata_massaction.php',
             ],
-            'enable' => true
+            'enable' => true,
         ],
         self::MASSACTION_CHANGEVISIBILITY => [
             'path' => [
                 'url' => '/blocks/opencast/changevisibility_massaction.php',
             ],
-            'enable' => true
+            'enable' => true,
         ],
         self::MASSACTION_STARTWORKFLOW => [
             'path' => [
                 'url' => '/blocks/opencast/startworkflow_massaction.php',
             ],
-            'enable' => true
+            'enable' => true,
         ],
     ];
 
@@ -178,7 +177,7 @@ class massaction_helper {
         // Preparing select checkboxes.
         $disabledcheckboxattrs = [
             'title' => get_string('videostablemassaction_disabled_item', 'block_opencast'),
-            'disabled' => 'disabled'
+            'disabled' => 'disabled',
         ];
         // A default disabled checkbox.
         $checkboxhtml = html_writer::checkbox(
@@ -228,7 +227,7 @@ class massaction_helper {
             get_string('videostablemassaction_label', 'block_opencast'),
             $id,
             false,
-            ['class' => 'mr-3',]
+            ['class' => 'mr-3', ],
         );
 
         $enabledmassactions = array_filter($this->massactions, function ($item) {
@@ -245,20 +244,20 @@ class massaction_helper {
             $hiddenactionsmappingattrs = [
                 'type' => 'hidden',
                 'id' => self::HIDDEN_INPUT_ACTIONS_MAPPING_ID,
-                'value' => json_encode($enabledmassactions)
+                'value' => json_encode($enabledmassactions),
             ];
             $html .= html_writer::empty_tag('input', $hiddenactionsmappingattrs);
             $this->mappingisrendered = true;
         }
 
-        $withselectedparams = array(
+        $withselectedparams = [
             'id' => $id,
             'data-action' => 'toggle',
             'data-togglegroup' => self::TOGGLE_GROUP_NAME,
             'data-toggle' => 'action',
             'disabled' => true,
-            'class' => self::SELECT_DROPDOWN_CLASSNAME
-        );
+            'class' => self::SELECT_DROPDOWN_CLASSNAME,
+        ];
         $html .= html_writer::select($massactionselectitems, $id, '', ['' => 'choosedots'], $withselectedparams);
 
         $html .= html_writer::end_div();
@@ -280,7 +279,7 @@ class massaction_helper {
                 'path' => [
                     'url' => $url,
                 ],
-                'enable' => $enable
+                'enable' => $enable,
             ];
             $this->massactions[$name] = $item;
             return true;

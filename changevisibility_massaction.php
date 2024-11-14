@@ -220,7 +220,6 @@ if ($data = $massactionchangevisibilityform->get_data()) {
                 $haschanges = true;
             }
 
-            // $schedulingcode = '';
             $schedulingresult = true;
             // Check if the scheduled visibility is set, we update the record.
             if ($requestscheduling) {

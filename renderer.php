@@ -274,7 +274,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $columnclasses = [
             'selectall' => ['oc-col-select'],
             'workflow_state' => ['oc-col-wfstatus'],
-            'visibility' => ['oc-col-visibility']
+            'visibility' => ['oc-col-visibility'],
         ];
 
         foreach ($columns as $column) {

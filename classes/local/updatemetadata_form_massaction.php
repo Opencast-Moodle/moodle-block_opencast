@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/lib/formslib.php');
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class updatemetadata_form_massaction extends moodleform {
 
     /**
@@ -119,7 +118,11 @@ class updatemetadata_form_massaction extends moodleform {
             // in order to give the user the impersseion that this field is not yet enabled.
             if ($field->datatype == 'autocomplete') {
                 $selectreplacement = $mform->addElement('select', $field->name . '_replacement',
-                    $this->try_get_string($field->name, 'block_opencast'), ['' => $attributes['noselectionstring'],]);
+                    $this->try_get_string($field->name, 'block_opencast'),
+                    [
+                        '' => $attributes['noselectionstring'],
+                    ]
+                );
                 $selectreplacement->setMultiple(true);
 
                 $mform->disabledIf($field->name . '_replacement', $field->name . '_enabled', 'notchecked');
