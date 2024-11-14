@@ -45,7 +45,7 @@ import url from 'core/url';
 export const init = (courseid, ocinstanceid, selectors) => {
 
     const dropdowns = [...document.querySelectorAll(selectors.dropdown)];
-    dropdowns.map(dropdown => {
+    dropdowns.forEach(dropdown => {
         dropdown.addEventListener('change', e => {
             const element = e.currentTarget;
             const id = element.getAttribute('id');
@@ -55,7 +55,7 @@ export const init = (courseid, ocinstanceid, selectors) => {
             const populatedselector = `${selectors.dropdown}:not(#${id})`;
             const otherdropdowns = [...document.querySelectorAll(populatedselector)];
             if (otherdropdowns.length) {
-                otherdropdowns.map(otherdropdown => otherdropdown.value = action)
+                otherdropdowns.forEach(otherdropdown => otherdropdown.value = action);
             }
 
             if (action === '') {
@@ -77,7 +77,6 @@ export const init = (courseid, ocinstanceid, selectors) => {
             const actionsmapping = JSON.parse(actionsmappingraw);
             // Make sure that the action url is there.
             if (!actionsmapping?.[action]?.path?.url) {
-                console.warn('Unable to read the mass action url.');
                 return;
             }
 
@@ -93,7 +92,7 @@ export const init = (courseid, ocinstanceid, selectors) => {
                 };
 
                 // Create and dispatch the custom event on start-workflow element with detail data.
-                const event = new CustomEvent('click', { detail: data });
+                const event = new CustomEvent('click', {detail: data});
                 document.querySelector('.start-workflow').dispatchEvent(event);
                 return; // We stop the function here!
             }
@@ -157,10 +156,9 @@ export const init = (courseid, ocinstanceid, selectors) => {
                 modal.show();
                 return modal;
             }).fail(Notification.exception);
-
         });
     });
-}
+};
 
 /**
  * Resets the bulk action select dropdowns and unchecks the select items.
@@ -175,13 +173,13 @@ export const init = (courseid, ocinstanceid, selectors) => {
  */
 const resetVideosTableBulkActions = (selectors) => {
     const dropdowns = [...document.querySelectorAll(selectors.dropdown)];
-    dropdowns.map(dropdown => {
+    dropdowns.forEach(dropdown => {
         dropdown.value = '';
         dropdown.setAttribute('disabled', true);
     });
 
     const ckinputs = [...document.querySelectorAll(`${selectors.selectall}, ${selectors.selectitem}`)];
-    ckinputs.map(input => {
+    ckinputs.forEach(input => {
         input.checked = false;
     });
 };

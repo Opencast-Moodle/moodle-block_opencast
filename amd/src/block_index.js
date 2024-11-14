@@ -295,7 +295,6 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 window.liveUpdateInterval = setInterval(function() {
                     // Adding the state checker here, in order to pause the live update from other js modules like block_massaction.
                     if (window.liveUpdateState === 'paused') {
-                        console.info('live update has been paused.');
                         return;
                     }
                     var processingItems = getLiveUpdateProcessingItems();
