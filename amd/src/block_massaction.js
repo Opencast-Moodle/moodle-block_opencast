@@ -55,7 +55,9 @@ export const init = (courseid, ocinstanceid, selectors) => {
             const populatedselector = `${selectors.dropdown}:not(#${id})`;
             const otherdropdowns = [...document.querySelectorAll(populatedselector)];
             if (otherdropdowns.length) {
-                otherdropdowns.forEach(otherdropdown => otherdropdown.value = action);
+                otherdropdowns.forEach(otherdropdown => {
+                    otherdropdown.value = action;
+                });
             }
 
             if (action === '') {
