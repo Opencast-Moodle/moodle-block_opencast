@@ -38,7 +38,7 @@ $redirectpage = optional_param('redirectpage', null, PARAM_ALPHA);
 $series = optional_param('series', null, PARAM_ALPHANUMEXT);
 
 $baseurl = new moodle_url('/blocks/opencast/deleteevent_massaction.php',
-    ['identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
         'redirectpage' => $redirectpage, 'series' => $series, ]);
 $PAGE->set_url($baseurl);
 

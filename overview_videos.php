@@ -166,7 +166,7 @@ $headers = ['owner', 'video', 'embeddedasactivity', 'embeddedasactivitywolink', 
 $massaction = new massaction_helper();
 // Mass-Action configuration for update metadata.
 if (!$hasaddvideopermission) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
 } else {
     // When it is offered, we add extra parameters.
     $massaction->set_action_path_parameter(massaction_helper::MASSACTION_UPDATEMETADATA, 'redirectpage', 'overviewvideos');
@@ -175,7 +175,7 @@ if (!$hasaddvideopermission) {
 
 // Mass-Action configuration for delete.
 if (!$hasdeletepermission) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_DELETE, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_DELETE, false);
 } else {
     // When it is offered, we add extra parameters.
     $massaction->set_action_path_parameter(massaction_helper::MASSACTION_DELETE, 'redirectpage', 'overviewvideos');
@@ -183,8 +183,8 @@ if (!$hasdeletepermission) {
 }
 
 // No visiblity change and no strat workflow is allowed from overview page!
-$massaction->massaction_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
-$massaction->massaction_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
+$massaction->massaction_action_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
+$massaction->massaction_action_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
 
 // We add the select columns and headers into the beginning of the headers and columns arrays, when mass actions are there!
 if ($massaction->has_massactions()) {

@@ -175,22 +175,22 @@ $massaction = new massaction_helper();
 
 // Mass-Action configuration for update metadata.
 if (!$apibridge->can_update_metadata_massaction($courseid)) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
 }
 
 // Mass-Action configuration for delete.
 if (!$apibridge->can_delete_massaction($courseid)) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_DELETE, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_DELETE, false);
 }
 
 // Mass-Action configuration for change visibility.
 if (!$apibridge->can_change_visibility_massaction($courseid) || !$toggleaclroles) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
 }
 
 // Mass-Action configuration for start workflow.
 if (!$apibridge->can_start_workflow_massaction($courseid) || !$workflowsavailable) {
-    $massaction->massaction_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
 }
 
 // We add the select columns and headers into the beginning of the headers and columns arrays, when mass actions are there!
@@ -200,6 +200,12 @@ if ($massaction->has_massactions()) {
 }
 
 foreach ($headers as $i => $header) {
+    // Take care of selectall at first.
+    if ($header == 'selectall') {
+        $headers[$i] = $massaction->render_master_checkbox();
+        continue;
+    }
+
     if (!empty($header)) {
         $headers[$i] = get_string('h' . $header, 'block_opencast');
     } else {
@@ -218,10 +224,6 @@ foreach ($headers as $i => $header) {
         // Render from the template to show Status legend.
         $legendicon = $renderer->render_from_template('block_opencast/table_legend_help_icon', $context);
         $headers[$i] .= $legendicon;
-    }
-
-    if ($header == 'selectall') {
-        $headers[$i] = $massaction->render_master_checkbox();
     }
 }
 

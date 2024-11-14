@@ -148,8 +148,12 @@ class massaction_helper {
             'classes' => self::CHECKBOX_SELECTALL_CLASSNAME,
             'id' => self::CHECKBOX_SELECTALL_ID,
             'name' => self::CHECKBOX_SELECTALL_ID,
-            'label' => get_string('select'),
-            'labelclasses' => 'accesshide',
+            'label' => get_string('selectall'),
+            // Consistent label to prevent unwanted text change when we automatically uncheck.
+            'selectall' => get_string('selectall'),
+            'deselectall' => get_string('selectall'),
+            // We need the classes specially for behat test to pickup the checkbox.
+            'labelclasses' => 'form-check-label d-block pe-2 sr-only',
         ]);
         return $OUTPUT->render($mastercheckbox);
     }
@@ -191,8 +195,10 @@ class massaction_helper {
                 'id' => 'ocvideo' . $video->identifier,
                 'name' => 'ocvideo' . $video->title,
                 'checked' => false,
-                'label' => get_string('select'),
-                'labelclasses' => 'accesshide',
+                // For behat tests to pickup the checkbox easier, we provide the title as well.
+                'label' => get_string('select') . ' ' . $video->title,
+                // We need the classes specially for behat test to pickup the checkbox.
+                'labelclasses' => 'form-check-label d-block pe-2 sr-only',
             ];
             $checkbox = new \core\output\checkbox_toggleall(self::TOGGLE_GROUP_NAME, false, $selectableattributes);
             $checkboxhtml = $OUTPUT->render($checkbox);
@@ -292,7 +298,7 @@ class massaction_helper {
      * @param bool $enable Whether the mass action should be enabled (true) or disabled (false). Default is true.
      *
      */
-    public function massaction_activation($item, $enable = true) {
+    public function massaction_action_activation($item, $enable = true) {
         if (isset($this->massactions[$item])) {
             $this->massactions[$item]['enable'] = $enable;
         }

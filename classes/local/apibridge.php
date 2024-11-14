@@ -3083,6 +3083,7 @@ class apibridge {
 
     /**
      * Checks if the user has the capability to update metadata for multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
      *
      * @param int $courseid The ID of the course.
      *
@@ -3095,6 +3096,7 @@ class apibridge {
 
     /**
      * Checks if the user has the capability to delete multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
      *
      * @param int $courseid The ID of the course.
      *
@@ -3107,6 +3109,7 @@ class apibridge {
 
     /**
      * Checks if the user has the capability to change the visibility of multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
      *
      * @param int $courseid The ID of the course.
      *
@@ -3119,6 +3122,7 @@ class apibridge {
 
     /**
      * Checks if the user has the capability to start workflows for multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
      *
      * @param int $courseid The ID of the course.
      *
