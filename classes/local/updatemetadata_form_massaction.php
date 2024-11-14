@@ -109,7 +109,6 @@ class updatemetadata_form_massaction extends moodleform {
                 });
             }
 
-
             $element = $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
 

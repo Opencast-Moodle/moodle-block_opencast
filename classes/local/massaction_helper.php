@@ -227,7 +227,7 @@ class massaction_helper {
             get_string('videostablemassaction_label', 'block_opencast'),
             $id,
             false,
-            ['class' => 'mr-3', ],
+            ['class' => 'mr-3'],
         );
 
         $enabledmassactions = array_filter($this->massactions, function ($item) {
