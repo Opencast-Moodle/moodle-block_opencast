@@ -548,4 +548,27 @@ class visibility_helper {
         $visibility = $DB->get_record_sql($sql, $params);
         return !empty($visibility) ? $visibility : null;
     }
+
+    /**
+     * Returns the legend for the visibility status based on the given status code.
+     *
+     * @param int $statuscode The status code for the visibility.
+     *
+     * @return array An array containing the legend title and description.
+     */
+    public static function get_visibility_status_legend(int $statuscode): array {
+        $vkey = 'visible';
+        if ($statuscode == block_opencast_renderer::HIDDEN) {
+            $vkey = 'hidden';
+        } else if ($statuscode == block_opencast_renderer::GROUP) {
+            $vkey = 'group';
+        } else if ($statuscode == block_opencast_renderer::MIXED_VISIBILITY) {
+            $vkey = 'mixed';
+        }
+
+        return [
+            get_string('legendvisibility_' . $vkey, 'block_opencast'),
+            get_string('legendvisibility_' . $vkey . 'desc', 'block_opencast'),
+        ];
+    }
 }

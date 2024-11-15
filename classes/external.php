@@ -410,7 +410,7 @@ class block_opencast_external extends external_api {
         // Force to have replace and remove params, otherwise empty must be returned.
         if (!isset($liveupdateinfo['replace']) || !isset($liveupdateinfo['remove'])) {
             // Returning empty string helps to remove the item in the javascript, that results in cleaning the interval.
-            $liveupdateinfo = '';
+            return '';
         }
 
         // Finally, we return info as json encoded string.
