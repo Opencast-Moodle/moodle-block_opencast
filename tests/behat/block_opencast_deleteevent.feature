@@ -33,7 +33,7 @@ Feature: Delete videos
   @javascript
   Scenario: A teacher should be able to delete a video
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash-can" "css_element"
     And I click on "Delete video permanently" "button"
     Then I should see "The video will be deleted shortly"
 
@@ -43,6 +43,6 @@ Feature: Delete videos
       | config           | value  | plugin         |
       | deleteworkflow_1 | delete | block_opencast |
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash-can" "css_element"
     And I click on "Delete video permanently" "button"
     Then I should see "The video will be deleted shortly"

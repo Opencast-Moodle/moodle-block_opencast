@@ -38,7 +38,7 @@ Feature: Delete draft
     And I upload "blocks/opencast/tests/fixtures/test.mp4" file to "Presenter video" filemanager
     And I click on "Add video" "button"
     Then I should see "test.mp4"
-    When I click on ".generaltable i.fa-trash" "css_element"
+    When I click on ".generaltable i.fa-trash-can" "css_element"
     Then I should see "Delete video before transfer to Opencast"
     And I click on "Continue" "button"
     Then I should see "The video is deleted successfully"

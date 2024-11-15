@@ -117,6 +117,7 @@ class setting_helper {
             $ocinstanceid = intval(ltrim($section ?? '', 'block_opencast_importvideossettings_'));
         }
 
+        $ocinstanceid = $ocinstanceid == 0 ? 1 : $ocinstanceid;
         // Do only if a workflow was set.
         if (!empty($data)) {
             $roles = json_decode(get_config('block_opencast', 'roles_' . $ocinstanceid));
