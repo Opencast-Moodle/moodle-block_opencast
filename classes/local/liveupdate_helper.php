@@ -128,7 +128,8 @@ class liveupdate_helper {
         $info['replace'] = $status;
         // We pass remove param, to decide whether to continue checking that item or not.
         $remove = false;
-        if ($uploadjob->status == upload_helper::STATUS_TRANSFERRED) {
+        if ($uploadjob->status == upload_helper::STATUS_TRANSFERRED ||
+            $uploadjob->status == upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD) {
             // We remove the item from live update when the upload is transferred.
             $remove = true;
         }
