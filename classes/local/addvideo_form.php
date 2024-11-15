@@ -61,6 +61,7 @@ class addvideo_form extends moodleform {
         $ocinstanceid = $this->_customdata['ocinstanceid'];
         $apibridge = apibridge::get_instance($ocinstanceid);
         $eventdefaults = $this->_customdata['eventdefaults'];
+        $wfconfighelper = workflowconfiguration_helper::get_instance($ocinstanceid);
 
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
             && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
@@ -307,6 +308,22 @@ class addvideo_form extends moodleform {
                     $mform->hideIf('scheduledvisibilitygroups', 'enableschedulingchangevisibility', 'notchecked');
                 }
             }
+        }
+
+        // Offering workflow configuration panel settings.
+        if ($wfconfighelper->can_provide_configuration_panel()) {
+            $mform->closeHeaderBefore('configurationpanel_header');
+            $mform->addElement('header', 'configurationpanel_header', get_string('configurationpanel_header', 'block_opencast'));
+            $mform->setExpanded('configurationpanel_header', true);
+
+            $configpanelexplanation = html_writer::tag('p', get_string('configurationpanelheader_explanation', 'block_opencast'));
+            $mform->addElement('html', $configpanelexplanation);
+
+            $renderer->render_configuration_panel_form_elements(
+                $mform,
+                $wfconfighelper->get_upload_workflow_configuration_panel(),
+                $wfconfighelper->get_allowed_upload_configurations()
+            );
         }
 
         $mform->closeHeaderBefore('upload_filepicker');

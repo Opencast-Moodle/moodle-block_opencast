@@ -153,8 +153,10 @@ class upload_helper {
      * @param int $courseid Course id
      * @param object $options Options
      * @param object $visibility Visibility object
+     * @param string $workflowconfiguration Workflow configuration
      */
-    public static function save_upload_jobs($ocinstanceid, $courseid, $options, $visibility = null) {
+    public static function save_upload_jobs($ocinstanceid, $courseid, $options, $visibility = null,
+                                            $workflowconfiguration = null) {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -224,6 +226,12 @@ class upload_helper {
         $job->timecreated = time();
         $job->timemodified = $job->timecreated;
         $job->ocinstanceid = $ocinstanceid;
+
+        // Add workflow processing data to the uploadjob as json string.
+        if (!empty($workflowconfiguration)) {
+            $job->workflowconfiguration = $workflowconfiguration;
+        }
+
         $uploadjobid = $DB->insert_record('block_opencast_uploadjob', $job);
 
         $options->uploadjobid = $uploadjobid;
@@ -605,6 +613,7 @@ class upload_helper {
                 if ($event) {
                     $stepsuccessful = true;
                     $job->opencasteventid = $event->identifier;
+                    $job->workflowid = (int) $event->workflowid;
                     $DB->update_record('block_opencast_uploadjob', $job);
                 }
                 break;

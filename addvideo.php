@@ -28,6 +28,8 @@ use block_opencast\local\file_deletionmanager;
 use block_opencast\local\upload_helper;
 use core\output\notification;
 use tool_opencast\local\settings_api;
+use block_opencast\local\workflowconfiguration_helper;
+
 require_once('../../config.php');
 
 global $PAGE, $OUTPUT, $CFG, $USER, $SITE, $DB;
@@ -268,8 +270,15 @@ if ($data = $addvideoform->get_data()) {
             json_encode($data->scheduledvisibilitygroups) : null;
     }
 
+    // Prepare user defined workflow configurations if enabled and exist.
+    $workflowconfiguration = null;
+    $wfconfighelper = workflowconfiguration_helper::get_instance($ocinstanceid);
+    if ($configpaneldata = $wfconfighelper->get_userdefined_configuration_data($data)) {
+        $workflowconfiguration = json_encode($configpaneldata);
+    }
+
     // Update all upload jobs.
-    upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility);
+    upload_helper::save_upload_jobs($ocinstanceid, $courseid, $options, $visibility, $workflowconfiguration);
     redirect($redirecturl, get_string('uploadjobssaved', 'block_opencast'), null, notification::NOTIFY_SUCCESS);
 }
 
