@@ -44,7 +44,7 @@ Feature: Check and set autocompletion suggestions
   @javascript
   Scenario: Autocomplete suggestions for Presentors must be extracted from the access capabilities and only show teacher and editingteacher enroled users.
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .c3 .action-menu a" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .cell .action-menu a" "css_element"
     And I click on "Update metadata" "link"
     Then I should see "Update metadata"
     When I expand the "Presenter(s)" autocomplete

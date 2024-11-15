@@ -14,19 +14,20 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
       | teacher1 | C1     | editingteacher |
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
-      | config              | value                                                                            | plugin         |
-      | apiurl_1            | http://testapi:8080                                                              | tool_opencast  |
-      | apipassword_1       | opencast                                                                         | tool_opencast  |
-      | apiusername_1       | admin                                                                            | tool_opencast  |
-      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}]                    | tool_opencast  |
-      | limituploadjobs_1   | 0                                                                                | block_opencast |
-      | group_creation_1    | 0                                                                                | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                                         | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                                         | block_opencast |
-      | enablechunkupload_1 | 0                                                                                | block_opencast |
-      | workflow_roles_1    | republish-metadata                                                               | block_opencast |
+      | config              | value                                                                                   | plugin         |
+      | apiurl_1            | http://testapi:8080                                                                     | tool_opencast  |
+      | apipassword_1       | opencast                                                                                | tool_opencast  |
+      | apiusername_1       | admin                                                                                   | tool_opencast  |
+      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}]                           | tool_opencast  |
+      | limituploadjobs_1   | 0                                                                                       | block_opencast |
+      | group_creation_1    | 0                                                                                       | block_opencast |
+      | group_name_1        | Moodle_course_[COURSEID]                                                                | block_opencast |
+      | series_name_1       | Course_Series_[COURSEID]                                                                | block_opencast |
+      | enablechunkupload_1 | 0                                                                                       | block_opencast |
+      | workflow_roles_1    | republish-metadata                                                                      | block_opencast |
+      | aclcontrolafter_1   | 1                                                                                       | block_opencast |
       | metadata_1          | [{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":null}] | block_opencast |
-      | workflow_tags_1     | archive                                                                          | block_opencast |
+      | workflow_tags_1     | archive                                                                                 | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "teacher1"
@@ -114,7 +115,7 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
     When I click on "Start workflow" "button"
     And I wait "2" seconds
     Then I should see "Workflow has been successfully started for the selected videos:"
-    # Testing start workflow.
+    # Testing Change Visibility.
     When I click on "Select all" "checkbox"
     And I select "Change Visibility" from the "With Selected Videos..." singleselect
     Then I should see "Are you sure you want to perform visibility change on the following selected videos:"
