@@ -625,7 +625,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      *
      * @param int $ocinstanceid Opencast instance id.
      * @param array $uploadjobs array of uploadjob objects
-     * @param bool $showactionbuttons shows a delete button in the last column
+     * @param bool $showactionbuttons A flag indicating whether to show action buttons.
      * @param string $redirectpage
      * @param string $seriesid
      * @return string
