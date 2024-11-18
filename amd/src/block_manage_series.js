@@ -89,9 +89,11 @@ function submitFormAjax(e) {
         args: {contextid: contextid, ocinstanceid: e.data.ocinstanceid, seriesid: e.data.seriesid, jsonformdata: formData},
         done: function(newseries) {
             modal.destroy();
+            var stringkey = 'createseriesforcourse_succeeded';
             if (edited) {
                 let row = seriestable.getRows().find(r => r.getData().series === e.data.seriesid);
                 row.update({"seriesname": seriestitle});
+                stringkey = 'editseries_succeeded';
             } else {
                 var s = JSON.parse(newseries);
                 seriestable.addRow({'seriesname': s.seriestitle, 'series': s.series, 'isdefault': s.isdefault});
@@ -100,7 +102,17 @@ function submitFormAjax(e) {
                     $("#createseries")?.hide();
                     $("#importseries")?.hide();
                 }
+
             }
+            // We now notify the user about the successful series creation or edit.
+            str.get_string(stringkey, 'block_opencast')
+                .done(function(result) {
+                    Notification.addNotification({
+                        message: result,
+                        type: 'success'
+                    });
+                })
+                .fail(Notification.exception);
         },
         fail: function(er) {
             if (er.errorcode === 'metadataseriesupdatefailed') {
@@ -189,7 +201,12 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
         {key: 'importfailed', component: 'block_opencast'},
         {key: 'form_seriesid', component: 'block_opencast'},
         {key: 'setdefaultseries_heading', component: 'block_opencast'},
-        {key: 'setdefaultseries', component: 'block_opencast'}
+        {key: 'setdefaultseries', component: 'block_opencast'},
+        {key: 'setdefaultseriessucceeded', component: 'block_opencast'},
+        {key: 'cantdeletedefaultseries_modaltitle', component: 'block_opencast'},
+        {key: 'cantdeletedefaultseries', component: 'block_opencast'},
+        {key: 'delete_series_succeeded', component: 'block_opencast'},
+        {key: 'importseries_succeeded', component: 'block_opencast'},
     ];
     str.get_strings(strings).then(function(jsstrings) {
         // Style hidden input.
@@ -215,8 +232,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                         input.name = 'defaultseries';
                         input.checked = cell.getValue();
                         input.classList.add('ignoredirty');
-                        input.addEventListener('click', function(e) {
-                            e.preventDefault();
+                        input.addEventListener('change', function(e) {
                             ModalFactory.create({
                                 type: ModalFactory.types.SAVE_CANCEL,
                                 title: jsstrings[13],
@@ -240,6 +256,11 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                                     } else {
                                                         row.update({'isdefault': 0});
                                                     }
+                                                });
+                                                // We now notify the user about the successful update.
+                                                Notification.addNotification({
+                                                    message: jsstrings[15],
+                                                    type: 'success'
                                                 });
                                             },
                                             fail: function(e) {
@@ -304,6 +325,11 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
                     cellClick: function(e, cell) {
+                        // We prevent default series deletion at js level as well.
+                        if (cell.getRow().getData().isdefault === 1) {
+                            Notification.alert(jsstrings[16], jsstrings[17]);
+                            return;
+                        }
                         ModalFactory.create({
                             type: ModalFactory.types.SAVE_CANCEL,
                             title: jsstrings[5],
@@ -329,6 +355,11 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                                 createseries?.removeClass('d-none');
                                                 importseries?.show();
                                                 importseries?.removeClass('d-none');
+                                                // We now notify the user about the successful deletion.
+                                                Notification.addNotification({
+                                                    message: jsstrings[18],
+                                                    type: 'success'
+                                                });
                                             }
                                         },
                                         fail: function(e) {
@@ -434,11 +465,21 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                                         $("#createseries")?.hide();
                                         $("#importseries")?.hide();
                                     }
+
+                                    // We now notify the user about the successful series import.
+                                    Notification.addNotification({
+                                        message: jsstrings[19],
+                                        type: 'success'
+                                    });
                                 }
                             },
-                            fail: function() {
+                            fail: function(er) {
                                 modal.destroy();
-                                displayError(jsstrings[11]);
+                                var message = jsstrings[11];
+                                if (er.errorcode === 'importseries_alreadyexists') {
+                                    message = er.message;
+                                }
+                                displayError(message);
                             }
                         }]);
                     });
