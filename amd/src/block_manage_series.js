@@ -232,7 +232,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                         input.name = 'defaultseries';
                         input.checked = cell.getValue();
                         input.classList.add('ignoredirty');
-                        input.addEventListener('change', function(e) {
+                        input.addEventListener('change', function() {
                             ModalFactory.create({
                                 type: ModalFactory.types.SAVE_CANCEL,
                                 title: jsstrings[13],
