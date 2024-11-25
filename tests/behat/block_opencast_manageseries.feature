@@ -45,9 +45,8 @@ Feature: Manage series as Teacher
     And I set the field "Rights" to "Some user"
     And I select "ALLRIGHTS" from the "License" singleselect
     And I click on "Create new series" "button" in the ".modal" "css_element"
-    And I wait "2" seconds
-    Then I should see "My new series"
-    And I should see "84bab8de-5688-46a1-9af0-5ce9122eeb6a"
+    And I wait "1" seconds
+    Then I should see "A new series has been successfully created."
 
   @javascript
   Scenario: Teachers should be able to edit an existing series
@@ -60,9 +59,8 @@ Feature: Manage series as Teacher
     And I set the field "Rights" to "Some user"
     And I select "ALLRIGHTS" from the "License" singleselect
     And I click on "Edit series" "button"
-    And I wait "2" seconds
-    Then I should not see "Updating the series metadata failed"
-    And I should see "Another series title"
+    And I wait "1" seconds
+    Then I should see "The series has been successfully updated."
 
   @javascript
   Scenario: Teachers should not be able to create/import series if the maximum number of series is reached
@@ -75,36 +73,45 @@ Feature: Manage series as Teacher
     And I should not see "Import series"
 
   @javascript
-  Scenario: Teachers should not be able to select a different default series
+  Scenario: Teachers should be able to select a different default series
     Given I create a second series
     When I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
     And I click on ".tabulator-row-even input[name=\"defaultseries\"]" "css_element"
     Then I should see "Do you really want to use this series as new default series"
     When I click on "Save changes" "button"
-    And I wait "2" seconds
-    Then I should not see "Changing the default series failed"
+    And I wait "1" seconds
+    Then I should see "The default series has been successfully changed."
 
   @javascript
-  Scenario: Teachers should be able to delete a series
+  Scenario: Teachers should be able to delete a series but should not be able to delete the default series
     Given I create a second series
     When I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
     And I click on ".tabulator-row-even i.fa-trash" "css_element"
     Then I should see "Are you sure you want to delete this series"
     When I click on "Delete" "button" in the ".modal" "css_element"
-    And I wait "2" seconds
-    Then I should not see "Another series"
+    And I wait "1" seconds
+    Then I should see "The series has been successfully deleted."
+    When I click on ".tabulator-row-odd i.fa-trash" "css_element"
+    Then I should see "Cannot Delete Default Series"
+    When I click on "OK" "button" in the ".modal" "css_element"
+    Then I should see "1234-1234-1234-1234-1234"
 
   @javascript
-  Scenario: Teachers should be able to import a series
+  Scenario: Teachers should be able to import a series but should not be able to import a series twice
     When I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
     And I click on "Import series" "button"
     And I set the field "Series ID" to "1111-1111-1111-1111-1111"
     And I click on "Import series" "button" in the ".modal" "css_element"
-    And I wait "2" seconds
-    Then I should not see "The series could not be imported"
+    And I wait "1" seconds
+    Then I should see "The series has been successfully imported."
+    When I click on "Import series" "button"
+    And I set the field "Series ID" to "1111-1111-1111-1111-1111"
+    And I click on "Import series" "button" in the ".modal" "css_element"
+    And I wait "1" seconds
+    Then I should see "The series you are trying to import is already present. Please choose a different series."
 
   @javascript
   Scenario: When manually deleting a block, teacher will be asked to decide whether to delete seriesmapping in a confirmation.
