@@ -782,6 +782,21 @@ class upload_helper {
     }
 
     /**
+     * Gets the catalog of metadata fields from database for mass action.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @return array the metadata catalog array of stdClasses for mass action or empty array.
+     */
+    public static function get_opencast_metadata_catalog_massaction(int $ocinstanceid): array {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        // As for mass action we don't need the single title catalog.
+        $massactionmetadatacatalog = array_filter($metadatacatalog, function ($metadata) {
+            return $metadata->name !== 'title';
+        });
+        return !empty($massactionmetadatacatalog) ? $massactionmetadatacatalog : [];
+    }
+
+    /**
      * Ensures that the series exists.
      * @param stdClass $job
      * @param object $apibridge
