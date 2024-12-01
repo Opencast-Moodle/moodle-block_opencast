@@ -261,6 +261,16 @@ class block_opencast_external extends external_api {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 
+        // Check if the series id already exists in this course.
+        $importingseriesid = $params['seriesid'];
+        $existingseries = array_filter($courseseries, function ($courseserie) use ($importingseriesid) {
+            return $courseserie->series === $importingseriesid;
+        });
+
+        if (count($existingseries) > 0) {
+            throw new moodle_exception('importseries_alreadyexists', 'block_opencast');
+        }
+
         // Perform ACL change.
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
         $result = $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
@@ -293,20 +303,36 @@ class block_opencast_external extends external_api {
             'seriesid' => $series,
         ]);
 
+        $unlinkall = $params['seriesid'] === 'all';
+
         $context = context::instance_by_id($params['contextid']);
         self::validate_context($context);
         require_capability('block/opencast:manageseriesforcourse', $context);
 
         list($unused, $course, $cm) = get_context_info_array($context->id);
 
-        if ($params['seriesid'] === 'all') {
+        // In case the request comes from block deletion remove all mappings.
+        if ($unlinkall) {
             $mappings = seriesmapping::get_records(['courseid' => $course->id]);
         } else {
+            // Otherwise, the request comes from normal series deletion page.
             $mappings = seriesmapping::get_records(['ocinstanceid' => $params['ocinstanceid'], 'courseid' => $course->id,
                     'series' => $params['seriesid']]);
         }
 
         foreach ($mappings as $mapping) {
+            $isdefault = $mapping->get('isdefault');
+            // We need to check the uniqueness of the mapping record when it is a single mapping removal.
+            if ($isdefault && !$unlinkall) {
+                // Prevent deletion of default series.
+                // By checking the number of default series,
+                // it is still possible to correct the faulty scenario of having multi-default series in a course.
+                if (seriesmapping::count_records(['ocinstanceid' => $params['ocinstanceid'],
+                        'courseid' => $course->id, 'isdefault' => true, ]) === 1) {
+                    throw new moodle_exception('cantdeletedefaultseries', 'block_opencast');
+                }
+            }
+
             if (!$mapping->delete()) {
                 throw new moodle_exception('delete_series_failed', 'block_opencast');
             }
@@ -349,7 +375,9 @@ class block_opencast_external extends external_api {
             'courseid' => $course->id, 'isdefault' => true, ]);
 
         // Series is already set as default.
-        if ($olddefaultseries->get('series') == $params['seriesid']) {
+        // We provide an exception here to fix the problem of having a course with no default series, which should not happen,
+        // by letting it pass through when the old default does not exist.
+        if (!empty($olddefaultseries) && $olddefaultseries->get('series') == $params['seriesid']) {
             return true;
         }
 
@@ -357,16 +385,20 @@ class block_opencast_external extends external_api {
         $mapping = seriesmapping::get_record(['ocinstanceid' => $params['ocinstanceid'],
             'courseid' => $course->id, 'series' => $params['seriesid'], ], true);
 
-        if ($mapping) {
+        // Remove default flag from old series first.
+        $canbeupdated = empty($olddefaultseries);
+        if (!empty($olddefaultseries)) {
+            $olddefaultseries->set('isdefault', false);
+            if ($olddefaultseries->update()) {
+                $canbeupdated = true;
+            }
+        }
+
+        // Now, we go for the actual update.
+        if ($canbeupdated && $mapping) {
             $mapping->set('isdefault', true);
             if ($mapping->update()) {
-                // Remove default flag from old series.
-                if ($olddefaultseries) {
-                    $olddefaultseries->set('isdefault', false);
-                    if ($olddefaultseries->update()) {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
 
