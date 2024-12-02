@@ -148,8 +148,6 @@ class updatemetadata_form_massaction extends moodleform {
 
             if ($field->readonly) {
                 $mform->freeze($field->name);
-            } else if ($field->required) {
-                $mform->addRule($field->name, get_string('required'), 'required');
             }
         }
 

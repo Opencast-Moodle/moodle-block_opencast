@@ -36,6 +36,7 @@ $courseid = required_param('courseid', PARAM_INT);
 $workflow = required_param('workflow', PARAM_ALPHANUMEXT);
 $configparams = required_param('configparams', PARAM_RAW);
 $ocinstanceid = optional_param('ocinstanceid', settings_api::get_default_ocinstance()->id, PARAM_INT);
+$seriesid = optional_param('seriesid', null, PARAM_ALPHANUMEXT);
 
 $redirecturl = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
@@ -47,7 +48,20 @@ require_capability('block/opencast:startworkflow', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 
-$seriesid = $apibridge->get_default_course_series($courseid);
+$series = null;
+if (!empty($seriesid)) {
+    $series = $apibridge->get_series_by_identifier($seriesid);
+} else {
+    $series = $apibridge->get_default_course_series($courseid);
+}
+
+if (empty($series)) {
+    redirect($redirecturl,
+        get_string('noseriesfound', 'block_opencast'),
+        null,
+        notification::NOTIFY_ERROR);
+}
+
 $apiworkflow = $apibridge->get_workflow_definition($workflow);
 
 // Apply multiple tags.
@@ -64,8 +78,6 @@ if (!$apiworkflow || empty(array_intersect($apiworkflow->tags, $workflowtags))) 
         notification::NOTIFY_ERROR);
 }
 
-$seriesid = $apibridge->get_default_course_series($courseid);
-
 $failed = [];
 $succeeded = [];
 
@@ -73,7 +85,7 @@ foreach ($videoids as $videoid) {
     $video = $apibridge->get_opencast_video($videoid);
     $stringobj = new stdClass();
     $stringobj->name = $video->video->title;
-    if ($seriesid->identifier != $video->video->is_part_of) {
+    if ($series->identifier != $video->video->is_part_of) {
         $stringobj->reason = get_string('video_notallowed', 'block_opencast');
         $failed[] = get_string('videostablemassaction_notification_reasoning', 'block_opencast', $stringobj);
         continue;

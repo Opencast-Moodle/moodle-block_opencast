@@ -78,8 +78,16 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                     });
                     var ismassaction = false;
                     var bulkinfodiv = '';
-                    if (detail?.type === 'bulk' && detail?.selectedids) {
+                    var massactioncontainer = null;
+                    if (detail?.type === 'bulk' && detail?.selectedids && detail?.container) {
                         ismassaction = true;
+                        massactioncontainer = detail.container;
+                        const table = massactioncontainer.querySelector('table.opencast-videos-table');
+                        const tableid = table?.id;
+                        let seriesid = '';
+                        if (tableid) {
+                            seriesid = tableid.replace('opencast-videos-table-', '');
+                        }
                         bulkinfodiv = '<div id="bulkinfodiv" class="w-100 mb-1">';
                         bulkinfodiv += '<p>' + langstrings[9].replace('{$a}', detail.selectedtitles.join('</li><li>')) + '</p>';
                         bulkinfodiv += '</div>';
@@ -89,7 +97,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         bulkinfodiv += '<input type="hidden" name="ismassaction" value="1">';
                         actionurl = url.relativeUrl(detail.url, {
                             'ocinstanceid': ocinstanceid,
-                            'courseid': courseid
+                            'courseid': courseid,
+                            'seriesid': seriesid
                         });
                     }
 
@@ -156,7 +165,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 // Destroy when hidden/closed.
                                 modal.destroy();
                                 // Change the bulk action select back to choose...
-                                resetVideosTableBulkActions();
+                                resetVideosTableBulkActions(massactioncontainer);
                             });
 
                             // Show description for initial value.
@@ -481,13 +490,20 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             });
         };
 
-        /*
-         * Resets the bulk action select dropdowns and unchecks the select items.
+        /**
+         * Resets the bulk action select dropdowns.
+         * @param {object} container The wrapper container which contains the dropdowns, table and selection items of massaction.
+         * @param {boolean} disabled a flag to set the dropdown attribute upon using the function (default to false).
          */
-        var resetVideosTableBulkActions = function () {
-            $('.opencast-videos-table-massactions').val('');
-            $('.opencast-videos-table-massactions').attr('disabled', true);
-            $('input.opencast-videos-selectall, input.opencast-video-select').prop('checked', false);
+        var resetVideosTableBulkActions = function (container, disabled = false) {
+            if (!container) {
+                return;
+            }
+            const dropdowns = [...container.querySelectorAll('.opencast-videos-table-massactions')];
+            dropdowns.forEach(dropdown => {
+                dropdown.value = '';
+                dropdown.disabled = disabled;
+            });
         };
 
         /*

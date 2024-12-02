@@ -40,10 +40,16 @@ import url from 'core/url';
  * @param {string} selectors.selectitem - Selector for the checkbox elements to select individual videos.
  * @param {string} selectors.actionmapping - Selector for the element containing action mapping data.
  * @param {string} selectors.selectall - Selector for the "select all" checkbox.
+ * @param {string} selectors.container - Selector for the table wrapper container div,
+ *                                      which should also contains the massaction dropdowns.
  * @returns {void} This function does not return a value.
  */
 export const init = (courseid, ocinstanceid, selectors) => {
 
+    // Fix toggle group data for mass action elements.
+    fixToggleGroups(selectors);
+
+    // Loop through dropdowns.
     const dropdowns = [...document.querySelectorAll(selectors.dropdown)];
     dropdowns.forEach(dropdown => {
         dropdown.addEventListener('change', e => {
@@ -52,8 +58,13 @@ export const init = (courseid, ocinstanceid, selectors) => {
             const action = element.value;
 
             // Make sure other bulk select get the same value.
+            const parentcontainer = element.closest(selectors.container);
+            let container = document;
+            if (parentcontainer) {
+                container = parentcontainer;
+            }
             const populatedselector = `${selectors.dropdown}:not(#${id})`;
-            const otherdropdowns = [...document.querySelectorAll(populatedselector)];
+            const otherdropdowns = [...container.querySelectorAll(populatedselector)];
             if (otherdropdowns.length) {
                 otherdropdowns.forEach(otherdropdown => {
                     otherdropdown.value = action;
@@ -64,14 +75,14 @@ export const init = (courseid, ocinstanceid, selectors) => {
                 return;
             }
 
-            const selectedvideos = [...document.querySelectorAll(`${selectors.selectitem}:checked`)];
+            const selectedvideos = [...container.querySelectorAll(`${selectors.selectitem}:checked`)];
             if (!selectedvideos.length) {
                 return;
             }
             const selectedids = selectedvideos.map(element => element.id.substring(7));
             const selectedtitles = selectedvideos.map(element => element.name.substring(7));
 
-            const actionsmappinginput = document.getElementById(selectors.actionmapping);
+            const actionsmappinginput = container.querySelector(`input[name=${selectors.actionmapping}]`);
             const actionsmappingraw = actionsmappinginput ? actionsmappinginput.value : null;
             if (actionsmappingraw === null) {
                 return;
@@ -90,12 +101,13 @@ export const init = (courseid, ocinstanceid, selectors) => {
                     type: 'bulk',
                     selectedids: selectedids,
                     selectedtitles: selectedtitles,
-                    url: actionsmapping[action].path.url
+                    url: actionsmapping[action].path.url,
+                    container: container
                 };
 
                 // Create and dispatch the custom event on start-workflow element with detail data.
                 const event = new CustomEvent('click', {detail: data});
-                document.querySelector('.start-workflow').dispatchEvent(event);
+                container.querySelector('.start-workflow').dispatchEvent(event);
                 return; // We stop the function here!
             }
 
@@ -153,7 +165,7 @@ export const init = (courseid, ocinstanceid, selectors) => {
                     // Destroy when hidden/closed.
                     modal.destroy();
                     // Change the bulk action select back to choose...
-                    resetVideosTableBulkActions(selectors);
+                    resetVideosTableBulkActions(selectors, container);
                 });
                 modal.show();
                 return modal;
@@ -163,8 +175,32 @@ export const init = (courseid, ocinstanceid, selectors) => {
 };
 
 /**
- * Resets the bulk action select dropdowns and unchecks the select items.
+ * Resets the bulk action select dropdowns.
  * This function is called when the modal is hidden/closed.
+ *
+ * @param {Object} selectors - An object containing CSS/Id selectors for various elements.
+ * @param {string} selectors.dropdown - Selector for the action dropdown elements.
+ * @param {string} selectors.selectitem - Selector for the checkbox elements to select individual videos.
+ * @param {string} selectors.actionmapping - Selector for the element containing action mapping data.
+ * @param {string} selectors.selectall - Selector for the "select all" checkbox.
+ * @param {Object} container - The container element as the parent element.
+ * @param {boolean} disabled a flag to set the dropdown attribute upon using the function (default to false).
+ * @returns {void} This function does not return a value.
+ */
+const resetVideosTableBulkActions = (selectors, container, disabled = false) => {
+    const dropdowns = [...container.querySelectorAll(selectors.dropdown)];
+    dropdowns.forEach(dropdown => {
+        dropdown.value = '';
+        dropdown.disabled = disabled;
+    });
+};
+
+/**
+ * Fixes the toggle groups for the selections.
+ * The main reason to do this here is to make sure that mass action feature works when multiple tables are in a page.
+ *
+ * This function looks for the table wrapper div container and takes its child table id and inject the id as tooglegroup data to
+ * the its child elements such as dropdowns select-all and select-single checkboxes.
  *
  * @param {Object} selectors - An object containing CSS/Id selectors for various elements.
  * @param {string} selectors.dropdown - Selector for the action dropdown elements.
@@ -173,15 +209,37 @@ export const init = (courseid, ocinstanceid, selectors) => {
  * @param {string} selectors.selectall - Selector for the "select all" checkbox.
  * @returns {void} This function does not return a value.
  */
-const resetVideosTableBulkActions = (selectors) => {
-    const dropdowns = [...document.querySelectorAll(selectors.dropdown)];
-    dropdowns.forEach(dropdown => {
-        dropdown.value = '';
-        dropdown.setAttribute('disabled', true);
-    });
+const fixToggleGroups = (selectors) => {
+    const containers = [...document.querySelectorAll(selectors.container)];
+    containers.forEach(container => {
+        // Take the table.
+        const table = container.querySelector('table.opencast-videos-table');
+        // Extract the table id.
+        const tableid = table?.id;
+        if (!tableid) {
+            // Do nothing if no table id found to avoid misleading errors.
+            return;
+        }
 
-    const ckinputs = [...document.querySelectorAll(`${selectors.selectall}, ${selectors.selectitem}`)];
-    ckinputs.forEach(input => {
-        input.checked = false;
+        // Find the dropdown children and adjust their togglegroup data.
+        const dropdowns = [...container.querySelectorAll(selectors.dropdown)];
+        dropdowns.forEach(dropdown => {
+            dropdown.dataset.togglegroup = tableid;
+            dropdown.setAttribute('data-togglegroup', tableid);
+        });
+
+        // Find the select-all checkbox child(ren) and adjust their togglegroup data.
+        const selectalls = [...container.querySelectorAll(selectors.selectall)];
+        selectalls.forEach(selectall => {
+            selectall.dataset.togglegroup = tableid;
+            selectall.setAttribute('data-togglegroup', tableid);
+        });
+
+        // Find the select-items checkbox children and adjust their togglegroup data.
+        const selectitems = [...container.querySelectorAll(selectors.selectitem)];
+        selectitems.forEach(selectitem => {
+            selectitem.dataset.togglegroup = tableid;
+            selectitem.setAttribute('data-togglegroup', tableid);
+        });
     });
 };

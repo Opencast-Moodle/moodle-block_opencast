@@ -421,9 +421,13 @@ foreach ($seriesvideodata as $series => $videodata) {
     }
 
     if ($videodata->error == 0) {
-        $table = $renderer->create_videos_tables('opencast-videos-table-' . $series, $headers, $columns, $baseurl);
+        $tableid = 'opencast-videos-table-' . $series;
+        $table = $renderer->create_videos_tables($tableid, $headers, $columns, $baseurl);
         $deletedvideos = $DB->get_records("block_opencast_deletejob", [], "", "opencasteventid");
         $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
+
+        // To store rows, and use them later, which gives better control over the table.
+        $rows = [];
         foreach ($videodata->videos as $video) {
 
             $isselectable = true;
@@ -591,21 +595,31 @@ foreach ($seriesvideodata as $series => $videodata) {
                 array_unshift($row, $selectcheckbox);
             }
 
-            $table->add_data($row);
+            $rows[] = $row;
         }
 
         // Last check to deactivate mass action, if there is nothing to display in the table.
-        if (!$table->started_output) {
-            $massaction->activate_massaction(false);
+        $activatedmassaction = !empty($rows);
+        $massaction->activate_massaction($activatedmassaction);
+        $tablecontainerclasses = ['position-relative'];
+        if ($activatedmassaction) {
+            $tablecontainerclasses[] = massaction_helper::TABLE_CONTAINER_CLASSNAME;
         }
         // Rendering the table containter div.
-        echo html_writer::start_div('position-relative');
+        echo html_writer::start_div(implode(' ', $tablecontainerclasses));
         // Rendering mass action on top.
-        echo $massaction->render_table_mass_actions_select('bulkselect-top');
+        echo $massaction->render_table_mass_actions_select('bulkselect-top', $tableid);
+
+        // Add rows to the table, which initalizes the table starting html.
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                $table->add_data($row);
+            }
+        }
         // Rendering table.
         $table->finish_html();
         // Rendering mass action on bottom.
-        echo $massaction->render_table_mass_actions_select('bulkselect-bottom');
+        echo $massaction->render_table_mass_actions_select('bulkselect-bottom', $tableid);
         // Rendering closing table container div.
         echo html_writer::end_div();
     } else {
