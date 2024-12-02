@@ -66,9 +66,12 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
     When I select "Update metadata" from the "With Selected Videos..." singleselect
     Then I should see "Are you sure you want to update the metadata of the following selected videos:"
     When I click on "Cancel" "button" in the "Update metadata of selected videos" "dialogue"
-    Then the "Select all" checkbox should not be checked
-    And the "Select Test video" checkbox should not be checked
-    And the "With Selected Videos..." "select" should be disabled
+    # Maintaining the selection.
+    Then the "Select all" checkbox should be checked
+    And the "Select Test video" checkbox should be checked
+    # But the dropdown must be reset to the choose... and be enabled.
+    And the "With Selected Videos..." "select" should be enabled
+    And I should see "Choose..."
 
   @javascript
   Scenario: The mass actions should not be provided when conditions are not met, such as permissions and configurations.
