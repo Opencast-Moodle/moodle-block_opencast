@@ -592,6 +592,7 @@ $string['mstateunknown'] = 'State unknown';
 $string['mstateuploaded'] = 'Processing post-upload tasks...';
 $string['no_ingest_services'] = 'No available ingest nodes found.';
 $string['noconnectedseries'] = 'No series is defined yet.';
+$string['noseriesfound'] = 'Unable to find any series.';
 $string['noseriesid'] = 'Series ID is not defined yet.';
 $string['nothingtodisplay'] = 'In this section, you see the videos which are uploaded to this course.<br />Currently, no videos have been uploaded to this course yet.';
 $string['notificationcleanupimportedmodules_subj'] = 'Opencast imported modules cleanup task notification';

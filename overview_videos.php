@@ -199,31 +199,44 @@ $headers = array_map(function ($header) use ($massaction) {
     return get_string($header, 'block_opencast');
 }, $headers);
 
-$table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
+$tableid = 'opencast-overview-videos-table-' . $series;
+$table = $renderer->create_overview_videos_table($tableid, $headers, $columns, $baseurl);
 
 $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
+// To store rows, and use them later, which gives better control over the table.
+$rows = [];
 foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
     $activityinstalled, $showchangeownerlink, false, $isseriesowner, $hasaddvideopermission,
     $hasdownloadpermission, $hasdeletepermission, '', $hasaccesspermission, $massaction) as $row) {
-    $table->add_data($row);
+    $rows[] = $row;
 }
 
 // Last check to deactivate mass action, if there is nothing to display in the table.
-if (!$table->started_output) {
-    $massaction->activate_massaction(false);
+$activatedmassaction = !empty($rows);
+$massaction->activate_massaction($activatedmassaction);
+$tablecontainerclasses = ['position-relative'];
+if ($activatedmassaction) {
+    $tablecontainerclasses[] = massaction_helper::TABLE_CONTAINER_CLASSNAME;
 }
-
+// Rendering the table containter div.
+echo html_writer::start_div(implode(' ', $tablecontainerclasses));
 // Rendering mass action on top.
-echo $massaction->render_table_mass_actions_select('bulkselect-top');
+echo $massaction->render_table_mass_actions_select('bulkselect-top', $tableid);
+// Add rows to the table, which initalizes the table starting html.
+if (!empty($rows)) {
+    foreach ($rows as $row) {
+        $table->add_data($row);
+    }
+}
 // Rendering table.
 $table->finish_html();
 // Rendering mass action on bottom.
-echo $massaction->render_table_mass_actions_select('bulkselect-bottom');
-
+echo $massaction->render_table_mass_actions_select('bulkselect-bottom', $tableid);
+echo html_writer::end_div();
 if ($opencasterror) {
     notification::error($opencasterror);
 }

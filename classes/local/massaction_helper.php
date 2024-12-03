@@ -55,8 +55,11 @@ class massaction_helper {
     /** @var string Select dropdown class name. */
     const SELECT_DROPDOWN_CLASSNAME = 'opencast-videos-table-massactions';
 
-    /** @var string Actions mapping hidden input id. */
-    const HIDDEN_INPUT_ACTIONS_MAPPING_ID = 'opencast-videos-table-massactions-actionsmapping';
+    /** @var string Table wrapper container class name. */
+    const TABLE_CONTAINER_CLASSNAME = 'opencast-videos-table-container';
+
+    /** @var string Actions mapping hidden input name. */
+    const HIDDEN_INPUT_ACTIONS_MAPPING_NAME = 'opencast-videos-table-massactions-actionsmapping';
 
     /** @var string Massaction type change visibility. */
     const MASSACTION_CHANGEVISIBILITY = 'changevisibility';
@@ -97,9 +100,6 @@ class massaction_helper {
 
     /** @var bool Whether the whole feature is activated or not. */
     private $isactivated = true;
-
-    /** @var bool Whether hidden input for actions mapping is rendered. */
-    private $mappingisrendered = false;
 
     /**
      * Constructs the mass action helper class.
@@ -213,14 +213,19 @@ class massaction_helper {
      * The dropdown menu is populated with enabled mass actions and is disabled when no mass actions are available.
      *
      * @param string $id The unique identifier for the dropdown menu.
+     * @param string $tableid The related table id.
      *
      * @return string The HTML markup for the mass action select dropdown. If no mass actions are available,
      * an empty string is returned.
      */
-    public function render_table_mass_actions_select(string $id) {
+    public function render_table_mass_actions_select(string $id, string $tableid) {
         if (!$this->has_massactions()) {
             return '';
         }
+
+        // Make the id more unique in order to avoid same id when multiple tables are rendered in a page.
+        $id = $id . '_' . uniqid();
+
         // Bulk actions.
         $html = html_writer::start_div('py-3 px-2 mt-2 mb-2');
         $html .= html_writer::label(
@@ -240,21 +245,19 @@ class massaction_helper {
         }
 
         // Actions mapping hidden input.
-        if (!$this->mappingisrendered) {
-            $hiddenactionsmappingattrs = [
-                'type' => 'hidden',
-                'id' => self::HIDDEN_INPUT_ACTIONS_MAPPING_ID,
-                'value' => json_encode($enabledmassactions),
-            ];
-            $html .= html_writer::empty_tag('input', $hiddenactionsmappingattrs);
-            $this->mappingisrendered = true;
-        }
+        $hiddenactionsmappingattrs = [
+            'type' => 'hidden',
+            'name' => self::HIDDEN_INPUT_ACTIONS_MAPPING_NAME,
+            'value' => json_encode($enabledmassactions),
+        ];
+        $html .= html_writer::empty_tag('input', $hiddenactionsmappingattrs);
 
         $withselectedparams = [
             'id' => $id,
             'data-action' => 'toggle',
             'data-togglegroup' => self::TOGGLE_GROUP_NAME,
             'data-toggle' => 'action',
+            'data-tableid' => $tableid,
             'disabled' => true,
             'class' => self::SELECT_DROPDOWN_CLASSNAME,
         ];
@@ -413,14 +416,16 @@ class massaction_helper {
      *               - 'dropdown': The CSS selector for the mass action dropdown menu.
      *               - 'selectall': The CSS selector for the master checkbox for selecting all video items.
      *               - 'selectitem': The CSS selector for the checkboxes for selecting individual video items.
-     *               - 'actionmapping': The CSS selector for the hidden input containing the mapping of mass actions.
+     *               - 'actionmapping': The element selector for the hidden input containing the mapping of mass actions.
+     *               - 'container': The CSS selector for the table wrapper container div.
      */
     public static function get_js_selectors() {
         return [
             'dropdown' => '.'. self::SELECT_DROPDOWN_CLASSNAME,
             'selectall' => 'input.'. self::CHECKBOX_SELECTALL_CLASSNAME,
             'selectitem' => 'input.'. self::CHECKBOX_SELECTITEM_CLASSNAME,
-            'actionmapping' => self::HIDDEN_INPUT_ACTIONS_MAPPING_ID,
+            'actionmapping' => self::HIDDEN_INPUT_ACTIONS_MAPPING_NAME,
+            'container' => '.' . self::TABLE_CONTAINER_CLASSNAME,
         ];
     }
 }
