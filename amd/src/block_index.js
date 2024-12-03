@@ -89,7 +89,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                             seriesid = tableid.replace('opencast-videos-table-', '');
                         }
                         bulkinfodiv = '<div id="bulkinfodiv" class="w-100 mb-1">';
-                        bulkinfodiv += '<p>' + langstrings[9].replace('{$a}', detail.selectedtitles.join('</li><li>')) + '</p>';
+                        bulkinfodiv += '<p>' + langstrings[12].replace('{$a}', detail.selectedtitles.join('</li><li>')) + '</p>';
                         bulkinfodiv += '</div>';
                         for (let videoid of detail.selectedids) {
                             bulkinfodiv += '<input type="hidden" name="videoids[]" value="' + videoid + '">';
@@ -141,7 +141,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
-                        title: ismassaction ? langstrings[10] : langstrings[5],
+                        title: ismassaction ? langstrings[13] : langstrings[5],
                         body: body
                     }, undefined)
                         .then(function(modal) {
