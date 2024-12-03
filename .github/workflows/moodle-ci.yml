@@ -13,4 +13,4 @@ jobs:
       requires-tool-plugin: true
       requires-mod-plugin: true
       branch-tool-plugin: oc-16-support
-      branch-mod-plugin: master
+      branch-mod-plugin: main
