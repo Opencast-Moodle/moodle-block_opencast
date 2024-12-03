@@ -1504,54 +1504,113 @@ class block_opencast_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Gts and prepares the items to be displayed in transcription management page.
+     * Returns the transcription list item extracted from either caption media track or caption attachment publication.
+     * INFO: This method covers all of the caption formats (Opencast 15 and older).
      *
-     * @param array $mediapackagesubs the array of mediapackages subcategory containing \SimpleXMLElement.
+     * @param object $transcriptionitem the caption publication object.
      * @param int $courseid course id.
      * @param int $ocinstanceid opencast instance id.
      * @param string $identifier event identifier.
      * @param string $domain a flag to determine where that mediapackage subcategory belongs to (attachments or media).
      * @param array $flavors a list of pre-defined transcriptions flavors.
      *
-     * @return array a list of items to display.
+     * @return stdClass the list item object.
      */
-    public function prepare_transcription_items_for_the_menu($mediapackagesubs, $courseid, $ocinstanceid, $identifier,
-                                                             $domain, $flavors) {
-        $items = [];
-        foreach ($mediapackagesubs as $sub) {
-            $subobj = json_decode(json_encode((array)$sub));
-            $type = $subobj->{'@attributes'}->type;
-            if (strpos($type, attachment_helper::TRANSCRIPTION_FLAVOR_TYPE) !== false) {
-                // Extracting language to be displayed in the table.
-                $flavortype = str_replace(attachment_helper::TRANSCRIPTION_FLAVOR_TYPE . '+', '', $type);
-                $flavorname = '';
-                if (array_key_exists($flavortype, $flavors)) {
-                    $flavorname = $flavors[$flavortype];
-                }
-                $subobj->flavor = !empty($flavorname) ?
-                    $flavorname :
-                    get_string('notranscriptionflavor', 'block_opencast', $flavortype);
-
-                // Extracting id and type from attributes.
-                $subobj->id = $subobj->{'@attributes'}->id;
-                $subobj->type = $type;
-
-                // Preparing delete url.
-                $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',
-                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
-                        'video_identifier' => $identifier, 'transcription_identifier' => $subobj->id, ]);
-                $subobj->deleteurl = $deleteurl->out(false);
-
-                // Preparing download url.
-                $downloadurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
-                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'domain' => $domain,
-                        'video_identifier' => $identifier, 'attachment_type' => str_replace(['/', '+'], ['-', '_'], $type), ]);
-                $subobj->downloadurl = $downloadurl->out(false);
-
-                $items[] = $subobj;
-            }
+    public function prepare_transcription_item_for_the_menu($transcriptionitem, $courseid, $ocinstanceid,
+                                                            $identifier, $domain, $flavors) {
+        $lang = '';
+        $itemtitle = '';
+        $flavorsplitted = explode('/', $transcriptionitem->flavor, 2);
+        $mainflavor = $flavorsplitted[0];
+        if ($mainflavor != attachment_helper::TRANSCRIPTION_FLAVOR_TYPE) {
+            return null;
         }
-        return $items;
+        $subflavor = $flavorsplitted[1];
+        // In case we have vtt+{lang}, then it is considered as manual or the old subtitle management of Opencast,
+        // which we need to support.
+        if (strpos($subflavor, 'vtt+') !== false) {
+            $lang = str_replace('vtt+', '', $subflavor);
+            $itemtitle = $lang;
+            if (array_key_exists($lang, $flavors)) {
+                $itemtitle = $flavors[$lang];
+            }
+            $itemtitle .= ' (' . get_string('transcriptionmanual', 'block_opencast') . ')';
+        } else if (in_array($subflavor, attachment_helper::TRANSCRIPTION_SUBFLAVOR_TYPES) && !empty($transcriptionitem->tags)) {
+            // In Opencast 15 and above we shift to caption/delivery.
+            $$tagdataarr = [];
+            foreach ($transcriptionitem->tags as $tag) {
+                // The safety checker.
+                if (!is_string($tag)) {
+                    continue;
+                }
+                if (strpos($tag, 'lang:') !== false) {
+                    $lang = str_replace('lang:', '', $tag);
+                    $tagdataarr['lang'] = $lang;
+                }
+                if (strpos($tag, 'generator-type:') !== false) {
+                    $tagdataarr['generatortype'] = str_replace('generator-type:', '', $tag);
+                }
+                if (strpos($tag, 'generator:') !== false) {
+                    $tagdataarr['generator'] = str_replace('generator:', '', $tag);
+                }
+                if (strpos($tag, 'type:') !== false) {
+                    $tagdataarr['type'] = str_replace('type:', '', $tag);
+                }
+            }
+            $itemtitle = $this->prepare_transcription_item_title($tagdataarr);
+        }
+
+        $item = new stdClass();
+
+        // Extracting id and type from attributes.
+        $item->id = $transcriptionitem->id;
+        $item->flavor = $transcriptionitem->flavor;
+
+        $item->title = !empty($itemtitle) ?
+                    $itemtitle :
+                    get_string('notranscriptionflavor', 'block_opencast', $lang);
+
+        // Preparing delete url.
+        $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',
+            ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid,
+                'video_identifier' => $identifier, 'transcription_identifier' => $item->id, ]);
+        $item->deleteurl = $deleteurl->out(false);
+
+        // Preparing download url.
+        $downloadurl = new moodle_url('/blocks/opencast/downloadtranscription.php',
+            ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid, 'domain' => $domain,
+                'video_identifier' => $identifier, 'transcription_identifier' => $item->id, ]);
+        $item->downloadurl = $downloadurl->out(false);
+
+        return $item;
+    }
+
+    /**
+     * Prepares the transcription item title based of the tags data.
+     *
+     * @param array $tagdataarr the array of extraced data from the tag.
+     *
+     * @return string the title
+     */
+    private function prepare_transcription_item_title($tagdataarr) {
+        $titlearr = [];
+        if (array_key_exists('generator', $tagdataarr)) {
+            $generator = ucfirst($tagdataarr['generator']);
+            $titlearr[] = $generator;
+        }
+        if (array_key_exists('lang', $tagdataarr)) {
+            $titlearr[] = $tagdataarr['lang'];
+        }
+        if (array_key_exists('generatortype', $tagdataarr)) {
+            $stringkey = $tagdataarr['generatortype'] == 'auto' ? 'transcriptionauto' : 'transcriptionmanual';
+            $generatortype = get_string($stringkey, 'block_opencast');
+            $titlearr[] = "({$generatortype})";
+        }
+        if (array_key_exists('type', $tagdataarr)) {
+            $type = ucfirst($tagdataarr['type']);
+            $titlearr[] = "({$type})";
+        }
+        return implode(' - ', $titlearr);
     }
 
     /**
