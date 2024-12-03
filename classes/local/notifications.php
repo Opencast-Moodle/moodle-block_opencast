@@ -491,4 +491,29 @@ class notifications {
         $admin = get_admin();
         self::send_message('error', $admin, $subject, $body);
     }
+
+    /**
+     * Notify user about archiving an upload job.
+     * @param int $courseid Course id
+     * @param object $touser User to which notification is sent
+     * @param string $title the title or filename of the video
+     */
+    public static function notify_archived_upload($courseid, $touser, $title) {
+        global $DB;
+
+        $a = (object)[
+            'courseid' => $courseid,
+            'coursefullname' => get_string('coursefullnameunknown', 'block_opencast'),
+            'title' => $title,
+        ];
+
+        if ($course = $DB->get_record('course', ['id' => $courseid])) {
+            $a->coursefullname = $course->fullname;
+        }
+
+        $subject = get_string('notificationuploadarchived_subj', 'block_opencast');
+        $body = get_string('notificationuploadarchived_body', 'block_opencast', $a);
+
+        self::send_message('opencasteventstatus_notification', $touser, $subject, $body);
+    }
 }

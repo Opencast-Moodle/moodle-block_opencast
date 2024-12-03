@@ -63,8 +63,13 @@ class upload_failed extends base {
      * @return string
      */
     public function get_description() {
+        $archived = "";
+        if (isset($this->data['other']['archived']) && $this->data['other']['archived'] === true) {
+            $archived = " the upload job has now been archived, ";
+        }
         return "The upload of {$this->data['other']['filename']} (Course: {$this->data['courseid']}) " .
             "to opencast instance {$this->data['ocinstanceid']} failed {$this->data['other']['countfailed']} times, " .
+            $archived .
             "Reason: {$this->data['other']['errormessage']}";
     }
 

@@ -72,6 +72,9 @@ class upload_helper {
     /** @var int Video is successfully transferred to Opencast. */
     const STATUS_TRANSFERRED = 40;
 
+    /** @var int Upload job is archived due to limited failed attempts */
+    const STATUS_ARCHIVED_FAILED_UPLOAD = 11;
+
     /**
      * Get explaination string for status code
      * @param int $statuscode Status code
@@ -92,6 +95,8 @@ class upload_helper {
                 return get_string('mstateuploaded', 'block_opencast');
             case self::STATUS_TRANSFERRED :
                 return get_string('mstatetransferred', 'block_opencast');
+            case self::STATUS_ARCHIVED_FAILED_UPLOAD :
+                return get_string('mstatearchived', 'block_opencast');
             default :
                 return '';
         }
@@ -304,10 +309,14 @@ class upload_helper {
      */
     public static function delete_video_draft($jobtodelete) {
         global $DB;
-        // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD.
-        if ($DB->record_exists('block_opencast_uploadjob',
-            ['id' => $jobtodelete->id, 'status' => self::STATUS_READY_TO_UPLOAD])) {
-
+        // Check again shortly before deletion if the status is still STATUS_READY_TO_UPLOAD or STATUS_ARCHIVED_FAILED_UPLOAD.
+        $selectwhere = "id = :id AND status IN (:statustransferred, :statusarchived)";
+        $params = [
+            'id' => $jobtodelete->id,
+            'statustransferred' => self::STATUS_READY_TO_UPLOAD,
+            'statusarchived' => self::STATUS_ARCHIVED_FAILED_UPLOAD,
+        ];
+        if ($DB->record_exists_select('block_opencast_uploadjob', $selectwhere, $params)) {
             $DB->delete_records('block_opencast_uploadjob', ['id' => $jobtodelete->id]);
             $DB->delete_records('block_opencast_metadata', ['uploadjobid' => $jobtodelete->id]);
             // Delete from files table.
@@ -427,7 +436,16 @@ class upload_helper {
         // Update the job to enqueue again.
         $job->countfailed++;
         $job->timemodified = time();
-        $job->status = self::STATUS_READY_TO_UPLOAD;
+
+        $failedretrylimit = (int) get_config('block_opencast', 'faileduploadretrylimit');
+        $isarchived = false;
+        $status = self::STATUS_READY_TO_UPLOAD;
+        if ($failedretrylimit > 0 && $job->countfailed >= $failedretrylimit) {
+            $status = self::STATUS_ARCHIVED_FAILED_UPLOAD;
+            $isarchived = true;
+        }
+
+        $job->status = $status;
 
         $DB->update_record('block_opencast_uploadjob', $job);
 
@@ -455,11 +473,26 @@ class upload_helper {
                     'errormessage' => $errormessage,
                     'countfailed' => $job->countfailed,
                     'ocinstanceid' => $job->ocinstanceid,
+                    'archived' => $isarchived,
                 ],
             ]
         );
 
         $event->trigger();
+
+        // Notify users about archived upload job.
+        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
+        if ($notificationenabled && $isarchived) {
+            // Prepare title with default filename.
+            $title = implode(' & ', $filenames);
+            if (isset($job->metadata)) {
+                $metadata = json_decode($job->metadata);
+                $title = $metadata[array_search('title', array_column($metadata, 'id'))]->value;
+            }
+
+            // Notify user about putting the upload into archive status.
+            eventstatus_notification_helper::notify_users_archived_upload($job, $title);
+        }
     }
 
     /**
@@ -695,7 +728,8 @@ class upload_helper {
         $ocinstances = settings_api::get_ocinstances();
         foreach ($ocinstances as $ocinstance) {
             // Get all waiting jobs.
-            $sql = "SELECT * FROM {block_opencast_uploadjob} WHERE status < ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
+            $sql = "SELECT * FROM {block_opencast_uploadjob}" .
+                " WHERE status < ? AND status <> ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
 
             $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $ocinstance->id);
 
@@ -703,7 +737,13 @@ class upload_helper {
                 $limituploadjobs = 0;
             }
 
-            $jobs = $DB->get_records_sql($sql, [self::STATUS_TRANSFERRED, $ocinstance->id], 0, $limituploadjobs);
+            $params = [
+                self::STATUS_TRANSFERRED,
+                self::STATUS_ARCHIVED_FAILED_UPLOAD,
+                $ocinstance->id,
+            ];
+
+            $jobs = $DB->get_records_sql($sql, $params, 0, $limituploadjobs);
 
             if (!$jobs) {
                 mtrace('...no jobs to proceed for instance "' . $ocinstance->name . '"');

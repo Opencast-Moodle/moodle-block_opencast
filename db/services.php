@@ -79,4 +79,13 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'block/opencast:viewunpublishedvideos',
     ],
+    'block_opencast_unarchive_uploadjob' => [
+        'classname' => 'block_opencast_external',
+        'methodname' => 'unarchive_uploadjob',
+        'classpath' => 'block/opencast/classes/external.php',
+        'description' => 'Perform unarchiving an upload job',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'block/opencast:addvideo',
+    ],
 ];
