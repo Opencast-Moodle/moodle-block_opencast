@@ -98,3 +98,32 @@
 .download-action-menu .dropdown-menu i {
     display: none;
 }
+
+/* Video Table Styles */
+table.opencast-videos-table.generaltable thead th {
+    vertical-align: middle !important; /* stylelint-disable-line */
+}
+
+table.opencast-videos-table.generaltable thead th.oc-sortable-alignment {
+    overflow: hidden;
+}
+
+table.opencast-videos-table.generaltable thead th.oc-sortable-alignment a {
+    float: left;
+    white-space: nowrap;
+    margin-bottom: 1px;
+}
+
+table.opencast-videos-table.generaltable thead th.oc-sortable-alignment > i {
+    float: left;
+    margin: 4px 0 1px 3px;
+}
+
+/* Styles for Series Table */
+#seriestable .tabulator-row .tabulator-cell {
+    cursor: default !important; /* stylelint-disable-line */
+}
+
+#seriestable .tabulator-row .tabulator-cell input[type="radio"]:not(:checked) {
+    cursor: pointer !important; /* stylelint-disable-line */
+}

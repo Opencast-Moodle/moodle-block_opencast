@@ -225,4 +225,40 @@ class behat_block_opencast extends behat_base {
                 " instead of expected \"$customparameter\"", $this->getSession());
         }
     }
+
+    /**
+     * Checks whether the checkbox is checked, throws exception if it is not checked.
+     *
+     * @Then /^the "(?P<element_string>(?:[^"]|\\")*)" checkbox should be checked$/
+     * @throws ExpectationException Thrown by behat_base::find and isChecked
+     * @param string $element Element we look on
+     */
+    public function the_element_checkbox_should_be_checked($element) {
+        $element = $this->find("checkbox", $element);
+        if (!$element) {
+            throw new ExpectationException('Checkbox not found with the provided XPath.', $this->getSession());
+        }
+
+        if (!$element->isChecked()) {
+            throw new ExpectationException('The checkbox is not checked.', $this->getSession());
+        }
+    }
+
+    /**
+     * Checks whether the checkbox is not checked, throws error if it is checked.
+     *
+     * @Then /^the "(?P<element_string>(?:[^"]|\\")*)" checkbox should not be checked$/
+     * @throws ExpectationException Thrown by behat_base::find and isChecked
+     * @param string $element Element we look on
+     */
+    public function the_element_checkbox_should_not_be_checked($element) {
+        $element = $this->find("checkbox", $element);
+        if (!$element) {
+            throw new ExpectationException('Checkbox not found with the provided XPath.', $this->getSession());
+        }
+
+        if ($element->isChecked()) {
+            throw new ExpectationException('The checkbox is checked.', $this->getSession());
+        }
+    }
 }

@@ -23,6 +23,7 @@
  */
 
 use block_opencast\local\apibridge;
+use block_opencast\local\massaction_helper;
 use block_opencast\local\upload_helper;
 use core\notification;
 use mod_opencast\local\opencasttype;
@@ -110,6 +111,13 @@ $isseriesowner = $ocseries && ($apibridge->is_owner($ocseries->acl, $USER->id, $
 $PAGE->navbar->add(get_string('opencastseries', 'block_opencast'),
     new moodle_url('/blocks/opencast/overview.php', ['ocinstanceid' => $ocinstanceid]));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $baseurl);
+$PAGE->requires->js_call_amd('block_opencast/block_massaction', 'init',
+    [
+        $SITE->id,
+        $ocinstanceid,
+        massaction_helper::get_js_selectors(),
+    ]
+);
 echo $OUTPUT->header();
 
 if ($ocseries) {
@@ -153,27 +161,82 @@ echo html_writer::tag('p', get_string('videosoverviewexplanation', 'block_openca
 
 // Build table.
 $columns = ['owner', 'videos', 'linked', 'activities', 'action'];
-$headers = [
-    get_string('owner', 'block_opencast'),
-    get_string('video', 'block_opencast'),
-    get_string('embeddedasactivity', 'block_opencast'),
-    get_string('embeddedasactivitywolink', 'block_opencast'),
-    get_string('heading_actions', 'block_opencast'), ];
-$table = $renderer->create_overview_videos_table('ignore', $headers, $columns, $baseurl);
+$headers = ['owner', 'video', 'embeddedasactivity', 'embeddedasactivitywolink', 'heading_actions'];
+
+$massaction = new massaction_helper();
+// Mass-Action configuration for update metadata.
+if (!$hasaddvideopermission) {
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_UPDATEMETADATA, false);
+} else {
+    // When it is offered, we add extra parameters.
+    $massaction->set_action_path_parameter(massaction_helper::MASSACTION_UPDATEMETADATA, 'redirectpage', 'overviewvideos');
+    $massaction->set_action_path_parameter(massaction_helper::MASSACTION_UPDATEMETADATA, 'series', $series);
+}
+
+// Mass-Action configuration for delete.
+if (!$hasdeletepermission) {
+    $massaction->massaction_action_activation(massaction_helper::MASSACTION_DELETE, false);
+} else {
+    // When it is offered, we add extra parameters.
+    $massaction->set_action_path_parameter(massaction_helper::MASSACTION_DELETE, 'redirectpage', 'overviewvideos');
+    $massaction->set_action_path_parameter(massaction_helper::MASSACTION_DELETE, 'series', $series);
+}
+
+// No visiblity change and no strat workflow is allowed from overview page!
+$massaction->massaction_action_activation(massaction_helper::MASSACTION_CHANGEVISIBILITY, false);
+$massaction->massaction_action_activation(massaction_helper::MASSACTION_STARTWORKFLOW, false);
+
+// We add the select columns and headers into the beginning of the headers and columns arrays, when mass actions are there!
+if ($massaction->has_massactions()) {
+    array_unshift($headers, 'selectall');
+    array_unshift($columns, 'select');
+}
+
+$headers = array_map(function ($header) use ($massaction) {
+    if ($header == 'selectall') {
+        return $massaction->render_master_checkbox();
+    }
+    return get_string($header, 'block_opencast');
+}, $headers);
+
+$tableid = 'opencast-overview-videos-table-' . $series;
+$table = $renderer->create_overview_videos_table($tableid, $headers, $columns, $baseurl);
 
 $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
     !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
 
+// To store rows, and use them later, which gives better control over the table.
+$rows = [];
 foreach ($renderer->create_overview_videos_rows($videos, $apibridge, $ocinstanceid,
     $activityinstalled, $showchangeownerlink, false, $isseriesowner, $hasaddvideopermission,
-    $hasdownloadpermission, $hasdeletepermission, '', $hasaccesspermission) as $row) {
-    $table->add_data($row);
+    $hasdownloadpermission, $hasdeletepermission, '', $hasaccesspermission, $massaction) as $row) {
+    $rows[] = $row;
 }
 
+// Last check to deactivate mass action, if there is nothing to display in the table.
+$activatedmassaction = !empty($rows);
+$massaction->activate_massaction($activatedmassaction);
+$tablecontainerclasses = ['position-relative'];
+if ($activatedmassaction) {
+    $tablecontainerclasses[] = massaction_helper::TABLE_CONTAINER_CLASSNAME;
+}
+// Rendering the table containter div.
+echo html_writer::start_div(implode(' ', $tablecontainerclasses));
+// Rendering mass action on top.
+echo $massaction->render_table_mass_actions_select('bulkselect-top', $tableid);
+// Add rows to the table, which initalizes the table starting html.
+if (!empty($rows)) {
+    foreach ($rows as $row) {
+        $table->add_data($row);
+    }
+}
+// Rendering table.
 $table->finish_html();
-
+// Rendering mass action on bottom.
+echo $massaction->render_table_mass_actions_select('bulkselect-bottom', $tableid);
+echo html_writer::end_div();
 if ($opencasterror) {
     notification::error($opencasterror);
 }
