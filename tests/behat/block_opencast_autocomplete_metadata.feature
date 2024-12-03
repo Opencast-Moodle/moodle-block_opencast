@@ -22,19 +22,23 @@ Feature: Check and set autocompletion suggestions
       | manager1 | C1     | manager        |
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
-      | config              | value                                                                                      | plugin         |
-      | apiurl_1            | http://testapi:8080                                                                        | tool_opencast  |
-      | apipassword_1       | opencast                                                                                   | tool_opencast  |
-      | apiusername_1       | admin                                                                                      | tool_opencast  |
-      | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}]                              | tool_opencast  |
-      | limituploadjobs_1   | 0                                                                                          | block_opencast |
-      | group_creation_1    | 0                                                                                          | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                                                   | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                                                   | block_opencast |
-      | enablechunkupload_1 | 0                                                                                          | block_opencast |
-      | workflow_roles_1    | republish-metadata                                                                         | block_opencast |
-      | metadata_1          | [{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}] | block_opencast |
-      | metadataseries_1    | [{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}] | block_opencast |
+      | config                    | value                                                                                       | plugin         |
+      | apiurl_1                  | http://testapi:8080                                                                         | tool_opencast  |
+      | apipassword_1             | opencast                                                                                    | tool_opencast  |
+      | apiusername_1             | admin                                                                                       | tool_opencast  |
+      | ocinstances               | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}]                               | tool_opencast  |
+      | limituploadjobs_1         | 0                                                                                           | block_opencast |
+      | group_creation_1          | 0                                                                                           | block_opencast |
+      | group_name_1              | Moodle_course_[COURSEID]                                                                    | block_opencast |
+      | series_name_1             | Course_Series_[COURSEID]                                                                    | block_opencast |
+      | enablechunkupload_1       | 0                                                                                           | block_opencast |
+      | showpublicationchannels_1 | 0                                                                                           | block_opencast |
+      | showenddate_1             | 0                                                                                           | block_opencast |
+      | showlocation_1            | 0                                                                                           | block_opencast |
+      | aclcontrolafter_1         | 0                                                                                           | block_opencast |
+      | workflow_roles_1          | republish-metadata                                                                          | block_opencast |
+      | metadata_1                | [{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]  | block_opencast |
+      | metadataseries_1          | [{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null}]  | block_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -44,7 +48,7 @@ Feature: Check and set autocompletion suggestions
   @javascript
   Scenario: Autocomplete suggestions for Presentors must be extracted from the access capabilities and only show teacher and editingteacher enroled users.
     When I click on "Go to overview..." "link"
-    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .c3 .action-menu a" "css_element"
+    And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 .cell .action-menu a" "css_element"
     And I click on "Update metadata" "link"
     Then I should see "Update metadata"
     When I expand the "Presenter(s)" autocomplete

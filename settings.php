@@ -214,6 +214,22 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 'ng-schedule-and-upload', $workflowchoices
             ));
 
+            $generalsettings->add(new admin_setting_configcheckbox('block_opencast/enableuploadwfconfigpanel_' . $instance->id,
+                get_string('enableuploadwfconfigpanel', 'block_opencast'),
+                get_string('enableuploadwfconfigpaneldesc', 'block_opencast'),
+                0
+            ));
+
+            $generalsettings->add(new admin_setting_configtext('block_opencast/alloweduploadwfconfigs_' . $instance->id,
+                get_string('alloweduploadwfconfigs', 'block_opencast'),
+                get_string('alloweduploadwfconfigsdesc', 'block_opencast'),
+                '',
+                PARAM_TEXT
+            ));
+
+            $generalsettings->hide_if('block_opencast/alloweduploadwfconfigs_' . $instance->id,
+                'block_opencast/enableuploadwfconfigpanel_' . $instance->id, 'notchecked');
+
             $generalsettings->add(new admin_setting_configcheckbox('block_opencast/publishtoengage_' . $instance->id,
                 get_string('publishtoengage', 'block_opencast'),
                 get_string('publishtoengagedesc', 'block_opencast'),

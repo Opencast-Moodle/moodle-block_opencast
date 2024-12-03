@@ -16,25 +16,31 @@ Feature: Add videos batch as Teacher
       | teacher1 | C1     | editingteacher |
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
-      | config               | value                                                         | plugin         |
-      | apiurl_1             | http://172.17.0.1:8080                                        | tool_opencast  |
-      | apipassword_1        | opencast                                                      | tool_opencast  |
-      | apiusername_1        | admin                                                         | tool_opencast  |
-      | ocinstances          | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1    | 0                                                             | block_opencast |
-      | group_creation_1     | 0                                                             | block_opencast |
-      | group_name_1         | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1        | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1  | 0                                                             | block_opencast |
-      | batchuploadenabled_1 | 1                                                             | block_opencast |
+      | config                      | value                                                         | plugin         |
+      | apiurl_1                    | http://172.17.0.1:8080                                        | tool_opencast  |
+      | apipassword_1               | opencast                                                      | tool_opencast  |
+      | apiusername_1               | admin                                                         | tool_opencast  |
+      | apiversion_1                | v1.10.0                                                       | tool_opencast  |
+      | ocinstances                 | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
+      | limituploadjobs_1           | 0                                                             | block_opencast |
+      | group_creation_1            | 0                                                             | block_opencast |
+      | group_name_1                | Moodle_course_[COURSEID]                                      | block_opencast |
+      | series_name_1               | Course_Series_[COURSEID]                                      | block_opencast |
+      | enablechunkupload_1         | 0                                                             | block_opencast |
+      | batchuploadenabled_1        | 1                                                             | block_opencast |
+      | uploadworkflow_1            | schedule-and-upload                                           | block_opencast |
+      | enableuploadwfconfigpanel_1 | 1                                                             | block_opencast |
+      | alloweduploadwfconfigs_1    | straightToPublishing                                          | block_opencast |
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
 
-  Scenario: Opencast Add videos (batch) page implemented
+  Scenario: Opencast Add videos (batch) page implemented with configuration panel
     Given I click on "Go to overview..." "link"
     When I click on "Add videos (batch)" "button"
     Then I should see "You can drag and drop files here to add them."
+    And I should see "Processing Settings"
+    And I should see "Straight to publishing"
 
   @_file_upload @javascript
   Scenario: Opencast Batch Upload Video

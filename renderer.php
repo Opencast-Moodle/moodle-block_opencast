@@ -28,13 +28,14 @@ use block_opencast\local\apibridge;
 use block_opencast\local\attachment_helper;
 use block_opencast\local\ingest_uploader;
 use block_opencast\local\ltimodulemanager;
+use block_opencast\local\massaction_helper;
 use block_opencast\local\upload_helper;
 use block_opencast\local\visibility_helper;
 use mod_opencast\local\opencasttype;
 use block_opencast\local\liveupdate_helper;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
-
+use block_opencast\local\workflowconfiguration_helper;
 /**
  * Renderer class for block opencast.
  *
@@ -250,7 +251,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table = new block_opencast\local\flexible_table($id);
         $table->set_attribute('cellspacing', '0');
         $table->set_attribute('cellpadding', '3');
-        $table->set_attribute('class', 'generaltable');
+        $table->set_attribute('class', 'generaltable opencast-videos-table');
         $table->set_attribute('id', $id);
         $table->headers = $headers;
         $table->define_columns($columns);
@@ -260,7 +261,31 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('provide');
         $table->no_sorting('provide-activity');
         $table->no_sorting('published');
+        $table->no_sorting('visibility'); // This column cannot be sortable because it does not mean anything to Opencast!
+        $table->no_sorting('select');
         $table->sortable(true, 'start_date', SORT_DESC);
+
+        $table->column_style('selectall', 'max-width', '40px');
+        $table->column_style('start_date', 'min-width', '125px');
+        $table->column_style('visibility', 'min-width', '120px');
+        $table->column_style('workflow_state', 'min-width', '120px');
+        $table->column_style('action', 'min-width', '100px');
+
+        $columnclasses = [
+            'selectall' => ['oc-col-select'],
+            'workflow_state' => ['oc-col-wfstatus'],
+            'visibility' => ['oc-col-visibility'],
+        ];
+
+        foreach ($columns as $column) {
+            $classes = isset($columnclasses[$column]) ? $columnclasses[$column] : [];
+            if ($table->is_sortable($column)) {
+                $classes[] = 'oc-sortable-alignment';
+            }
+            if (!empty($classes)) {
+                $table->column_class($column, implode(' ', $classes));
+            }
+        }
 
         $table->pageable(true);
         $table->is_downloadable(false);
@@ -336,6 +361,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('owner');
         $table->no_sorting('linked');
         $table->no_sorting('activities');
+        $table->no_sorting('select');
+        $table->no_sorting('action');
         $table->sortable(true, 'videos', SORT_DESC);
 
         $table->pageable(true);
@@ -367,6 +394,7 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param bool $hasdeletepermission
      * @param string $redirectpage
      * @param bool $hasaccesspermission
+     * @param ?massaction_helper $massaction
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -376,11 +404,17 @@ class block_opencast_renderer extends plugin_renderer_base {
                                                 $showchangeownerlink, $isownerverified = false, $isseriesowner = false,
                                                 $hasaddvideopermissions = false, $hasdownloadpermission = false,
                                                 $hasdeletepermission = false,
-                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false) {
+                                                $redirectpage = 'overviewvideos', $hasaccesspermission = false,
+                                                $massaction = null) {
         global $USER, $SITE, $DB;
         $rows = [];
 
         foreach ($videos as $video) {
+
+            // This flag here works in false case, because here in overview page we only offer update and delete mass action.
+            // We only offer them if the single action has been offered too.
+            $isselectable = false;
+
             $activitylinks = [];
             if ($activityinstalled) {
                 $activitylinks = $DB->get_records('opencast', ['ocinstanceid' => $ocinstanceid,
@@ -434,6 +468,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             $actions = '';
             if ($hasaddvideopermissions) {
                 $updatemetadata = $apibridge->can_update_event_metadata($video, $SITE->id, false);
+                if ($updatemetadata) {
+                    $isselectable = true;
+                }
                 $actions .= $this->render_edit_functions($ocinstanceid, $SITE->id, $video->identifier, $updatemetadata,
                     false, null, false, false, false, 'overview', $video->is_part_of);
             }
@@ -448,6 +485,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
             if ($hasdeletepermission && isset($video->processing_state) &&
                 ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
+                $isselectable = true;
                 $url = new moodle_url('/blocks/opencast/deleteevent.php',
                     ['identifier' => $video->identifier, 'courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid,
                         'series' => $video->is_part_of, 'redirectpage' => $redirectpage, ]);
@@ -457,6 +495,13 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
 
             $row[] = $actions;
+
+            if (!is_null($massaction)) {
+                $selectcheckbox = $massaction->render_item_checkbox($video, $isselectable);
+                if (!empty($selectcheckbox)) {
+                    array_unshift($row, $selectcheckbox);
+                }
+            }
 
             $rows[] = $row;
         }
@@ -1507,5 +1552,217 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
         }
         return $items;
+    }
+
+    /**
+     * Looks through the html string of workflow configuration panel and
+     * converts select elements as well as input elements of types (checkbox, text, datetime, radio)
+     * into moodle form elements.
+     *
+     * @param MoodleQuickForm $mform referenced moodle form of upload videos single and batch.
+     * @param string $configurationpanelhtml workflow configuration panel html as string.
+     * @param array $alloweduploadwfconfigids list of allowed configuration element ids.
+     */
+    public function render_configuration_panel_form_elements(&$mform, $configurationpanelhtml, $alloweduploadwfconfigids = []) {
+
+        if (empty($configurationpanelhtml)) {
+            return;
+        }
+
+        // Make sure the html string is valid.
+        $html = $this->close_tags_in_html_string($configurationpanelhtml);
+
+        // Initialize the dom and xpath instances.
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->loadHTML($html);
+        $xpath = new \DOMXpath($dom);
+
+        // Extracting all inputs and selects in one loop to maintain the sequence and convert them into moodle form elements.
+        $elements = $xpath->query('//input | //select');
+        $radiotexts = [];
+        $defaults = [];
+        $configpanelelementmapping = [];
+        foreach ($elements as $element) {
+            $id = trim($element->getAttribute('id'));
+            // If it is decided to provide only allowed configs, we filter them here!
+            if (!empty($alloweduploadwfconfigids) && !in_array($id, $alloweduploadwfconfigids)) {
+                continue;
+            }
+            $nodetype = $element->tagName;
+            $name = trim($element->getAttribute('name'));
+            $required = $element->hasAttribute('required') ?? false;
+            $labeltext = $this->get_dom_label_text($xpath, $dom, $id);
+            $title = $labeltext ?? $id;
+            $default = null;
+            $moodleid = $id;
+            $mappingtype = 'text';
+
+            // Conver input to moodle form element.
+            if ($nodetype === 'input') {
+                $type = trim($element->getAttribute('type'));
+                $value = trim($element->getAttribute('value')) ?? null;
+
+                // Support for radio elements.
+                if ($type === 'radio') {
+                    $moodleid = $name;
+                    $parenttext = '';
+                    if (!array_key_exists($moodleid, $radiotexts)) {
+                        $parenttext = $this->get_parent_label_text($xpath, $dom, $id);
+                        $radiotexts[$moodleid] = $parenttext;
+                    }
+                    $mform->addElement('radio', $moodleid, $parenttext, $title, $value);
+                    $ischecked = $element->hasAttribute('checked');
+                    if (!empty($ischecked)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for number and text elements.
+                if ($type === 'number' || $type === 'text') {
+                    $mform->addElement('text', $moodleid, $title);
+                    $elementtype = $type === 'number' ? PARAM_INT : PARAM_TEXT;
+                    $mform->setType($moodleid, $elementtype);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for date and datetime elements.
+                if (substr($type, 0, 4) === 'date') {
+                    $mappingtype = 'date';
+                    $moodletype = substr($type, 0, 8) === 'datetime' ? 'date_time_selector' : 'date_selector';
+                    $mform->addElement($moodletype, $moodleid, $title);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+                // Support for checkbox elements.
+                if ($type === 'checkbox') {
+                    $mappingtype = 'boolean';
+                    $mform->addElement('checkbox', $moodleid, $title);
+                    if (!is_null($value)) {
+                        $default = $value;
+                    }
+                }
+
+            } else if ($nodetype === 'select') { // Conver select to moodle form element.
+                // Extract options.
+                $options = [];
+                $optionnodes = $element->childNodes;
+                $selected = null;
+                foreach ($optionnodes as $node) {
+                    if ($node->tagName === 'option') {
+                        $optionvalue = $node->getAttribute('value');
+                        $options[$optionvalue] = $node->textContent;
+                        if ($node->hasAttribute('selected')) {
+                            $selected = $optionvalue;
+                        }
+                    }
+                }
+
+                $mform->addElement('select', $moodleid, $title, $options);
+                if (!is_null($selected)) {
+                    $default = $selected;
+                }
+            }
+
+            // Add required rule.
+            if ($required) {
+                $mform->addRule($moodleid, get_string('required'), 'required');
+            }
+
+            // Add default value.
+            if (!is_null($default)) {
+                $defaults[$moodleid] = $default;
+            }
+
+            // We need to keep track of moodleids and mapping types for the elements added by configuration panel.
+            if (!array_key_exists($moodleid, $configpanelelementmapping)) {
+                $configpanelelementmapping[$moodleid] = $mappingtype;
+            }
+        }
+
+        // Apply defaults.
+        if (!empty($defaults)) {
+            foreach ($defaults as $moodleid => $value) {
+                $mform->setDefault($moodleid, $value);
+            }
+        }
+
+        if (!empty($configpanelelementmapping)) {
+            $mform->addElement('hidden',
+                workflowconfiguration_helper::MAPPING_INPUT_HIDDEN_ID,
+                json_encode($configpanelelementmapping)
+            );
+            $mform->setType(workflowconfiguration_helper::MAPPING_INPUT_HIDDEN_ID, PARAM_TEXT);
+        }
+    }
+
+    /**
+     * Get the label text of an element.
+     * First lookign for "for" attribute, if not found, looks for preceding then following label element.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param DOMDocument $dom the dom object of the html
+     * @param string $id the element id to look for its label text.
+     *
+     * @return string | null the label text or null if not found.
+     */
+    private function get_dom_label_text($xpath, $dom, $id) {
+        $element = $dom->getElementById($id);
+        $parent = $element->parentNode;
+        $tagname = $element->tagName;
+        $directlabelquery = "//label[contains(@for, '{$id}')]";
+        $text = $this->get_text_from_domxpath($xpath, $directlabelquery, $parent);
+        // If the text is empty as of now, that means there is no direct label tag "for" this element.
+        // We try to look for any preceding or following label respectively.
+        if (empty($text)) {
+            // First preceding label.
+            $precedinglabelquery = "//{$tagname}[@id='{$id}']/preceding-sibling::label";
+            $text = $this->get_text_from_domxpath($xpath, $precedinglabelquery, $parent);
+
+            // If it is still empty, then following label.
+            if (empty($text)) {
+                $followinglabelquery = "//{$tagname}[@id='{$id}']/following-sibling::label";
+
+                // If it reaches here and is still null, then it is supposed to fallback to id!
+                $text = $this->get_text_from_domxpath($xpath, $followinglabelquery, $parent);
+            }
+        }
+        return $text;
+    }
+
+    /**
+     * Get the label text of the parent element.
+     * Considering the first label element of the parent.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param DOMDocument $dom the dom object of the html
+     * @param string $id the element id to look for its parent's label text.
+     *
+     * @return string | null the label text or null if not found.
+     */
+    private function get_parent_label_text($xpath, $dom, $id) {
+        $element = $dom->getElementById($id);
+        $parent = $element->parentNode;
+        return $this->get_text_from_domxpath($xpath, 'label[1]/text()', $parent);
+    }
+
+    /**
+     * A helper function to evalute a DOMXpath query string and return the node value (text) if found.
+     *
+     * @param DOMXpath $xpath the xpath object of the html.
+     * @param string $query the xpat query to look for.
+     * @param DOMDocument $contextnode a portion or target dom object.
+     *
+     * @return string | null the text of the element, or null if not found.
+     */
+    private function get_text_from_domxpath($xpath, $query, $contextnode = null) {
+        $elementnodes = $xpath->evaluate($query, $contextnode);
+        if ($elementnodes->length > 0) {
+            return (string) $elementnodes->item(0)->nodeValue;
+        }
+        return null;
     }
 }

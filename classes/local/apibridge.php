@@ -253,12 +253,13 @@ class apibridge {
      * Ingests a mediapackage.
      * @param string $mediapackage Mediapackage
      * @param string $uploadworkflow workflow definition is to start after ingest
+     * @param array $workflowconfiguration workflow configuration as array
      * @return string Workflow instance that was started
      * @throws dml_exception
      * @throws moodle_exception
      * @throws opencast_connection_exception
      */
-    public function ingest($mediapackage, $uploadworkflow = '') {
+    public function ingest($mediapackage, $uploadworkflow = '', $workflowconfiguration = []) {
         $ingestapi = $this->get_ingest_api();
 
         if (empty($uploadworkflow)) {
@@ -268,9 +269,9 @@ class apibridge {
         $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
-            $response = $ingestapi->setRequestTimeout($timeout)->ingest($mediapackage, $uploadworkflow);
+            $response = $ingestapi->setRequestTimeout($timeout)->ingest($mediapackage, $uploadworkflow, '', $workflowconfiguration);
         } else {
-            $response = $ingestapi->ingest($mediapackage, $uploadworkflow);
+            $response = $ingestapi->ingest($mediapackage, $uploadworkflow, '', $workflowconfiguration);
         }
 
         $code = $response['code'];
@@ -1167,6 +1168,7 @@ class apibridge {
         global $DB;
 
         $event = new event();
+        $wfconfighelper = workflowconfiguration_helper::get_instance($this->ocinstanceid);
 
         // Get initial visibility object.
         $initialvisibility = visibility_helper::get_initial_visibility($job);
@@ -1216,7 +1218,8 @@ class apibridge {
 
         $acl = $event->get_json_acl();
         $metadata = $event->get_meta_data();
-        $processing = $event->get_processing($this->ocinstanceid);
+        $processingdata = $wfconfighelper->get_workflow_processing_data($job->workflowconfiguration);
+        $processing = $processingdata['processing_json'];
         $scheduling = '';
         $presenter = null;
         $presentation = null;
@@ -1875,6 +1878,26 @@ class apibridge {
             $id,
             $withoperations,
             $withconfigurationpanel
+        );
+        if ($response['code'] === 200) {
+            return $response['body'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieves a workflow instance from Opencast.
+     * @param string $id Workflow instance id
+     * @param bool $withoperations flag to get instance with operations
+     * @param bool $withconfiguration flag to get instance with configurations
+     * @return false|mixed Workflow instance or false if not successful
+     */
+    public function get_workflow_instance($id, $withoperations = false, $withconfiguration = true) {
+        $response = $this->api->opencastapi->workflowsApi->get(
+            $id,
+            $withoperations,
+            $withconfiguration
         );
         if ($response['code'] === 200) {
             return $response['body'];
@@ -3079,5 +3102,57 @@ class apibridge {
 
         // Finally we return the generate studio url path.
         return $studiourlpath;
+    }
+
+    /**
+     * Checks if the user has the capability to update metadata for multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_update_metadata_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:addvideo', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to delete multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_delete_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:deleteevent', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to change the visibility of multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_change_visibility_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:addvideo', $context);
+    }
+
+    /**
+     * Checks if the user has the capability to start workflows for multiple events in a course.
+     * We use specific checker method, in case there would be more conditions later on.
+     *
+     * @param int $courseid The ID of the course.
+     *
+     * @return bool True if the user has the capability, false otherwise.
+     */
+    public function can_start_workflow_massaction($courseid) {
+        $context = context_course::instance($courseid);
+        return has_capability('block/opencast:startworkflow', $context);
     }
 }

@@ -68,7 +68,40 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                 $('.start-workflow').on('click', function(e) {
                     e.preventDefault();
+                    const detail = e?.detail || {};
+
                     var clickedVideo = $(e.currentTarget);
+                    var actionurl = url.relativeUrl('blocks/opencast/startworkflow.php', {
+                        'ocinstanceid': ocinstanceid,
+                        'courseid': courseid,
+                        'videoid': clickedVideo.data('id')
+                    });
+                    var ismassaction = false;
+                    var bulkinfodiv = '';
+                    var massactioncontainer = null;
+                    if (detail?.type === 'bulk' && detail?.selectedids && detail?.container) {
+                        ismassaction = true;
+                        massactioncontainer = detail.container;
+                        const table = massactioncontainer.querySelector('table.opencast-videos-table');
+                        const tableid = table?.id;
+                        let seriesid = '';
+                        if (tableid) {
+                            seriesid = tableid.replace('opencast-videos-table-', '');
+                        }
+                        bulkinfodiv = '<div id="bulkinfodiv" class="w-100 mb-1">';
+                        bulkinfodiv += '<p>' + langstrings[9].replace('{$a}', detail.selectedtitles.join('</li><li>')) + '</p>';
+                        bulkinfodiv += '</div>';
+                        for (let videoid of detail.selectedids) {
+                            bulkinfodiv += '<input type="hidden" name="videoids[]" value="' + videoid + '">';
+                        }
+                        bulkinfodiv += '<input type="hidden" name="ismassaction" value="1">';
+                        actionurl = url.relativeUrl(detail.url, {
+                            'ocinstanceid': ocinstanceid,
+                            'courseid': courseid,
+                            'seriesid': seriesid
+                        });
+                    }
+
                     var select = '<select class="custom-select mb-3" id="workflowselect" name="workflow">';
 
                     for (let workflow in workflows) {
@@ -95,11 +128,9 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                         '</iframe><input type="hidden" name="configparams" id="configparams"></div>';
 
                     var body = '<form id="startWorkflowForm" method="post" action="' +
-                        url.relativeUrl('blocks/opencast/startworkflow.php', {
-                            'ocinstanceid': ocinstanceid,
-                            'courseid': courseid,
-                            'videoid': clickedVideo.data('id')
-                        }) + '"><div class="form-group">' +
+                        actionurl
+                        + '"><div class="form-group">' +
+                        bulkinfodiv +
                         '<p>' + langstrings[6] + '</p>' +
                         select +
                         workflowdescdiv +
@@ -110,7 +141,7 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
 
                     ModalFactory.create({
                         type: ModalFactory.types.SAVE_CANCEL,
-                        title: langstrings[5],
+                        title: ismassaction ? langstrings[10] : langstrings[5],
                         body: body
                     }, undefined)
                         .then(function(modal) {
@@ -133,6 +164,8 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                                 resumeLiveUpdate(ocinstanceid, contextid, liveupdate);
                                 // Destroy when hidden/closed.
                                 modal.destroy();
+                                // Change the bulk action select back to choose...
+                                resetVideosTableBulkActions(massactioncontainer);
                             });
 
                             // Show description for initial value.
@@ -269,6 +302,10 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             var items = getLiveUpdateItems();
             if (items.length) {
                 window.liveUpdateInterval = setInterval(function() {
+                    // Adding the state checker here, in order to pause the live update from other js modules like block_massaction.
+                    if (window.liveUpdateState === 'paused') {
+                        return;
+                    }
                     var processingItems = getLiveUpdateProcessingItems();
                     var uploadingItems = getLiveUpdateUploadingItems();
                     if (processingItems.length == 0 && uploadingItems.length == 0) {
@@ -494,6 +531,22 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
             });
         };
 
+        /**
+         * Resets the bulk action select dropdowns.
+         * @param {object} container The wrapper container which contains the dropdowns, table and selection items of massaction.
+         * @param {boolean} disabled a flag to set the dropdown attribute upon using the function (default to false).
+         */
+        var resetVideosTableBulkActions = function (container, disabled = false) {
+            if (!container) {
+                return;
+            }
+            const dropdowns = [...container.querySelectorAll('.opencast-videos-table-massactions')];
+            dropdowns.forEach(dropdown => {
+                dropdown.value = '';
+                dropdown.disabled = disabled;
+            });
+        };
+
         /*
          * Initialise all of the modules for the opencast block.
          */
@@ -546,6 +599,14 @@ define(['jquery', 'core/modal_factory', 'core/modal_events',
                 },
                 {
                     key: 'unarchiveuploadjobconfirmbtn_save',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'videostable_massaction_startworkflow_modal_body',
+                    component: 'block_opencast'
+                },
+                {
+                    key: 'videostable_massaction_startworkflow_modal_title',
                     component: 'block_opencast'
                 }
             ];

@@ -74,6 +74,7 @@ class ingest_uploader {
     public static function create_event($job) {
         global $DB;
         $apibridge = apibridge::get_instance($job->ocinstanceid);
+        $wfconfighelper = workflowconfiguration_helper::get_instance($job->ocinstanceid);
 
         switch ($job->status) {
             case self::STATUS_INGEST_CREATING_MEDIA_PACKAGE:
@@ -216,7 +217,10 @@ class ingest_uploader {
                 }
             case self::STATUS_INGEST_INGESTING:
                 try {
-                    $workflow = $apibridge->ingest($job->mediapackage);
+                    // Prepare workflow configuration beforehand.
+                    $processingdata = $wfconfighelper->get_workflow_processing_data($job->workflowconfiguration);
+                    $workflowconfiguration = $processingdata['configuration'];
+                    $workflow = $apibridge->ingest($job->mediapackage, '', $workflowconfiguration);
                     mtrace('... video uploaded');
                     // Move on to next status.
                     self::update_status_with_mediapackage($job, upload_helper::STATUS_UPLOADED);
@@ -227,6 +231,8 @@ class ingest_uploader {
 
                     $event = new stdClass();
                     $event->identifier = $values[array_search('MP:MEDIAPACKAGE',
+                        array_column($values, 'tag'))]['attributes']['ID'];
+                    $event->workflowid = $values[array_search('MP:WORKFLOW',
                         array_column($values, 'tag'))]['attributes']['ID'];
 
                     return $event;

@@ -158,8 +158,10 @@ class upload_helper {
      * @param int $courseid Course id
      * @param object $options Options
      * @param object $visibility Visibility object
+     * @param string $workflowconfiguration Workflow configuration
      */
-    public static function save_upload_jobs($ocinstanceid, $courseid, $options, $visibility = null) {
+    public static function save_upload_jobs($ocinstanceid, $courseid, $options, $visibility = null,
+                                            $workflowconfiguration = null) {
         global $DB, $USER;
 
         // Find the current files for the jobs.
@@ -229,6 +231,12 @@ class upload_helper {
         $job->timecreated = time();
         $job->timemodified = $job->timecreated;
         $job->ocinstanceid = $ocinstanceid;
+
+        // Add workflow processing data to the uploadjob as json string.
+        if (!empty($workflowconfiguration)) {
+            $job->workflowconfiguration = $workflowconfiguration;
+        }
+
         $uploadjobid = $DB->insert_record('block_opencast_uploadjob', $job);
 
         $options->uploadjobid = $uploadjobid;
@@ -638,6 +646,7 @@ class upload_helper {
                 if ($event) {
                     $stepsuccessful = true;
                     $job->opencasteventid = $event->identifier;
+                    $job->workflowid = (int) $event->workflowid;
                     $DB->update_record('block_opencast_uploadjob', $job);
                 }
                 break;
@@ -819,6 +828,21 @@ class upload_helper {
             return $metadata->name !== 'title' && !empty($metadata->batchable);
         });
         return !empty($batchmetadatacatalog) ? $batchmetadatacatalog : [];
+    }
+
+    /**
+     * Gets the catalog of metadata fields from database for mass action.
+     *
+     * @param int $ocinstanceid Opencast instance id.
+     * @return array the metadata catalog array of stdClasses for mass action or empty array.
+     */
+    public static function get_opencast_metadata_catalog_massaction(int $ocinstanceid): array {
+        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        // As for mass action we don't need the single title catalog.
+        $massactionmetadatacatalog = array_filter($metadatacatalog, function ($metadata) {
+            return $metadata->name !== 'title';
+        });
+        return !empty($massactionmetadatacatalog) ? $massactionmetadatacatalog : [];
     }
 
     /**
