@@ -28,7 +28,7 @@ namespace block_opencast\local;
 defined('MOODLE_INTERNAL') || die();
 
 use block_opencast\groupaccess;
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast\task\process_duplicated_event_visibility_change;
 use block_opencast_apibridge_testable;
 use block_opencast_renderer;
@@ -142,12 +142,18 @@ class apibridge {
      * @return OcIngest
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     private function get_ingest_api() {
         $this->api = api::get_instance($this->ocinstanceid, [], [], true);
         if (!property_exists($this->api->opencastapi, 'ingest')) {
-            throw new opencast_connection_exception('ingest_endpoint_notfound', 'block_opencast');
+            throw new opencast_api_response_exception(
+                [
+                    'reason' => 'exception_request_ingest_endpoint_notfound',
+                    'code' => 404,
+                ],
+                false
+            );
         }
         return $this->api->opencastapi->ingest;
     }
@@ -158,19 +164,18 @@ class apibridge {
      * @return string Newly created mediapackage
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function ingest_create_media_package() {
         $ingestapi = $this->get_ingest_api();
         $response = $ingestapi->createMediaPackage();
         $code = $response['code'];
-        $mediapackage = $response['body'];
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
+        $mediapackage = $response['body'];
         return $mediapackage;
     }
 
@@ -182,20 +187,18 @@ class apibridge {
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function ingest_add_catalog($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
         $response = $ingestapi->addCatalog($mediapackage, $flavor, $file);
         $code = $response['code'];
-        $newmediapackage = $response['body'];
 
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
+        $newmediapackage = $response['body'];
         return $newmediapackage;
     }
 
@@ -207,20 +210,18 @@ class apibridge {
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function ingest_add_track($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
         $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file));
         $code = $response['code'];
-        $newmediapackage = $response['body'];
 
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
+        $newmediapackage = $response['body'];
         return $newmediapackage;
     }
 
@@ -232,20 +233,18 @@ class apibridge {
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function ingest_add_attachment($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
         $response = $ingestapi->addAttachment($mediapackage, $flavor, $file);
         $code = $response['code'];
-        $newmediapackage = $response['body'];
 
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
+        $newmediapackage = $response['body'];
         return $newmediapackage;
     }
 
@@ -257,7 +256,7 @@ class apibridge {
      * @return string Workflow instance that was started
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function ingest($mediapackage, $uploadworkflow = '', $workflowconfiguration = []) {
         $ingestapi = $this->get_ingest_api();
@@ -275,14 +274,12 @@ class apibridge {
         }
 
         $code = $response['code'];
-        $workflow = $response['body'];
 
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
+        $workflow = $response['body'];
         return $workflow;
     }
 
@@ -356,10 +353,8 @@ class apibridge {
             $response = $this->api->opencastapi->eventsApi->getBySeries($s->series, $params);
             $code = $response['code'];
 
-            if ($code === 0) {
-                throw new opencast_connection_exception('connection_failure', 'block_opencast');
-            } else if ($code != 200) {
-                throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+            if ($code != 200) {
+                throw new opencast_api_response_exception($response);
             }
 
             $videos = $response['body'];
@@ -773,10 +768,8 @@ class apibridge {
         $response = $this->api->opencastapi->seriesApi->getAll($params);
         $code = $response['code'];
 
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
 
         $series = $response['body'];
@@ -1836,34 +1829,33 @@ class apibridge {
 
         $response = $this->api->opencastapi->workflowsApi->getAllDefinitions($queryparams);
         $code = $response['code'];
-        if ($code === 200) {
-            $returnedworkflows = $response['body'];
 
-            // Lookup and filter workflow definitions by tags.
-            if (count($tags) > 1) {
-                $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
-                    return !empty(array_intersect($wd->tags, $tags));
-                });
-            }
-
-            if (!$onlynames) {
-                return $returnedworkflows;
-            }
-
-            foreach ($returnedworkflows as $workflow) {
-
-                if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
-                    $workflows[$workflow->identifier] = $workflow->title;
-                } else {
-                    $workflows[$workflow->identifier] = $workflow->identifier;
-                }
-            }
-            return $workflows;
-        } else if ($code == 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast', '', null, $code);
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
+
+        $returnedworkflows = $response['body'];
+
+        // Lookup and filter workflow definitions by tags.
+        if (count($tags) > 1) {
+            $returnedworkflows = array_filter($returnedworkflows, function ($wd) use ($tags) {
+                return !empty(array_intersect($wd->tags, $tags));
+            });
+        }
+
+        if (!$onlynames) {
+            return $returnedworkflows;
+        }
+
+        foreach ($returnedworkflows as $workflow) {
+
+            if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
+                $workflows[$workflow->identifier] = $workflow->title;
+            } else {
+                $workflows[$workflow->identifier] = $workflow->identifier;
+            }
+        }
+        return $workflows;
     }
 
     /**
@@ -2851,16 +2843,16 @@ class apibridge {
      * @return string event's mediapackage
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function get_event_media_package($eventid) {
         $response = $this->api->opencastrestclient->performGet("/api/episode/{$eventid}");
         $code = $response['code'];
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
+
         $mediapackage = $response['body'];
         return $mediapackage;
     }
@@ -2948,16 +2940,17 @@ class apibridge {
      * Get the opencast version.
      *
      * @return string semantic version number of the opencast server.
+     * @throws opencast_api_response_exception
      */
     public function get_opencast_version() {
         $response = $this->api->opencastapi->sysinfo->getVersion();
         $code = $response['code'];
-        $versionobject = $response['body'];
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
+
+        $versionobject = $response['body'];
         return $versionobject->version;
     }
 
@@ -2971,15 +2964,14 @@ class apibridge {
      * @param boolean $overwrite whether to overwrite the existing one.
      *
      * @return boolean true, if the track is added.
-     * @throws opencast_connection_exception
+     * @throws opencast_api_response_exception
      */
     public function event_add_track($identifier, $flavor, $file, $overwrite = true) {
         $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite);
         $code = $response['code'];
-        if ($code === 0) {
-            throw new opencast_connection_exception('connection_failure', 'block_opencast');
-        } else if ($code != 200) {
-            throw new opencast_connection_exception('unexpected_api_response', 'block_opencast');
+
+        if ($code != 200) {
+            throw new opencast_api_response_exception($response);
         }
         return true;
     }

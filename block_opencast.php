@@ -23,7 +23,7 @@
  */
 
 use block_opencast\local\apibridge;
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 
@@ -133,7 +133,7 @@ class block_opencast extends block_base {
                             $apibridge = apibridge::get_instance($instance->id);
                             $videos[$instance->id] = $apibridge->get_block_videos($COURSE->id);
                         }
-                    } catch (opencast_connection_exception $e) {
+                    } catch (opencast_api_response_exception $e) {
                         $videos[$instance->id] = new stdClass();
                         $videos[$instance->id]->error = $e->getMessage();
                     }
