@@ -1628,12 +1628,9 @@ class block_opencast_renderer extends plugin_renderer_base {
             return;
         }
 
-        // Make sure the html string is valid.
-        $html = $this->close_tags_in_html_string($configurationpanelhtml);
-
         // Initialize the dom and xpath instances.
         $dom = new \DOMDocument('1.0', 'utf-8');
-        $dom->loadHTML($html);
+        $dom->loadHTML($configurationpanelhtml);
         $xpath = new \DOMXpath($dom);
 
         // Extracting all inputs and selects in one loop to maintain the sequence and convert them into moodle form elements.
@@ -1655,6 +1652,10 @@ class block_opencast_renderer extends plugin_renderer_base {
             $default = null;
             $moodleid = $id;
             $mappingtype = 'text';
+
+            // Avoid element naming collisions.
+            $name .= workflowconfiguration_helper::CONFIG_PANEL_ELEMENT_SUFFIX;
+            $moodleid .= workflowconfiguration_helper::CONFIG_PANEL_ELEMENT_SUFFIX;
 
             // Conver input to moodle form element.
             if ($nodetype === 'input') {
@@ -1692,7 +1693,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     $moodletype = substr($type, 0, 8) === 'datetime' ? 'date_time_selector' : 'date_selector';
                     $mform->addElement($moodletype, $moodleid, $title);
                     if (!is_null($value)) {
-                        $default = $value;
+                        $default = (int) $value;
                     }
                 }
 
