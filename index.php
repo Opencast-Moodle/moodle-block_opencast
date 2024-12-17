@@ -368,7 +368,7 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
         if (!empty(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid))) {
             $privacynoticetitle = get_config('block_opencast', 'swprivacynoticetitle_' . $ocinstanceid);
             if (empty($privacynoticetitle)) {
-                $privacynoticetitle = get_string('privacynoticedefaulttitle', 'block_opencast');
+                $privacynoticetitle = get_string('swprivacynoticedefaulttitle', 'block_opencast');
             }
             $targetedworkflows = [];
             $swprivacynoticewfds = get_config('block_opencast', 'swprivacynoticewfds_' . $ocinstanceid);
