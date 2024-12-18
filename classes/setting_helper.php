@@ -30,6 +30,7 @@ use dml_exception;
 use Exception;
 use lang_string;
 use tool_opencast\empty_configuration_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 
 /**
  *  Helper class for admin settings.
@@ -76,7 +77,7 @@ class setting_helper {
      * Returns available workflows with the given tag.
      * @param int $ocinstanceid Opencast instance id.
      * @param string $workflowtags comma separated list of tags
-     * @return array|opencast_connection_exception|Exception|empty_configuration_exception|null
+     * @return array|opencast_api_response_exception|Exception|empty_configuration_exception|null
      */
     public static function load_workflow_choices($ocinstanceid, $workflowtags) {
         // Don't load anything during initial installation.
@@ -93,7 +94,7 @@ class setting_helper {
             return $apibridge->get_available_workflows_for_menu($workflowtags, true);
 
             // Something went wrong and the list of workflows could not be retrieved.
-        } catch (opencast_connection_exception | empty_configuration_exception $e) {
+        } catch (opencast_api_response_exception | empty_configuration_exception $e) {
             return $e;
         }
     }

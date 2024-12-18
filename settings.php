@@ -27,7 +27,7 @@ use block_opencast\admin_setting_configtextvalidate;
 use block_opencast\admin_setting_hiddenhelpbtn;
 use block_opencast\local\ltimodulemanager;
 use block_opencast\local\visibility_helper;
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast\setting_helper;
 use block_opencast\setting_default_manager;
 use core\notification;
@@ -202,7 +202,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('limituploadjobsdesc', 'block_opencast', $link), 1, PARAM_INT));
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'upload');
-            if ($workflowchoices instanceof opencast_connection_exception ||
+            if ($workflowchoices instanceof opencast_api_response_exception ||
                 $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
@@ -259,7 +259,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'delete');
-            if ($workflowchoices instanceof opencast_connection_exception ||
+            if ($workflowchoices instanceof opencast_api_response_exception ||
                 $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
@@ -346,7 +346,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
 
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'archive');
-            if ($workflowchoices instanceof opencast_connection_exception ||
+            if ($workflowchoices instanceof opencast_api_response_exception ||
                 $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];
@@ -1042,7 +1042,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             // The default duplicate-event workflow has archive tag, therefore it needs to be adjusted here as well.
             // As this setting has used api tag for the duplicate event, it is now possible to have multiple tags in here.
             $workflowchoices = setting_helper::load_workflow_choices($instance->id, 'api,archive');
-            if ($workflowchoices instanceof opencast_connection_exception ||
+            if ($workflowchoices instanceof opencast_api_response_exception ||
                 $workflowchoices instanceof empty_configuration_exception) {
                 $opencasterror = $workflowchoices->getMessage();
                 $workflowchoices = [null => get_string('adminchoice_noconnection', 'block_opencast')];

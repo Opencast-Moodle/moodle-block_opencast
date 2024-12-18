@@ -25,7 +25,7 @@
 
 namespace block_opencast\local;
 
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast_renderer;
 use coding_exception;
 use core\notification;
@@ -102,7 +102,7 @@ class addvideo_form extends moodleform {
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->identifier] = $series->title;
                 }
-            } catch (opencast_connection_exception $e) {
+            } catch (opencast_api_response_exception $e) {
                 notification::warning($e->getMessage());
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->series] = $series->series;
@@ -119,7 +119,7 @@ class addvideo_form extends moodleform {
                 foreach ($seriesrecords as $series) {
                     $seriesoption[$series->identifier] = $series->title;
                 }
-            } catch (opencast_connection_exception $e) {
+            } catch (opencast_api_response_exception $e) {
                 notification::warning($e->getMessage());
                 $seriesoption[$this->_customdata['series']] = $this->_customdata['series'];
             }

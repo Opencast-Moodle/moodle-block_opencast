@@ -121,7 +121,7 @@ class massaction_helper {
      *
      * @throws coding_exception If the default actions are not valid.
      */
-    public function __construct(array $defaultactions = null) {
+    public function __construct(array $defaultactions = []) {
         if (!empty($defaultactions)) {
             $this->massactions = $defaultactions;
             if (!$this->validate_massactions()) {

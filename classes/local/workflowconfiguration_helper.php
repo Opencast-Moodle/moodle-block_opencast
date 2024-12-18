@@ -38,6 +38,9 @@ class workflowconfiguration_helper {
     /** @var string The upload workflow mapping hidden input id. */
     const MAPPING_INPUT_HIDDEN_ID = 'configpanelmapping';
 
+    /** @var string A suffix to add to the element ids to avoid conflicts. */
+    const CONFIG_PANEL_ELEMENT_SUFFIX = '_moodle_form_config_panel';
+
     /** @var ?workflowconfiguration_helper the static instance of the class. */
     private static $instance = null;
 
@@ -123,19 +126,22 @@ class workflowconfiguration_helper {
             $configpanelmapping = json_decode($formdata->{self::MAPPING_INPUT_HIDDEN_ID}, true);
             foreach ($configpanelmapping as $cpid => $mappingtype) {
                 $isboolean = $mappingtype === 'boolean';
+                $cpidformatted = str_replace(self::CONFIG_PANEL_ELEMENT_SUFFIX, '', $cpid);
                 if (property_exists($formdata, $cpid)) {
-                    $value = boolval($formdata->$cpid);
+                    $value = $formdata->$cpid;
                     if ($isboolean) {
+                        $value = boolval($value);
                         $value = !empty($value) ? 'true' : 'false';
                     }
                     if ($mappingtype === 'date') {
+                        $value = intval($value);
                         $dobj = new \DateTime("now", new \DateTimeZone("UTC"));
                         $dobj->setTimestamp(intval($value));
                         $value = $dobj->format('Y-m-d\TH:i:s\Z');
                     }
-                    $configpaneldata[$cpid] = $value;
+                    $configpaneldata[$cpidformatted] = $value;
                 } else if ($isboolean) {
-                    $configpaneldata[$cpid] = 'false';
+                    $configpaneldata[$cpidformatted] = 'false';
                 }
             }
         }
