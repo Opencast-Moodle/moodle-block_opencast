@@ -348,7 +348,11 @@ class addvideo_form extends moodleform {
             }
         }
 
-        $maxuploadsize = (int)get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
+        $uploadfilesizelimitmode = (int) get_config('block_opencast', 'uploadfilesizelimitmode_' . $ocinstanceid);
+        $maxuploadsize = defined('USER_CAN_IGNORE_FILE_SIZE_LIMITS') ? USER_CAN_IGNORE_FILE_SIZE_LIMITS : -1; // Unlimited.
+        if ($uploadfilesizelimitmode !== 1) { // The flag for unlimited size is "1", and "0" for limited.
+            $maxuploadsize = (int) get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
+        }
 
         $presenterdesc = html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
         $mform->addElement('html', $presenterdesc);
