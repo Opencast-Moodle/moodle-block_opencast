@@ -446,6 +446,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('uploadfilesizelimitmode_desc', 'block_opencast'),
                     $defaultsizelimitmode, $uploadsizelimitmodes));
 
+                $additionalsettings->hide_if('block_opencast/uploadfilesizelimitmode_' . $instance->id,
+                    'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
+
                 // Dynamic file size limit config setting.
                 $defaultuploadfilelimit = 2 * filesize::UNIT_GB;
                 $additionalsettings->add(new filesize(
@@ -455,6 +458,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     $defaultuploadfilelimit,
                     filesize::UNIT_GB
                 ));
+                // Double dependencies.
                 $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
                     'block_opencast/uploadfilesizelimitmode_' . $instance->id, 'eq', 1);
                 $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
