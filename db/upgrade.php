@@ -885,5 +885,35 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024093000, 'opencast');
     }
 
+    // Taking care of new dynamic file size limitation chunkuploader config settings.
+    if ($oldversion < 2024111103) {
+        // First, we read all the current "uploadfilelimit" config settings if exist.
+        $params = ['plugin' => 'block_opencast', 'configname' => 'uploadfilelimit%'];
+        $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
+        if ($entries = $DB->get_records_select('config_plugins', $whereclause, $params, '', 'name, value')) {
+            $defaultfilelimit = 2147483648; // It is 2 GB default.
+            $limitedmodeflag = 0;
+            $unlimitedmodeflag = 1;
+            foreach ($entries as $entry) {
+                // We prepate the config names, by a simple replacement to maintain the ocinstance number at the end.
+                $newconfigname = str_replace('uploadfilelimit', 'uploadfilesizelimitmode', $entry->name);
+                // We decide the value,
+                // if the value is "-1", then it is unlimited, otherwise it is limited.
+                $value = (int) $entry->value;
+                // Unlimited.
+                if ($value === -1) {
+                    // We set the "uploadfilesizelimitmode" to "1" (unlimited).
+                    set_config($newconfigname, $unlimitedmodeflag, 'block_opencast');
+                    // We set the "uploadfilelimit" to the default value of 2 GB.
+                    set_config($entry->name, $defaultfilelimit, 'block_opencast');
+                } else { // Limited.
+                    // We only set the "uploadfilesizelimitmode" to "0" (limited), and NO change for "uploadfilelimit".
+                    set_config($newconfigname, $limitedmodeflag, 'block_opencast');
+                }
+            }
+        }
+        upgrade_block_savepoint(true, 2024111103, 'opencast');
+    }
+
     return true;
 }
