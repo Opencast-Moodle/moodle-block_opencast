@@ -1145,7 +1145,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 $settings = null;
 
 // In order to be able to offer "Settings" links in Plugins overview and Manage blocks,
-// we need to use a specific setting category that has to be "blocksettingopencast",
+// we need to use a specific setting category (admin_category) that has to be "blocksettingopencast",
 // therefore we provide it as a hidden subcategory to block_opencast to minimize the changes.
 $blocksettingscategory = new admin_category('blocksettingopencast', new lang_string('settings_page', 'block_opencast'), true);
 $mainsettingurl = new moodle_url('/admin/category.php', ['category' => 'block_opencast']);
