@@ -1148,7 +1148,7 @@ $settings = null;
 // we need to use a specific setting category that has to be "blocksettingopencast",
 // therefore we provide it as a hidden subcategory to block_opencast to minimize the changes.
 $blocksettingscategory = new admin_category('blocksettingopencast', new lang_string('settings_page', 'block_opencast'), true);
-$mainsettingurl = new moodle_url('/admin/category.php',['category' => 'block_opencast']);
+$mainsettingurl = new moodle_url('/admin/category.php', ['category' => 'block_opencast']);
 $settingexternalpage = new admin_externalpage(
     'blocksettingopencast_externalpage',
     get_string('settings_page_url', 'block_opencast', get_string('settings', 'block_opencast')),
