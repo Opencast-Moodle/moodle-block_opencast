@@ -3155,4 +3155,43 @@ class apibridge {
         $context = context_course::instance($courseid);
         return has_capability('block/opencast:startworkflow', $context);
     }
+
+    /**
+     * Checks if the user has the capability to import arbitrary series into a course.
+     * This method looks for the current series mapping records based on the series id, and checks if the user has
+     * the capability to import series in any of the currently mapped courses to the series.
+     * If there is no mapping record, it allows the user to import the series.
+     *
+     * @param string $seriesid The ID of the series to be imported.
+     * @param int $userid The ID of the user performing the import.
+     *
+     * @return bool True if the user is somehow capable to import the series to any mapped courses, false otherwise.
+     */
+    public function can_user_import_arbitrary_series(string $seriesid, int $userid): bool {
+        // Step 1: Get current series mapping records.
+        $mappings = seriesmapping::get_records(['series' => $seriesid, 'ocinstanceid' => $this->ocinstanceid], 'courseid');
+
+        // Step 2: Check if the mapping is empty, then allow it to be imported.
+        // It makes sense to allow it to be imported, because it means the series is new and it has never been introduced
+        // into the Moodle Opencast world!
+        if (empty($mappings)) {
+            return true;
+        }
+
+        // Step 3: create a flag to hold the validation value.
+        $isallowed = false;
+
+        // Step 4: Loop through the series mapping records,
+        // to find out if the user is by any chance the capability to import series in any of the mapped courses.
+        foreach ($mappings as $mapping) {
+            $context = context_course::instance($mapping->get('courseid'));
+            if (has_capability('block/opencast:importseriesintocourse', $context, $userid)) {
+                $isallowed = true;
+                break;
+            }
+        }
+
+        // Finall, we return the result of the check.
+        return $isallowed;
+    }
 }

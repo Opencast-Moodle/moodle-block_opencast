@@ -438,6 +438,7 @@ $string['importmode'] = 'Import mode';
 $string['importmodedesc'] = 'In order to define an approach to import videos into a course, a mode should be seleted. The default mode is Duplicating Events in which a new series would be created and events will be avaible in the series by using a dupliaction workflow. <br /> ACL Change approach on the other hand will use the same seriesid among courses but series and events\' ACLs are changes to grant access from the course which imports the videos.<br /><strong>NOTE:</strong> At the moment, the selection of events in import wizards (course and manual) for "ACL Change" is NOT possible, due to avoiding further complications in terms of permissions in Opencast.';
 $string['importseries'] = 'Import series';
 $string['importseries_alreadyexists'] = 'The series you are trying to import is already present. Please choose a different series.';
+$string['importseries_notallowed'] = 'Importing this series into this course is not allowed. Please select a different series or contact the system administrator for assistance.';
 $string['importseries_succeeded'] = 'The series has been successfully imported.';
 $string['importvideos_aclprocessingexplanation'] = 'The seriesid of the selected course will be used in this course and the series\' ACL as well as ACLs of its videos will be changed accordingly.';
 $string['importvideos_errornotenabledorworking'] = 'The import videos feature is not enabled or not working';
