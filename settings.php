@@ -31,6 +31,7 @@ use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast\setting_helper;
 use block_opencast\setting_default_manager;
 use core\notification;
+use core_admin\local\settings\filesize;
 use tool_opencast\empty_configuration_exception;
 use tool_opencast\local\environment_util;
 use tool_opencast\local\settings_api;
@@ -432,21 +433,36 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                         get_string('enablechunkupload', 'block_opencast'),
                         get_string('enablechunkupload_desc', 'block_opencast'), true));
 
-                $sizelist = [-1, 53687091200, 21474836480, 10737418240, 5368709120, 2147483648, 1610612736, 1073741824,
-                    536870912, 268435456, 134217728, 67108864, ];
-                $filesizes = [];
-                foreach ($sizelist as $sizebytes) {
-                    $filesizes[(string)intval($sizebytes)] = display_size($sizebytes);
-                }
+                // File size limitation mode config setting.
+                $uploadsizelimitmodes = [
+                    0 => get_string('uploadfilesizelimited', 'block_opencast'), // Limited.
+                    1 => get_string('uploadfilesizeunlimited', 'block_opencast'), // Unlimited.
+                ];
 
-                $additionalsettings->add(new admin_setting_configselect('block_opencast/uploadfilelimit_' . $instance->id,
+                $defaultsizelimitmode = 1; // Unlimited as default.
+
+                $additionalsettings->add(new admin_setting_configselect('block_opencast/uploadfilesizelimitmode_' . $instance->id,
+                    get_string('uploadfilesizelimitmode', 'block_opencast'),
+                    get_string('uploadfilesizelimitmode_desc', 'block_opencast'),
+                    $defaultsizelimitmode, $uploadsizelimitmodes));
+
+                $additionalsettings->hide_if('block_opencast/uploadfilesizelimitmode_' . $instance->id,
+                    'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
+
+                // Dynamic file size limit config setting.
+                $defaultuploadfilelimit = 2 * filesize::UNIT_GB;
+                $additionalsettings->add(new filesize(
+                    'block_opencast/uploadfilelimit_' . $instance->id,
                     get_string('uploadfilelimit', 'block_opencast'),
                     get_string('uploadfilelimitdesc', 'block_opencast'),
-                    2147483648, $filesizes));
-                if ($CFG->branch >= 37) { // The hide_if functionality for admin settings is not available before Moodle 3.7.
-                    $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
-                        'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
-                }
+                    $defaultuploadfilelimit,
+                    filesize::UNIT_GB
+                ));
+                // Double dependencies.
+                $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
+                    'block_opencast/uploadfilesizelimitmode_' . $instance->id, 'eq', 1);
+                $additionalsettings->hide_if('block_opencast/uploadfilelimit_' . $instance->id,
+                    'block_opencast/enablechunkupload_' . $instance->id, 'notchecked');
 
                 $additionalsettings->add(
                     new admin_setting_configcheckbox('block_opencast/offerchunkuploadalternative_' . $instance->id,
