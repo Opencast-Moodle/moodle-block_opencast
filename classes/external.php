@@ -285,8 +285,13 @@ class block_opencast_external extends external_api {
             throw new moodle_exception('importseries_alreadyexists', 'block_opencast');
         }
 
-        // Perform ACL change.
         $apibridge = apibridge::get_instance($params['ocinstanceid']);
+        // Ensure the import series is allowed.
+        if (!$apibridge->can_user_import_arbitrary_series($params['seriesid'], $USER->id)) {
+            throw new moodle_exception('importseries_notallowed', 'block_opencast');
+        }
+
+        // Perform ACL change.
         $result = $apibridge->import_series_to_course_with_acl_change($course->id, $params['seriesid'], $USER->id);
 
         if ($result->error) {
