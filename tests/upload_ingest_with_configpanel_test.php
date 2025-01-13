@@ -126,9 +126,9 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
 
         // Workflow configuration helper assertions.
         $wfconfighelper = workflowconfiguration_helper::get_instance(1);
-        $this->assertTrue($wfconfighelper->can_provide_configuration_panel());
-        $this->assertNotEmpty($wfconfighelper->get_upload_workflow_configuration_panel());
-        $this->assertNotEmpty($wfconfighelper->get_allowed_upload_configurations());
+        $this->assertTrue($wfconfighelper->can_provide_configuration_panel(), 'Unable to provide configuration panel!');
+        $this->assertNotEmpty($wfconfighelper->get_upload_workflow_configuration_panel(), 'Config panel is empty!');
+        $this->assertNotEmpty($wfconfighelper->get_allowed_upload_configurations(), 'Allowed configs are empty!');
 
         $configpanelelementmapping = ['straightToPublishing' => 'boolean'];
         $formdata = new stdClass();

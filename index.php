@@ -29,7 +29,7 @@ use block_opencast\local\liveupdate_helper;
 use block_opencast\local\ltimodulemanager;
 use block_opencast\local\massaction_helper;
 use block_opencast\local\upload_helper;
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use core\notification;
 use tool_opencast\local\settings_api;
 require_once('../../config.php');
@@ -59,7 +59,7 @@ try {
         $tags = array_map('trim', $tags);
         $workflows = $apibridge->get_existing_workflows($tags, false);
     }
-} catch (opencast_connection_exception $e) {
+} catch (opencast_api_response_exception $e) {
     $opencasterror = $e->getMessage();
 }
 $workflowsavailable = count($workflows) > 0;
