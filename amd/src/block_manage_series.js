@@ -476,7 +476,7 @@ export const init = (contextid, ocinstanceid, createseries, series, numseriesall
                             fail: function(er) {
                                 modal.destroy();
                                 var message = jsstrings[11];
-                                if (er.errorcode === 'importseries_alreadyexists') {
+                                if (['importseries_alreadyexists', 'importseries_notallowed'].includes(er.errorcode)) {
                                     message = er.message;
                                 }
                                 displayError(message);

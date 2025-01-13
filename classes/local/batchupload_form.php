@@ -149,6 +149,14 @@ class batchupload_form extends moodleform {
                 });
             }
 
+            // Converting value to default value if exists in params JSON.
+            $configureddefault = null;
+            if (isset($param['value'])) {
+                $configureddefault = $param['value'];
+                // We unset this here, to make it clean.
+                unset($param['value']);
+            }
+
             // Get the created element back from addElement function, in order to further use its attrs.
             $element = $mform->addElement($field->datatype, $field->name, $this->try_get_string($field->name, 'block_opencast'),
                 $param, $attributes);
@@ -174,7 +182,25 @@ class batchupload_form extends moodleform {
                 }
             }
             $mform->setAdvanced($field->name, !$field->required);
-            $default = (isset($eventdefaults[$field->name]) ? $eventdefaults[$field->name] : null);
+
+            $default = null;
+            if (!empty($configureddefault)) {
+                $default = $configureddefault;
+                // If the default value from the param JSON is used (configured default) and the field is read-only,
+                // this indicates that the field should be displayed in read-only mode and the default value must
+                // also be included in the metadata catalog.
+                if ($field->readonly) {
+                    // We now make sure that the read-only field send its value by form submit.
+                    $element->setPersistantFreeze(true);
+                }
+            }
+
+            // We give precedence to the event defaults configured in the course through "Manage default values".
+            if (isset($eventdefaults[$field->name])) {
+                $default = $eventdefaults[$field->name];
+            }
+
+            // In case we have default value.
             if ($default) {
                 $mform->setDefault($field->name, $default);
             }

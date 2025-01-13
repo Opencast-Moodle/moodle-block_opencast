@@ -110,6 +110,33 @@ define(['jquery'], function($) {
                     setDefaultTitle($(span[0]).text());
                 }
             }, 500);
+            // Enable/Disable "Add video" button for chunkuploader as well.
+            var parent = e.currentTarget.closest('.local_chunkupload');
+            var progressbar = parent ? parent.querySelector('.chunkupload-progress') : null;
+            if (progressbar) {
+                var videoIdentifier = e.currentTarget.getAttribute('id');
+                var isvalid = ['id_video_presenter_chunk_file', 'id_video_presentation_chunk_file'].includes(videoIdentifier);
+                if (isvalid) {
+                    document.querySelector('[name="submitbutton"]').disabled = true;
+                }
+                if (videoIdentifier == 'id_video_presenter_chunk_file') {
+                    window.presenterIntervalHandle = setInterval(() => {
+                        window.presenterRun = true;
+                        if (progressbar.offsetWidth == 0) {
+                            window.presenterRun = false;
+                            afterUpload();
+                        }
+                    }, 500);
+                } else if (videoIdentifier == 'id_video_presentation_chunk_file') {
+                    window.presenterIntervalHandle = setInterval(() => {
+                        window.presentationRun = true;
+                        if (progressbar.offsetWidth == 0) {
+                            window.presentationRun = false;
+                            afterUpload();
+                        }
+                    }, 500);
+                }
+            }
         });
 
         $('.filepickerhidden').on('change', function(e) {
