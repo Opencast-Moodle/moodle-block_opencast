@@ -78,7 +78,9 @@ class setting_default_manager {
             '{"name":"creator","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,' .
             '"batchable":0},' .
             '{"name":"contributor","datatype":"autocomplete","required":0,"readonly":0,"param_json":null,"defaultable":0,' .
-            '"batchable":0}]';
+            '"batchable":0},' .
+            '{"name":"location","datatype":"text","required":0,"readonly":1,"param_json":"{\"value\":\"Moodle\"}"' .
+            ',"defaultable":0,"batchable":0}]';
     }
 
     /**
