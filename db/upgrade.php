@@ -885,8 +885,9 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024093000, 'opencast');
     }
 
-    // Taking care of new dynamic file size limitation chunkuploader config settings.
     if ($oldversion < 2024111103) {
+
+        // Taking care of new dynamic file size limitation chunkuploader config settings.
         // First, we read all the current "uploadfilelimit" config settings if exist.
         $params = ['plugin' => 'block_opencast', 'configname' => 'uploadfilelimit%'];
         $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
@@ -909,6 +910,47 @@ function xmldb_block_opencast_upgrade($oldversion) {
                 } else { // Limited.
                     // We only set the "uploadfilesizelimitmode" to "0" (limited), and NO change for "uploadfilelimit".
                     set_config($newconfigname, $limitedmodeflag, 'block_opencast');
+                }
+            }
+        }
+
+        // Taking care of new "location" metadata field for events.
+        // First, we read all the current "metadata" config settings if exist.
+        $params = ['plugin' => 'block_opencast', 'configname' => '%metadata\_%'];
+        $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
+        if ($entries = $DB->get_records_select('config_plugins', $whereclause, $params, '', 'name, value')) {
+            foreach ($entries as $entry) {
+                $eventmetadata = $entry->value;
+                // We only need to add the new location if the metadata config is not empty,
+                // if it is empty, it means it is not properly saved yet, so we do not need to do anything.
+                if (!empty($entry->value)) {
+                    // Decode the existing metadata JSON to an array.
+                    $metadata = json_decode($entry->value, true);
+                    // Check if the location metadata already exists.
+                    $locationmetadataexists = array_filter($metadata, function ($metadataentry) {
+                        return $metadataentry['name'] === 'location';
+                    });
+                    // If the location metadata already exists, we do not need to add it again.
+                    if (!empty($locationmetadataexists)) {
+                        continue;
+                    }
+                    // If the location metadata does not exist, we create a new entry for it.
+                    // Create a new entry for the location metadata.
+                    $locationmetadataarray = [
+                        "name" => "location",
+                        "datatype" => "text",
+                        "required" => 0,
+                        "readonly" => 1,
+                        "param_json" => "{\"value\":\"Moodle\"}", // Default value for the location metadata.
+                        "defaultable" => 0,
+                        "batchable" => 0,
+                    ];
+                    // Add the new location entry to the metadata array.
+                    $metadata[] = $locationmetadataarray;
+                    // Encode the metadata array back to JSON.
+                    $newmetadata = json_encode($metadata);
+                    // Save the new metadata back to the config with added location metadata.
+                    set_config($entry->name, $newmetadata, 'block_opencast');
                 }
             }
         }

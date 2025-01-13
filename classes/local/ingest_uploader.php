@@ -23,7 +23,7 @@
 
 namespace block_opencast\local;
 
-use block_opencast\opencast_connection_exception;
+use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast\opencast_state_exception;
 use coding_exception;
 use DateTime;
@@ -84,7 +84,7 @@ class ingest_uploader {
                     // Move on to next status.
                     self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_EPISODE_CATALOG,
                         true, false, false, $mediapackage);
-                } catch (opencast_connection_exception $e) {
+                } catch (opencast_api_response_exception $e) {
                     mtrace('... failed to create media package');
                     mtrace($e->getMessage());
                     break;
@@ -102,7 +102,7 @@ class ingest_uploader {
                     self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_FIRST_TRACK,
                         true, false, false, $mediapackage);
 
-                } catch (opencast_connection_exception $e) {
+                } catch (opencast_api_response_exception $e) {
                     mtrace('... failed to add episode metadata');
                     mtrace($e->getMessage());
                     break;
@@ -145,7 +145,7 @@ class ingest_uploader {
                         self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_SECOND_TRACK,
                             true, false, false, $mediapackage);
 
-                    } catch (opencast_connection_exception $e) {
+                    } catch (opencast_api_response_exception $e) {
                         mtrace('... failed upload presenter');
                         mtrace($e->getMessage());
                         break;
@@ -189,7 +189,7 @@ class ingest_uploader {
                         self::update_status_with_mediapackage($job, self::STATUS_INGEST_ADDING_ACL_ATTACHMENT,
                             true, false, false, $mediapackage);
 
-                    } catch (opencast_connection_exception $e) {
+                    } catch (opencast_api_response_exception $e) {
                         mtrace('... failed upload presentation');
                         mtrace($e->getMessage());
                         break;
@@ -210,7 +210,7 @@ class ingest_uploader {
                     self::update_status_with_mediapackage($job, self::STATUS_INGEST_INGESTING,
                         true, false, false, $mediapackage);
 
-                } catch (opencast_connection_exception $e) {
+                } catch (opencast_api_response_exception $e) {
                     mtrace('... failed to add acl');
                     mtrace($e->getMessage());
                     break;
@@ -236,7 +236,7 @@ class ingest_uploader {
                         array_column($values, 'tag'))]['attributes']['ID'];
 
                     return $event;
-                } catch (opencast_connection_exception $e) {
+                } catch (opencast_api_response_exception $e) {
                     mtrace('... failed to add acl');
                     mtrace($e->getMessage());
                     break;
