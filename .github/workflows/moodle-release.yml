@@ -10,7 +10,7 @@ on:
 
 jobs:
   call-moodle-release-workflow:
-    uses: Opencast-Moodle/moodle-workflows-opencast/.github/workflows/moodle-release.yml@master
+    uses: Opencast-Moodle/moodle-workflows-opencast/.github/workflows/moodle-release.yml@main
     with:
       plugin-name: 'block_opencast'
     secrets: inherit
