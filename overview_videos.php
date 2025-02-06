@@ -137,7 +137,7 @@ $addvideobutton = $OUTPUT->single_button($addvideourl, get_string('addvideo', 'b
 echo html_writer::div($addvideobutton);
 
 // Show "Add videos (batch)" button.
-if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
+if (get_config('tool_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
     $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
         ['courseid' => $SITE->id, 'ocinstanceid' => $ocinstanceid, 'intoseries' => $series]);
     $batchuploadbutton = $OUTPUT->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
@@ -205,7 +205,7 @@ $table = $renderer->create_overview_videos_table($tableid, $headers, $columns, $
 $videos = $apibridge->get_series_videos($series)->videos;
 $activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
-    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
+    !empty(get_config('tool_opencast', 'aclownerrole_' . $ocinstanceid));
 
 // To store rows, and use them later, which gives better control over the table.
 $rows = [];

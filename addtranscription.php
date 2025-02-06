@@ -62,7 +62,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
-    empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+    empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('unabletoaddnewtranscription', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }

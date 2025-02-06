@@ -70,7 +70,7 @@ class importvideosmanager {
      */
     public static function is_enabled_and_working_for_manualimport($ocinstanceid) {
         // Get the status of the whole import featureset.
-        $config = get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideosenabled_' . $ocinstanceid);
 
         // If the setting is false, then the featureset is not enabled.
         if ($config == false) {
@@ -92,7 +92,7 @@ class importvideosmanager {
 
         // Get the status of the manual import setting.
         // Since this setting is shared between both import modes, we put it before import mode checkers.
-        $config = get_config('block_opencast', 'importvideosmanualenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideosmanualenabled_' . $ocinstanceid);
 
         // If the setting is false, then the subfeature is not enabled.
         if ($config == false) {
@@ -101,7 +101,7 @@ class importvideosmanager {
         }
 
         // Get the import mode.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
 
         if (empty($importmode)) {
             // Inform the caller.
@@ -111,7 +111,7 @@ class importvideosmanager {
         // If Duplicating Events is selected as the import mode.
         if ($importmode == 'duplication') {
             // Get the configured duplicate workflow.
-            $workflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
+            $workflow = get_config('tool_opencast', 'duplicateworkflow_' . $ocinstanceid);
 
             // If the workflow is empty, then the feature is not working.
             if (empty($workflow)) {
@@ -142,7 +142,7 @@ class importvideosmanager {
      */
     public static function is_enabled_and_working_for_coreimport($ocinstanceid) {
         // Get the status of the whole import featureset.
-        $config = get_config('block_opencast', 'importvideosenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideosenabled_' . $ocinstanceid);
 
         // If the setting is false, then the featureset is not enabled.
         if ($config == false) {
@@ -151,7 +151,7 @@ class importvideosmanager {
         }
 
         // Get the status of the subfeature.
-        $config = get_config('block_opencast', 'importvideoscoreenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideoscoreenabled_' . $ocinstanceid);
 
         // If the setting is false, then the subfeature is not enabled.
         if ($config == false) {
@@ -160,7 +160,7 @@ class importvideosmanager {
         }
 
         // Get the import mode.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
 
         if (empty($importmode)) {
             // Inform the caller.
@@ -182,7 +182,7 @@ class importvideosmanager {
         // If Duplicating Events is selected as the import mode.
         if ($importmode == 'duplication') {
             // Get the configured duplicate workflow.
-            $workflow = get_config('block_opencast', 'duplicateworkflow_' . $ocinstanceid);
+            $workflow = get_config('tool_opencast', 'duplicateworkflow_' . $ocinstanceid);
 
             // If the workflow is empty, then the feature is not working.
             if (empty($workflow)) {
@@ -212,7 +212,7 @@ class importvideosmanager {
      */
     public static function handle_series_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleseriesenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideoshandleseriesenabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -243,7 +243,7 @@ class importvideosmanager {
      */
     public static function handle_episode_modules_is_enabled_and_working($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'importvideoshandleepisodeenabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'importvideoshandleepisodeenabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {

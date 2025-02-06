@@ -80,7 +80,7 @@ class ltimodulemanager {
      */
     public static function get_preconfigured_tool_for_series($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltipreconfiguredtool_' . $ocinstanceid);
+        $toolid = get_config('tool_opencast', 'addltipreconfiguredtool_' . $ocinstanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -88,7 +88,7 @@ class ltimodulemanager {
         // If the preconfigured LTI tool to be used is not in the list of available tools, something is wrong.
         if (!array_key_exists($toolid, $tools)) {
             // Reset the plugin config.
-            set_config('block_opencast', null, 'addltipreconfiguredtool_' . $ocinstanceid);
+            set_config('tool_opencast', null, 'addltipreconfiguredtool_' . $ocinstanceid);
 
             // Inform the caller.
             return false;
@@ -107,7 +107,7 @@ class ltimodulemanager {
      */
     public static function get_preconfigured_tool_for_episode($ocinstanceid) {
         // Get the preconfigured LTI tool to be used.
-        $toolid = get_config('block_opencast', 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
+        $toolid = get_config('tool_opencast', 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
 
         // Get the list of available preconfigured LTI tools.
         $tools = self::get_preconfigured_tools();
@@ -115,7 +115,7 @@ class ltimodulemanager {
         // If the preconfigured LTI tool to be used is not in the list of available tools, something is wrong.
         if (!array_key_exists($toolid, $tools)) {
             // Reset the plugin config.
-            set_config('block_opencast', null, 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
+            set_config('tool_opencast', null, 'addltiepisodepreconfiguredtool_' . $ocinstanceid);
 
             // Inform the caller.
             return false;
@@ -134,7 +134,7 @@ class ltimodulemanager {
      */
     public static function is_enabled_and_working_for_series($ocinstanceid) {
         // Get the status of the feature.
-        $config = get_config('block_opencast', 'addltienabled_' . $ocinstanceid);
+        $config = get_config('tool_opencast', 'addltienabled_' . $ocinstanceid);
 
         // If the setting is false, then the feature is not working.
         if ($config == false) {
@@ -197,7 +197,7 @@ class ltimodulemanager {
         // If we don't know the status yet, check the status of the feature.
         if ($enabledandworking === null) {
             // Get the status of the feature.
-            $config = get_config('block_opencast', 'addltiepisodeenabled_' . $ocinstanceid);
+            $config = get_config('tool_opencast', 'addltiepisodeenabled_' . $ocinstanceid);
 
             // If the setting is false, then the feature is not working.
             if ($config == false) {
@@ -928,7 +928,7 @@ class ltimodulemanager {
      */
     public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addltidefaulttitle_' . $ocinstanceid);
+        $defaulttitle = get_config('tool_opencast', 'addltidefaulttitle_' . $ocinstanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {
@@ -1091,14 +1091,14 @@ class ltimodulemanager {
         $seriestoolids = [];
         // Get the lti tools based on ocinstances.
         foreach ($ocinstances as $ocinstance) {
-            $isaddltiepisodeenabled = get_config('block_opencast', 'addltiepisodeenabled_' . $ocinstance->id);
+            $isaddltiepisodeenabled = get_config('tool_opencast', 'addltiepisodeenabled_' . $ocinstance->id);
             if (!empty($isaddltiepisodeenabled)) {
                 $episodetoolid = self::get_preconfigured_tool_for_episode($ocinstance->id);
                 if (!empty($episodetoolid) && !array_key_exists($episodetoolid, $episodetoolids)) {
                     $episodetoolids[$episodetoolid] = $ocinstance->id;
                 }
             }
-            $isaddltienabled = get_config('block_opencast', 'addltienabled_' . $ocinstance->id);
+            $isaddltienabled = get_config('tool_opencast', 'addltienabled_' . $ocinstance->id);
             if ($isaddltienabled) {
                 $seriestoolid = self::get_preconfigured_tool_for_series($ocinstance->id);
                 if (!empty($seriestoolid) && !array_key_exists($seriestoolid, $seriestoolids)) {
@@ -1200,14 +1200,14 @@ class ltimodulemanager {
         // Getting preconfigured lti tools.
         $toolids = [];
         foreach ($ocinstances as $ocinstance) {
-            $isaddltiepisodeenabled = get_config('block_opencast', 'addltiepisodeenabled_' . $ocinstance->id);
+            $isaddltiepisodeenabled = get_config('tool_opencast', 'addltiepisodeenabled_' . $ocinstance->id);
             if (!empty($isaddltiepisodeenabled)) {
                 $episodetoolid = self::get_preconfigured_tool_for_episode($ocinstance->id);
                 if (!empty($episodetoolid) && !in_array($episodetoolid, $toolids)) {
                     $toolids[] = ['id' => $episodetoolid, 'ocinstanceid' => $ocinstance->id];
                 }
             }
-            $isaddltienabled = get_config('block_opencast', 'addltienabled_' . $ocinstance->id);
+            $isaddltienabled = get_config('tool_opencast', 'addltienabled_' . $ocinstance->id);
             if (!empty($isaddltienabled)) {
                 $seriestoolid = self::get_preconfigured_tool_for_series($ocinstance->id);
                 if (!empty($seriestoolid) && !in_array($seriestoolid, $toolids)) {
@@ -1345,7 +1345,7 @@ class ltimodulemanager {
         foreach ($allepisodemodules as $episodemodule) {
             $isvalid = true;
             // Check if the setting is enabled at all.
-            $isaddltiepisodeenabled = get_config('block_opencast', 'addltiepisodeenabled_' . $episodemodule->ocinstanceid);
+            $isaddltiepisodeenabled = get_config('tool_opencast', 'addltiepisodeenabled_' . $episodemodule->ocinstanceid);
             if (empty($isaddltiepisodeenabled)) {
                 // We shutdown the cleanup process, to avoid unwanted behaviors.
                 continue;
@@ -1387,7 +1387,7 @@ class ltimodulemanager {
         foreach ($allseriesmodules as $seriesmodule) {
             $isvalid = true;
             // Check if the setting is enabled at all.
-            $isaddltienabled = get_config('block_opencast', 'addltienabled_' . $seriesmodule->ocinstanceid);
+            $isaddltienabled = get_config('tool_opencast', 'addltienabled_' . $seriesmodule->ocinstanceid);
             if (empty($isaddltienabled)) {
                 // We shutdown the cleanup process, to avoid unwanted behaviors.
                 continue;

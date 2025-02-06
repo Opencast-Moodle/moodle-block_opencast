@@ -59,7 +59,7 @@ if ($courseid == $SITE->id) {
     $viewfullnames = has_capability('moodle/site:viewfullnames', $coursecontext);
 }
 
-if (empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid))) {
+if (empty(get_config('tool_opencast', 'aclownerrole_' . $ocinstanceid))) {
     redirect($redirecturl, get_string('functionalitydisabled', 'block_opencast'), null,
         notification::NOTIFY_ERROR);
 }
@@ -146,4 +146,3 @@ if (!$isowner &&
     $changeownerform->display();
     echo $OUTPUT->footer();
 }
-

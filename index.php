@@ -54,8 +54,8 @@ $opencasterror = null;
 
 try {
     $workflows = [];
-    if (!empty(get_config('block_opencast', 'workflow_tags_' . $ocinstanceid))) {
-        $tags = explode(',', get_config('block_opencast', 'workflow_tags_' . $ocinstanceid));
+    if (!empty(get_config('tool_opencast', 'workflow_tags_' . $ocinstanceid))) {
+        $tags = explode(',', get_config('tool_opencast', 'workflow_tags_' . $ocinstanceid));
         $tags = array_map('trim', $tags);
         $workflows = $apibridge->get_existing_workflows($tags, false);
     }
@@ -72,8 +72,8 @@ foreach ($workflows as $workflow) {
     }
 }
 // Get live update config settings.
-$liveupdateenabled = boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid));
-$liveupdatereloadtimeout = intval(get_config('block_opencast', 'liveupdatereloadtimeout_' . $ocinstanceid));
+$liveupdateenabled = boolval(get_config('tool_opencast', 'liveupdateenabled_' . $ocinstanceid));
+$liveupdatereloadtimeout = intval(get_config('tool_opencast', 'liveupdatereloadtimeout_' . $ocinstanceid));
 // Apply the default of 3 seconds for the reload timeout, if not set or incorrect.
 if ($liveupdatereloadtimeout < 0) {
     $liveupdatereloadtimeout = 3;
@@ -112,7 +112,7 @@ $columns = ['start_date'];
 $headers = ['start_date'];
 
 // If configured, add the end date column.
-if (get_config('block_opencast', 'showenddate_' . $ocinstanceid)) {
+if (get_config('tool_opencast', 'showenddate_' . $ocinstanceid)) {
     $columns[] = 'end_date';
     $headers[] = 'end_date';
 }
@@ -122,13 +122,13 @@ $columns[] = 'title';
 $headers[] = 'title';
 
 // If configured, add the location column.
-if (get_config('block_opencast', 'showlocation_' . $ocinstanceid)) {
+if (get_config('tool_opencast', 'showlocation_' . $ocinstanceid)) {
     $columns[] = 'location';
     $headers[] = 'location';
 }
 
 // If configured, add the publication channel column.
-if (get_config('block_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
+if (get_config('tool_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
     $columns[] = 'published';
     $headers[] = 'published';
 }
@@ -139,8 +139,8 @@ $headers[] = 'workflow_state';
 
 // If configured, add the visibility column.
 $toggleaclroles = (count($apibridge->getroles(0)) !== 0) &&
-    (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) != "") &&
-    (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true);
+    (get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid) != "") &&
+    (get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) == true);
 if ($toggleaclroles) {
     $columns[] = 'visibility';
     $headers[] = 'visibility';
@@ -260,7 +260,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext)) {
 // Section "Upload or record videos".
 if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $courseid) {
     // Show heading and explanation depending if Opencast Studio is enabled.
-    if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
+    if (get_config('tool_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         // Show heading.
         echo $OUTPUT->heading(get_string('uploadrecordvideos', 'block_opencast'));
 
@@ -284,7 +284,7 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
     echo html_writer::div($addvideobutton);
 
     // Show "Add videos (batch)" button.
-    if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
+    if (get_config('tool_opencast', 'batchuploadenabled_' . $ocinstanceid)) {
         $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
             ['courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
         $batchuploadbutton = $OUTPUT->single_button($batchuploadurl, get_string('batchupload', 'block_opencast'), 'get');
@@ -292,19 +292,19 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
     }
 
     // If Opencast Studio is enabled, show "Record video" button.
-    if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
+    if (get_config('tool_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         $target = '_self';
         // Check for the admin config to set the link target.
-        if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstanceid)) {
+        if (get_config('tool_opencast', 'open_studio_in_new_tab_' . $ocinstanceid)) {
             $target = '_blank';
         }
 
         // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
         if (empty($apibridge->get_lti_consumerkey($ocinstanceid))) {
-            if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
+            if (empty(get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
                 $endpoint = settings_api::get_apiurl($ocinstanceid);
             } else {
-                $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
+                $endpoint = get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
             }
 
             if (strpos($endpoint, 'http') !== 0) {
@@ -365,13 +365,13 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
         echo '<p class="d-none" id="workflowsjson">' . json_encode($workflowsjs) . '</p>';
 
         // Workflow Privacy Notice.
-        if (!empty(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid))) {
-            $privacynoticetitle = get_config('block_opencast', 'swprivacynoticetitle_' . $ocinstanceid);
+        if (!empty(get_config('tool_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid))) {
+            $privacynoticetitle = get_config('tool_opencast', 'swprivacynoticetitle_' . $ocinstanceid);
             if (empty($privacynoticetitle)) {
                 $privacynoticetitle = get_string('swprivacynoticedefaulttitle', 'block_opencast');
             }
             $targetedworkflows = [];
-            $swprivacynoticewfds = get_config('block_opencast', 'swprivacynoticewfds_' . $ocinstanceid);
+            $swprivacynoticewfds = get_config('tool_opencast', 'swprivacynoticewfds_' . $ocinstanceid);
             if (!empty($swprivacynoticewfds)) {
                 $targetedworkflows = explode(',', $swprivacynoticewfds);
                 $targetedworkflows = array_map('trim', $targetedworkflows);
@@ -379,7 +379,7 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
             $workflowprivacynoticediv = html_writer::start_tag('div', ['class' => 'd-none', 'id' => 'workflowprivacynotice']);
             $workflowprivacynoticediv .= html_writer::tag('p', $privacynoticetitle, ['id' => 'swprivacynoticetitle']);
             $workflowprivacynoticediv .= html_writer::div(
-                format_text(get_config('block_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid), FORMAT_HTML, []),
+                format_text(get_config('tool_opencast', 'swprivacynoticeinfotext_' . $ocinstanceid), FORMAT_HTML, []),
                 '',
                 ['id' => 'swprivacynoticeinfotext']
             );
@@ -424,7 +424,7 @@ foreach ($seriesvideodata as $series => $videodata) {
         $tableid = 'opencast-videos-table-' . $series;
         $table = $renderer->create_videos_tables($tableid, $headers, $columns, $baseurl);
         $deletedvideos = $DB->get_records("block_opencast_deletejob", [], "", "opencasteventid");
-        $engageurl = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
+        $engageurl = get_config('tool_opencast', 'engageurl_' . $ocinstanceid);
 
         // To store rows, and use them later, which gives better control over the table.
         $rows = [];
@@ -438,7 +438,7 @@ foreach ($seriesvideodata as $series => $videodata) {
             $row[] = $renderer->render_created($video->start);
 
             // End date column.
-            if (get_config('block_opencast', 'showenddate_' . $ocinstanceid)) {
+            if (get_config('tool_opencast', 'showenddate_' . $ocinstanceid)) {
                 if (property_exists($video, 'duration') && $video->duration) {
                     $row[] = userdate(strtotime($video->start) + intdiv($video->duration, 1000),
                         get_string('strftimedatetime', 'langconfig'));
@@ -457,12 +457,12 @@ foreach ($seriesvideodata as $series => $videodata) {
             }
 
             // Location column.
-            if (get_config('block_opencast', 'showlocation_' . $ocinstanceid)) {
+            if (get_config('tool_opencast', 'showlocation_' . $ocinstanceid)) {
                 $row[] = $video->location;
             }
 
             // Publication channel column.
-            if (get_config('block_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
+            if (get_config('tool_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
                 $row[] = $renderer->render_publication_status($video->publication_status);
             }
 
@@ -522,7 +522,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $canchangeowner = ($opencast->is_owner($video->acl, $USER->id, $courseid) ||
                         ($isseriesowner && !$opencast->has_owner($video->acl)) ||
                         has_capability('block/opencast:canchangeownerforallvideos', context_system::instance())) &&
-                    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
+                    !empty(get_config('tool_opencast', 'aclownerrole_' . $ocinstanceid));
                 $canmanagetranscriptions = $opencast->can_edit_event_transcription($video, $courseid);
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
                     $workflowsavailable, $coursecontext, $useeditor, $canchangeowner, $canmanagetranscriptions);
@@ -539,7 +539,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                     $actions .= $renderer->render_delete_event_icon($ocinstanceid, $courseid, $video->identifier);
                 }
 
-                if (!empty(get_config('block_opencast', 'support_email_' . $ocinstanceid))) {
+                if (!empty(get_config('tool_opencast', 'support_email_' . $ocinstanceid))) {
                     $actions .= $renderer->render_report_problem_icon($video->identifier);
                 }
 
@@ -638,7 +638,7 @@ if (importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) 
         // Predefine the duplicating events process explanation.
         $processingexplanation = get_string('importvideos_processingexplanation', 'block_opencast');
         // Get import mode from the admin setting.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
         $renderimport = true;
 
         // Check if the import mode is acl change, then we get another explanation.
@@ -649,7 +649,7 @@ if (importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) 
             // Check if the maximum number of series is already reached.
             $courseseries = $DB->get_records('tool_opencast_series',
                 ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
-            if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+            if (count($courseseries) >= get_config('tool_opencast', 'maxseries_' . $ocinstanceid)) {
                 $renderimport = false;
             }
         }

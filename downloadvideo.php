@@ -59,7 +59,7 @@ if (!$result->error) {
     $video = $result->video;
     if ($video->is_downloadable) {
         foreach ($video->publications as $publication) {
-            if ($publication->channel == get_config('block_opencast', 'download_channel_' . $ocinstanceid)) {
+            if ($publication->channel == get_config('tool_opencast', 'download_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     if ($media->id === $mediaid) {
                         $downloadurl = $media->url;

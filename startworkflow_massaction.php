@@ -66,7 +66,7 @@ $apiworkflow = $apibridge->get_workflow_definition($workflow);
 
 // Apply multiple tags.
 $workflowtags = [];
-$workflowtagsconfig = get_config('block_opencast', 'workflow_tags_' . $ocinstanceid);
+$workflowtagsconfig = get_config('tool_opencast', 'workflow_tags_' . $ocinstanceid);
 if (!empty($workflowtagsconfig)) {
     $workflowtags = explode(',', $workflowtagsconfig);
     $workflowtags = array_map('trim', $workflowtags);

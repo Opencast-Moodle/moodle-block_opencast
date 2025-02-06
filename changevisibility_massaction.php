@@ -55,12 +55,12 @@ $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $redirecturl);
 $PAGE->navbar->add(get_string('changevisibility_massaction', 'block_opencast'), $baseurl);
 
 // Check if the ACL control feature is enabled.
-if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
+if (get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
     throw new moodle_exception('ACL control feature not enabled', 'block_opencast', $redirecturl);
 }
 
 // Workflow is not set.
-if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "") {
+if (get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid) == "") {
     $message = get_string('workflownotdefined', 'block_opencast');
     redirect($redirecturl, $message, null, \core\notification::ERROR);
 }
