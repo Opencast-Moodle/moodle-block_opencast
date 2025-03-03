@@ -602,7 +602,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         if ($videodata->more) {
             $moretext = get_string('morevideos', 'block_opencast');
         }
-        $url = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
+        $url = new moodle_url('/admin/tool/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
 
         // In admin page, we redirect to the series overview page to manage series from there.
         if ($SITE->id == $courseid) {

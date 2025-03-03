@@ -29,7 +29,7 @@ use block_opencast\local\ltimodulemanager;
 use block_opencast\local\visibility_helper;
 use tool_opencast\exception\opencast_api_response_exception;
 use block_opencast\setting_helper;
-use block_opencast\setting_default_manager;
+// use block_opencast\setting_default_manager;
 use core\notification;
 use core_admin\local\settings\filesize;
 use tool_opencast\empty_configuration_exception;
