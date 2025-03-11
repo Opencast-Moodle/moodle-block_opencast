@@ -110,7 +110,7 @@ class block_opencast extends block_base {
 
             $coursecontext = context_course::instance($COURSE->id);
 
-            if (!has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+            if (!has_capability('tool/opencast:viewunpublishedvideos', $coursecontext)) {
                 return $this->content;
             }
 
@@ -205,7 +205,7 @@ class block_opencast extends block_base {
         $bc = parent::get_content_for_output($output);
 
         // Check whether the user can manually delete series mapping.
-        if (!has_capability('block/opencast:manageseriesforcourse', $this->context)) {
+        if (!has_capability('tool/opencast:manageseriesforcourse', $this->context)) {
             return $bc;
         }
 

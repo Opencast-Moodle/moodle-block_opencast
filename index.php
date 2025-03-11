@@ -47,7 +47,7 @@ require_login($courseid, false);
 
 // Capability check.
 $coursecontext = context_course::instance($courseid);
-require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
+require_capability('tool/opencast:viewunpublishedvideos', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $opencasterror = null;
@@ -241,24 +241,24 @@ $seriesid = $apibridge->get_stored_seriesid($courseid);
 $ocseriesid = $apibridge->get_default_course_series($courseid);
 
 if ($seriesid && !$ocseriesid) {
-    if (has_capability('block/opencast:importseriesintocourse', $coursecontext)) {
+    if (has_capability('tool/opencast:importseriesintocourse', $coursecontext)) {
         echo $OUTPUT->notification(get_string('series_does_not_exist_admin', 'block_opencast', $seriesid));
     } else {
         echo $OUTPUT->notification(get_string('series_does_not_exist', 'block_opencast'));
     }
 }
 
-if (!$opencasterror && has_capability('block/opencast:manageseriesforcourse', $coursecontext)) {
+if (!$opencasterror && has_capability('tool/opencast:manageseriesforcourse', $coursecontext)) {
     echo $renderer->render_series_settings_actions($ocinstanceid, $courseid);
 }
 
 // Manage default values settings action.
-if (has_capability('block/opencast:addvideo', $coursecontext)) {
+if (has_capability('tool/opencast:addvideo', $coursecontext)) {
     echo $renderer->render_defaults_settings_actions($ocinstanceid, $courseid);
 }
 
 // Section "Upload or record videos".
-if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $courseid) {
+if (has_capability('tool/opencast:addvideo', $coursecontext) && $SITE->id != $courseid) {
     // Show heading and explanation depending if Opencast Studio is enabled.
     if (get_config('tool_opencast', 'enable_opencast_studio_link_' . $ocinstanceid)) {
         // Show heading.
@@ -394,9 +394,9 @@ if ($seriesvideodata && $errors == count($seriesvideodata)) {
 // If enabled and working, add Opencast Activity series module feature.
 
 if ((activitymodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
-        has_capability('block/opencast:addactivity', $coursecontext)) || (
+        has_capability('tool/opencast:addactivity', $coursecontext)) || (
         ltimodulemanager::is_enabled_and_working_for_series($ocinstanceid) &&
-        has_capability('block/opencast:addlti', $coursecontext))) {
+        has_capability('tool/opencast:addlti', $coursecontext))) {
 
     // Show explanation.
     echo html_writer::tag('p', get_string('addactivity_addbuttonexplanation', 'block_opencast'));
@@ -521,7 +521,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                 $useeditor = $opencast->can_edit_event_in_editor($video, $courseid);
                 $canchangeowner = ($opencast->is_owner($video->acl, $USER->id, $courseid) ||
                         ($isseriesowner && !$opencast->has_owner($video->acl)) ||
-                        has_capability('block/opencast:canchangeownerforallvideos', context_system::instance())) &&
+                        has_capability('tool/opencastcanchangeownerforallvideos', context_system::instance())) &&
                     !empty(get_config('tool_opencast', 'aclownerrole_' . $ocinstanceid));
                 $canmanagetranscriptions = $opencast->can_edit_event_transcription($video, $courseid);
                 $actions .= $renderer->render_edit_functions($ocinstanceid, $courseid, $video->identifier, $updatemetadata,
@@ -558,7 +558,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                         $activityicon = $renderer->render_view_activity_episode_icon($moduleid);
 
                         // If there isn't a Opencast Activity episode module yet in this course and the user is allowed to add one.
-                    } else if (has_capability('block/opencast:addactivityepisode', $coursecontext)) {
+                    } else if (has_capability('tool/opencast:addactivityepisode', $coursecontext)) {
                         // Build icon to add the Opencast Activity episode module.
                         $activityicon = $renderer->render_add_activity_episode_icon($ocinstanceid, $courseid, $video->identifier);
                     }
@@ -579,7 +579,7 @@ foreach ($seriesvideodata as $series => $videodata) {
                         $ltiicon = $renderer->render_view_lti_episode_icon($moduleid);
 
                         // If there isn't a LTI episode module yet in this course and the user is allowed to add one.
-                    } else if (has_capability('block/opencast:addltiepisode', $coursecontext)) {
+                    } else if (has_capability('tool/opencast:addltiepisode', $coursecontext)) {
                         // Build icon to add the LTI episode module.
                         $ltiicon = $renderer->render_add_lti_episode_icon($ocinstanceid, $courseid, $video->identifier);
                     }
@@ -631,7 +631,7 @@ foreach ($seriesvideodata as $series => $videodata) {
 // If enabled and working, add manual import videos feature.
 if (importvideosmanager::is_enabled_and_working_for_manualimport($ocinstanceid) == true) {
     // Check if the user is allowed to import videos.
-    if (has_capability('block/opencast:manualimporttarget', $coursecontext)) {
+    if (has_capability('tool/opencast:manualimporttarget', $coursecontext)) {
         // Show heading.
         echo $OUTPUT->heading(get_string('importvideos_importheading', 'block_opencast'));
 

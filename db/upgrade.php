@@ -957,5 +957,81 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024111103, 'opencast');
     }
 
+    if ($oldversion < 2025020602) {
+
+        // Migrate settings
+        $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast' WHERE plugin = 'tool_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
+        upgrade_block_savepoint(true, 2025020602, 'opencast');
+
+
+        // Migrate tables
+        $table_uploadjob = new xmldb_table('block_opencast_uploadjob');
+        if ($dbman->table_exists($table_uploadjob)) {
+            $dbman->rename_table($table_uploadjob, 'tool_opencast_uploadjob');
+        }
+
+        $table_deletejob = new xmldb_table('block_opencast_deletejob');
+        if ($dbman->table_exists($table_deletejob)) {
+            $dbman->rename_table($table_deletejob, 'tool_opencast_deletejob');
+        }
+
+        $table_groupaccess = new xmldb_table('block_opencast_groupaccess');
+        if ($dbman->table_exists($table_groupaccess)) {
+            $dbman->rename_table($table_groupaccess, 'tool_opencast_groupaccess');
+        }
+
+        $table_draftitemid = new xmldb_table('block_opencast_draftitemid');
+        if ($dbman->table_exists($table_draftitemid)) {
+            $dbman->rename_table($table_draftitemid, 'tool_opencast_draftitemid');
+        }
+
+        $table_metadata = new xmldb_table('block_opencast_metadata');
+        if ($dbman->table_exists($table_metadata)) {
+            $dbman->rename_table($table_metadata, 'tool_opencast_metadata');
+        }
+
+        $table_ltimodule = new xmldb_table('block_opencast_ltimodule');
+        if ($dbman->table_exists($table_ltimodule)) {
+            $dbman->rename_table($table_ltimodule, 'tool_opencast_ltimodule');
+        }
+
+        $table_ltiepisode = new xmldb_table('block_opencast_ltiepisode');
+        if ($dbman->table_exists($table_ltiepisode)) {
+            $dbman->rename_table($table_ltiepisode, 'tool_opencast_ltiepisode');
+        }
+
+        $table_ltiepisode_cu = new xmldb_table('block_opencast_ltiepisode_cu');
+        if ($dbman->table_exists($table_ltiepisode_cu)) {
+            $dbman->rename_table($table_ltiepisode_cu, 'tool_opencast_ltiepisode_cu');
+        }
+
+        $table_notifications = new xmldb_table('block_opencast_notifications');
+        if ($dbman->table_exists($table_notifications)) {
+            $dbman->rename_table($table_notifications, 'tool_opencast_notifications');
+        }
+
+        $table_visibility = new xmldb_table('block_opencast_visibility');
+        if ($dbman->table_exists($table_visibility)) {
+            $dbman->rename_table($table_visibility, 'tool_opencast_visibility');
+        }
+
+        $table_user_default = new xmldb_table('block_opencast_user_default');
+        if ($dbman->table_exists($table_user_default)) {
+            $dbman->rename_table($table_user_default, 'tool_opencast_user_default');
+        }
+
+        $table_attachments = new xmldb_table('block_opencast_attachments');
+        if ($dbman->table_exists($table_attachments)) {
+            $dbman->rename_table($table_attachments, 'tool_opencast_attachments');
+        }
+
+        $table_importmapping = new xmldb_table('block_opencast_importmapping');
+        if ($dbman->table_exists($table_importmapping)) {
+            $dbman->rename_table($table_importmapping, 'tool_opencast_importmapping');
+        }
+
+
+    }
+
     return true;
 }
