@@ -25,7 +25,7 @@
  */
 
 use block_opencast\local\apibridge;
-use block_opencast\local\importvideosmanager;
+use tool_opencast\local\importvideosmanager;
 use tool_opencast\local\settings_api;
 
 defined('MOODLE_INTERNAL') || die();

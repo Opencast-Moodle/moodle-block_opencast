@@ -30,7 +30,7 @@ global $CFG;
 use block_opencast\local\apibridge;
 use block_opencast\local\event;
 use block_opencast\local\notifications;
-use block_opencast\local\importvideosmanager;
+use tool_opencast\local\importvideosmanager;
 
 /**
  * Define all the restore steps that will be used by the restore opencast block task.
