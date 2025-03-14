@@ -22,17 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\admin_setting_configeditabletable;
-use block_opencast\admin_setting_configtextvalidate;
-use block_opencast\admin_setting_hiddenhelpbtn;
-use block_opencast\local\ltimodulemanager;
-use block_opencast\local\visibility_helper;
-use tool_opencast\exception\opencast_api_response_exception;
-use block_opencast\setting_helper;
-// use block_opencast\setting_default_manager;
 use core\notification;
-use core_admin\local\settings\filesize;
-use tool_opencast\empty_configuration_exception;
 use tool_opencast\local\environment_util;
 use tool_opencast\local\settings_api;
 
