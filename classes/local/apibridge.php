@@ -27,9 +27,9 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-use block_opencast\groupaccess;
+use tool_opencast\groupaccess;
 use tool_opencast\exception\opencast_api_response_exception;
-use block_opencast\task\process_duplicated_event_visibility_change;
+use tool_opencast\task\process_duplicated_event_visibility_change;
 use block_opencast_apibridge_testable;
 use block_opencast_renderer;
 use coding_exception;
@@ -46,7 +46,7 @@ use stored_file;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
-use block_opencast\opencast_state_exception;
+use tool_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');

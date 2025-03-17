@@ -25,9 +25,9 @@
 namespace block_opencast;
 
 use advanced_testcase;
-use block_opencast\local\apibridge;
-use block_opencast\local\upload_helper;
-use block_opencast\local\workflowconfiguration_helper;
+use tool_opencast\local\apibridge;
+use tool_opencast\local\upload_helper;
+use tool_opencast\local\workflowconfiguration_helper;
 use coding_exception;
 use context_course;
 use dml_exception;

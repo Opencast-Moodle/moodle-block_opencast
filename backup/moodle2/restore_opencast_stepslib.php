@@ -27,9 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use block_opencast\local\apibridge;
-use block_opencast\local\event;
-use block_opencast\local\notifications;
+use tool_opencast\local\apibridge;
+use tool_opencast\local\event;
+use tool_opencast\local\notifications;
 use tool_opencast\local\importvideosmanager;
 
 /**

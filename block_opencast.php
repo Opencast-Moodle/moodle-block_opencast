@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\apibridge;
+use tool_opencast\local\apibridge;
 use tool_opencast\exception\opencast_api_response_exception;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;

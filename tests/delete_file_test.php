@@ -28,8 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 use advanced_testcase;
-use block_opencast\local\file_deletionmanager;
-use block_opencast\local\file_system_filedir;
+use tool_opencast\local\file_deletionmanager;
+use tool_opencast\local\file_system_filedir;
 
 /**
  * Test class for the block opencast.

@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\apibridge;
-use block_opencast\local\series_form;
+use tool_opencast\local\apibridge;
+use tool_opencast\local\series_form;
 use tool_opencast\seriesmapping;
 
 /**

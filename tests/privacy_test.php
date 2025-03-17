@@ -25,7 +25,7 @@
 
 namespace block_opencast;
 
-use block_opencast\local\upload_helper;
+use tool_opencast\local\upload_helper;
 use context_course;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_userlist;
