@@ -97,11 +97,11 @@ class block_opencast extends block_base {
         if ($parentcontext->contextlevel === CONTEXT_USER) {
             foreach ($ocinstances as $instance) {
                 if ($rendername) {
-                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
                             ['ocinstanceid' => $instance->id]),
                             get_string('seriesoverviewof', 'block_opencast', $instance->name)) . '<br>';
                 } else {
-                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
                         ['ocinstanceid' => $instance->id]),
                         get_string('seriesoverview', 'block_opencast'));
                 }
