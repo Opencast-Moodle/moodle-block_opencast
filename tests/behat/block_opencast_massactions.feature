@@ -19,15 +19,15 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
       | apipassword_1       | opencast                                                                                | tool_opencast  |
       | apiusername_1       | admin                                                                                   | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}]                           | tool_opencast  |
-      | limituploadjobs_1   | 0                                                                                       | block_opencast |
-      | group_creation_1    | 0                                                                                       | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                                                | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                                                | block_opencast |
-      | enablechunkupload_1 | 0                                                                                       | block_opencast |
-      | workflow_roles_1    | republish-metadata                                                                      | block_opencast |
-      | aclcontrolafter_1   | 1                                                                                       | block_opencast |
-      | metadata_1          | [{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":null}] | block_opencast |
-      | workflow_tags_1     | archive                                                                                 | block_opencast |
+      | limituploadjobs_1   | 0                                                                                       | tool_opencast |
+      | group_creation_1    | 0                                                                                       | tool_opencast |
+      | group_name_1        | Moodle_course_[COURSEID]                                                                | tool_opencast |
+      | series_name_1       | Course_Series_[COURSEID]                                                                | tool_opencast |
+      | enablechunkupload_1 | 0                                                                                       | tool_opencast |
+      | workflow_roles_1    | republish-metadata                                                                      | tool_opencast |
+      | aclcontrolafter_1   | 1                                                                                       | tool_opencast |
+      | metadata_1          | [{"name":"rightsHolder","datatype":"text","required":0,"readonly":0,"param_json":null}] | tool_opencast |
+      | workflow_tags_1     | archive                                                                                 | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "teacher1"
@@ -90,15 +90,15 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
     And I reload the page
     Then I should see "With Selected Videos..."
     When the following config values are set as admin:
-      | workflow_tags_1   |   | block_opencast |
-      | aclcontrolafter_1 | 0 | block_opencast |
+      | workflow_tags_1   |   | tool_opencast |
+      | aclcontrolafter_1 | 0 | tool_opencast |
     And I reload the page
     And I click on "With Selected Videos..." "select"
     Then "Start workflow" "option" should not exist in the "With Selected Videos..." "select"
     And "Change Visibility" "option" should not exist in the "With Selected Videos..." "select"
     When the following config values are set as admin:
-      | workflow_tags_1   | archive | block_opencast |
-      | aclcontrolafter_1 | 1 | block_opencast |
+      | workflow_tags_1   | archive | tool_opencast |
+      | aclcontrolafter_1 | 1 | tool_opencast |
     And I reload the page
     And I click on "With Selected Videos..." "select"
     Then I should see "Delete"

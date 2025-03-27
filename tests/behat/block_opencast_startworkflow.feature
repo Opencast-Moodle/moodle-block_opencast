@@ -18,15 +18,15 @@ Feature: Start workflows for a video as Teacher
       | apipassword_1             | opencast                                                      | tool_opencast  |
       | apiusername_1             | admin                                                         | tool_opencast  |
       | ocinstances               | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1         | 0                                                             | block_opencast |
-      | group_creation_1          | 0                                                             | block_opencast |
-      | group_name_1              | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1             | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1       | 0                                                             | block_opencast |
-      | workflow_tags_1           | archive                                                       | block_opencast |
-      | swprivacynoticeinfotext_1 | Privacy Notice Info Text                                      | block_opencast |
-      | swprivacynoticewfds_1     | duplicate-event                                               | block_opencast |
-      | swprivacynoticetitle_1    | Privacy Notice                                                | block_opencast |
+      | limituploadjobs_1         | 0                                                             | tool_opencast |
+      | group_creation_1          | 0                                                             | tool_opencast |
+      | group_name_1              | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1             | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1       | 0                                                             | tool_opencast |
+      | workflow_tags_1           | archive                                                       | tool_opencast |
+      | swprivacynoticeinfotext_1 | Privacy Notice Info Text                                      | tool_opencast |
+      | swprivacynoticewfds_1     | duplicate-event                                               | tool_opencast |
+      | swprivacynoticetitle_1    | Privacy Notice                                                | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"

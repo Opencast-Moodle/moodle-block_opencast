@@ -1,4 +1,4 @@
-@block @block_opencast
+@block @block_opencast  @testme1
 Feature: Add Opencast Video Provider series module as Teacher
   In order to provide the uploaded videos to my students
   As teacher
@@ -17,25 +17,26 @@ Feature: Add Opencast Video Provider series module as Teacher
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                    | value                                                         | plugin         |
-      | apiurl_1                  | http://testapi:8080                                           | tool_opencast  |
+      | apiurl_1                  | http://opencast.localtest.me:80                               | tool_opencast  |
       | apipassword_1             | opencast                                                      | tool_opencast  |
       | apiusername_1             | admin                                                         | tool_opencast  |
       | ocinstances               | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1         | 0                                                             | block_opencast |
+      | limituploadjobs_1         | 0                                                             | tool_opencast |
       | limitvideos_1             | 5                                                             | block_opencast |
-      | group_creation_1          | 0                                                             | block_opencast |
-      | group_name_1              | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1             | Course_Series_[COURSEID]                                      | block_opencast |
-      | addactivityenabled_1      | 1                                                             | block_opencast |
-      | addactivityintro_1        | 1                                                             | block_opencast |
-      | addactivitysection_1      | 1                                                             | block_opencast |
-      | addactivityavailability_1 | 1                                                             | block_opencast |
+      | group_creation_1          | 0                                                             | tool_opencast |
+      | group_name_1              | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1             | Course_Series_[COURSEID]                                      | tool_opencast |
+      | addactivityenabled_1      | 1                                                             | tool_opencast |
+      | addactivityintro_1        | 1                                                             | tool_opencast |
+      | addactivitysection_1      | 1                                                             | tool_opencast |
+      | addactivityavailability_1 | 1                                                             | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block
     And I log out
+
 
   Scenario: Teachers should be able to add a series module to the course
     Given I log in as "teacher1"

@@ -15,15 +15,15 @@ Feature: Add Opencast block as Teacher
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
-      | apiurl_1            | http://172.17.0.1:8080                                        | tool_opencast  |
+      | apiurl_1            | http://172.21.0.7:80                                        | tool_opencast  |
       | apipassword_1       | opencast                                                      | tool_opencast  |
       | apiusername_1       | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1   | 0                                                             | block_opencast |
-      | group_creation_1    | 0                                                             | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1 | 0                                                             | block_opencast |
+      | limituploadjobs_1   | 0                                                             | tool_opencast |
+      | group_creation_1    | 0                                                             | tool_opencast |
+      | group_name_1        | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1       | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1 | 0                                                             | tool_opencast |
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block

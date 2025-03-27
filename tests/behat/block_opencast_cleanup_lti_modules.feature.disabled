@@ -20,20 +20,20 @@ Feature: Cleanup and update the lti modules
       | apipassword_1                      | opencast                                                      | tool_opencast  |
       | apiusername_1                      | admin                                                         | tool_opencast  |
       | ocinstances                        | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1                  | 0                                                             | block_opencast |
-      | group_creation_1                   | 0                                                             | block_opencast |
-      | group_name_1                       | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1                      | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1                | 0                                                             | block_opencast |
-      | workflow_roles_1                   | republish-metadata                                            | block_opencast |
-      | importvideosenabled_1              | 1                                                             | block_opencast |
-      | importvideosmanualenabled_1        | 1                                                             | block_opencast |
-      | importmode_1                       | duplication                                                   | block_opencast |
-      | duplicateworkflow_1                | duplicate-event                                               | block_opencast |
-      | importvideoshandleseriesenabled_1  | 1                                                             | block_opencast |
-      | importvideoshandleepisodeenabled_1 | 1                                                             | block_opencast |
-      | addltiepisodeenabled_1             | 1                                                             | block_opencast |
-      | addltienabled_1                    | 1                                                             | block_opencast |
+      | limituploadjobs_1                  | 0                                                             | tool_opencast |
+      | group_creation_1                   | 0                                                             | tool_opencast |
+      | group_name_1                       | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1                      | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1                | 0                                                             | tool_opencast |
+      | workflow_roles_1                   | republish-metadata                                            | tool_opencast |
+      | importvideosenabled_1              | 1                                                             | tool_opencast |
+      | importvideosmanualenabled_1        | 1                                                             | tool_opencast |
+      | importmode_1                       | duplication                                                   | tool_opencast |
+      | duplicateworkflow_1                | duplicate-event                                               | tool_opencast |
+      | importvideoshandleseriesenabled_1  | 1                                                             | tool_opencast |
+      | importvideoshandleepisodeenabled_1 | 1                                                             | tool_opencast |
+      | addltiepisodeenabled_1             | 1                                                             | tool_opencast |
+      | addltienabled_1                    | 1                                                             | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -92,7 +92,7 @@ Feature: Cleanup and update the lti modules
     And I should see "Opencast episode Manual Correct"
     And I should see "Opencast series Manual Correct"
     And I should see "Opencast series Manual Faulty"
-    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    And I run the scheduled task "\tool_opencast\task\cleanup_lti_module_cron"
     When I reload the page
     Then I should not see "Opencast episode Manual Faulty"
     And I should not see "Opencast series Manual Faulty"
@@ -112,14 +112,14 @@ Feature: Cleanup and update the lti modules
     When I press "Save and return to course"
     Then I should see "Opencast episode Manual Correct Edited Faulty"
     And I should see "Opencast series Manual Correct Edited"
-    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    And I run the scheduled task "\tool_opencast\task\cleanup_lti_module_cron"
     When I reload the page
     Then I should not see "Opencast episode Manual Correct Edited Faulty"
     And I should see "Opencast series Manual Correct Edited"
     # From here is about testing (disabling) the cleanup feature when the settings are deactivated.
     And the following config values are set as admin:
-      | addltiepisodeenabled_1             | 0                                                             | block_opencast |
-      | addltienabled_1                    | 0                                                             | block_opencast |
+      | addltiepisodeenabled_1             | 0                                                             | tool_opencast |
+      | addltienabled_1                    | 0                                                             | tool_opencast |
     And I reload the page
     And I add a "External tool" to section "1"
     And I set the field "Activity name" to "Opencast episode Manual Faulty DEACTIVATED"
@@ -127,6 +127,6 @@ Feature: Cleanup and update the lti modules
     And I set the field "Preconfigured tool" to "Opencast episode"
     And I set the field "Custom parameters" to "id=abcd"
     And I press "Save and return to course"
-    And I run the scheduled task "\block_opencast\task\cleanup_lti_module_cron"
+    And I run the scheduled task "\tool_opencast\task\cleanup_lti_module_cron"
     And I reload the page
     Then I should see "Opencast episode Manual Faulty DEACTIVATED"
