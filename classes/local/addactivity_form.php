@@ -70,14 +70,14 @@ class addactivity_form extends moodleform {
             $mform->setDefault('allowdownload', get_config('mod_opencast', 'download_default_' . $ocinstanceid));
         }
 
-        if (get_config('block_opencast', 'addactivityintro_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addactivityintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivity_formactivityintro', 'block_opencast'),
                 ['rows' => 5],
                 ['maxfiles' => 0, 'noclean' => true]);
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
-        if (get_config('block_opencast', 'addactivitysection_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addactivitysection_' . $ocinstanceid) == true) {
             // Get course sections.
             $sectionmenu = activitymodulemanager::get_course_sections($courseid);
 
@@ -90,7 +90,7 @@ class addactivity_form extends moodleform {
             }
         }
 
-        if (get_config('block_opencast', 'addactivityavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
+        if (get_config('tool_opencast', 'addactivityavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addactivity_formactivityavailability', 'block_opencast'));
             frontend::include_all_javascript(get_course($courseid));

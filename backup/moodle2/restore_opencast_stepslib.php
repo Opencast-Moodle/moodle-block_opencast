@@ -86,7 +86,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the import mode to decide the way of importing opencast videos.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
         $this->importmode = $importmode;
 
         // If ACL Change is the mode.

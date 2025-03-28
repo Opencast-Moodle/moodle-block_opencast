@@ -86,7 +86,7 @@ class workflowconfiguration_helper {
      * Sets the upload workflow id from the config, falls back to "ng-schedule-and-upload" if not configured yet.
      */
     private function set_uploadworkflowid() {
-        $uploadworkflowid = get_config('block_opencast', 'uploadworkflow_' . $this->ocinstanceid);
+        $uploadworkflowid = get_config('tool_opencast', 'uploadworkflow_' . $this->ocinstanceid);
         // Falling back to the general "ng-schedule-and-upload" workflow.
         if (empty($uploadworkflowid)) {
             $uploadworkflowid = 'ng-schedule-and-upload';
@@ -110,7 +110,7 @@ class workflowconfiguration_helper {
     public function can_provide_configuration_panel(): bool {
         return !empty($this->uploadworkflow) &&
             !empty($this->uploadworkflow->configuration_panel) &&
-            !empty(get_config('block_opencast', 'enableuploadwfconfigpanel_' . $this->ocinstanceid));
+            !empty(get_config('tool_opencast', 'enableuploadwfconfigpanel_' . $this->ocinstanceid));
     }
 
     /**
@@ -154,7 +154,7 @@ class workflowconfiguration_helper {
      * @return array the list of allowed config panel elements ids.
      */
     public function get_allowed_upload_configurations(): array {
-        $alloweduploadwfconfigs = get_config('block_opencast', 'alloweduploadwfconfigs_' . $this->ocinstanceid);
+        $alloweduploadwfconfigs = get_config('tool_opencast', 'alloweduploadwfconfigs_' . $this->ocinstanceid);
         $alloweduploadwfconfigids = [];
         if (!empty(trim($alloweduploadwfconfigs))) {
             $alloweduploadwfconfigids = explode(',', $alloweduploadwfconfigs);
@@ -202,7 +202,7 @@ class workflowconfiguration_helper {
         ];
 
         // Take care of engane publishing.
-        $publistoengage = get_config('block_opencast', 'publishtoengage_' . $this->ocinstanceid);
+        $publistoengage = get_config('tool_opencast', 'publishtoengage_' . $this->ocinstanceid);
         $publistoengage = (empty($publistoengage)) ? "false" : "true";
 
         $processing['configuration']['publishToEngage'] = $publistoengage;

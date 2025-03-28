@@ -60,7 +60,7 @@ class addltiepisode_form extends moodleform {
                 get_string('addltiepisode_defaulttitle', 'block_opencast')),
             'required');
 
-        if (get_config('block_opencast', 'addltiepisodeintro_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addltiepisodeintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addltiepisode_formltiintro', 'block_opencast'),
                 ['rows' => 5],
                 ['maxfiles' => 0, 'noclean' => true]);
@@ -71,7 +71,7 @@ class addltiepisode_form extends moodleform {
                     'format' => FORMAT_HTML, ]);
         }
 
-        if (get_config('block_opencast', 'addltiepisodesection_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addltiepisodesection_' . $ocinstanceid) == true) {
             // Get course sections.
             $sectionmenu = ltimodulemanager::get_course_sections($courseid);
 
@@ -84,7 +84,7 @@ class addltiepisode_form extends moodleform {
             }
         }
 
-        if (get_config('block_opencast', 'addltiepisodeavailability_' . $ocinstanceid) == true &&
+        if (get_config('tool_opencast', 'addltiepisodeavailability_' . $ocinstanceid) == true &&
             !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addltiepisode_formltiavailability', 'block_opencast'));

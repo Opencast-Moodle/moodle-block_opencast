@@ -44,7 +44,7 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:viewunpublishedvideos', $coursecontext);
 
 // Check if support email is set.
-if (empty(get_config('block_opencast', 'support_email_' . $ocinstanceid))) {
+if (empty(get_config('tool_opencast', 'support_email_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('support_setting_notset', 'block_opencast'),
         null, notification::NOTIFY_ERROR);
@@ -53,7 +53,7 @@ if (empty(get_config('block_opencast', 'support_email_' . $ocinstanceid))) {
 // Create email.
 $user = new stdClass();
 $user->id = -1;
-$user->email = get_config('block_opencast', 'support_email_' . $ocinstanceid);
+$user->email = get_config('tool_opencast', 'support_email_' . $ocinstanceid);
 $user->mailformat = 1;
 
 $apibridge = apibridge::get_instance($ocinstanceid);
@@ -120,5 +120,3 @@ if (!$result->error) {
         null,
         notification::NOTIFY_ERROR);
 }
-
-

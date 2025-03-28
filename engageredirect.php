@@ -51,7 +51,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('engageredirect', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
-$endpoint = get_config('block_opencast', 'engageurl_' . $ocinstanceid);
+$endpoint = get_config('tool_opencast', 'engageurl_' . $ocinstanceid);
 
 // Make sure the endpoint is correct.
 if (strpos($endpoint, 'http') !== 0) {

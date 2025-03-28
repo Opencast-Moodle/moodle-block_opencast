@@ -63,7 +63,7 @@ class process_delete_notification_cron extends scheduled_task {
         foreach ($ocinstances as $ocinstance) {
 
             // Get admin setting for deleting notification jobs.
-            $notificationdeletionconfig = get_config('block_opencast', 'eventstatusnotificationdeletion_' . $ocinstance->id);
+            $notificationdeletionconfig = get_config('tool_opencast', 'eventstatusnotificationdeletion_' . $ocinstance->id);
             $notificationdeletionconfig = intval($notificationdeletionconfig);
 
             // If the config is zero, we consider it as disable.

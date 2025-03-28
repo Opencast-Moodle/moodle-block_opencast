@@ -69,7 +69,7 @@ class cleanup_imported_episodes_cron extends scheduled_task {
         foreach ($ocinstances as $ocinstance) {
 
             // If the import feature is disabled but the scheduled task is not, we are already done.
-            if (get_config('block_opencast', 'importvideosenabled_' . $ocinstance->id) != true) {
+            if (get_config('tool_opencast', 'importvideosenabled_' . $ocinstance->id) != true) {
                 mtrace("...importing videos is disabled for opencast instance {$ocinstance->id}, so nothing to do.");
                 continue;
             }

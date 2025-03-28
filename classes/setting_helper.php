@@ -121,7 +121,7 @@ class setting_helper {
         $ocinstanceid = $ocinstanceid == 0 ? 1 : $ocinstanceid;
         // Do only if a workflow was set.
         if (!empty($data)) {
-            $roles = json_decode(get_config('block_opencast', 'roles_' . $ocinstanceid));
+            $roles = json_decode(get_config('tool_opencast', 'roles_' . $ocinstanceid));
             $role = array_search($data, array_column($roles, 'rolename'));
             if ($role === false) {
                 // Role isn't defined as ACL role.

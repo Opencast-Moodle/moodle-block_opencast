@@ -48,7 +48,7 @@ class activitymodulemanager {
      * @return boolean
      */
     public static function is_enabled_and_working_for_series($ocinstanceid): bool {
-        return get_config('block_opencast', 'addactivityenabled_' . $ocinstanceid) != false &&
+        return get_config('tool_opencast', 'addactivityenabled_' . $ocinstanceid) != false &&
             core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
@@ -60,7 +60,7 @@ class activitymodulemanager {
      * @return boolean
      */
     public static function is_enabled_and_working_for_episodes($ocinstanceid) {
-        return get_config('block_opencast', 'addactivityepisodeenabled_' . $ocinstanceid) != false &&
+        return get_config('tool_opencast', 'addactivityepisodeenabled_' . $ocinstanceid) != false &&
             core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
     }
 
@@ -325,7 +325,7 @@ class activitymodulemanager {
      */
     public static function get_default_title_for_series($ocinstanceid) {
         // Get the default title from the admin settings.
-        $defaulttitle = get_config('block_opencast', 'addactivitydefaulttitle_' . $ocinstanceid);
+        $defaulttitle = get_config('tool_opencast', 'addactivitydefaulttitle_' . $ocinstanceid);
 
         // Check if the configured default title is empty. This must not happen as a module needs a title.
         if (empty($defaulttitle) || $defaulttitle == '') {

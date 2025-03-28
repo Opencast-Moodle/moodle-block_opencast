@@ -95,7 +95,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
-    if (get_config('block_opencast', 'addltiintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
+    if (get_config('tool_opencast', 'addltiintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
         $introtext = '';
         $introformat = FORMAT_HTML;
 
@@ -106,7 +106,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addltisection_' . $ocinstanceid) != true || !isset($data->section) || !$data->section) {
+    if (get_config('tool_opencast', 'addltisection_' . $ocinstanceid) != true || !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
         // Otherwise.
@@ -115,7 +115,7 @@ if ($data = $addltiform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addltiavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
+    if (get_config('tool_opencast', 'addltiavailability_' . $ocinstanceid) != true || empty($CFG->enableavailability) ||
         !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;
 

@@ -90,7 +90,7 @@ class visibility_form_massaction extends moodleform {
         // Check if the teacher should be allowed to restrict the episode to course groups.
         $groups = [];
         $groupvisibilityallowed = false;
-        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+        $controlgroupsenabled = get_config('tool_opencast', 'aclcontrolgroup_' . $ocinstanceid);
 
         // If group restriction is generally enabled, check if there are roles which allow group visibility.
         if ($controlgroupsenabled) {

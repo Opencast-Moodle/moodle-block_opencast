@@ -139,7 +139,7 @@ class block_opencast extends block_base {
                     }
                 }
                 $cacheobj = new stdClass();
-                $cacheobj->timevalid = time() + get_config('block_opencast', 'cachevalidtime');
+                $cacheobj->timevalid = time() + get_config('tool_opencast', 'cachevalidtime');
                 $cacheobj->videos = $videos;
                 $cache->set($COURSE->id, $cacheobj);
             }

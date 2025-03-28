@@ -141,14 +141,14 @@ if ($data = $addvideoform->get_data()) {
     $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
 
     // Record the user draft area in this context.
-    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
+    if (!$chunkuploadinstalled || !get_config('tool_opencast', 'enablechunkupload_' . $ocinstanceid) ||
         property_exists($data, 'presenter_already_uploaded') && $data->presenter_already_uploaded) {
         $storedfilepresenter = $addvideoform->save_stored_file('video_presenter', $coursecontext->id,
             'block_opencast', upload_helper::OC_FILEAREA, $data->video_presenter);
     } else {
         $chunkuploadpresenter = $data->video_presenter_chunk;
     }
-    if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid) ||
+    if (!$chunkuploadinstalled || !get_config('tool_opencast', 'enablechunkupload_' . $ocinstanceid) ||
         property_exists($data, 'presentation_already_uploaded') && $data->presentation_already_uploaded) {
         $storedfilepresentation = $addvideoform->save_stored_file('video_presentation', $coursecontext->id,
             'block_opencast', upload_helper::OC_FILEAREA, $data->video_presentation);
@@ -165,8 +165,8 @@ if ($data = $addvideoform->get_data()) {
 
     // Transcription files.
     $transcriptions = [];
-    if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-        $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
+    if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+        $maxtranscriptionupload = (int)get_config('tool_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
         // If the max upload limit is not set we assume only 1 field set.
         if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
             $maxtranscriptionupload = 1;

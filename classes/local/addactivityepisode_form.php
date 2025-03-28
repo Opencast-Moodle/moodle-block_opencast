@@ -71,7 +71,7 @@ class addactivityepisode_form extends moodleform {
             $mform->setDefault('allowdownload', get_config('mod_opencast', 'download_default_' . $ocinstanceid));
         }
 
-        if (get_config('block_opencast', 'addactivityepisodeintro_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addactivityepisodeintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addactivityepisode_formactivityintro', 'block_opencast'),
                 ['rows' => 5],
                 ['maxfiles' => 0, 'noclean' => true]);
@@ -82,7 +82,7 @@ class addactivityepisode_form extends moodleform {
                     'format' => FORMAT_HTML, ]);
         }
 
-        if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addactivityepisodesection_' . $ocinstanceid) == true) {
             // Get course sections.
             $sectionmenu = activitymodulemanager::get_course_sections($courseid);
 
@@ -95,7 +95,7 @@ class addactivityepisode_form extends moodleform {
             }
         }
 
-        if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) == true &&
+        if (get_config('tool_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) == true &&
             !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addactivityepisode_formactivityavailability', 'block_opencast'));

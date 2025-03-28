@@ -183,7 +183,7 @@ class attachment_helper {
     protected function upload_job_transcriptions($attachmentjob, $uploadjob, $video) {
         $ocinstanceid = $uploadjob->ocinstanceid;
         $courseid = $uploadjob->courseid;
-        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+        if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
             $apibridge = apibridge::get_instance($ocinstanceid);
             $mediapackagestr = $apibridge->get_event_media_package($video->identifier);
 
@@ -403,7 +403,7 @@ class attachment_helper {
         try {
             $apibridge = apibridge::get_instance($ocinstanceid);
             // Get the transcription upload workflow.
-            $transcriptionuploadworkflow = get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid);
+            $transcriptionuploadworkflow = get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid);
             // We do want to ingest with specific workflow.
             if (empty($transcriptionuploadworkflow)) {
                 return false;
@@ -438,7 +438,7 @@ class attachment_helper {
             $ocinstanceid, $mediapackagestr, 'id', $transcriptionidentifier);
         try {
             $ingested = $apibridge->ingest($mediapackagestr,
-                get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
+                get_config('tool_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid));
             if (!empty($ingested)) {
                 $success = true;
             }

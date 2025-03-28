@@ -63,7 +63,7 @@ final class upload_test extends advanced_testcase {
      */
     public function notest_plugin_installed() {
 
-        $config = get_config('block_opencast');
+        $config = get_config('tool_opencast');
         $this->assertNotEmpty($config);
     }
 

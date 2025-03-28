@@ -62,8 +62,8 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 // Make sure transcription as well as the downlaod is enabled.
-$transcriptionenabled = get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid);
-$downloadenabled = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
+$transcriptionenabled = get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid);
+$downloadenabled = get_config('tool_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
 if (empty($downloadenabled) || empty($transcriptionenabled)) {
     redirect($redirecturl,
         get_string('unabletodownloadtranscription', 'block_opencast'),

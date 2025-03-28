@@ -56,7 +56,7 @@ require_capability('block/opencast:addvideo', $coursecontext);
 $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier, true);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
-    empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+    empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('unabletomanagetranscriptions', 'block_opencast'), null, notification::NOTIFY_WARNING);
 }
@@ -67,12 +67,12 @@ $addnewurl = new moodle_url('/blocks/opencast/addtranscription.php',
 
 // Check if delete option is allowed.
 $candelete = false;
-if (!empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
+if (!empty(get_config('tool_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
     $candelete = true;
 }
 
 // Preparing flavors as for service types.
-$flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+$flavorsconfig = get_config('tool_opencast', 'transcriptionflavors_' . $ocinstanceid);
 $flavors = [];
 if (!empty($flavorsconfig)) {
     $flavorsarray = json_decode($flavorsconfig);
@@ -86,7 +86,7 @@ if (!empty($flavorsconfig)) {
 $renderer = $PAGE->get_renderer('block_opencast');
 
 // Check if download is enabled.
-$allowdownload = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
+$allowdownload = get_config('tool_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
 
 $list = [];
 $attachmentitems = [];

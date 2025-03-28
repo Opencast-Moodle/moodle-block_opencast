@@ -82,7 +82,7 @@ class process_duplicate_event extends adhoc_task {
         try {
 
             // Get duplication workflow.
-            $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $data->ocinstanceid);
+            $duplicateworkflow = get_config('tool_opencast', 'duplicateworkflow_' . $data->ocinstanceid);
             if (empty($duplicateworkflow)) {
                 throw new moodle_exception('error_workflow_setup_missing', 'block_opencast');
             }

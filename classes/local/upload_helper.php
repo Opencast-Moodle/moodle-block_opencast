@@ -260,7 +260,7 @@ class upload_helper {
             }
         }
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
+        $notificationenabled = get_config('tool_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled) {
             // Notify user about the upload queue.
             eventstatus_notification_helper::notify_users_upload_queue($job, $options->metadata);
@@ -392,7 +392,7 @@ class upload_helper {
         $event->trigger();
 
         // Delete file from files table.
-        $adhocfiledeletion = get_config('block_opencast', 'adhocfiledeletion_' . $job->ocinstanceid);
+        $adhocfiledeletion = get_config('tool_opencast', 'adhocfiledeletion_' . $job->ocinstanceid);
 
         foreach ($files as $file) {
             $file->delete();
@@ -402,7 +402,7 @@ class upload_helper {
         }
 
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
+        $notificationenabled = get_config('tool_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled) {
             // Add the uploaded video for the event status notification job.
             eventstatus_notification_helper::save_notification_jobs($job->ocinstanceid,
@@ -437,7 +437,7 @@ class upload_helper {
         $job->countfailed++;
         $job->timemodified = time();
 
-        $failedretrylimit = (int) get_config('block_opencast', 'faileduploadretrylimit');
+        $failedretrylimit = (int) get_config('tool_opencast', 'faileduploadretrylimit');
         $isarchived = false;
         $status = self::STATUS_READY_TO_UPLOAD;
         if ($failedretrylimit > 0 && $job->countfailed >= $failedretrylimit) {
@@ -481,7 +481,7 @@ class upload_helper {
         $event->trigger();
 
         // Notify users about archived upload job.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
+        $notificationenabled = get_config('tool_opencast', 'eventstatusnotificationenabled_' . $job->ocinstanceid);
         if ($notificationenabled && $isarchived) {
             // Prepare title with default filename.
             $title = implode(' & ', $filenames);
@@ -540,7 +540,7 @@ class upload_helper {
             case self::STATUS_READY_TO_UPLOAD:
                 $this->update_status($job, self::STATUS_CREATING_GROUP, true, true);
             case self::STATUS_CREATING_GROUP:
-                if (boolval(get_config('block_opencast', 'group_creation_' . $job->ocinstanceid))) {
+                if (boolval(get_config('tool_opencast', 'group_creation_' . $job->ocinstanceid))) {
                     try {
                         // Check if group exists.
                         $group = $apibridge->ensure_acl_group_exists($job->courseid, $job->userid);
@@ -586,7 +586,7 @@ class upload_helper {
                 break;
 
             case self::STATUS_CREATING_EVENT:
-                if (get_config('block_opencast', 'ingestupload_' . $job->ocinstanceid)) {
+                if (get_config('tool_opencast', 'ingestupload_' . $job->ocinstanceid)) {
                     $this->update_status($job, ingest_uploader::STATUS_INGEST_CREATING_MEDIA_PACKAGE);
                     $stepsuccessful = true;
                     break;
@@ -596,7 +596,7 @@ class upload_helper {
 
                 if ($job->opencasteventid) {
                     array_push($eventids, $job->opencasteventid);
-                } else if (get_config('block_opencast', 'reuseexistingupload_' . $job->ocinstanceid)) {
+                } else if (get_config('tool_opencast', 'reuseexistingupload_' . $job->ocinstanceid)) {
                     // Check, whether this file was uploaded any time before.
                     $params = [
                         'contenthash_presenter' => $job->contenthash_presenter,
@@ -674,7 +674,7 @@ class upload_helper {
                     return $event;
                 }
 
-                if (boolval(get_config('block_opencast', 'group_creation_' . $job->ocinstanceid))) {
+                if (boolval(get_config('tool_opencast', 'group_creation_' . $job->ocinstanceid))) {
                     // Ensure the assignment of a suitable role.
                     if (!$apibridge->ensure_acl_group_assigned($event->identifier, $job->courseid, $job->userid)) {
                         mtrace('... group not yet assigned.');
@@ -731,7 +731,7 @@ class upload_helper {
             $sql = "SELECT * FROM {block_opencast_uploadjob}" .
                 " WHERE status < ? AND status <> ? AND ocinstanceid = ? ORDER BY timemodified ASC ";
 
-            $limituploadjobs = get_config('block_opencast', 'limituploadjobs_' . $ocinstance->id);
+            $limituploadjobs = get_config('tool_opencast', 'limituploadjobs_' . $ocinstance->id);
 
             if (!$limituploadjobs) {
                 $limituploadjobs = 0;
@@ -811,7 +811,7 @@ class upload_helper {
      * @return array $metadatacatalog the metadata catalog array of stdClasses
      */
     public static function get_opencast_metadata_catalog($ocinstanceid) {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        $metadatacatalog = json_decode(get_config('tool_opencast', 'metadata_' . $ocinstanceid));
         return !empty($metadatacatalog) ? $metadatacatalog : [];
     }
 
@@ -822,7 +822,7 @@ class upload_helper {
      * @return array $metadatacatalog the metadata catalog array of stdClasses for batch upload
      */
     public static function get_opencast_metadata_catalog_batch($ocinstanceid) {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        $metadatacatalog = json_decode(get_config('tool_opencast', 'metadata_' . $ocinstanceid));
         // As for batch video upload we don't need the single title catalog and only those that are marked for batchable.
         $batchmetadatacatalog = array_filter($metadatacatalog, function ($metadata) {
             return $metadata->name !== 'title' && !empty($metadata->batchable);
@@ -837,7 +837,7 @@ class upload_helper {
      * @return array the metadata catalog array of stdClasses for mass action or empty array.
      */
     public static function get_opencast_metadata_catalog_massaction(int $ocinstanceid): array {
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
+        $metadatacatalog = json_decode(get_config('tool_opencast', 'metadata_' . $ocinstanceid));
         // As for mass action we don't need the single title catalog.
         $massactionmetadatacatalog = array_filter($metadatacatalog, function ($metadata) {
             return $metadata->name !== 'title';

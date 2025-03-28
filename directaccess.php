@@ -73,7 +73,7 @@ if (!$result->error) {
     if ($video->is_accessible) {
         $directaccessurl = '';
         foreach ($video->publications as $publication) {
-            if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
+            if ($publication->channel == get_config('tool_opencast', 'direct_access_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     if ($media->id === $mediaid) {
                         $directaccessurl = $media->url;

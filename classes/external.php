@@ -163,7 +163,7 @@ class block_opencast_external extends external_api {
 
         // Check if the maximum number of series is already reached.
         $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $course->id]);
-        if (!$params['seriesid'] && count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        if (!$params['seriesid'] && count($courseseries) >= get_config('tool_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 
@@ -171,7 +171,7 @@ class block_opencast_external extends external_api {
         parse_str($params['jsonformdata'], $data);
         $data['courseid'] = $course->id;
 
-        $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $params['ocinstanceid']));
+        $metadatacatalog = json_decode(get_config('tool_opencast', 'metadataseries_' . $params['ocinstanceid']));
         // Make sure $metadatacatalog is array.
         $metadatacatalog = !empty($metadatacatalog) ? $metadatacatalog : [];
         $createseriesform = new series_form(null, ['courseid' => $course->id,
@@ -271,7 +271,7 @@ class block_opencast_external extends external_api {
 
         // Check if the maximum number of series is already reached.
         $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $course->id]);
-        if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+        if (count($courseseries) >= get_config('tool_opencast', 'maxseries_' . $ocinstanceid)) {
             throw new moodle_exception('maxseriesreached', 'block_opencast');
         }
 

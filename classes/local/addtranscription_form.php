@@ -57,7 +57,7 @@ class addtranscription_form extends moodleform {
         $explanation = html_writer::tag('p', get_string('addnewtranscription_desc', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
-        $transcriptiontypescfg = get_config('block_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
+        $transcriptiontypescfg = get_config('tool_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
         if (empty($transcriptiontypescfg)) {
             // Fallback. Use Moodle defined html_track file types.
             $transcriptiontypes = ['html_track'];
@@ -72,7 +72,7 @@ class addtranscription_form extends moodleform {
         }
 
         // Preparing flavors as for service types.
-        $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+        $flavorsconfig = get_config('tool_opencast', 'transcriptionflavors_' . $ocinstanceid);
         $flavors = [
             '' => get_string('emptyflavoroption', 'block_opencast'),
         ];

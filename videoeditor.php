@@ -57,14 +57,14 @@ $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 $endpoint = settings_api::get_apiurl($ocinstanceid);
 
-$editorendpoint = get_config('block_opencast', 'editorendpointurl_' . $ocinstanceid);
+$editorendpoint = get_config('tool_opencast', 'editorendpointurl_' . $ocinstanceid);
 if (empty($editorendpoint)) {
     $editorendpoint = '/editor-ui/index.html?mediaPackageId=';
 }
 
 $editorendpoint = '/' . ltrim($editorendpoint, '/') . $identifier;
 
-$editorbaseurl = get_config('block_opencast', 'editorbaseurl_' . $ocinstanceid);
+$editorbaseurl = get_config('tool_opencast', 'editorbaseurl_' . $ocinstanceid);
 if (empty($editorbaseurl)) {
     $editorbaseurl = $endpoint;
 }

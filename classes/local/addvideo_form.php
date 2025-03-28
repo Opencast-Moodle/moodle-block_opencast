@@ -64,14 +64,14 @@ class addvideo_form extends moodleform {
         $wfconfighelper = workflowconfiguration_helper::get_instance($ocinstanceid);
 
         $usechunkupload = class_exists('\local_chunkupload\chunkupload_form_element')
-            && get_config('block_opencast', 'enablechunkupload_' . $ocinstanceid);
+            && get_config('tool_opencast', 'enablechunkupload_' . $ocinstanceid);
 
         if ($usechunkupload) {
             MoodleQuickForm::registerElementType('chunkupload',
                 "$CFG->dirroot/local/chunkupload/classes/chunkupload_form_element.php",
                 'local_chunkupload\chunkupload_form_element');
 
-            $offerchunkuploadalternative = get_config('block_opencast', 'offerchunkuploadalternative_' . $ocinstanceid);
+            $offerchunkuploadalternative = get_config('tool_opencast', 'offerchunkuploadalternative_' . $ocinstanceid);
         }
 
         $mform = $this->_form;
@@ -234,18 +234,18 @@ class addvideo_form extends moodleform {
         $mform->setAdvanced('startDate');
 
         // Event Visibility configuration.
-        if (get_config('block_opencast', 'aclcontrol_' . $ocinstanceid)) {
+        if (get_config('tool_opencast', 'aclcontrol_' . $ocinstanceid)) {
             // Prepare all required configurations.
             // Check if Workflow is set and the acl control is enabled.
             $allowchangevisibility = false;
-            if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
-                get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
+            if (get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
+                get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
                 $allowchangevisibility = true;
             }
             // Check if the teacher should be allowed to restrict the episode to course groups.
             $groups = [];
             $groupvisibilityallowed = false;
-            $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+            $controlgroupsenabled = get_config('tool_opencast', 'aclcontrolgroup_' . $ocinstanceid);
             // If group restriction is generally enabled, check if there are roles which allow group visibility.
             if ($controlgroupsenabled) {
                 $roles = $apibridge->getroles(0);
@@ -360,7 +360,7 @@ class addvideo_form extends moodleform {
         $explanation = html_writer::tag('p', get_string('uploadexplanation', 'block_opencast'));
         $mform->addElement('html', $explanation);
 
-        $videotypescfg = get_config('block_opencast', 'uploadfileextensions_' . $ocinstanceid);
+        $videotypescfg = get_config('tool_opencast', 'uploadfileextensions_' . $ocinstanceid);
         if (empty($videotypescfg)) {
             // Fallback. Use Moodle defined video file types.
             $videotypes = ['video'];
@@ -374,10 +374,10 @@ class addvideo_form extends moodleform {
             }
         }
 
-        $uploadfilesizelimitmode = (int) get_config('block_opencast', 'uploadfilesizelimitmode_' . $ocinstanceid);
+        $uploadfilesizelimitmode = (int) get_config('tool_opencast', 'uploadfilesizelimitmode_' . $ocinstanceid);
         $maxuploadsize = defined('USER_CAN_IGNORE_FILE_SIZE_LIMITS') ? USER_CAN_IGNORE_FILE_SIZE_LIMITS : -1; // Unlimited.
         if ($uploadfilesizelimitmode !== 1) { // The flag for unlimited size is "1", and "0" for limited.
-            $maxuploadsize = (int) get_config('block_opencast', 'uploadfilelimit_' . $ocinstanceid);
+            $maxuploadsize = (int) get_config('tool_opencast', 'uploadfilelimit_' . $ocinstanceid);
         }
 
         $presenterdesc = html_writer::tag('p', get_string('presenterdesc', 'block_opencast'));
@@ -418,7 +418,7 @@ class addvideo_form extends moodleform {
             }
         }
 
-        if (!empty(get_config('block_opencast', 'termsofuse_' . $ocinstanceid))) {
+        if (!empty(get_config('tool_opencast', 'termsofuse_' . $ocinstanceid))) {
             $togglespan = '<span class="btn-link" id="termsofuse_toggle">' .
                 get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
 
@@ -427,7 +427,7 @@ class addvideo_form extends moodleform {
             $mform->addRule('termsofuse', get_string('required'), 'required');
             $options['filter'] = false;
             $mform->addElement('html', '<div class="row justify-content-end" id="termsofuse"><div class="col-md-9">' .
-                format_text(get_config('block_opencast', 'termsofuse_' . $ocinstanceid), FORMAT_HTML, $options) . '</div></div>');
+                format_text(get_config('tool_opencast', 'termsofuse_' . $ocinstanceid), FORMAT_HTML, $options) . '</div></div>');
         }
 
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
@@ -437,7 +437,7 @@ class addvideo_form extends moodleform {
         $mform->setType('courseid', PARAM_INT);
 
         // Upload transcription.
-        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+        if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
             $mform->closeHeaderBefore('uploadtranscription_header');
 
             $mform->addElement('header', 'uploadtranscription_header', get_string('transcriptionheader', 'block_opencast'));
@@ -446,7 +446,7 @@ class addvideo_form extends moodleform {
             $explanation = html_writer::tag('p', get_string('transcriptionheaderexplanation', 'block_opencast'));
             $mform->addElement('html', $explanation);
 
-            $transcriptiontypescfg = get_config('block_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
+            $transcriptiontypescfg = get_config('tool_opencast', 'transcriptionfileextensions_' . $ocinstanceid);
             if (empty($transcriptiontypescfg)) {
                 // Fallback. Use Moodle defined html_track file types.
                 $transcriptiontypes = ['html_track'];
@@ -461,7 +461,7 @@ class addvideo_form extends moodleform {
             }
 
             // Preparing flavors as for service types.
-            $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
+            $flavorsconfig = get_config('tool_opencast', 'transcriptionflavors_' . $ocinstanceid);
             $flavors = [
                 '' => get_string('emptyflavoroption', 'block_opencast'),
             ];
@@ -474,7 +474,7 @@ class addvideo_form extends moodleform {
                 }
             }
 
-            $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
+            $maxtranscriptionupload = (int)get_config('tool_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
             if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
                 $maxtranscriptionupload = 1;
             }
@@ -509,14 +509,14 @@ class addvideo_form extends moodleform {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $chunkuploadinstalled = class_exists('\local_chunkupload\chunkupload_form_element');
-        if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
+        if (!$chunkuploadinstalled || !get_config('tool_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
             isset($data['presenter_already_uploaded']) && $data['presenter_already_uploaded']) {
             $presenterfile = $this->get_draft_files('video_presenter');
         } else {
             $presenterfile = isset($data['video_presenter_chunk']) &&
                 chunkupload_form_element::is_file_uploaded($data['video_presenter_chunk']);
         }
-        if (!$chunkuploadinstalled || !get_config('block_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
+        if (!$chunkuploadinstalled || !get_config('tool_opencast', 'enablechunkupload_' . $this->_customdata['ocinstanceid']) ||
             isset($data['presentation_already_uploaded']) && $data['presentation_already_uploaded']) {
             $presentationfile = $this->get_draft_files('video_presentation');
         } else {

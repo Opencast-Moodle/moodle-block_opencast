@@ -265,7 +265,7 @@ class apibridge {
             $uploadworkflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
         }
 
-        $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
+        $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
             $response = $ingestapi->setRequestTimeout($timeout)->ingest($mediapackage, $uploadworkflow, '', $workflowconfiguration);
@@ -503,7 +503,7 @@ class apibridge {
      * @param stdClass $video Video to be updated
      */
     private function set_download_state(&$video) {
-        if (in_array(get_config('block_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
+        if (in_array(get_config('tool_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
             $video->is_downloadable = true;
         } else {
             $video->is_downloadable = false;
@@ -515,7 +515,7 @@ class apibridge {
      * @param stdClass $video Video to be updated
      */
     private function set_access_state(&$video) {
-        if (in_array(get_config('block_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
+        if (in_array(get_config('tool_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
             $video->is_accessible = true;
         } else {
             $video->is_accessible = false;
@@ -583,7 +583,7 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('block_opencast',
+        $groupname = $this->replace_placeholders(get_config('tool_opencast',
             'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
@@ -611,7 +611,7 @@ class apibridge {
      * @param int $userid
      */
     protected function create_acl_group($courseid, $userid) {
-        $name = $this->replace_placeholders(get_config('block_opencast',
+        $name = $this->replace_placeholders(get_config('tool_opencast',
             'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $description = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $roles = [
@@ -930,7 +930,7 @@ class apibridge {
      * @return string default series title.
      */
     public function get_default_seriestitle($courseid, $userid) {
-        $title = get_config('block_opencast', 'series_name_' . $this->ocinstanceid);
+        $title = get_config('tool_opencast', 'series_name_' . $this->ocinstanceid);
         return self::replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
@@ -1223,7 +1223,7 @@ class apibridge {
             $presentation = $this->get_upload_filestream($event->get_presentation());
         }
 
-        $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
+        $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
             $response = $this->api->opencastapi->eventsApi->setRequestTimeout($timeout)->create(
@@ -1301,7 +1301,7 @@ class apibridge {
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     public function getroles($permanent = null) {
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
         if (empty($roles)) {
             return [];
         }
@@ -1397,7 +1397,7 @@ class apibridge {
      * @return bool If acl group can be deleted
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
-        $config = get_config('block_opencast', 'allowunassign_' . $this->ocinstanceid);
+        $config = get_config('tool_opencast', 'allowunassign_' . $this->ocinstanceid);
 
         if (!$config) {
             return false;
@@ -1735,7 +1735,7 @@ class apibridge {
         if ($video->error === 0) {
             // Don't start workflow for scheduled videos.
             if ($video->video->processing_state !== "PLANNED") {
-                $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
+                $workflow = get_config('tool_opencast', 'workflow_roles_' . $this->ocinstanceid);
 
                 if (!$workflow) {
                     return true;
@@ -2104,7 +2104,7 @@ class apibridge {
 
         // We check if the basic editor integration configs are set, the video processing state is succeeded
         // (to avoid process failure) and there is internal publication status (to avoid error 400 in editor).
-        if (get_config('block_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
+        if (get_config('tool_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
             isset($video->processing_state) && in_array($video->processing_state, ["SUCCEEDED", "NEEDSCUTTING"])  &&
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('internal', $video->publication_status)) {
@@ -2190,8 +2190,8 @@ class apibridge {
         $event = new event();
         $event->set_json_acl($jsonacl);
 
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
             array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
@@ -2270,7 +2270,7 @@ class apibridge {
      * @return bool
      */
     public function has_owner($acls) {
-        $ownerrole = get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid);
+        $ownerrole = get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid);
         $ownerroleregex = false;
         foreach (self::$userplaceholders as $userplaceholder) {
             $r = str_replace($userplaceholder, '.*?', $ownerrole);
@@ -2304,12 +2304,12 @@ class apibridge {
      * @throws dml_exception
      */
     private function get_owner_role_for_user($userid, $courseid) {
-        if (empty(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
+        if (empty(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
             return null;
         }
 
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
             array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
@@ -2445,7 +2445,7 @@ class apibridge {
         }
 
         // If we are not looking at a duplication workflow at all, return.
-        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
+        $duplicateworkflow = get_config('tool_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
         if (isset($workflowconfiguration->workflow_definition_identifier) &&
             $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
             return false;
@@ -2866,7 +2866,7 @@ class apibridge {
     public function can_edit_event_transcription($video, $courseid) {
         // To edit transcriptions, we need that the video processing to be in succeeded state to avoid any conflict in workflows.
         // We would also need to make sure that workflow for transcription is configured.
-        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
+        if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             $context = context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
@@ -3034,21 +3034,21 @@ class apibridge {
             'upload.seriesId=' . $seriesid,
         ];
         // Check if Studio return button is enabled.
-        if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
+        if (get_config('tool_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
             // Initializing default label for studio return button.
             $studioreturnbtnlabel = $SITE->fullname;
             // Check if custom label is configured.
-            if (!empty(get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid))) {
-                $studioreturnbtnlabel = get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid);
+            if (!empty(get_config('tool_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid))) {
+                $studioreturnbtnlabel = get_config('tool_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid);
             }
 
             // Initializing default studio return url.
             $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
                 ['courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid]);
             // Check if custom return url is configured.
-            if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
+            if (!empty(get_config('tool_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
                 // Prepare the custom url.
-                $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid);
+                $customreturnurl = get_config('tool_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid);
                 // Slipt it into parts, to extract endpoint and query strings.
                 $customreturnurlarray = explode('?', $customreturnurl);
                 $customurl = $customreturnurlarray[0];
@@ -3082,7 +3082,7 @@ class apibridge {
         }
 
         // Checking if custom settings filename is set.
-        $customseetingsfilename = get_config('block_opencast', 'opencast_studio_custom_settings_filename_' . $this->ocinstanceid);
+        $customseetingsfilename = get_config('tool_opencast', 'opencast_studio_custom_settings_filename_' . $this->ocinstanceid);
         if (!empty($customseetingsfilename)) {
             $queryparams[] = 'settingsFile=' . $customseetingsfilename;
         }

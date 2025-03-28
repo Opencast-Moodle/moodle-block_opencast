@@ -210,18 +210,18 @@ class batchupload_form extends moodleform {
         $mform->setAdvanced('startDate');
 
         // Batch Visibility configuration.
-        if (get_config('block_opencast', 'aclcontrol_' . $ocinstanceid)) {
+        if (get_config('tool_opencast', 'aclcontrol_' . $ocinstanceid)) {
             // Prepare all required configurations.
             // Check if Workflow is set and the acl control is enabled.
             $allowchangevisibility = false;
-            if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
-                get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
+            if (get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid) != "" &&
+                get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) == true) {
                 $allowchangevisibility = true;
             }
             // Check if the teacher should be allowed to restrict the episode to course groups.
             $groups = [];
             $groupvisibilityallowed = false;
-            $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+            $controlgroupsenabled = get_config('tool_opencast', 'aclcontrolgroup_' . $ocinstanceid);
             // If group restriction is generally enabled, check if there are roles which allow group visibility.
             if ($controlgroupsenabled) {
                 $roles = $apibridge->getroles(0);
@@ -349,7 +349,7 @@ class batchupload_form extends moodleform {
         $mform->addRule('batchuploadedvideos', get_string('required'), 'required');
 
         // Term of use.
-        if (!empty(get_config('block_opencast', 'termsofuse_' . $ocinstanceid))) {
+        if (!empty(get_config('tool_opencast', 'termsofuse_' . $ocinstanceid))) {
             $togglespan = '<span class="btn-link" id="termsofuse_toggle">' .
                 get_string('termsofuse_accept_toggle', 'block_opencast') . '</span>';
 
@@ -358,7 +358,7 @@ class batchupload_form extends moodleform {
             $mform->addRule('termsofuse', get_string('required'), 'required');
             $options['filter'] = false;
             $mform->addElement('html', '<div class="row justify-content-end" id="termsofuse"><div class="col-md-9">' .
-                format_text(get_config('block_opencast', 'termsofuse_' . $ocinstanceid), FORMAT_HTML, $options) . '</div></div>');
+                format_text(get_config('tool_opencast', 'termsofuse_' . $ocinstanceid), FORMAT_HTML, $options) . '</div></div>');
         }
 
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);

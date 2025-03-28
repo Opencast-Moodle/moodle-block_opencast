@@ -53,8 +53,8 @@ $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
 $endpoint = settings_api::get_apiurl($ocinstanceid);
 
-if (!empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
-    $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
+if (!empty(get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
+    $endpoint = get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstanceid);
 }
 
 if (strpos($endpoint, 'http') !== 0) {

@@ -84,7 +84,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the intro feature is disabled or if we do not have an intro, use an empty string as intro.
-    if (get_config('block_opencast', 'addactivityepisodeintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
+    if (get_config('tool_opencast', 'addactivityepisodeintro_' . $ocinstanceid) != true || !isset($data->intro) || !$data->intro) {
         $introtext = '';
         $introformat = FORMAT_HTML;
 
@@ -95,7 +95,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the section feature is disabled or if we do not have an intro, use the default section.
-    if (get_config('block_opencast', 'addactivityepisodesection_' . $ocinstanceid) != true ||
+    if (get_config('tool_opencast', 'addactivityepisodesection_' . $ocinstanceid) != true ||
         !isset($data->section) || !$data->section) {
         $sectionid = 0;
 
@@ -105,7 +105,7 @@ if ($data = $addactivityform->get_data()) {
     }
 
     // If the availability feature is disabled or if we do not have an availability given, use null.
-    if (get_config('block_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) != true ||
+    if (get_config('tool_opencast', 'addactivityepisodeavailability_' . $ocinstanceid) != true ||
         empty($CFG->enableavailability) ||
         !isset($data->availabilityconditionsjson) || !$data->availabilityconditionsjson) {
         $availability = null;

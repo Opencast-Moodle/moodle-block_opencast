@@ -68,8 +68,8 @@ $PAGE->navbar->add(get_string('managedefaultsforuser', 'block_opencast'), $baseu
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
-$eventmetadata = json_decode(get_config('block_opencast', 'metadata_' . $ocinstanceid));
-$seriesmetadata = json_decode(get_config('block_opencast', 'metadataseries_' . $ocinstanceid));
+$eventmetadata = json_decode(get_config('tool_opencast', 'metadata_' . $ocinstanceid));
+$seriesmetadata = json_decode(get_config('tool_opencast', 'metadataseries_' . $ocinstanceid));
 
 $defaultables = new stdClass();
 
