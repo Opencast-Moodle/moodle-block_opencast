@@ -262,7 +262,7 @@ class apibridge {
         $ingestapi = $this->get_ingest_api();
 
         if (empty($uploadworkflow)) {
-            $uploadworkflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
+            $uploadworkflow = get_config("tool_opencast", "uploadworkflow_" . $this->ocinstanceid);
         }
 
         $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
@@ -1199,7 +1199,7 @@ class apibridge {
         }
 
         if (!$validstoredfile) {
-            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            $DB->delete_records('tool_opencast_uploadjob', ['id' => $job->id]);
             throw new moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
 
@@ -1952,7 +1952,7 @@ class apibridge {
      */
     public function trigger_delete_event($eventidentifier) {
         global $DB;
-        $workflow = get_config("block_opencast", "deleteworkflow_" . $this->ocinstanceid);
+        $workflow = get_config("tool_opencast", "deleteworkflow_" . $this->ocinstanceid);
 
         if ($workflow) {
             if ($this->start_workflow($eventidentifier, $workflow)) {
@@ -1963,7 +1963,7 @@ class apibridge {
                     "timecreated" => time(),
                     "timemodified" => time(),
                 ];
-                $DB->insert_record("block_opencast_deletejob", $record);
+                $DB->insert_record("tool_opencast_deletejob", $record);
                 return true;
             }
             return false;

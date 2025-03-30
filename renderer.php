@@ -25,6 +25,7 @@
 
 use tool_opencast\local\apibridge;
 use tool_opencast\local\settings_api;
+use tool_opencast\local\upload_helper;
 
 /**
  * Renderer class for block opencast.
@@ -190,6 +191,41 @@ class block_opencast_renderer extends plugin_renderer_base {
         $html .= html_writer::div($link, 'opencast-more-wrap');
 
         return $html;
+    }
+
+        /**
+     * Render the opencast processing status.
+     *
+     * @param string $statuscode
+     * @param int $countfailed
+     *
+     * @return string
+     */
+    public function render_status($statuscode, $countfailed = 0) {
+        $statusstring = '';
+        // The status code less than 200 is assigned for api upload.
+        if (intval($statuscode) < 200) {
+            // Get understandable status string from normal upload process.
+            $statusstring = upload_helper::get_status_string($statuscode);
+        }
+
+        // The status code greater than 200 is assigned for ingest upload.
+        if (intval($statuscode) >= 200) {
+            $statusstring = ingest_uploader::get_status_string($statuscode);
+        }
+
+        // It the statusstring is still empty, we return unknown.
+        if (empty($statusstring)) {
+            $statusstring = get_string('mstateunknown', 'tool_opencast');
+        }
+
+        // If needed, add the number of failed uploads.
+        if ($countfailed > 1) {
+            $statusstring .= ' (' . get_string('failedtransferattempts', 'tool_opencast', $countfailed) . ')';
+        }
+
+        // Return string.
+        return $statusstring;
     }
 
 }

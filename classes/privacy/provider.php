@@ -49,15 +49,15 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
      * @return collection the updated collection of metadata items.
      */
     public static function get_metadata(collection $collection): collection {
-        $collection->add_database_table('block_opencast_uploadjob', [
-            'presentation_fileid' => 'privacy:metadata:block_opencast_uploadjob:presentation_fileid',
-            'presenter_fileid' => 'privacy:metadata:block_opencast_uploadjob:presenter_fileid',
-            'userid' => 'privacy:metadata:block_opencast_uploadjob:userid',
-            'status' => 'privacy:metadata:block_opencast_uploadjob:status',
-            'courseid' => 'privacy:metadata:block_opencast_uploadjob:courseid',
-            'timecreated' => 'privacy:metadata:block_opencast_uploadjob:timecreated',
-            'timemodified' => 'privacy:metadata:block_opencast_uploadjob:timemodified',
-        ], 'privacy:metadata:block_opencast_uploadjob');
+        $collection->add_database_table('tool_opencast_uploadjob', [
+            'presentation_fileid' => 'privacy:metadata:tool_opencast_uploadjob:presentation_fileid',
+            'presenter_fileid' => 'privacy:metadata:tool_opencast_uploadjob:presenter_fileid',
+            'userid' => 'privacy:metadata:tool_opencast_uploadjob:userid',
+            'status' => 'privacy:metadata:tool_opencast_uploadjob:status',
+            'courseid' => 'privacy:metadata:tool_opencast_uploadjob:courseid',
+            'timecreated' => 'privacy:metadata:tool_opencast_uploadjob:timecreated',
+            'timemodified' => 'privacy:metadata:tool_opencast_uploadjob:timemodified',
+        ], 'privacy:metadata:tool_opencast_uploadjob');
 
         // Uploads files to opencast.
         $collection->add_external_location_link('opencast', [
@@ -80,7 +80,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         // Since we can have only one block instance per course, we can use the course context.
         // Therefore we take each course, in which the user uploaded a video.
         $sql = "SELECT c.id " .
-            "FROM {block_opencast_uploadjob} bo " .
+            "FROM {tool_opencast_uploadjob} bo " .
             "JOIN {context} c ON c.instanceid = bo.courseid AND c.contextlevel = :contextcourse " .
             "WHERE bo.userid = :userid " .
             "GROUP BY c.id";
@@ -123,7 +123,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 "bo.status as status, " .
                 "bo.timecreated as creation_time, " .
                 "bo.timemodified as last_modified " .
-                "FROM {block_opencast_uploadjob} bo JOIN " .
+                "FROM {tool_opencast_uploadjob} bo JOIN " .
                 "{files} f ON bo.presentation_fileid = f.id " .
                 "WHERE bo.userid = :userid AND " .
                 "bo.courseid = :courseid " .
@@ -173,7 +173,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         $course = $context->instanceid;
 
-        $DB->delete_records('block_opencast_uploadjob', ['courseid' => $course]);
+        $DB->delete_records('tool_opencast_uploadjob', ['courseid' => $course]);
 
         // Delete all uploaded but not processed files.
         get_file_storage()->delete_area_files_select($context->id, 'block_opencast', 'videotoupload',
@@ -202,7 +202,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
             $courseid = $context->instanceid;
 
-            $DB->delete_records('block_opencast_uploadjob',
+            $DB->delete_records('tool_opencast_uploadjob',
                 [
                     'userid' => $user->id,
                     'courseid' => $courseid,
@@ -232,7 +232,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         // From uploadjobs.
         $sql = "SELECT bo.userid as userid " .
-            "FROM {block_opencast_uploadjob} bo " .
+            "FROM {tool_opencast_uploadjob} bo " .
             "WHERE bo.courseid = :courseid " .
             "GROUP BY bo.userid";
 
@@ -257,7 +257,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $params = array_merge(['courseid' => $context->instanceid], $userinparams);
 
         // Delete Upload jobs.
-        $DB->delete_records_select('block_opencast_uploadjob',
+        $DB->delete_records_select('tool_opencast_uploadjob',
             "courseid = :courseid AND userid {$userinsql}", $params);
 
         // Delete all uploaded but not processed files.

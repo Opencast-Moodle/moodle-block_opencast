@@ -113,7 +113,7 @@
  $string['error_seriesid_not_matching'] = 'The course {$a->coursefullname} (ID: {$a->courseid}) has a course series, that does not match the seriesid of the task. The event ({$a->eventid}) could not be restored.';
  $string['error_workflow_not_exists'] = 'The workflow {$a->duplicateworkflow} can not be found in the opencast system. The event ({$a->eventid}) could not be restored for course {$a->coursefullname} (ID: {$a->courseid}).';
  $string['error_workflow_not_started'] = 'The workflow to copy the video ({$a->eventid}) assigned to course {$a->coursefullname} (ID: {$a->courseid}) could not be started.';
- $string['error_workflow_setup_missing'] = 'The plugin block_opencast is not properly configurated. The duplication workflow is missing!';
+ $string['error_workflow_setup_missing'] = 'The plugin tool_opencast is not properly configurated. The duplication workflow is missing!';
  $string['erroremailsubj'] = 'Error while executing opencast process duplicate task';
  $string['errorgetblockvideos'] = 'List cannot be loaded (Error: {$a})';
  $string['errorrestoremissingevents_subj'] = 'Opencast error during restore process';
