@@ -211,14 +211,7 @@
  $string['pluginname'] = 'Opencast Videos';
  $string['presentation'] = 'Presentation video';
  $string['presenter'] = 'Presenter video';
- $string['privacy:metadata:block_opencast_uploadjob'] = 'Information about video uploads.';
- $string['privacy:metadata:block_opencast_uploadjob:courseid'] = 'ID of the course where the video is uploaded';
- $string['privacy:metadata:block_opencast_uploadjob:status'] = 'Status of upload process';
- $string['privacy:metadata:block_opencast_uploadjob:timecreated'] = 'The date the upload job was created.';
- $string['privacy:metadata:block_opencast_uploadjob:timemodified'] = 'The date the upload job was last modified.';
- $string['privacy:metadata:block_opencast_uploadjob:userid'] = 'ID of the user who uploaded the video';
- $string['privacy:metadata:opencast'] = 'The block interacts with an opencast instance and thus data needs to be exchanged.';
- $string['privacy:metadata:opencast:file'] = 'The file which is selected is uploaded to opencast.';
+ $string['privacy:metadata'] = 'The Opencast block plugin does not store any personal data.';
  $string['publisher'] = 'Publisher';
  $string['publishtoengage'] = 'Publish to Engage';
  $string['readonly_disabled_tooltip_text'] = 'Unable to set readonly option while it is set to be required.';
