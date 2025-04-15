@@ -960,9 +960,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
     if ($oldversion < 2025020602) {
 
         // Migrate settings
-        $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast' WHERE plugin = 'tool_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
-        upgrade_block_savepoint(true, 2025020602, 'opencast');
-
+        $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast' WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
 
         // Migrate tables
         $table_uploadjob = new xmldb_table('block_opencast_uploadjob');
@@ -1030,6 +1028,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
             $dbman->rename_table($table_importmapping, 'tool_opencast_importmapping');
         }
 
+        upgrade_block_savepoint(true, 2025020602, 'opencast');
 
     }
 
