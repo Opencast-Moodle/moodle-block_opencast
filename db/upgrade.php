@@ -957,7 +957,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024111103, 'opencast');
     }
 
-    if ($oldversion < 2025020602) {
+    if ($oldversion < 2025042200) {
 
         // Migrate settings
         $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast' WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
@@ -1040,7 +1040,7 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
 
-        upgrade_block_savepoint(true, 2025020602, 'opencast');
+        upgrade_block_savepoint(true, 2025042200, 'opencast');
 
     }
 
