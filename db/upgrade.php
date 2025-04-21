@@ -1028,6 +1028,18 @@ function xmldb_block_opencast_upgrade($oldversion) {
             $dbman->rename_table($table_importmapping, 'tool_opencast_importmapping');
         }
 
+        // Migrate the queued adhoc tasks
+        $tasks = ['\block_opencast\task\process_duplicate_event', '\block_opencast\task\process_duplicated_event_module_fix', '\block_opencast\task\process_duplicated_event_visibility_change'];
+        foreach ($tasks as $task) {
+            $sql = "SELECT * FROM {task_adhoc} WHERE component = 'block_opencast' AND classname = '" . $task . "'";
+            // Change component
+            $DB->execute("UPDATE {task_adhoc} SET component='tool_opencast' WHERE component = 'block_opencast' AND classname = '" . $task . "'");
+            // Change classname
+            $new_classname = str_replace('block_opencast', 'tool_opencast', $task);
+            $DB->execute("UPDATE {task_adhoc} SET classname='" . $new_classname . "' WHERE component = 'tool_opencast' AND classname = '" . $task . "'");
+        }
+
+
         upgrade_block_savepoint(true, 2025020602, 'opencast');
 
     }
