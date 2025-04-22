@@ -49,7 +49,7 @@ export const init = (contextid, deleteurl) => {
         modal.body[0].querySelector('.block_opencast-delete-mapping').onclick = async() => {
             try {
                 await Ajax.call([{
-                    methodname: 'block_opencast_unlink_series',
+                    methodname: 'tool_opencast_unlink_series',
                     args: {contextid: contextid, ocinstanceid: -1, seriesid: 'all'}
                 }])[0];
                 window.location = deleteurl;

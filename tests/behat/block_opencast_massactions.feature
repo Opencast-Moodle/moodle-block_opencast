@@ -77,16 +77,16 @@ Feature: Select all videos and perform mass actions in the Opencast Block Overvi
   Scenario: The mass actions should not be provided when conditions are not met, such as permissions and configurations.
     Given the following "permission overrides" exist:
       | capability                    | permission  | role           | contextlevel | reference |
-      | block/opencast:deleteevent    | Prevent     | editingteacher | Course       | C1        |
-      | block/opencast:startworkflow  | Prevent     | editingteacher | Course       | C1        |
-      | block/opencast:addvideo       | Prevent     | editingteacher | Course       | C1        |
+      | tool/opencast:deleteevent    | Prevent     | editingteacher | Course       | C1        |
+      | tool/opencast:startworkflow  | Prevent     | editingteacher | Course       | C1        |
+      | tool/opencast:addvideo       | Prevent     | editingteacher | Course       | C1        |
     When I click on "Go to overview..." "link"
     Then I should not see "With Selected Videos..."
     When the following "permission overrides" exist:
       | capability                    | permission  | role           | contextlevel | reference |
-      | block/opencast:deleteevent    | Allow       | editingteacher | Course       | C1        |
-      | block/opencast:startworkflow  | Allow       | editingteacher | Course       | C1        |
-      | block/opencast:addvideo       | Allow       | editingteacher | Course       | C1        |
+      | tool/opencast:deleteevent    | Allow       | editingteacher | Course       | C1        |
+      | tool/opencast:startworkflow  | Allow       | editingteacher | Course       | C1        |
+      | tool/opencast:addvideo       | Allow       | editingteacher | Course       | C1        |
     And I reload the page
     Then I should see "With Selected Videos..."
     When the following config values are set as admin:
