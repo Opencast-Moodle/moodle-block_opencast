@@ -964,76 +964,76 @@ function xmldb_block_opencast_upgrade($oldversion) {
         WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
 
         // Migrate tables.
-        $tableUploadjob = new xmldb_table('block_opencast_uploadjob');
-        if ($dbman->table_exists($tableUploadjob)) {
-            $dbman->rename_table($tableUploadjob, 'tool_opencast_uploadjob');
+        $tableuploadjob = new xmldb_table('block_opencast_uploadjob');
+        if ($dbman->table_exists($tableuploadjob)) {
+            $dbman->rename_table($tableuploadjob, 'tool_opencast_uploadjob');
         }
 
-        $tableDeletejob = new xmldb_table('block_opencast_deletejob');
-        if ($dbman->table_exists($tableDeletejob)) {
-            $dbman->rename_table($tableDeletejob, 'tool_opencast_deletejob');
+        $tabledeletejob = new xmldb_table('block_opencast_deletejob');
+        if ($dbman->table_exists($tabledeletejob)) {
+            $dbman->rename_table($tabledeletejob, 'tool_opencast_deletejob');
         }
 
-        $table_groupaccess = new xmldb_table('block_opencast_groupaccess');
-        if ($dbman->table_exists($table_groupaccess)) {
-            $dbman->rename_table($table_groupaccess, 'tool_opencast_groupaccess');
+        $tablegroupaccess = new xmldb_table('block_opencast_groupaccess');
+        if ($dbman->table_exists($tablegroupaccess)) {
+            $dbman->rename_table($tablegroupaccess, 'tool_opencast_groupaccess');
         }
 
-        $tableDraftitemid = new xmldb_table('block_opencast_draftitemid');
-        if ($dbman->table_exists($tableDraftitemid)) {
-            $dbman->rename_table($tableDraftitemid, 'tool_opencast_draftitemid');
+        $tabledraftitemid = new xmldb_table('block_opencast_draftitemid');
+        if ($dbman->table_exists($tabledraftitemid)) {
+            $dbman->rename_table($tabledraftitemid, 'tool_opencast_draftitemid');
         }
 
-        $tableMetadata = new xmldb_table('block_opencast_metadata');
-        if ($dbman->table_exists($tableMetadata)) {
-            $dbman->rename_table($tableMetadata, 'tool_opencast_metadata');
+        $tablemetadata = new xmldb_table('block_opencast_metadata');
+        if ($dbman->table_exists($tablemetadata)) {
+            $dbman->rename_table($tablemetadata, 'tool_opencast_metadata');
         }
 
-        $tableLtimodule = new xmldb_table('block_opencast_ltimodule');
-        if ($dbman->table_exists($tableLtimodule)) {
-            $dbman->rename_table($tableLtimodule, 'tool_opencast_ltimodule');
+        $tableltimodule = new xmldb_table('block_opencast_ltimodule');
+        if ($dbman->table_exists($tableltimodule)) {
+            $dbman->rename_table($tableltimodule, 'tool_opencast_ltimodule');
         }
 
-        $tableLtiepisode = new xmldb_table('block_opencast_ltiepisode');
-        if ($dbman->table_exists($tableLtiepisode)) {
-            $dbman->rename_table($tableLtiepisode, 'tool_opencast_ltiepisode');
+        $tableltiepisode = new xmldb_table('block_opencast_ltiepisode');
+        if ($dbman->table_exists($tableltiepisode)) {
+            $dbman->rename_table($tableltiepisode, 'tool_opencast_ltiepisode');
         }
 
-        $tableLtiepisodeCu = new xmldb_table('block_opencast_ltiepisode_cu');
-        if ($dbman->table_exists($tableLtiepisodeCu)) {
-            $dbman->rename_table($tableLtiepisodeCu, 'tool_opencast_ltiepisode_cu');
+        $tableltiepisodecu = new xmldb_table('block_opencast_ltiepisode_cu');
+        if ($dbman->table_exists($tableltiepisodecu)) {
+            $dbman->rename_table($tableltiepisodecu, 'tool_opencast_ltiepisode_cu');
         }
 
-        $tableNotifications = new xmldb_table('block_opencast_notifications');
-        if ($dbman->table_exists($tableNotifications)) {
-            $dbman->rename_table($tableNotifications, 'tool_opencast_notifications');
+        $tablenotifications = new xmldb_table('block_opencast_notifications');
+        if ($dbman->table_exists($tablenotifications)) {
+            $dbman->rename_table($tablenotifications, 'tool_opencast_notifications');
         }
 
-        $tableVisibility = new xmldb_table('block_opencast_visibility');
-        if ($dbman->table_exists($tableVisibility)) {
-            $dbman->rename_table($tableVisibility, 'tool_opencast_visibility');
+        $tablevisibility = new xmldb_table('block_opencast_visibility');
+        if ($dbman->table_exists($tablevisibility)) {
+            $dbman->rename_table($tablevisibility, 'tool_opencast_visibility');
         }
 
-        $tableUserDefault = new xmldb_table('block_opencast_user_default');
-        if ($dbman->table_exists($tableUserDefault)) {
-            $dbman->rename_table($tableUserDefault, 'tool_opencast_user_default');
+        $tableuserdefault = new xmldb_table('block_opencast_user_default');
+        if ($dbman->table_exists($tableuserdefault)) {
+            $dbman->rename_table($tableuserdefault, 'tool_opencast_user_default');
         }
 
-        $tableAttachments = new xmldb_table('block_opencast_attachments');
-        if ($dbman->table_exists($tableAttachments)) {
-            $dbman->rename_table($tableAttachments, 'tool_opencast_attachments');
+        $tableattachments = new xmldb_table('block_opencast_attachments');
+        if ($dbman->table_exists($tableattachments)) {
+            $dbman->rename_table($tableattachments, 'tool_opencast_attachments');
         }
 
-        $tableImportmapping = new xmldb_table('block_opencast_importmapping');
-        if ($dbman->table_exists($tableImportmapping)) {
-            $dbman->rename_table($tableImportmapping, 'tool_opencast_importmapping');
+        $tableimportmapping = new xmldb_table('block_opencast_importmapping');
+        if ($dbman->table_exists($tableimportmapping)) {
+            $dbman->rename_table($tableimportmapping, 'tool_opencast_importmapping');
         }
 
         // Migrate the queued adhoc tasks.
         $tasks = [
             '\block_opencast\task\process_duplicate_event',
             '\block_opencast\task\process_duplicated_event_module_fix',
-            '\block_opencast\task\process_duplicated_event_visibility_change'
+            '\block_opencast\task\process_duplicated_event_visibility_change',
         ];
         foreach ($tasks as $task) {
             $sql = "SELECT * FROM {task_adhoc} WHERE component = 'block_opencast' AND classname = '" . $task . "'";
@@ -1041,11 +1041,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
             $DB->execute("UPDATE {task_adhoc} SET component='tool_opencast'
             WHERE component = 'block_opencast' AND classname = '" . $task . "'");
             // Change classname.
-            $newClassname = str_replace('block_opencast', 'tool_opencast', $task);
-            $DB->execute("UPDATE {task_adhoc} SET classname='" . $newClassname .
+            $newclassname = str_replace('block_opencast', 'tool_opencast', $task);
+            $DB->execute("UPDATE {task_adhoc} SET classname='" . $newclassname .
             "' WHERE component = 'tool_opencast' AND classname = '" . $task . "'");
         }
-
 
         upgrade_block_savepoint(true, 2025042200, 'opencast');
 
