@@ -8,7 +8,7 @@ on: [ push, pull_request ]
 
 jobs:
   call-moodle-ci-workflow:
-    uses: Opencast-Moodle/moodle-workflows-opencast/.github/workflows/moodle-ci.yml@main
+    uses: berthob98/moodle-workflows-opencast/.github/workflows/moodle-ci.yml@main
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
