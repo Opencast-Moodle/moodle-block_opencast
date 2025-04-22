@@ -15,7 +15,7 @@ Feature: Add Opencast block as Teacher
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config              | value                                                         | plugin         |
-      | apiurl_1            | http://172.21.0.7:80                                        | tool_opencast  |
+      | apiurl_1            | http://172.17.0.1:8080                                        | tool_opencast  |
       | apipassword_1       | opencast                                                      | tool_opencast  |
       | apiusername_1       | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |

@@ -17,7 +17,7 @@ Feature: Add Opencast Video Provider series module as Teacher
     And I setup the default settigns for opencast plugins
     And the following config values are set as admin:
       | config                    | value                                                         | plugin         |
-      | apiurl_1                  | http://opencast.localtest.me:80                               | tool_opencast  |
+      | apiurl_1                  | http://testapi:8080                                           | tool_opencast  |
       | apipassword_1             | opencast                                                      | tool_opencast  |
       | apiusername_1             | admin                                                         | tool_opencast  |
       | ocinstances               | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
