@@ -79,7 +79,6 @@ Feature: Restore courses as Teacher
     And the lti tool "Test video" should have the custom parameter "id=abcd-abcd-abcd-abcd"
     When I backup "Course 1" course using this options:
       | Confirmation | Filename                                                     | test_backup.mbz |
-      | Schema       | Include videos from Opencast instance Default in this course | 0               |
     And I restore "test_backup.mbz" backup into a new course using this options:
       | Schema | Course name | Course 1 |
     And I click on "Go to overview..." "link"

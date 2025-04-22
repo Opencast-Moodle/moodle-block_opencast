@@ -65,7 +65,7 @@ Feature: Add Opencast LTI series module as Teacher
       | teacher2 | C1     | teacher |
     And the following "permission overrides" exist:
       | capability                           | permission | role    | contextlevel | reference |
-      | block/opencast:viewunpublishedvideos | Allow      | teacher | Course       | C1        |
+      | tool/opencast:viewunpublishedvideos | Allow      | teacher | Course       | C1        |
     And I log in as "teacher2"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
