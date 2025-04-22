@@ -57,7 +57,7 @@ Feature: Restore courses as Teacher
       | Custom parameters        | tool=ltitools/player/index.html |
       | Default launch container | Embed, without blocks           |
     And I press "Save changes"
-    And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
+    And I navigate to "Plugins > Admin tools > Opencast API > LTI module features" in site administration
     And I set the following fields to these values:
       | Enable "Add LTI series module"             | 1                |
       | Default LTI series module title            | Opencast videos  |
