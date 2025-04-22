@@ -193,7 +193,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         return $html;
     }
 
-        /**
+    /**
      * Render the opencast processing status.
      *
      * @param string $statuscode

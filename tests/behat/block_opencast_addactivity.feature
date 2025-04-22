@@ -37,7 +37,6 @@ Feature: Add Opencast Video Provider series module as Teacher
     And I add the "Opencast Videos" block
     And I log out
 
-
   Scenario: Teachers should be able to add a series module to the course
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
