@@ -87,7 +87,6 @@ Feature: Restore courses as Teacher
     And I click on "#import-course-1" "css_element"
     And I click on "Continue" "button"
     And I click on "Continue" "button"
-    Then I should see "Yes, clean up the Opencast series modules related to this import"
     And I should see "Yes, clean up the Opencast episode module(s) related to this import"
     And I click on "Continue" "button"
     When I click on "Import videos and return to overview" "button"
