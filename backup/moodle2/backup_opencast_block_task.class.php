@@ -57,12 +57,12 @@ class backup_opencast_block_task extends backup_block_task {
             if (importvideosmanager::is_enabled_and_working_for_coreimport($ocinstance->id) == true) {
 
                 // Get default value, to include opencast video.
-                $defaultimportvalue = boolval(get_config('block_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
+                $defaultimportvalue = boolval(get_config('tool_opencast', 'importvideoscoredefaultvalue_' . $ocinstance->id));
 
                 // Get import mode, to determine whether to offer selective feature or not.
                 // Duplicate videos mode is capable of selection.
                 // ACL Change mode is not, due to changing the acl of the whole series at once.
-                $importmode = get_config('block_opencast', 'importmode_' . $ocinstance->id);
+                $importmode = get_config('tool_opencast', 'importmode_' . $ocinstance->id);
 
                 // Check, whether there are course videos available.
                 $apibridge = apibridge::get_instance($ocinstance->id);
@@ -177,7 +177,7 @@ class backup_opencast_block_task extends backup_block_task {
         $ocinstances = settings_api::get_ocinstances();
         $courseid = $this->get_courseid();
         foreach ($ocinstances as $ocinstance) {
-            $importmode = get_config('block_opencast', 'importmode_' . $ocinstance->id);
+            $importmode = get_config('tool_opencast', 'importmode_' . $ocinstance->id);
             $includesettingname = 'opencast_videos_' . $ocinstance->id . '_included';
             // Checking the main level inclusion.
             if (!$this->setting_exists($includesettingname)) {

@@ -101,7 +101,7 @@ class eventstatus_notification_helper {
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get admin config, whether to send notification or not.
-        $notificationenabled = get_config('block_opencast', 'eventstatusnotificationenabled_' . $ocinstanceid);
+        $notificationenabled = get_config('tool_opencast', 'eventstatusnotificationenabled_' . $ocinstanceid);
 
         // If the job status is FAILED or SUCCEEDED and it has already been notified or the config is not enabled,
         // we remove the job because it is completed.
@@ -169,7 +169,7 @@ class eventstatus_notification_helper {
         $usertolist[] = $DB->get_record('user', ['id' => $job->userid]);
 
         // Get admin config to check if all teachers of the course should be notified as well.
-        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
+        $notifyteachers = get_config('tool_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
         if ($notifyteachers) {
             // Get the role of teachers.
             $role = $DB->get_record('role', ['shortname' => 'editingteacher']);
@@ -216,7 +216,7 @@ class eventstatus_notification_helper {
         $usertolist[] = $DB->get_record('user', ['id' => $job->userid]);
 
         // Get admin config to check if all teachers of the course should be notified as well.
-        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
+        $notifyteachers = get_config('tool_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
         if ($notifyteachers) {
             // Get the role of teachers.
             $role = $DB->get_record('role', ['shortname' => 'editingteacher']);
@@ -276,7 +276,7 @@ class eventstatus_notification_helper {
         $usertolist[] = $DB->get_record('user', ['id' => $job->userid]);
 
         // Get admin config to check if all teachers of the course should be notified as well.
-        $notifyteachers = get_config('block_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
+        $notifyteachers = get_config('tool_opencast', 'eventstatusnotifyteachers_' . $job->ocinstanceid);
         if ($notifyteachers) {
             // Get the role of teachers.
             $role = $DB->get_record('role', ['shortname' => 'editingteacher']);

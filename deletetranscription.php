@@ -62,8 +62,8 @@ require_capability('block/opencast:addvideo', $coursecontext);
 $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($videoidentifier, true);
 if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
-    empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid)) ||
-    empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
+    empty(get_config('tool_opencast', 'transcriptionworkflow_' . $ocinstanceid)) ||
+    empty(get_config('tool_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
     redirect($redirecturl,
         get_string('unabletodeletetranscription', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }

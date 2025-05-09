@@ -59,14 +59,14 @@ class addlti_form extends moodleform {
             get_string('addlti_noemptytitle', 'block_opencast', get_string('addlti_defaulttitle', 'block_opencast')),
             'required');
 
-        if (get_config('block_opencast', 'addltiintro_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addltiintro_' . $ocinstanceid) == true) {
             $mform->addElement('editor', 'intro', get_string('addlti_formltiintro', 'block_opencast'),
                 ['rows' => 5],
                 ['maxfiles' => 0, 'noclean' => true]);
             $mform->setType('intro', PARAM_RAW); // No XSS prevention here, users must be trusted.
         }
 
-        if (get_config('block_opencast', 'addltisection_' . $ocinstanceid) == true) {
+        if (get_config('tool_opencast', 'addltisection_' . $ocinstanceid) == true) {
             // Get course sections.
             $sectionmenu = ltimodulemanager::get_course_sections($courseid);
 
@@ -79,7 +79,7 @@ class addlti_form extends moodleform {
             }
         }
 
-        if (get_config('block_opencast', 'addltiavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
+        if (get_config('tool_opencast', 'addltiavailability_' . $ocinstanceid) == true && !empty($CFG->enableavailability)) {
             $mform->addElement('textarea', 'availabilityconditionsjson',
                 get_string('addlti_formltiavailability', 'block_opencast'));
             frontend::include_all_javascript(get_course($courseid));

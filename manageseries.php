@@ -47,7 +47,7 @@ array_walk($series, function ($item) {
     $item->isdefault = intval($item->isdefault);
 });
 $series = array_values($series);
-$numseriesallowed = get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+$numseriesallowed = get_config('tool_opencast', 'maxseries_' . $ocinstanceid);
 
 $PAGE->requires->js_call_amd('block_opencast/block_manage_series', 'init',
     [$coursecontext->id, $ocinstanceid, $createseries, $series, $numseriesallowed]);

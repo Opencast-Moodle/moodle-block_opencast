@@ -100,7 +100,7 @@ if ((importvideosmanager::handle_series_modules_is_enabled_and_working($ocinstan
 // Defining totalsteps, in order to use it for different import modes.
 $totalsteps = 4;
 // Get import mode from the admin setting.
-$importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+$importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
 // In case of ACL change import mode.
 if ($importmode == 'acl') {
     // Total steps in ACL Change mode is 2, where only a course should be selected and a summary should be displayed.
@@ -110,7 +110,7 @@ if ($importmode == 'acl') {
 
     // Check if the maximum number of series is already reached.
     $courseseries = $DB->get_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
-    if (count($courseseries) >= get_config('block_opencast', 'maxseries_' . $ocinstanceid)) {
+    if (count($courseseries) >= get_config('tool_opencast', 'maxseries_' . $ocinstanceid)) {
         throw new moodle_exception('maxseriesreached', 'block_opencast');
     }
 }

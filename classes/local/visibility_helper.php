@@ -132,15 +132,15 @@ class visibility_helper {
         }
 
         // Check if Workflow is set and the acl control is enabled.
-        if (get_config('block_opencast', 'workflow_roles_' . $ocinstanceid) == "" ||
-            get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
+        if (get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid) == "" ||
+            get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) != true) {
             mtrace('job ' . $job->id . ':(ERROR) Invalid configuration to change visibility.');
             self::change_job_status($job, $status);
             return;
         }
 
         // Check if the teacher should be allowed to restrict the episode to course groups.
-        $controlgroupsenabled = get_config('block_opencast', 'aclcontrolgroup_' . $ocinstanceid);
+        $controlgroupsenabled = get_config('tool_opencast', 'aclcontrolgroup_' . $ocinstanceid);
         if (!$controlgroupsenabled && $visibility == block_opencast_renderer::GROUP) {
             mtrace('job ' . $job->id . ':(ERROR) unable to control groups.');
             self::change_job_status($job, $status);
@@ -461,7 +461,7 @@ class visibility_helper {
      * @return int
      */
     public static function get_waiting_time($ocinstanceid, $customminutes = []) {
-        $configwaitingtime = get_config('block_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
+        $configwaitingtime = get_config('tool_opencast', 'aclcontrolwaitingtime_' . $ocinstanceid);
         if (empty($configwaitingtime)) {
             $configwaitingtime = self::DEFAULT_WAITING_TIME;
         }

@@ -534,7 +534,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
             // Show "Add videos (batch)" button.
-            if (get_config('block_opencast', 'batchuploadenabled_' . $ocinstance->id)) {
+            if (get_config('tool_opencast', 'batchuploadenabled_' . $ocinstance->id)) {
                 $batchuploadurl = new moodle_url('/blocks/opencast/batchupload.php',
                     ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
                 $batchuploadbutton = $this->output->single_button($batchuploadurl,
@@ -542,20 +542,20 @@ class block_opencast_renderer extends plugin_renderer_base {
                 $html .= html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap overview');
             }
 
-            if (get_config('block_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
+            if (get_config('tool_opencast', 'enable_opencast_studio_link_' . $ocinstance->id)) {
                 // Initialize the link target to open in the same tab.
                 $target = '_self';
                 // Check for the admin config to set the link target.
-                if (get_config('block_opencast', 'open_studio_in_new_tab_' . $ocinstance->id)) {
+                if (get_config('tool_opencast', 'open_studio_in_new_tab_' . $ocinstance->id)) {
                     $target = '_blank';
                 }
                 // If LTI credentials are given, use LTI. If not, directly forward to Opencast studio.
                 $apibridge = apibridge::get_instance($ocinstance->id);
                 if (empty($apibridge->get_lti_consumerkey())) {
-                    if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
+                    if (empty(get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstance->id))) {
                         $endpoint = settings_api::get_apiurl($ocinstance->id);
                     } else {
-                        $endpoint = get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstance->id);
+                        $endpoint = get_config('tool_opencast', 'opencast_studio_baseurl_' . $ocinstance->id);
                     }
 
                     if (strpos($endpoint, 'http') !== 0) {
@@ -602,7 +602,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         if ($videodata->more) {
             $moretext = get_string('morevideos', 'block_opencast');
         }
-        $url = new moodle_url('/blocks/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
+        $url = new moodle_url('/admin/tool/opencast/index.php', ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
 
         // In admin page, we redirect to the series overview page to manage series from there.
         if ($SITE->id == $courseid) {
@@ -679,8 +679,8 @@ class block_opencast_renderer extends plugin_renderer_base {
                                        $redirectpage = null, $seriesid = null) {
         // Set if visibility change is enabled.
         $canchangescheduledvisibility = false;
-        if (get_config('block_opencast', 'aclcontrolafter_' . $ocinstanceid) &&
-            !empty(get_config('block_opencast', 'workflow_roles_' . $ocinstanceid))) {
+        if (get_config('tool_opencast', 'aclcontrolafter_' . $ocinstanceid) &&
+            !empty(get_config('tool_opencast', 'workflow_roles_' . $ocinstanceid))) {
             $canchangescheduledvisibility = true;
         }
         $table = new html_table();
@@ -774,7 +774,7 @@ class block_opencast_renderer extends plugin_renderer_base {
             }
             $status = $this->render_status($uploadjob->status, $uploadjob->countfailed);
             // Add live update flag item (hidden input) to the upload status column, if it is enabled.
-            if (boolval(get_config('block_opencast', 'liveupdateenabled_' . $ocinstanceid)) &&
+            if (boolval(get_config('tool_opencast', 'liveupdateenabled_' . $ocinstanceid)) &&
                 $uploadjob->status != upload_helper::STATUS_ARCHIVED_FAILED_UPLOAD) {
                 $status .= liveupdate_helper::get_liveupdate_uploading_hidden_input($uploadjob->id, $title);
             }
@@ -1189,7 +1189,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->head = [];
         $table->head[] = get_string('hstart_date', 'block_opencast');
         $table->head[] = get_string('htitle', 'block_opencast');
-        if (get_config('block_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
+        if (get_config('tool_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
             $table->head[] = get_string('hpublished', 'block_opencast');
         }
         $table->head[] = get_string('hworkflow_state', 'block_opencast');
@@ -1198,7 +1198,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $row[] = $this->render_created($video->start);
         $row[] = $video->title;
-        if (get_config('block_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
+        if (get_config('tool_opencast', 'showpublicationchannels_' . $ocinstanceid)) {
             $row[] = $this->render_publication_status($video->publication_status);
         }
         $row[] = $this->render_processing_state_icon($video->processing_state);
@@ -1329,7 +1329,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $actionmenu->attributes['class'] .= ' download-action-menu';
 
         foreach ($video->publications as $publication) {
-            if ($publication->channel == get_config('block_opencast', 'download_channel_' . $ocinstanceid)) {
+            if ($publication->channel == get_config('tool_opencast', 'download_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     $width = property_exists($media, 'width') ? $media->width : 0;
                     $height = property_exists($media, 'height') ? $media->height : 0;
@@ -1380,7 +1380,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $actionmenu->attributes['class'] .= ' access-action-menu';
 
         foreach ($video->publications as $publication) {
-            if ($publication->channel == get_config('block_opencast', 'direct_access_channel_' . $ocinstanceid)) {
+            if ($publication->channel == get_config('tool_opencast', 'direct_access_channel_' . $ocinstanceid)) {
                 foreach ($publication->media as $media) {
                     $width = property_exists($media, 'width') ? $media->width : 0;
                     $height = property_exists($media, 'height') ? $media->height : 0;
@@ -1428,7 +1428,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $countseries = $DB->count_records('tool_opencast_series', ['ocinstanceid' => $ocinstanceid, 'courseid' => $courseid]);
 
         $context = new stdClass();
-        $context->maxseriesreached = $countseries >= get_config('block_opencast', 'maxseries_' . $ocinstanceid);
+        $context->maxseriesreached = $countseries >= get_config('tool_opencast', 'maxseries_' . $ocinstanceid);
         $context->cancreateseries = has_capability('block/opencast:createseriesforcourse', $coursecontext);
         $context->canimportseries = has_capability('block/opencast:importseriesintocourse', $coursecontext);
 

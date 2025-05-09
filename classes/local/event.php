@@ -242,12 +242,12 @@ class event {
      */
     public function get_processing($ocinstanceid) {
 
-        $uploadworkflow = get_config('block_opencast', 'uploadworkflow_' . $ocinstanceid);
+        $uploadworkflow = get_config('tool_opencast', 'uploadworkflow_' . $ocinstanceid);
         if (empty($uploadworkflow)) {
             $uploadworkflow = 'ng-schedule-and-upload';
         }
 
-        $publistoengage = get_config('block_opencast', 'publishtoengage_' . $ocinstanceid);
+        $publistoengage = get_config('tool_opencast', 'publishtoengage_' . $ocinstanceid);
         $publistoengage = (empty($publistoengage)) ? "false" : "true";
 
         $processing = [];

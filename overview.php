@@ -92,7 +92,7 @@ $sortcolumns = $table->get_sort_columns();
 
 $activityinstalled = core_plugin_manager::instance()->get_plugin_info('mod_opencast') != null;
 $showchangeownerlink = has_capability('block/opencast:viewusers', context_system::instance()) &&
-    !empty(get_config('block_opencast', 'aclownerrole_' . $ocinstanceid));
+    !empty(get_config('tool_opencast', 'aclownerrole_' . $ocinstanceid));
 
 for ($i = $page * $perpage; $i < min(($page + 1) * $perpage, count($myseries)); $i++) {
     $row = [];
