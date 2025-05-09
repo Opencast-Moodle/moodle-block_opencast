@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: main
-      branch-mod-plugin: main
+      branch-tool-plugin: upgrade-500
+      branch-mod-plugin: upgrade-500
       branch-opencast-docker-default: 16.7
