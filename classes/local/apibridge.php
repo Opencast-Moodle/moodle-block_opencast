@@ -27,9 +27,9 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-use block_opencast\groupaccess;
+use tool_opencast\groupaccess;
 use tool_opencast\exception\opencast_api_response_exception;
-use block_opencast\task\process_duplicated_event_visibility_change;
+use tool_opencast\task\process_duplicated_event_visibility_change;
 use block_opencast_apibridge_testable;
 use block_opencast_renderer;
 use coding_exception;
@@ -46,7 +46,7 @@ use stored_file;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
-use block_opencast\opencast_state_exception;
+use tool_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
@@ -262,7 +262,7 @@ class apibridge {
         $ingestapi = $this->get_ingest_api();
 
         if (empty($uploadworkflow)) {
-            $uploadworkflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
+            $uploadworkflow = get_config("tool_opencast", "uploadworkflow_" . $this->ocinstanceid);
         }
 
         $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
@@ -1199,7 +1199,7 @@ class apibridge {
         }
 
         if (!$validstoredfile) {
-            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            $DB->delete_records('tool_opencast_uploadjob', ['id' => $job->id]);
             throw new moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
 
@@ -1409,7 +1409,7 @@ class apibridge {
 
         $context = context_course::instance($courseid);
 
-        return has_capability('block/opencast:unassignevent', $context);
+        return has_capability('tool/opencast:unassignevent', $context);
     }
 
     /**
@@ -1938,7 +1938,7 @@ class apibridge {
 
             $context = context_course::instance($courseid);
 
-            return has_capability('block/opencast:deleteevent', $context);
+            return has_capability('tool/opencast:deleteevent', $context);
         }
 
         return false;
@@ -1952,7 +1952,7 @@ class apibridge {
      */
     public function trigger_delete_event($eventidentifier) {
         global $DB;
-        $workflow = get_config("block_opencast", "deleteworkflow_" . $this->ocinstanceid);
+        $workflow = get_config("tool_opencast", "deleteworkflow_" . $this->ocinstanceid);
 
         if ($workflow) {
             if ($this->start_workflow($eventidentifier, $workflow)) {
@@ -1963,7 +1963,7 @@ class apibridge {
                     "timecreated" => time(),
                     "timemodified" => time(),
                 ];
-                $DB->insert_record("block_opencast_deletejob", $record);
+                $DB->insert_record("tool_opencast_deletejob", $record);
                 return true;
             }
             return false;
@@ -2085,7 +2085,7 @@ class apibridge {
                 $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
             if ($capabilitycheck) {
                 $context = context_course::instance($courseid);
-                return has_capability('block/opencast:addvideo', $context);
+                return has_capability('tool/opencast:addvideo', $context);
             } else {
                 return true;
             }
@@ -2109,7 +2109,7 @@ class apibridge {
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('internal', $video->publication_status)) {
             $context = context_course::instance($courseid);
-            return has_capability('block/opencast:addvideo', $context);
+            return has_capability('tool/opencast:addvideo', $context);
         }
 
         return false;
@@ -2869,7 +2869,7 @@ class apibridge {
         if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             $context = context_course::instance($courseid);
-            return has_capability('block/opencast:addvideo', $context);
+            return has_capability('tool/opencast:addvideo', $context);
         }
 
         return false;
@@ -2988,7 +2988,7 @@ class apibridge {
         if ($video->is_downloadable && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
                 $coursecontext = context_course::instance($courseid);
-                return has_capability('block/opencast:downloadvideo', $coursecontext);
+                return has_capability('tool/opencast:downloadvideo', $coursecontext);
             } else {
                 return true;
             }
@@ -3008,7 +3008,7 @@ class apibridge {
         if ($video->is_accessible && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
                 $coursecontext = context_course::instance($courseid);
-                return has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext);
+                return has_capability('tool/opencast:sharedirectaccessvideolink', $coursecontext);
             } else {
                 return true;
             }
@@ -3106,7 +3106,7 @@ class apibridge {
      */
     public function can_update_metadata_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:addvideo', $context);
+        return has_capability('tool/opencastaddvideo', $context);
     }
 
     /**
@@ -3119,7 +3119,7 @@ class apibridge {
      */
     public function can_delete_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:deleteevent', $context);
+        return has_capability('tool/opencast:deleteevent', $context);
     }
 
     /**
@@ -3132,7 +3132,7 @@ class apibridge {
      */
     public function can_change_visibility_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:addvideo', $context);
+        return has_capability('tool/opencast:addvideo', $context);
     }
 
     /**
@@ -3145,7 +3145,7 @@ class apibridge {
      */
     public function can_start_workflow_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:startworkflow', $context);
+        return has_capability('tool/opencast:startworkflow', $context);
     }
 
     /**
@@ -3177,7 +3177,7 @@ class apibridge {
         // to find out if the user is by any chance the capability to import series in any of the mapped courses.
         foreach ($mappings as $mapping) {
             $context = context_course::instance($mapping->get('courseid'));
-            if (has_capability('block/opencast:importseriesintocourse', $context, $userid)) {
+            if (has_capability('tool/opencast:importseriesintocourse', $context, $userid)) {
                 $isallowed = true;
                 break;
             }

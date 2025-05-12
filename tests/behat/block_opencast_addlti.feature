@@ -21,11 +21,11 @@ Feature: Add Opencast LTI series module as Teacher
       | apipassword_1     | opencast                                                      | tool_opencast  |
       | apiusername_1     | admin                                                         | tool_opencast  |
       | ocinstances       | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1 | 0                                                             | block_opencast |
+      | limituploadjobs_1 | 0                                                             | tool_opencast |
       | limitvideos_1     | 5                                                             | block_opencast |
-      | group_creation_1  | 0                                                             | block_opencast |
-      | group_name_1      | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1     | Course_Series_[COURSEID]                                      | block_opencast |
+      | group_creation_1  | 0                                                             | tool_opencast |
+      | group_name_1      | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1     | Course_Series_[COURSEID]                                      | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -40,7 +40,7 @@ Feature: Add Opencast LTI series module as Teacher
       | Default launch container | Embed, without blocks           |
       # The Opencast LTI provider does not need to be functional for this test. It just needs to be preconfigured in Moodle.
     And I press "Save changes"
-    And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
+    And I navigate to "Plugins > Admin tools > Opencast API > LTI module features" in site administration
     And I set the following fields to these values:
       | Enable "Add LTI series module"            | 1               |
       | Default LTI series module title           | Opencast videos |
@@ -65,7 +65,7 @@ Feature: Add Opencast LTI series module as Teacher
       | teacher2 | C1     | teacher |
     And the following "permission overrides" exist:
       | capability                           | permission | role    | contextlevel | reference |
-      | block/opencast:viewunpublishedvideos | Allow      | teacher | Course       | C1        |
+      | tool/opencast:viewunpublishedvideos | Allow      | teacher | Course       | C1        |
     And I log in as "teacher2"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -73,7 +73,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: When the feature is disabled by the admin, editing teachers are not able to add the LTI module to the course
     Given the following config values are set as admin:
-      | addltienabled_1 | 0 | block_opencast |
+      | addltienabled_1 | 0 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -122,7 +122,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: The admin is able to change the default title for the LTI module.
     Given the following config values are set as admin:
-      | addltidefaulttitle_1 | Sensational videos | block_opencast |
+      | addltidefaulttitle_1 | Sensational videos | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -174,12 +174,12 @@ Feature: Add Opencast LTI series module as Teacher
     And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I click on "#lti_configured_tools_container a.editing_delete" "css_element"
-    And I navigate to "Plugins > Blocks > Opencast Videos > LTI module features" in site administration
+    And I navigate to "Plugins > Admin tools > Opencast API > LTI module features" in site administration
     Then I should see "No preconfigured LTI tools to be used found. Please create an Opencast series LTI tool first"
 
   Scenario: The admin has not allowed to add an intro for the LTI module.
     Given the following config values are set as admin:
-      | addltiintro_1 | 0 | block_opencast |
+      | addltiintro_1 | 0 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -188,7 +188,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: The admin has allowed to add an intro for the LTI module.
     Given the following config values are set as admin:
-      | addltiintro_1 | 1 | block_opencast |
+      | addltiintro_1 | 1 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -203,7 +203,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: The admin has not allowed to choose the target section for the LTI module.
     Given the following config values are set as admin:
-      | addltisection_1 | 0 | block_opencast |
+      | addltisection_1 | 0 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -212,7 +212,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: The admin has allowed to choose the target section for the LTI module
     Given the following config values are set as admin:
-      | addltisection_1 | 1 | block_opencast |
+      | addltisection_1 | 1 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I edit the section "1" and I fill the form with:
@@ -229,7 +229,7 @@ Feature: Add Opencast LTI series module as Teacher
 
   Scenario: The admin has not allowed to set availability for the LTI module
     Given the following config values are set as admin:
-      | addltiavailability_1 | 0 | block_opencast |
+      | addltiavailability_1 | 0 | tool_opencast |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I click on "Go to overview..." "link"
@@ -239,7 +239,7 @@ Feature: Add Opencast LTI series module as Teacher
   @javascript
   Scenario: The admin has allowed to set availability for the LTI module
     Given the following config values are set as admin:
-      | addltiavailability_1 | 1 | block_opencast |
+      | addltiavailability_1 | 1 | tool_opencast |
     And the following config values are set as admin:
       | enableavailability_1 | 1 |
     And I log in as "teacher1"

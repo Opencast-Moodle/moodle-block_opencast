@@ -23,14 +23,14 @@ Feature: Import videos as Teacher
       | apipassword_1               | opencast                                                      | tool_opencast  |
       | apiusername_1               | admin                                                         | tool_opencast  |
       | ocinstances                 | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1           | 0                                                             | block_opencast |
-      | group_creation_1            | 0                                                             | block_opencast |
-      | group_name_1                | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1               | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1         | 0                                                             | block_opencast |
-      | workflow_roles_1            | republish-metadata                                            | block_opencast |
-      | importvideosenabled_1       | 1                                                             | block_opencast |
-      | importvideosmanualenabled_1 | 1                                                             | block_opencast |
+      | limituploadjobs_1           | 0                                                             | tool_opencast |
+      | group_creation_1            | 0                                                             | tool_opencast |
+      | group_name_1                | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1               | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1         | 0                                                             | tool_opencast |
+      | workflow_roles_1            | republish-metadata                                            | tool_opencast |
+      | importvideosenabled_1       | 1                                                             | tool_opencast |
+      | importvideosmanualenabled_1 | 1                                                             | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -41,7 +41,7 @@ Feature: Import videos as Teacher
   Scenario: Teachers should be able to import a series in the acl mode
     Given the following config values are set as admin:
       | config       | value | plugin         |
-      | importmode_1 | acl   | block_opencast |
+      | importmode_1 | acl   | tool_opencast |
     When I click on "Go to overview..." "link"
     And I click on "Import videos" "button"
     And I click on "#import-course-1" "css_element"
@@ -55,7 +55,7 @@ Feature: Import videos as Teacher
   Scenario: Teachers should be able to select and import a series in the acl mode
     Given the following config values are set as admin:
       | config       | value | plugin         |
-      | importmode_1 | acl   | block_opencast |
+      | importmode_1 | acl   | tool_opencast |
     And I create a second series
     When I click on "Go to overview..." "link"
     And I click on "Import videos" "button"
@@ -74,8 +74,8 @@ Feature: Import videos as Teacher
   Scenario: Teachers should be able to import a series in the duplicate mode
     Given the following config values are set as admin:
       | config              | value           | plugin         |
-      | importmode_1        | duplication     | block_opencast |
-      | duplicateworkflow_1 | duplicate-event | block_opencast |
+      | importmode_1        | duplication     | tool_opencast |
+      | duplicateworkflow_1 | duplicate-event | tool_opencast |
     When I click on "Go to overview..." "link"
     And I click on "Import videos" "button"
     And I click on "#import-course-1" "css_element"

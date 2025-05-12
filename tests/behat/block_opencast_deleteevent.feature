@@ -18,12 +18,12 @@ Feature: Delete videos
       | apipassword_1       | opencast                                                      | tool_opencast  |
       | apiusername_1       | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1   | 0                                                             | block_opencast |
-      | group_creation_1    | 0                                                             | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1 | 0                                                             | block_opencast |
-      | support_email_1     | test@test.de                                                  | block_opencast |
+      | limituploadjobs_1   | 0                                                             | tool_opencast |
+      | group_creation_1    | 0                                                             | tool_opencast |
+      | group_name_1        | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1       | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1 | 0                                                             | tool_opencast |
+      | support_email_1     | test@test.de                                                  | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -41,7 +41,7 @@ Feature: Delete videos
   Scenario: A teacher should be able to delete a video when a workflow must be executed before deletion
     Given the following config values are set as admin:
       | config           | value  | plugin         |
-      | deleteworkflow_1 | delete | block_opencast |
+      | deleteworkflow_1 | delete | tool_opencast |
     When I click on "Go to overview..." "link"
     And I click on "#opencast-videos-table-1234-1234-1234-1234-1234_r0 i.fa-trash-can" "css_element"
     And I click on "Delete video permanently" "button"

@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\apibridge;
+use tool_opencast\local\apibridge;
 use tool_opencast\exception\opencast_api_response_exception;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
@@ -97,11 +97,11 @@ class block_opencast extends block_base {
         if ($parentcontext->contextlevel === CONTEXT_USER) {
             foreach ($ocinstances as $instance) {
                 if ($rendername) {
-                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
                             ['ocinstanceid' => $instance->id]),
                             get_string('seriesoverviewof', 'block_opencast', $instance->name)) . '<br>';
                 } else {
-                    $this->content->text .= html_writer::link(new moodle_url('/blocks/opencast/overview.php',
+                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
                         ['ocinstanceid' => $instance->id]),
                         get_string('seriesoverview', 'block_opencast'));
                 }
@@ -110,7 +110,7 @@ class block_opencast extends block_base {
 
             $coursecontext = context_course::instance($COURSE->id);
 
-            if (!has_capability('block/opencast:viewunpublishedvideos', $coursecontext)) {
+            if (!has_capability('tool/opencast:viewunpublishedvideos', $coursecontext)) {
                 return $this->content;
             }
 
@@ -205,7 +205,7 @@ class block_opencast extends block_base {
         $bc = parent::get_content_for_output($output);
 
         // Check whether the user can manually delete series mapping.
-        if (!has_capability('block/opencast:manageseriesforcourse', $this->context)) {
+        if (!has_capability('tool/opencast:manageseriesforcourse', $this->context)) {
             return $bc;
         }
 
