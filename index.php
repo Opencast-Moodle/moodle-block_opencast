@@ -231,7 +231,10 @@ $perpage = optional_param('perpage', 20, PARAM_INT);
 $opencast = apibridge::get_instance($ocinstanceid);
 $table = $renderer->create_videos_tables('ignore', $headers, $columns, $baseurl);
 $sortcolumns = $table->get_sort_columns();
-
+// If we don't have a sortcolumn we sort by date desc
+if(empty($sortcolumns)){
+    $sortcolumns = ['start_date' => 3];
+}
 
 echo $OUTPUT->header();
 
