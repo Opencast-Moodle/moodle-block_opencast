@@ -35,7 +35,7 @@ Feature: Restore courses as Teacher
       | importvideoshandleseriesenabled_1  | 1                                                             | tool_opencast |
       | importvideoshandleepisodeenabled_1 | 1                                                             | tool_opencast |
       | addltiepisodeenabled_1             | 1                                                             | tool_opencast |
-      | importvideosonbackup_1             | 1                                                             | tool_opencast |
+      | importvideosonbackup_1             | 0                                                             | tool_opencast |
       | enableasyncbackup                  | 0                                                             |                |
     And I setup the opencast test api
     And I upload a testvideo
