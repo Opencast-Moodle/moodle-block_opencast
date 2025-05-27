@@ -265,7 +265,7 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('select');
         $table->text_sorting('title');
         $table->sortable(true, null, SORT_DESC);
-        $table->maxsortkeys=1;
+        $table->maxsortkeys = 1;
 
         $table->column_style('selectall', 'max-width', '40px');
         $table->column_style('start_date', 'min-width', '125px');
