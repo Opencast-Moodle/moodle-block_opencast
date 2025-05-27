@@ -8,8 +8,9 @@ CHANGELOG
 the Opencast Tool plugin. The Opencast Block plugin is now optional.
 * [CHANGE] The course backup functionality has changed. The option to select
 individual events has been removed.\
-A site-wide admin setting (`importreducedduplication`) has been added.\
-If enabled, only events and series embedded via LTI or the Opencast
+Two site-wide admin settings (`importvideosonbackup`) and (`importreducedduplication`) have been added.\
+If (`importvideosonbackup`) is enabled, videos will be backed up during course backups.\
+If (`importreducedduplication`) is enabled, only the events and series embedded via LTI or the Opencast
 activity module will be backed up.\
 If disabled (default), all events from
 the course will be included in the backup.
