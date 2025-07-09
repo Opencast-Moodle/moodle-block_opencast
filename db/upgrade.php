@@ -961,7 +961,8 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         // Migrate settings.
         $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast'
-        WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'");
+	WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'
+	AND name NOT LIKE '%lticonsumerkey%' AND name NOT LIKE '%lticonsumersecret%' ");
 
         // Migrate tables.
         $tableuploadjob = new xmldb_table('block_opencast_uploadjob');
