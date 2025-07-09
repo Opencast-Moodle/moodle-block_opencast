@@ -7,5 +7,5 @@
   "moodle-php": {
     "MOODLE_500_STABLE": ["8.1", "8.2", "8.3"]
   },
-  "moodle-plugin-ci": "4.5.5"
+  "moodle-plugin-ci": "4.4.5"
 }
