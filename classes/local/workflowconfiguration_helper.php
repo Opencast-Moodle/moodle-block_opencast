@@ -47,9 +47,6 @@ class workflowconfiguration_helper {
     /** @var int The opencast instance id. */
     private $ocinstanceid;
 
-    /** @var apibridge The apibridge instance. */
-    private $apibridge;
-
     /** @var stdClass the upload workflow object. */
     private $uploadworkflow;
 
@@ -63,7 +60,6 @@ class workflowconfiguration_helper {
      */
     public function __construct(int $ocinstanceid) {
         $this->ocinstanceid = $ocinstanceid;
-        $this->apibridge = apibridge::get_instance($ocinstanceid);
         $this->set_uploadworkflowid();
         $this->set_uploadworkflow();
     }
@@ -95,11 +91,135 @@ class workflowconfiguration_helper {
     }
 
     /**
-     * Sets the upload workflow object by calling it from opencast API.
+     * Sets the upload workflow object for the current instance.
+     *
+     * This method retrieves the workflow definition for the configured upload workflow ID
+     * and stores it in the class property. If the workflow contains a configuration panel in JSON format,
+     * it is converted to HTML and attached to the workflow object for compatibility.
+     *
+     * @see self::get_filtered_workflow_definition
+     *
+     * @return void
      */
     private function set_uploadworkflow() {
-        $uploadworkflow = $this->apibridge->get_workflow_definition($this->uploadworkflowid);
-        $this->uploadworkflow = $uploadworkflow ?? null;
+        $this->uploadworkflow = self::get_filtered_workflow_definition($this->ocinstanceid, $this->uploadworkflowid);
+    }
+
+    /**
+     * Converts the workflow configuration panel JSON to an HTML representation.
+     *
+     * This method parses the configuration panel JSON from the workflow definition,
+     * and generates the corresponding HTML form elements (such as input, select, checkbox)
+     * wrapped in fieldsets and divs, preserving labels and options as defined in the JSON.
+     * The resulting HTML can be used to render a dynamic configuration panel for the workflow.
+     *
+     * @param \stdClass $workflowobj The workflow object containing the configuration_panel_json property.
+     * @return string|null The generated HTML string for the configuration panel, or null if JSON is empty or invalid.
+     */
+    private static function convert_config_panel_json_to_html(\stdClass $workflowobj): ?string {
+
+        $configpaneljson = json_decode(trim($workflowobj->configuration_panel_json), true);
+        if (empty($configpaneljson)) {
+            return null;
+        }
+
+        $workflowid = $workflowobj->identifier;
+
+        // Initialize the dom and xpath instances.
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->strictErrorChecking = true;
+        $mainfieldset = $dom->createElement('fieldset');
+
+        foreach ($configpaneljson as $index => $configpanelitem) {
+            $uniqueidprefix = $workflowid . '_' . $index;
+
+            // We have to have fieldset to be able to generate the elements.
+            if (!isset($configpanelitem['fieldset'])) {
+                continue;
+            }
+
+            $fielddiv = $dom->createElement('div');
+            $fielddiv->setAttribute('id', "{$uniqueidprefix}_field_div");
+
+            $shouldhavegroupdiv = count($configpanelitem['fieldset']) > 1;
+            if (!empty($configpanelitem['description'])) {
+                $fieldlabel = $dom->createElement('label');
+                $fieldlabel->textContent = trim($configpanelitem['description']);
+                $fielddiv->appendChild($fieldlabel);
+                $shouldhavegroupdiv = true;
+            }
+
+            $groupdiv = $shouldhavegroupdiv ? $dom->createElement('div') : $fielddiv;
+            if (!$groupdiv->hasAttribute('id')) {
+                $groupdiv->setAttribute('id', "{$uniqueidprefix}_group_div");
+            }
+            foreach ($configpanelitem['fieldset'] as $key => $field) {
+                $element = $field['type'] === 'select' ? 'select' : 'input';
+                $inputdom = $dom->createElement($element);
+                if (empty($field['id'])) {
+                    $field['id'] = $field['name'];
+                }
+
+                $children = [];
+                if (!empty($field['label'])) {
+                    $fielduniquelabel = $dom->createElement('label');
+                    $fielduniquelabel->textContent = trim($field['label']);
+                    $fielduniquelabel->setAttribute('for', $field['id']);
+                    // $groupdiv->appendChild($fielduniquelabel);
+                    $children[] = $fielduniquelabel;
+                    unset($field['label']);
+                }
+
+                if ($element === 'select' && !empty($field['options']) && is_array($field['options'])) {
+                    foreach ($field['options'] as $option) {
+                        $optionelement = $dom->createElement('option', (string) ($option['text'] ?? ''));
+                        $optionelement->setAttribute('value', (string) ($option['value'] ?? ''));
+                        if (isset($option['selected']) && $option['selected']) {
+                            $optionelement->setAttribute('selected', 'selected');
+                        }
+                        $inputdom->appendChild($optionelement);
+                    }
+                    unset($field['options']);
+                }
+
+                if ($field['type'] === 'checkbox') {
+                    $value = $field['value'] ?? false;
+                    if ($value) {
+                        $inputdom->setAttribute('checked', 'checked');
+                    }
+                    $field['value'] = $value ? 'true' : 'false';
+                }
+
+                foreach ($field as $fieldattr => $attrvalue) {
+                    $inputdom->setAttribute($fieldattr, trim((string) $attrvalue));
+                }
+
+                $children[] = $inputdom;
+
+                // In case of checkbox, we reverse the order.
+                if ($field['type'] === 'checkbox') {
+                    $children = array_reverse($children);
+                }
+
+                foreach ($children as $child) {
+                    $groupdiv->appendChild($child);
+                }
+            }
+
+            if ($groupdiv->getAttribute('id') !== $fielddiv->getAttribute('id')) {
+                $fielddiv->appendChild($groupdiv);
+                $mainfieldset->appendChild($fielddiv);
+            } else {
+                $mainfieldset->appendChild($groupdiv);
+            }
+        }
+
+        $maindiv = $dom->createElement('div');
+        $maindiv->setAttribute('id', 'workflow-configuration');
+        $maindiv->appendChild($mainfieldset);
+
+        return $dom->saveHTML($maindiv) ?? null;
+
     }
 
     /**
@@ -109,7 +229,7 @@ class workflowconfiguration_helper {
      */
     public function can_provide_configuration_panel(): bool {
         return !empty($this->uploadworkflow) &&
-            !empty($this->uploadworkflow->configuration_panel) &&
+            (!empty($this->uploadworkflow->configuration_panel) || !empty($this->uploadworkflow->configuration_panel_json)) &&
             !empty(get_config('block_opencast', 'enableuploadwfconfigpanel_' . $this->ocinstanceid));
     }
 
@@ -164,14 +284,19 @@ class workflowconfiguration_helper {
     }
 
     /**
-     * Get sthe upload workflow configuration panel.
+     * Get the upload workflow configuration panel
+     * It gets the HTML (in configuration_panel) as 1. priority or the JSON (in configuration_panel_json) otherwise!
      *
      * @return string | null the configuration panel or null if not available.
      */
     public function get_upload_workflow_configuration_panel(): ?string {
         $configpanel = null;
-        if (!empty($this->uploadworkflow) && !empty($this->uploadworkflow->configuration_panel)) {
-            $configpanel = (string) $this->uploadworkflow->configuration_panel;
+        if (!empty($this->uploadworkflow)) {
+            if (!empty($this->uploadworkflow->configuration_panel)) {
+                $configpanel = (string) $this->uploadworkflow->configuration_panel;
+            } else if (!empty($this->uploadworkflow->configuration_panel_json)) {
+                $configpanel = (string) $this->uploadworkflow->configuration_panel_json_html;
+            }
         }
         return $configpanel;
     }
@@ -228,5 +353,35 @@ class workflowconfiguration_helper {
         ];
 
         return $result;
+    }
+
+    /**
+     * Retrieves and prepares a workflow definition for a given Opencast instance and workflow ID.
+     *
+     * This static method is provided for internal as well as external usage, allowing other classes or code to fetch
+     * a workflow definition without needing an instance of workflowconfiguration_helper.
+     * It fetches the workflow definition from the Opencast API, and if a configuration panel in JSON format exists,
+     * converts it to HTML and attaches it to the workflow object for compatibility with both HTML and JSON panels.
+     *
+     * @param int $ocinstanceid The Opencast instance ID.
+     * @param string $workflowid The workflow ID to retrieve.
+     * @return \stdClass|null The workflow definition object with JSON to HTML conversion attached, or null if not found.
+     */
+    public static function get_filtered_workflow_definition(int $ocinstanceid, string $workflowid): ?\stdClass {
+        $apibridge = apibridge::get_instance($ocinstanceid);
+        $workflowdefinition = $apibridge->get_workflow_definition($workflowid);
+        if (!$workflowdefinition) {
+            return null;
+        }
+        $jsonhtmlconverted = null;
+        // If the workflow contains a configuration panel in JSON format,
+        // convert it to HTML and attach it to the workflow definition object.
+        // This approach maintains compatibility with both configuration_panel (HTML)
+        // and configuration_panel_json (JSON) mechanisms.
+        if (!empty($workflowdefinition->configuration_panel_json)) {
+            $jsonhtmlconverted = self::convert_config_panel_json_to_html($workflowdefinition);
+        }
+        $workflowdefinition->configuration_panel_json_html = $jsonhtmlconverted;
+        return $workflowdefinition;
     }
 }
