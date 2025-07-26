@@ -47,7 +47,9 @@ class block_opencast_generator extends testing_block_generator {
         $record['contextid'] = context_course::instance($record['courseid'])->id;
         $record['component'] = 'block_opencast';
 
-        $record['filearea'] = upload_helper::OC_FILEAREA;
+        if (!isset($record['filearea'])) {
+            $record['filearea'] = upload_helper::OC_FILEAREA;
+        }
         $record['itemid'] = 0;
 
         if (!isset($record['filepath'])) {

@@ -165,25 +165,24 @@ if ($data = $addvideoform->get_data()) {
 
     // Transcription files.
     $transcriptions = [];
-    if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
-        $maxtranscriptionupload = (int)get_config('block_opencast', 'maxtranscriptionupload_' . $ocinstanceid);
-        // If the max upload limit is not set we assume only 1 field set.
-        if (!$maxtranscriptionupload || $maxtranscriptionupload < 0) {
-            $maxtranscriptionupload = 1;
-        }
-        for ($transcriptionindex = 0; $transcriptionindex < $maxtranscriptionupload; $transcriptionindex++) {
-            $fileelm = "transcription_file_{$transcriptionindex}";
-            $flavorelm = "transcription_flavor_{$transcriptionindex}";
-            if (property_exists($data, $fileelm) && property_exists($data, $flavorelm)) {
+    $transcriptionlanguagesconfig = get_config('block_opencast', 'transcriptionlanguages_' . $ocinstanceid);
+    $transcriptionuploadenabled = (bool) get_config('block_opencast', 'enableuploadtranscription_' . $ocinstanceid);
+    if ($transcriptionuploadenabled && !empty($transcriptionlanguagesconfig)) {
+        $transcriptionlanguagesarray = json_decode($transcriptionlanguagesconfig) ?? [];
+        foreach ($transcriptionlanguagesarray as $index => $language) {
+            if (empty($language->key)) {
+                continue;
+            }
+            $fileelm = "transcription_file_{$language->key}";
+            if (property_exists($data, $fileelm)) {
                 $storedfile = $addvideoform->save_stored_file($fileelm, $coursecontext->id,
                     'block_opencast', block_opencast\local\attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
-                $flavor = $data->{$flavorelm};
                 if (isset($storedfile) && $storedfile) {
                     $transcriptions[] = [
                         'file_itemid' => $storedfile->get_itemid(),
                         'file_id' => $storedfile->get_id(),
                         'file_contenhash' => $storedfile->get_contenthash(),
-                        'flavor' => $flavor,
+                        'lang' => $language->key,
                     ];
                 }
             }
