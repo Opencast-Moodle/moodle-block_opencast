@@ -42,15 +42,16 @@ Feature: Manage series as Teacher
     When I am on the "C1" "Course" page logged in as "teacher1"
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
+    And I wait until the page is ready
     Then I should see "Test series"
     When I click on "Create new series" "button"
     Then I should see "Title"
-    Then ".modal i.icon[title='Required']" "css_element" should be visible
+    Then "#fitem_id_title .text-danger[title='Required']" "css_element" should be visible
     When I set the field "Title" to "My new series"
     And I set the field "Rights" to "Some user"
     And I select "ALLRIGHTS" from the "License" singleselect
     And I click on "Create new series" "button" in the ".modal" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     Then I should see "A new series has been successfully created."
 
   @javascript
