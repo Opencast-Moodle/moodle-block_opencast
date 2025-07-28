@@ -165,7 +165,6 @@ class workflowconfiguration_helper {
                     $fielduniquelabel = $dom->createElement('label');
                     $fielduniquelabel->textContent = trim($field['label']);
                     $fielduniquelabel->setAttribute('for', $field['id']);
-                    // $groupdiv->appendChild($fielduniquelabel);
                     $children[] = $fielduniquelabel;
                     unset($field['label']);
                 }
