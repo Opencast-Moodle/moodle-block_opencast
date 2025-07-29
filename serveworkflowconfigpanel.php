@@ -42,10 +42,10 @@ $workflow = workflowconfiguration_helper::get_filtered_workflow_definition($ocin
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 if ($workflow) {
-    // The legacy config panel (HTML) takes precedence over the JSON config panel.
-    $wfconfigpanel = $workflow->configuration_panel;
+    // The JSON config panel takes precedence over the legacy config panel.
+    $wfconfigpanel = $workflow->configuration_panel_json_html;
     if (empty($wfconfigpanel)) {
-        $wfconfigpanel = $workflow->configuration_panel_json_html;
+        $wfconfigpanel = $workflow->configuration_panel;
     }
     // Display form.
     $context = new stdClass();

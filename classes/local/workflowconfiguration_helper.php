@@ -284,17 +284,17 @@ class workflowconfiguration_helper {
 
     /**
      * Get the upload workflow configuration panel
-     * It gets the HTML (in configuration_panel) as 1. priority or the JSON (in configuration_panel_json) otherwise!
+     * It gets the the JSON (in configuration_panel_json) as 1. priority or the HTML (in configuration_panel) otherwise!
      *
      * @return string | null the configuration panel or null if not available.
      */
     public function get_upload_workflow_configuration_panel(): ?string {
         $configpanel = null;
         if (!empty($this->uploadworkflow)) {
-            if (!empty($this->uploadworkflow->configuration_panel)) {
-                $configpanel = (string) $this->uploadworkflow->configuration_panel;
-            } else if (!empty($this->uploadworkflow->configuration_panel_json)) {
+            if (!empty($this->uploadworkflow->configuration_panel_json)) {
                 $configpanel = (string) $this->uploadworkflow->configuration_panel_json_html;
+            } else if (!empty($this->uploadworkflow->configuration_panel)) {
+                $configpanel = (string) $this->uploadworkflow->configuration_panel;
             }
         }
         return $configpanel;
