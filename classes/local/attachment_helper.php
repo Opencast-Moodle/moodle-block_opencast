@@ -518,12 +518,12 @@ class attachment_helper {
         if (property_exists($mediapackagexml, $pubtype)) {
             foreach ($mediapackagexml->$pubtype->$pubsubtype as $item) {
                 $itemobj = json_decode(json_encode((array) $item));
-                $mathcingmimetype = true;
+                $matchingmimetype = true;
                 if (isset($transcriptionobj->mediatype)) {
-                    $mathcingmimetype = $itemobj->mimetype == $transcriptionobj->mediatype;
+                    $matchingmimetype = $itemobj->mimetype == $transcriptionobj->mediatype;
                 }
                 $matchingflavor = $itemobj->{'@attributes'}->type == $transcriptionobj->flavor;
-                if ($mathcingmimetype && $matchingflavor) {
+                if ($matchingmimetype && $matchingflavor) {
                     // As of Opencast 15, subtitles are all about tags, therefore we need to go through tags one by one.
                     if (property_exists($itemobj, 'tags')) {
                         $itemtags = $itemobj->tags->tag;
