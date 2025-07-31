@@ -71,26 +71,18 @@ class addtranscription_form extends moodleform {
             }
         }
 
-        // Preparing flavors as for service types.
-        $flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
-        $flavors = [
-            '' => get_string('emptyflavoroption', 'block_opencast'),
-        ];
-        if (!empty($flavorsconfig)) {
-            $flavorsarray = json_decode($flavorsconfig);
-            foreach ($flavorsarray as $flavor) {
-                if (!empty($flavor->key) && !empty($flavor->value)) {
-                    $flavors[$flavor->key] = format_string($flavor->value);
-                }
+        // Preparing languages
+        $languagesconfig = get_config('block_opencast', 'transcriptionlanguages_' . $ocinstanceid);
+        $languagesarray = json_decode($languagesconfig);
+        foreach ($languagesarray as $language) {
+            if (empty($language->key)) {
+                continue;
             }
+            $languagefieldname = !empty($language->value) ? format_string($language->value) :
+                    get_string('transcriptionfilefield', 'block_opencast', $language->key);
+            $mform->addElement('filepicker', 'transcription_file_' . $language->key,
+                $languagefieldname, null, ['accepted_types' => $transcriptiontypes]);
         }
-
-        $mform->addElement('select', 'transcription_flavor', get_string('transcriptionflavorfield', 'block_opencast'), $flavors);
-        $mform->addRule('transcription_flavor', get_string('required'), 'required');
-        $mform->addElement('filepicker', 'transcription_file', get_string('transcriptionfilefield', 'block_opencast'),
-            null, ['accepted_types' => $transcriptiontypes]);
-        $mform->disabledIf('transcription_file', 'transcription_flavor', 'eq', '');
-        $mform->addRule('transcription_file', get_string('required'), 'required');
 
         $mform->addElement('hidden', 'ocinstanceid', $this->_customdata['ocinstanceid']);
         $mform->setType('ocinstanceid', PARAM_INT);

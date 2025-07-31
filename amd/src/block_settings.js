@@ -28,7 +28,7 @@ import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
 import Notification from 'core/notification';
 
-export const init = (rolesinputid, metadatainputid, metadataseriesinputid, transcriptionflavorinputid, ocinstanceid) => {
+export const init = (rolesinputid, metadatainputid, metadataseriesinputid, transcriptionlanguageinputid, ocinstanceid) => {
 
     // Load strings
     var strings = [
@@ -47,10 +47,10 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         {key: 'heading_params', component: 'block_opencast'},
         {key: 'heading_defaultable', component: 'block_opencast'},
         {key: 'delete', component: 'moodle'},
-        {key: 'transcription_flavor_key', component: 'block_opencast'},
-        {key: 'transcription_flavor_value', component: 'block_opencast'},
-        {key: 'transcription_flavor_delete', component: 'block_opencast'},
-        {key: 'transcription_flavor_confirm_delete', component: 'block_opencast'},
+        {key: 'transcription_language_key', component: 'block_opencast'},
+        {key: 'transcription_language_value', component: 'block_opencast'},
+        {key: 'transcription_language_delete', component: 'block_opencast'},
+        {key: 'transcription_language_confirm_delete', component: 'block_opencast'},
         {key: 'readonly_disabled_tooltip_text', component: 'block_opencast'},
         {key: 'heading_batchable', component: 'block_opencast'},
     ];
@@ -58,25 +58,25 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
         // We need to check and apply the transcription section first,
         // because it might be rendered in different sections (additional features)
         var hastranscription = false;
-        var transcriptionflavorinput = $('#' + transcriptionflavorinputid);
-        if (transcriptionflavorinput.is(':visible')) {
+        var transcriptionlanguageinput = $('#' + transcriptionlanguageinputid);
+        if (transcriptionlanguageinput.is(':visible')) {
             hastranscription = true;
-            transcriptionflavorinput.parent().hide();
-            transcriptionflavorinput.parent().next().hide(); // Default value.
+            transcriptionlanguageinput.parent().hide();
+            transcriptionlanguageinput.parent().next().hide(); // Default value.
         }
-        // Transcription flavor.
+        // Transcription languages.
         // We run this part if only the transcription is available.
         if (hastranscription) {
-            // Because flavors are introduced in a way that it needs to take its value from the default,
+            // Because languages are introduced in a way that it needs to take its value from the default,
             // and the input value is not set via an upgrade, therefore, we would need to introduce a new
             // way of extracting defaults and put it as its value.
-            extractDefaults(transcriptionflavorinput);
-            var transcriptionflavoroptions = new Tabulator("#transcriptionflavorsoptions_" + ocinstanceid, {
-                data: JSON.parse(transcriptionflavorinput.val()),
+            extractDefaults(transcriptionlanguageinput);
+            var transcriptionlanguageoptions = new Tabulator("#transcriptionlanguagesoptions_" + ocinstanceid, {
+                data: JSON.parse(transcriptionlanguageinput.val()),
                 layout: "fitColumns",
                 dataChanged: function(data) {
                     data = data.filter(value => value.key && value.value);
-                    transcriptionflavorinput.val(JSON.stringify(data));
+                    transcriptionlanguageinput.val(JSON.stringify(data));
                 },
                 columns: [
                     {title: jsstrings[15], field: "key", headerSort: false, editor: "input", widthGrow: 1},
@@ -108,8 +108,8 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                 ],
             });
 
-            $('#addrow-transcriptionflavorsoptions_' + ocinstanceid).click(function() {
-                transcriptionflavoroptions.addRow({'key': '', 'value': ''});
+            $('#addrow-transcriptionlanguagesoptions_' + ocinstanceid).click(function() {
+                transcriptionlanguageoptions.addRow({'key': '', 'value': ''});
             });
         }
 

@@ -1457,21 +1457,17 @@ class block_opencast_renderer extends plugin_renderer_base {
      * Render transcription table for "manage transcription" page.
      * @param array $list list of current transcriptions
      * @param string $addnewurl add new transcription url
-     * @param boolean $candelete whether to provide delete feature
      * @param boolean $allowdownload whether to redirect download to a new page or not
      * @return bool|string
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function render_manage_transcriptions_table($list = [], $addnewurl = '',
-                                                       $candelete = false, $allowdownload = false) {
+    public function render_manage_transcriptions_table($list = [], $addnewurl = '', $allowdownload = false) {
         $context = new stdClass();
         $context->list = $list;
         $context->listhascontent = !empty($list) ? true : false;
         $context->addnewurl = $addnewurl;
-        $context->candelete = $candelete;
         $context->allowdownload = $allowdownload;
-        $context->hasactions = ($candelete || $allowdownload);
         return $this->render_from_template('block_opencast/transcriptions_table', $context);
     }
 
@@ -1512,12 +1508,12 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @param int $ocinstanceid opencast instance id.
      * @param string $identifier event identifier.
      * @param string $domain a flag to determine where that mediapackage subcategory belongs to (attachments or media).
-     * @param array $flavors a list of pre-defined transcriptions flavors.
+     * @param array $languages a list of pre-defined transcriptions languages.
      *
      * @return stdClass the list item object.
      */
     public function prepare_transcription_item_for_the_menu($transcriptionitem, $courseid, $ocinstanceid,
-                                                            $identifier, $domain, $flavors) {
+                                                            $identifier, $domain, $languages) {
         $lang = '';
         $itemtitle = '';
         $flavorsplitted = explode('/', $transcriptionitem->flavor, 2);
@@ -1526,18 +1522,17 @@ class block_opencast_renderer extends plugin_renderer_base {
             return null;
         }
         $subflavor = $flavorsplitted[1];
-        // In case we have vtt+{lang}, then it is considered as manual or the old subtitle management of Opencast,
-        // which we need to support.
+        // In case we have vtt+{lang}, then it is considered as legacy subtitle and we still support the display of it.
         if (strpos($subflavor, 'vtt+') !== false) {
             $lang = str_replace('vtt+', '', $subflavor);
             $itemtitle = $lang;
-            if (array_key_exists($lang, $flavors)) {
-                $itemtitle = $flavors[$lang];
+            if (array_key_exists($lang, $languages)) {
+                $itemtitle = $languages[$lang];
             }
-            $itemtitle .= ' (' . get_string('transcriptionmanual', 'block_opencast') . ')';
+            $itemtitle .= ' (' . get_string('transcriptionmanuallegacy', 'block_opencast') . ')';
         } else if (in_array($subflavor, attachment_helper::TRANSCRIPTION_SUBFLAVOR_TYPES) && !empty($transcriptionitem->tags)) {
-            // In Opencast 15 and above we shift to caption/delivery.
-            $$tagdataarr = [];
+            // In Opencast 15 and above we shift to caption/source and tags.
+            $tagdataarr = [];
             foreach ($transcriptionitem->tags as $tag) {
                 // The safety checker.
                 if (!is_string($tag)) {
@@ -1568,7 +1563,7 @@ class block_opencast_renderer extends plugin_renderer_base {
 
         $item->title = !empty($itemtitle) ?
                     $itemtitle :
-                    get_string('notranscriptionflavor', 'block_opencast', $lang);
+                    get_string('transcriptionunknownlanguage', 'block_opencast', $lang);
 
         // Preparing delete url.
         $deleteurl = new moodle_url('/blocks/opencast/deletetranscription.php',

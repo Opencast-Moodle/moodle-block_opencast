@@ -61,8 +61,16 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier);
-if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
-    empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+
+$transcriptionmanagementenabled = (bool) get_config('block_opencast', 'enablemanagetranscription_' . $ocinstanceid);
+$transcriptionlanguagesconfig = get_config('block_opencast', 'transcriptionlanguages_' . $ocinstanceid);
+
+if (!$transcriptionmanagementenabled || empty($transcriptionlanguagesconfig)) {
+    redirect($redirecturl,
+        get_string('transcriptionmanagementdisabled', 'block_opencast'), null, notification::NOTIFY_ERROR);
+}
+
+if ($video->error || $video->video->processing_state != 'SUCCEEDED') {
     redirect($redirecturl,
         get_string('unabletoaddnewtranscription', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }
@@ -75,23 +83,44 @@ if ($addtranscriptionform->is_cancelled()) {
 }
 
 if ($data = $addtranscriptionform->get_data()) {
-    $storedfile = $addtranscriptionform->save_stored_file('transcription_file', $coursecontext->id,
-        'block_opencast', attachment_helper::OC_FILEAREA_ATTACHMENT, $data->transcription_file);
-    $flavor = $data->transcription_flavor;
-    if (isset($storedfile) && $storedfile && !empty($flavor)) {
-        $success = attachment_helper::upload_single_transcription($storedfile, $flavor, $ocinstanceid, $identifier);
-        $message = get_string('transcriptionuploadsuccessed', 'block_opencast');
-        $status = notification::NOTIFY_SUCCESS;
-        if (!$success) {
-            $message = get_string('transcriptionuploadfailed', 'block_opencast');
-            $status = notification::NOTIFY_ERROR;
+    $languagesarray = json_decode($transcriptionlanguagesconfig) ?? [];
+    $storedlanguagefiles = [];
+    foreach ($languagesarray as $language) {
+        if (empty($language->key)) {
+            continue;
         }
-        attachment_helper::remove_single_transcription_file($storedfile->get_itemid());
-        redirect($redirecturl, $message, null, $status);
-    } else {
-        redirect($redirecturl,
-            get_string('missingtranscriptionuploadparams', 'block_opencast'), null, notification::NOTIFY_ERROR);
+        $languagename = !empty($language->value) ? format_string($language->value) : $language->key;
+
+        $fileelm = "transcription_file_{$language->key}";
+        if (property_exists($data, $fileelm)) {
+            $storedfile = $addtranscriptionform->save_stored_file($fileelm, $coursecontext->id,
+                'block_opencast', attachment_helper::OC_FILEAREA_ATTACHMENT, $data->{$fileelm});
+            if (isset($storedfile) && $storedfile) {
+                $storedlanguagefiles[$language->key] = $storedfile;
+            }
+        }
     }
+
+    if (empty($storedlanguagefiles)) {
+        redirect($redirecturl, get_string('transcriptionnothingtoupload', 'block_opencast'), null, notification::NOTIFY_INFO);
+    }
+
+    $result = attachment_helper::upload_transcription_captions_set($storedlanguagefiles, $ocinstanceid, $identifier);
+
+    // No matter the result, we remove the files from file storage.
+    foreach ($storedlanguagefiles as $storedfile) {
+        attachment_helper::remove_single_transcription_file($storedfile->get_itemid());
+    }
+
+    $message = get_string('transcriptionuploadsuccessedall', 'block_opencast');
+    $status = notification::NOTIFY_SUCCESS;
+
+    if (!$result) {
+        $message = get_string('transcriptionuploadfailedall', 'block_opencast');
+        $status = notification::NOTIFY_ERROR;
+    }
+
+    redirect($redirecturl, $message, null, $status);
 }
 
 /** @var block_opencast_renderer $renderer */

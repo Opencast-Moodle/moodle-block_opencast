@@ -20,7 +20,6 @@
  * @copyright  2022 Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 use block_opencast\local\apibridge;
 use block_opencast\local\lti_helper;
 use core\output\notification;
@@ -50,7 +49,7 @@ $redirecturl = new moodle_url('/blocks/opencast/managetranscriptions.php',
 
 require_login($courseid, false);
 
-$PAGE->set_pagelayout('incourse');
+$PAGE->set_pagelayout('popup');
 $PAGE->set_title(get_string('downloadtranscription', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 $PAGE->navbar->add(get_string('pluginname', 'block_opencast'), $indexurl);
@@ -62,9 +61,14 @@ $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:addvideo', $coursecontext);
 
 // Make sure transcription as well as the downlaod is enabled.
-$transcriptionenabled = get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid);
+$transcriptionmanagementenabled = (bool) get_config('block_opencast', 'enablemanagetranscription_' . $ocinstanceid);
+if (!$transcriptionmanagementenabled) {
+    redirect($redirecturl,
+        get_string('transcriptionmanagementdisabled', 'block_opencast'), null, notification::NOTIFY_ERROR);
+}
+
 $downloadenabled = get_config('block_opencast', 'allowdownloadtranscription_' . $ocinstanceid);
-if (empty($downloadenabled) || empty($transcriptionenabled)) {
+if (empty($downloadenabled)) {
     redirect($redirecturl,
         get_string('unabletodownloadtranscription', 'block_opencast'),
         null,

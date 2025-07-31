@@ -207,14 +207,16 @@ class apibridge {
      * @param string $mediapackage Mediapackage to which the track is added
      * @param string $flavor Flavor of track
      * @param object $file Track
+     * @param array $tags List of tags
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
      * @throws opencast_api_response_exception
      */
-    public function ingest_add_track($mediapackage, $flavor, $file) {
+    public function ingest_add_track($mediapackage, $flavor, $file, $tags = []) {
         $ingestapi = $this->get_ingest_api();
-        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file));
+        $tagsstr = !empty($tags) ? implode(',', $tags) : '';
+        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file), $tagsstr);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -230,14 +232,16 @@ class apibridge {
      * @param string $mediapackage Mediapackage to which the attachment is added
      * @param string $flavor Flavor of attachment
      * @param object $file Attachment
+     * @param array $tags Tags
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
      * @throws opencast_api_response_exception
      */
-    public function ingest_add_attachment($mediapackage, $flavor, $file) {
+    public function ingest_add_attachment($mediapackage, $flavor, $file, $tags = []) {
         $ingestapi = $this->get_ingest_api();
-        $response = $ingestapi->addAttachment($mediapackage, $flavor, $file);
+        $tagsstr = !empty($tags) ? implode(',', $tags) : '';
+        $response = $ingestapi->addAttachment($mediapackage, $flavor, $file, $tagsstr);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -2865,8 +2869,7 @@ class apibridge {
      */
     public function can_edit_event_transcription($video, $courseid) {
         // To edit transcriptions, we need that the video processing to be in succeeded state to avoid any conflict in workflows.
-        // We would also need to make sure that workflow for transcription is configured.
-        if (!empty(get_config('block_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
+        if (!empty(get_config('block_opencast', 'enablemanagetranscription_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             $context = context_course::instance($courseid);
             return has_capability('block/opencast:addvideo', $context);
@@ -2939,10 +2942,11 @@ class apibridge {
     /**
      * Get the opencast version.
      *
+     * @param bool $nosnapshot flag that removes the SNAPSHOT part of the version.
      * @return string semantic version number of the opencast server.
      * @throws opencast_api_response_exception
      */
-    public function get_opencast_version() {
+    public function get_opencast_version($nosnapshot = true) {
         $response = $this->api->opencastapi->sysinfo->getVersion();
         $code = $response['code'];
 
@@ -2951,7 +2955,11 @@ class apibridge {
         }
 
         $versionobject = $response['body'];
-        return $versionobject->version;
+        $versionstr = $versionobject->version;
+        if ($nosnapshot) {
+            $versionstr = str_replace('.SNAPSHOT', '', $versionstr);
+        }
+        return $versionstr;
     }
 
     /**
@@ -2962,12 +2970,13 @@ class apibridge {
      * @param string $flavor the track flavor.
      * @param object $file the track filestream object.
      * @param boolean $overwrite whether to overwrite the existing one.
+     * @param ?array $tags the list of tags for the event track.
      *
      * @return boolean true, if the track is added.
      * @throws opencast_api_response_exception
      */
-    public function event_add_track($identifier, $flavor, $file, $overwrite = true) {
-        $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite);
+    public function event_add_track($identifier, $flavor, $file, $overwrite = true, $tags = null) {
+        $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite, $tags);
         $code = $response['code'];
 
         if ($code != 200) {

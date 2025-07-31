@@ -137,26 +137,25 @@ class setting_default_manager {
     }
 
     /**
-     * Returns transcription flavors default setting.
+     * Returns transcription languages default setting.
      *
      * @return string json default setting string
      */
-    public static function get_default_transcriptionflavors() {
-        return '[{"key":"de","value":"Amberscript German"},' .
-            '{"key":"en","value":"Amberscript English"},{"key":"deu","value":"Vosk German"},' .
-            '{"key":"eng","value":"Vosk English"}]';
+    public static function get_default_transcriptionlanguages() {
+        return '[{"key":"de","value":"German"},' .
+            '{"key":"en","value":"English"}]';
     }
 
     /**
-     * Sets the default config for transcription flavors.
+     * Sets the default config for transcription languages.
      *
      * @param int $ocinstanceid ocinstance id
      */
-    public static function set_default_transcriptionflavors($ocinstanceid = 1) {
-        $configname = 'transcriptionflavors_' . $ocinstanceid;
+    public static function set_default_transcriptionlanguages($ocinstanceid = 1) {
+        $configname = 'transcriptionlanguages_' . $ocinstanceid;
         $currentmetadata = get_config('block_opencast', $configname);
         if (empty($currentmetadata)) {
-            set_config($configname, self::get_default_transcriptionflavors(), 'block_opencast');
+            set_config($configname, self::get_default_transcriptionlanguages(), 'block_opencast');
         }
     }
 
