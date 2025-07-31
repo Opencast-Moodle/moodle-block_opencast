@@ -1479,6 +1479,9 @@ class block_opencast_renderer extends plugin_renderer_base {
      * @return string The html string
      */
     public function close_tags_in_html_string($html) {
+        if (empty(trim($html))) {
+            return '';
+        }
         preg_match_all('#<([a-z]+)(?: .*)?(?<![/|/ ])>#iU', $html, $result);
         $openedtags = $result[1];
         preg_match_all('#</([a-z]+)>#iU', $html, $result);

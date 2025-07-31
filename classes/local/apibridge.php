@@ -1870,10 +1870,12 @@ class apibridge {
     public function get_workflow_definition($id) {
         $withoperations = false;
         $withconfigurationpanel = true;
+        $withconfigurationpaneljson = true;
         $response = $this->api->opencastapi->workflowsApi->getDefinition(
             $id,
             $withoperations,
-            $withconfigurationpanel
+            $withconfigurationpanel,
+            $withconfigurationpaneljson
         );
         if ($response['code'] === 200) {
             return $response['body'];

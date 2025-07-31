@@ -22,7 +22,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\apibridge;
+use block_opencast\local\workflowconfiguration_helper;
 use tool_opencast\local\settings_api;
 
 require_once(__DIR__ . '/../../config.php');
@@ -38,16 +38,20 @@ require_login($courseid, false);
 $coursecontext = context_course::instance($courseid);
 require_capability('block/opencast:startworkflow', $coursecontext);
 
-$apibridge = apibridge::get_instance($ocinstanceid);
-$workflow = $apibridge->get_workflow_definition($workflowid);
+$workflow = workflowconfiguration_helper::get_filtered_workflow_definition($ocinstanceid, $workflowid);
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 if ($workflow) {
+    // The JSON config panel takes precedence over the legacy config panel.
+    $wfconfigpanel = $workflow->configuration_panel_json_html;
+    if (empty($wfconfigpanel)) {
+        $wfconfigpanel = $workflow->configuration_panel;
+    }
     // Display form.
     $context = new stdClass();
     $context->language = $CFG->lang;
-    $context->has_config_panel = !empty($workflow->configuration_panel);
-    $context->config_panel = $renderer->close_tags_in_html_string($workflow->configuration_panel);
+    $context->has_config_panel = !empty($wfconfigpanel);
+    $context->config_panel = $renderer->close_tags_in_html_string($wfconfigpanel);
     $context->parent_url = (new moodle_url('/blocks/opencast/workflowsettings.php'))->out();
     $context->parent_origin = $CFG->wwwroot;
 
