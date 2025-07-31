@@ -263,7 +263,9 @@ class block_opencast_renderer extends plugin_renderer_base {
         $table->no_sorting('published');
         $table->no_sorting('visibility'); // This column cannot be sortable because it does not mean anything to Opencast!
         $table->no_sorting('select');
-        $table->sortable(true, 'start_date', SORT_DESC);
+        $table->text_sorting('title');
+        $table->sortable(true, null, SORT_DESC);
+        $table->maxsortkeys = 1;
 
         $table->column_style('selectall', 'max-width', '40px');
         $table->column_style('start_date', 'min-width', '125px');
