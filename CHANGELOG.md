@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+4.5.4 (2025-08-01)
+------------------
+* [FIX] #421 Behat fixes: adding new parameters in api calls
+* [CHANGE] Update behat for 4.5.5+ for reading required title field
+* [CHANGE] Test against opencast 17
+* [FEATURE] #430 Refactor and upgrade transcription feature
+* [FEATURE] #429 Introducing workflows config panel json compatibility
+
+
 4.5.3 (2025-01-16)
 ------------------
 * [FIX] #413 Capability check for user before importing series
