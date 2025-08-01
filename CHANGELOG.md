@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-5.0.0 (2025-07-29)
+5.0.0 (2025-08-01)
 ------------------
 * [FEATURE] The Opencast Course Overview is now accessible via the course navigation bar
 * [CHANGE] Most features from the Opencast Block plugin have been moved to
@@ -16,6 +16,7 @@ If disabled (default), all events from
 the course will be included in the backup.
 * [CHANGE] Introducing workflows config panel json compatibility
 * [CHANGE] Refactor and upgrade transcription feature
+* Moodle 5.0 compatible version
 
 
 4.5.3 (2025-01-16)
@@ -44,4 +45,4 @@ the course will be included in the backup.
 * [FEATURE] #387 Language file ordering
 * [FEATURE] #383 Some basic codestyling things
 * [FIX] #372 Hidden duplicated videos end up having empty ACLs
-Moodle 4.5 compatible version
+* Moodle 4.5 compatible version
