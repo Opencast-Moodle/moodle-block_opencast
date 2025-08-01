@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-5.0.0 (2025-05-29)
+5.0.0 (2025-07-29)
 ------------------
 * [FEATURE] The Opencast Course Overview is now accessible via the course navigation bar
 * [CHANGE] Most features from the Opencast Block plugin have been moved to
