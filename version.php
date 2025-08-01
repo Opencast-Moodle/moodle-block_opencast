@@ -28,6 +28,7 @@ $plugin->component = 'block_opencast';
 $plugin->release = 'v5.0-r1';
 $plugin->version = 2025052900;
 $plugin->requires = 2025041400; // Requires Moodle 5.0+.
+$plugin->supported = [500, 500];
 $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = [
     'tool_opencast' => 2025052600,
