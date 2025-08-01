@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-5.0.0 (2025-05-02)
+5.0.0 (2025-05-29)
 ------------------
 * [FEATURE] The Opencast Course Overview is now accessible via the course navigation bar
 * [CHANGE] Most features from the Opencast Block plugin have been moved to
@@ -14,6 +14,8 @@ If (`importreducedduplication`) is enabled, only the events and series embedded 
 activity module will be backed up.\
 If disabled (default), all events from
 the course will be included in the backup.
+* [CHANGE] Introducing workflows config panel json compatibility
+* [CHANGE] Refactor and upgrade transcription feature
 
 
 4.5.3 (2025-01-16)
