@@ -146,7 +146,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             $rolesdefault = setting_default_manager::get_default_roles();
             $metadatadefault = setting_default_manager::get_default_metadata();
             $metadataseriesdefault = setting_default_manager::get_default_metadataseries();
-            $defaulttranscriptionflavors = setting_default_manager::get_default_transcriptionflavors();
+            $defaulttranscriptionlanguages = setting_default_manager::get_default_transcriptionlanguages();
 
             $generalsettings->add(new admin_setting_hiddenhelpbtn('block_opencast/hiddenhelpname_' . $instance->id,
                 'helpbtnname_' . $instance->id, 'descriptionmdfn', 'block_opencast'));
@@ -175,9 +175,9 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                 get_string('metadataseries', 'block_opencast'),
                 get_string('metadataseriesdesc', 'block_opencast') . $dcmitermsnotice, $metadataseriesdefault);
 
-            $transcriptionflavors = new admin_setting_configtext('block_opencast/transcriptionflavors_' . $instance->id,
-                get_string('transcriptionflavors', 'block_opencast'),
-                get_string('transcriptionflavors_desc', 'block_opencast'), $defaulttranscriptionflavors);
+            $transcriptionlanguages = new admin_setting_configtext('block_opencast/transcriptionlanguages_' . $instance->id,
+                get_string('transcriptionlanguages', 'block_opencast'),
+                get_string('transcriptionlanguages_desc', 'block_opencast'), $defaulttranscriptionlanguages);
 
             // Crashes if plugins.php is opened because css cannot be included anymore.
             if ($PAGE->state !== moodle_page::STATE_IN_BODY) {
@@ -185,7 +185,7 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     $rolessetting->get_id(),
                     $metadatasetting->get_id(),
                     $metadataseriessetting->get_id(),
-                    $transcriptionflavors->get_id(),
+                    $transcriptionlanguages->get_id(),
                     $instance->id,
                 ]);
             }
@@ -728,40 +728,38 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     ''));
 
             $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/transcriptionworkflow_' . $instance->id,
-                    get_string('transcriptionworkflow', 'block_opencast'),
-                    get_string('transcriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
+                new admin_setting_configcheckbox('block_opencast/enableuploadtranscription_' . $instance->id,
+                    get_string('transcriptionsettingsenableupload', 'block_opencast'),
+                    get_string('transcriptionsettingsenableupload_desc', 'block_opencast'), 0));
 
             $additionalsettings->add(
-                new admin_setting_configtext('block_opencast/deletetranscriptionworkflow_' . $instance->id,
-                    get_string('deletetranscriptionworkflow', 'block_opencast'),
-                    get_string('deletetranscriptionworkflow_desc', 'block_opencast'), '', PARAM_TEXT));
-            $additionalsettings->hide_if('block_opencast/deletetranscriptionworkflow_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+                new admin_setting_configcheckbox('block_opencast/enablemanagetranscription_' . $instance->id,
+                    get_string('transcriptionsettingsenablemanage', 'block_opencast'),
+                    get_string('transcriptionsettingsenablemanage_desc', 'block_opencast'), 0));
 
             $additionalsettings->add(
                 new admin_setting_configcheckbox('block_opencast/allowdownloadtranscription_' . $instance->id,
                     get_string('allowdownloadtranscriptionsetting', 'block_opencast'),
                     get_string('allowdownloadtranscriptionsetting_desc', 'block_opencast'), 1));
             $additionalsettings->hide_if('block_opencast/allowdownloadtranscription_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+                'block_opencast/enablemanagetranscription_' . $instance->id, 'notchecked');
 
-            $additionalsettings->add($transcriptionflavors);
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/transcriptionworkflow_' . $instance->id,
+                    get_string('transcriptionworkflow', 'block_opencast'),
+                    get_string('transcriptionworkflow_desc', 'block_opencast'), 'publish', PARAM_TEXT));
+
+            $additionalsettings->add(
+                new admin_setting_configtext('block_opencast/deletetranscriptionworkflow_' . $instance->id,
+                    get_string('deletetranscriptionworkflow', 'block_opencast'),
+                    get_string('deletetranscriptionworkflow_desc', 'block_opencast'), 'publish', PARAM_TEXT));
+
+            $additionalsettings->add($transcriptionlanguages);
             $additionalsettings->add(
                 new admin_setting_configeditabletable(
-                    'block_opencast/transcriptionflavorsoptions_' . $instance->id,
-                    'transcriptionflavorsoptions_' . $instance->id,
-                    get_string('addtranscriptionflavor', 'block_opencast')));
-
-            $additionalsettings->hide_if('block_opencast/transcriptionflavorsoptions_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
-
-            $additionalsettings->add(new admin_setting_configtext('block_opencast/maxtranscriptionupload_' . $instance->id,
-                new lang_string('maxtranscriptionupload', 'block_opencast'),
-                get_string('maxtranscriptionupload_desc', 'block_opencast'), 3, PARAM_INT
-            ));
-            $additionalsettings->hide_if('block_opencast/maxtranscriptionupload_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
+                    'block_opencast/transcriptionlanguagesoptions_' . $instance->id,
+                    'transcriptionlanguagesoptions_' . $instance->id,
+                    get_string('transcriptionaddnewlanguage', 'block_opencast')));
 
             $additionalsettings->add(
                 new admin_setting_filetypes('block_opencast/transcriptionfileextensions_' . $instance->id,
@@ -769,8 +767,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
                     get_string('transcriptionfileextensions_desc', 'block_opencast',
                         $CFG->wwwroot . '/admin/tool/filetypes/index.php')
                 ));
-            $additionalsettings->hide_if('block_opencast/transcriptionfileextensions_' . $instance->id,
-                'block_opencast/transcriptionworkflow_' . $instance->id, 'eq', '');
             // End of transcription upload settings.
             // Live Status Update.
             // Setting for live status update for processing as well as uploading events.

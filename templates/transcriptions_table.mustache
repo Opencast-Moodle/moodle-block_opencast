@@ -31,13 +31,11 @@
             <thead>
             <tr>
                 <th>
-                    {{# str}}transcriptionflavor_thead, block_opencast {{/ str}}
+                    {{# str}}transcriptionlanguage_thead, block_opencast {{/ str}}
                 </th>
-                {{#hasactions}}
-                    <th>
-                        {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
-                    </th>
-                {{/hasactions}}
+                <th>
+                    {{# str}}transcriptionaction_thead, block_opencast {{/ str}}
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -46,23 +44,19 @@
                     <td>
                         {{title}}
                     </td>
-                    {{#hasactions}}
-                        <td width="10%">
-                            {{#allowdownload}}
-                                <a class="iconsmall" target="_blank"
-                                   title="{{#str}} downloadtranscription, block_opencast {{/str}}"
-                                   href="{{downloadurl}}">
-                                    {{#pix}} i/down, core{{/pix}}
-                                </a>
-                            {{/allowdownload}}
-                            {{#candelete}}
-                                <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}"
-                                   href="{{deleteurl}}">
-                                    {{#pix}} i/delete, core{{/pix}}
-                                </a>
-                            {{/candelete}}
-                        </td>
-                    {{/hasactions}}
+                    <td width="10%">
+                        {{#allowdownload}}
+                            <a class="iconsmall" target="_blank"
+                                title="{{#str}} downloadtranscription, block_opencast {{/str}}"
+                                href="{{downloadurl}}">
+                                {{#pix}} i/down, core{{/pix}}
+                            </a>
+                        {{/allowdownload}}
+                        <a class="iconsmall" title="{{#str}} deletetranscription, block_opencast {{/str}}"
+                            href="{{deleteurl}}">
+                            {{#pix}} i/delete, core{{/pix}}
+                        </a>
+                    </td>
                 </tr>
             {{/list}}
             </tbody>

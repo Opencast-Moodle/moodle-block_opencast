@@ -27,6 +27,7 @@ namespace block_opencast;
 use advanced_testcase;
 use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
+use block_opencast\local\attachment_helper;
 use coding_exception;
 use context_course;
 use dml_exception;
@@ -96,6 +97,7 @@ final class upload_test extends advanced_testcase {
         set_config('apitimeout_1', $this->apitimeout, 'tool_opencast');
         set_config('apiconnecttimeout_1', $this->apiconnecttimeout, 'tool_opencast');
         set_config('limituploadjobs_1', 2, 'block_opencast');
+        set_config('uploadworkflow_1', 'fast', 'block_opencast'); // To make sure it runs faster.
         set_config('series_name_1', '[COURSENAME]', 'block_opencast');
         set_config('roles_1',
             '[{"rolename":"ROLE_ADMIN","actions":"write,read","permanent":1},' .
@@ -149,6 +151,30 @@ final class upload_test extends advanced_testcase {
 
         $this->assertEmpty($videos->error, 'There was an error: ' . $videos->error);
         $this->assertCount(1, $videos->videos);
+
+        // We extend the test to cover the transcription upload.
+        $identifier = $videos->videos[0]->identifier;
+        $ocinstanceid = 1;
+
+        $isprocessed = $this->notest_ensure_video_processed($identifier, $apibridge);
+        $this->assertTrue($isprocessed, 'Video was not processed successfully after upload.');
+
+        // Now we check the single transcription file upload.
+        $transcriptionrecord = [];
+        $transcriptionrecord['courseid'] = $course->id;
+        $filename = $CFG->dirroot . '/blocks/opencast/tests/fixtures/sample_subtitle_de.vtt';
+        $transcriptionrecord['filecontent'] = file_get_contents($filename);
+        $transcriptionrecord['filename'] = 'sample_subtitle_de.vtt';
+        $transcriptionrecord['filearea'] = attachment_helper::OC_FILEAREA_ATTACHMENT;
+
+        $transcriptionfile = $plugingenerator->create_file($transcriptionrecord);
+        $this->assertInstanceOf('stored_file', $transcriptionfile);
+
+        $storedlanguagefiles['de'] = $transcriptionfile;
+
+        // This method is also used in the attachment cron job, so we can test it here only once.
+        $result = attachment_helper::upload_transcription_captions_set($storedlanguagefiles, $ocinstanceid, $identifier);
+        $this->assertTrue($result, 'Transcription captions upload failed.');
     }
 
     /**
@@ -168,5 +194,54 @@ final class upload_test extends advanced_testcase {
         sleep(15);
         $videos = $apibridge->get_course_videos($courseid);
         return (!empty($videos->videos)) ? true : false;
+    }
+
+    /**
+     * Checks, if the video has been processed successfully after upload.
+     *
+     * @param string $identifier The Opencast video identifier.
+     * @param apibridge $apibridge the apibridge instance
+     *
+     * @return bool true if the video is available, false otherwise.
+     */
+    private function notest_check_processed_video($identifier, $apibridge) {
+        $video = $apibridge->get_opencast_video($identifier, true);
+        if ($video->error) {
+            return false;
+        }
+        if ($video->video->processing_state != 'SUCCEEDED') {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Waits for a video to be processed successfully after upload by polling its processing state.
+     *
+     * This helper method repeatedly checks the processing state of a video using its identifier
+     * and the provided apibridge instance.
+     * It waits up to a fixed number of attempts, sleeping between checks,
+     * and returns true if the video reaches the 'SUCCEEDED' state.
+     *
+     * @param string $identifier The Opencast video identifier.
+     * @param apibridge $apibridge The apibridge instance to use for API calls.
+     * @return bool True if the video is processed successfully within the limit, false otherwise.
+     */
+    private function notest_ensure_video_processed($identifier, $apibridge) {
+        $isprocessed = false;
+        $limiter = 15;
+        $counter = 0;
+        do {
+            $isprocessed = $this->notest_check_processed_video($identifier, $apibridge);
+            $counter++;
+            if (!$isprocessed) {
+                sleep(15);
+            }
+            if ($counter >= $limiter) {
+                break;
+            }
+        } while (!$isprocessed);
+
+        return $isprocessed;
     }
 }

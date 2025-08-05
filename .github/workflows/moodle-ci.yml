@@ -14,4 +14,4 @@ jobs:
       requires-mod-plugin: true
       branch-tool-plugin: main
       branch-mod-plugin: main
-      branch-opencast-docker-default: 16.7
+      branch-opencast-docker-default: 17.1

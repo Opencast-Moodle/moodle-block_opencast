@@ -55,8 +55,14 @@ require_capability('block/opencast:addvideo', $coursecontext);
 
 $apibridge = apibridge::get_instance($ocinstanceid);
 $video = $apibridge->get_opencast_video($identifier, true);
-if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
-    empty(get_config('block_opencast', 'transcriptionworkflow_' . $ocinstanceid))) {
+
+$transcriptionmanagementenabled = (bool) get_config('block_opencast', 'enablemanagetranscription_' . $ocinstanceid);
+if (!$transcriptionmanagementenabled) {
+    redirect($redirecturl,
+        get_string('transcriptionmanagementdisabled', 'block_opencast'), null, notification::NOTIFY_ERROR);
+}
+
+if ($video->error || $video->video->processing_state != 'SUCCEEDED') {
     redirect($redirecturl,
         get_string('unabletomanagetranscriptions', 'block_opencast'), null, notification::NOTIFY_WARNING);
 }
@@ -65,23 +71,19 @@ if ($video->error || $video->video->processing_state != 'SUCCEEDED' ||
 $addnewurl = new moodle_url('/blocks/opencast/addtranscription.php',
     ['video_identifier' => $identifier, 'courseid' => $courseid, 'ocinstanceid' => $ocinstanceid]);
 
-// Check if delete option is allowed.
-$candelete = false;
-if (!empty(get_config('block_opencast', 'deletetranscriptionworkflow_' . $ocinstanceid))) {
-    $candelete = true;
-}
-
-// Preparing flavors as for service types.
-$flavorsconfig = get_config('block_opencast', 'transcriptionflavors_' . $ocinstanceid);
-$flavors = [];
-if (!empty($flavorsconfig)) {
-    $flavorsarray = json_decode($flavorsconfig);
-    foreach ($flavorsarray as $flavor) {
-        if (!empty($flavor->key) && !empty($flavor->value)) {
-            $flavors[$flavor->key] = format_string($flavor->value);
+$languages = [];
+$transcriptionlanguagesconfig = get_config('block_opencast', 'transcriptionlanguages_' . $ocinstanceid);
+if (!empty($transcriptionlanguagesconfig)) {
+    $languagesarray = json_decode($transcriptionlanguagesconfig);
+    if (!empty($languagesarray)) {
+        foreach ($languagesarray as $language) {
+            if (!empty($language->key) && !empty($language->value)) {
+                $languages[$language->key] = format_string($language->value);
+            }
         }
     }
 }
+
 /** @var block_opencast_renderer $renderer */
 $renderer = $PAGE->get_renderer('block_opencast');
 
@@ -119,12 +121,12 @@ if ($video->video->publications) {
     // We prepare the list items out of the caption attachments.
     foreach ($attachments as $attachment) {
         $attachmentitems[] = $renderer->prepare_transcription_item_for_the_menu($attachment, $courseid, $ocinstanceid, $identifier,
-            'attachment', $flavors);
+            'attachment', $languages);
     }
     // We prepare the list items out of the caption media.
     foreach ($medias as $media) {
         $mediaitems[] = $renderer->prepare_transcription_item_for_the_menu($media, $courseid, $ocinstanceid, $identifier,
-            'media', $flavors);
+            'media', $languages);
     }
 }
 // Then we combine the items together to display them in the list.
@@ -133,5 +135,5 @@ $list = array_merge($mediaitems, $attachmentitems);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managetranscriptions_header', 'block_opencast'));
 echo \core\notification::info(get_string('managetranscription_overwrite_info', 'block_opencast'));
-echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $candelete, $allowdownload);
+echo $renderer->render_manage_transcriptions_table($list, $addnewurl->out(false), $allowdownload);
 echo $OUTPUT->footer();

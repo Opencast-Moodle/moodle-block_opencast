@@ -957,5 +957,47 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2024111103, 'opencast');
     }
 
+    if ($oldversion < 2025072500) {
+
+        // In this upgrade block we perform Transcription upgrade changes.
+        $pluginname = 'block_opencast';
+
+        // We change the config name from transcriptionflavors to transcriptionlanguages but the functionalitiy remains the same.
+        $params = ['plugin' => $pluginname, 'configname' => 'transcriptionflavors%'];
+        $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
+        if ($entries = $DB->get_records_select('config_plugins', $whereclause, $params, '', 'name, value')) {
+            foreach ($entries as $entry) {
+                $newconfigname = str_replace('transcriptionflavors', 'transcriptionlanguages', $entry->name);
+                set_config($newconfigname, $entry->value, $pluginname);
+                unset_config($entry->name, $pluginname);
+            }
+        }
+
+        // We remove the maxtranscriptionupload precisely, regardless of the ocinstance.
+        $params = ['plugin' => $pluginname, 'configname' => 'maxtranscriptionupload%'];
+        $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
+        if ($entries = $DB->get_records_select('config_plugins', $whereclause, $params, '', 'name')) {
+            foreach ($entries as $entry) {
+                unset_config($entry->name, $pluginname);
+            }
+        }
+
+        // We then adjust the activation of newly added settings according to the previous settings relation.
+        // Initially transcriptionworkflow worked as a feature activation toggle, meaning if it was empty,
+        // the whole transcription feature was disabled. But now we divide this into two separate stand-alone settings.
+        $params = ['plugin' => $pluginname, 'configname' => 'transcriptionworkflow%'];
+        $whereclause = $DB->sql_equal('plugin', ':plugin') . ' AND ' . $DB->sql_like('name', ':configname');
+        if ($entries = $DB->get_records_select('config_plugins', $whereclause, $params, '', 'name, value')) {
+            foreach ($entries as $entry) {
+                $enabled = !empty($entry->value);
+                $enableuploadsettingname = str_replace('transcriptionworkflow', 'enableuploadtranscription', $entry->name);
+                $enablemanagesettingname = str_replace('transcriptionworkflow', 'enablemanagetranscription', $entry->name);
+                set_config($enableuploadsettingname, $enabled, $pluginname);
+                set_config($enablemanagesettingname, $enabled, $pluginname);
+            }
+        }
+        upgrade_block_savepoint(true, 2025072500, 'opencast');
+    }
+
     return true;
 }
