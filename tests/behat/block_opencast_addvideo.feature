@@ -22,14 +22,14 @@ Feature: Add videos as Teacher
       | apiusername_1               | admin                                                         | tool_opencast  |
       | apiversion_1                | v1.10.0                                                       | tool_opencast  |
       | ocinstances                 | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1           | 0                                                             | block_opencast |
-      | group_creation_1            | 0                                                             | block_opencast |
-      | group_name_1                | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1               | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1         | 0                                                             | block_opencast |
-      | uploadworkflow_1            | schedule-and-upload                                           | block_opencast |
-      | enableuploadwfconfigpanel_1 | 1                                                             | block_opencast |
-      | alloweduploadwfconfigs_1    | straightToPublishing                                          | block_opencast |
+      | limituploadjobs_1           | 0                                                             | tool_opencast |
+      | group_creation_1            | 0                                                             | tool_opencast |
+      | group_name_1                | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1               | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1         | 0                                                             | tool_opencast |
+      | uploadworkflow_1            | schedule-and-upload                                           | tool_opencast |
+      | enableuploadwfconfigpanel_1 | 1                                                             | tool_opencast |
+      | alloweduploadwfconfigs_1    | straightToPublishing                                          | tool_opencast |
     And I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
     And I add the "Opencast Videos" block

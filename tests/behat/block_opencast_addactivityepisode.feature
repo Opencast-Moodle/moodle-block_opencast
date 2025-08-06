@@ -21,15 +21,15 @@ Feature: Add Opencast Video Provider episode module as Teacher
       | apipassword_1                    | opencast                                                      | tool_opencast  |
       | apiusername_1                    | admin                                                         | tool_opencast  |
       | ocinstances                      | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1                | 0                                                             | block_opencast |
+      | limituploadjobs_1                | 0                                                             | tool_opencast |
       | limitvideos_1                    | 5                                                             | block_opencast |
-      | group_creation_1                 | 0                                                             | block_opencast |
-      | group_name_1                     | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1                    | Course_Series_[COURSEID]                                      | block_opencast |
-      | addactivityepisodeenabled_1      | 1                                                             | block_opencast |
-      | addactivityepisodeintro_1        | 1                                                             | block_opencast |
-      | addactivityepisodesection_1      | 1                                                             | block_opencast |
-      | addactivityepisodeavailability_1 | 1                                                             | block_opencast |
+      | group_creation_1                 | 0                                                             | tool_opencast |
+      | group_name_1                     | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1                    | Course_Series_[COURSEID]                                      | tool_opencast |
+      | addactivityepisodeenabled_1      | 1                                                             | tool_opencast |
+      | addactivityepisodeintro_1        | 1                                                             | tool_opencast |
+      | addactivityepisodesection_1      | 1                                                             | tool_opencast |
+      | addactivityepisodeavailability_1 | 1                                                             | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"

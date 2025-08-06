@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\upload_helper;
+use tool_opencast\local\upload_helper;
 
 /**
  * Generator for test data.
@@ -45,7 +45,7 @@ class block_opencast_generator extends testing_block_generator {
         }
 
         $record['contextid'] = context_course::instance($record['courseid'])->id;
-        $record['component'] = 'block_opencast';
+        $record['component'] = 'tool_opencast';
 
         if (!isset($record['filearea'])) {
             $record['filearea'] = upload_helper::OC_FILEAREA;

@@ -27,9 +27,9 @@ namespace block_opencast\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-use block_opencast\groupaccess;
+use tool_opencast\groupaccess;
 use tool_opencast\exception\opencast_api_response_exception;
-use block_opencast\task\process_duplicated_event_visibility_change;
+use tool_opencast\task\process_duplicated_event_visibility_change;
 use block_opencast_apibridge_testable;
 use block_opencast_renderer;
 use coding_exception;
@@ -46,7 +46,7 @@ use stored_file;
 use tool_opencast\local\settings_api;
 use tool_opencast\seriesmapping;
 use tool_opencast\local\api;
-use block_opencast\opencast_state_exception;
+use tool_opencast\opencast_state_exception;
 
 require_once($CFG->dirroot . '/lib/filelib.php');
 require_once(__DIR__ . '/../../renderer.php');
@@ -207,16 +207,14 @@ class apibridge {
      * @param string $mediapackage Mediapackage to which the track is added
      * @param string $flavor Flavor of track
      * @param object $file Track
-     * @param array $tags List of tags
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
      * @throws opencast_api_response_exception
      */
-    public function ingest_add_track($mediapackage, $flavor, $file, $tags = []) {
+    public function ingest_add_track($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
-        $tagsstr = !empty($tags) ? implode(',', $tags) : '';
-        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file), $tagsstr);
+        $response = $ingestapi->addTrack($mediapackage, $flavor, $this->get_upload_filestream($file));
         $code = $response['code'];
 
         if ($code != 200) {
@@ -232,16 +230,14 @@ class apibridge {
      * @param string $mediapackage Mediapackage to which the attachment is added
      * @param string $flavor Flavor of attachment
      * @param object $file Attachment
-     * @param array $tags Tags
      * @return string
      * @throws dml_exception
      * @throws moodle_exception
      * @throws opencast_api_response_exception
      */
-    public function ingest_add_attachment($mediapackage, $flavor, $file, $tags = []) {
+    public function ingest_add_attachment($mediapackage, $flavor, $file) {
         $ingestapi = $this->get_ingest_api();
-        $tagsstr = !empty($tags) ? implode(',', $tags) : '';
-        $response = $ingestapi->addAttachment($mediapackage, $flavor, $file, $tagsstr);
+        $response = $ingestapi->addAttachment($mediapackage, $flavor, $file);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -266,10 +262,10 @@ class apibridge {
         $ingestapi = $this->get_ingest_api();
 
         if (empty($uploadworkflow)) {
-            $uploadworkflow = get_config("block_opencast", "uploadworkflow_" . $this->ocinstanceid);
+            $uploadworkflow = get_config("tool_opencast", "uploadworkflow_" . $this->ocinstanceid);
         }
 
-        $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
+        $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
             $response = $ingestapi->setRequestTimeout($timeout)->ingest($mediapackage, $uploadworkflow, '', $workflowconfiguration);
@@ -507,7 +503,7 @@ class apibridge {
      * @param stdClass $video Video to be updated
      */
     private function set_download_state(&$video) {
-        if (in_array(get_config('block_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
+        if (in_array(get_config('tool_opencast', 'download_channel_' . $this->ocinstanceid), $video->publication_status)) {
             $video->is_downloadable = true;
         } else {
             $video->is_downloadable = false;
@@ -519,7 +515,7 @@ class apibridge {
      * @param stdClass $video Video to be updated
      */
     private function set_access_state(&$video) {
-        if (in_array(get_config('block_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
+        if (in_array(get_config('tool_opencast', 'direct_access_channel_' . $this->ocinstanceid), $video->publication_status)) {
             $video->is_accessible = true;
         } else {
             $video->is_accessible = false;
@@ -587,7 +583,7 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('block_opencast',
+        $groupname = $this->replace_placeholders(get_config('tool_opencast',
             'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
@@ -615,7 +611,7 @@ class apibridge {
      * @param int $userid
      */
     protected function create_acl_group($courseid, $userid) {
-        $name = $this->replace_placeholders(get_config('block_opencast',
+        $name = $this->replace_placeholders(get_config('tool_opencast',
             'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
         $description = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $roles = [
@@ -934,7 +930,7 @@ class apibridge {
      * @return string default series title.
      */
     public function get_default_seriestitle($courseid, $userid) {
-        $title = get_config('block_opencast', 'series_name_' . $this->ocinstanceid);
+        $title = get_config('tool_opencast', 'series_name_' . $this->ocinstanceid);
         return self::replace_placeholders($title, $courseid, null, $userid)[0];
     }
 
@@ -1203,7 +1199,7 @@ class apibridge {
         }
 
         if (!$validstoredfile) {
-            $DB->delete_records('block_opencast_uploadjob', ['id' => $job->id]);
+            $DB->delete_records('tool_opencast_uploadjob', ['id' => $job->id]);
             throw new moodle_exception('invalidfiletoupload', 'tool_opencast');
         }
 
@@ -1227,7 +1223,7 @@ class apibridge {
             $presentation = $this->get_upload_filestream($event->get_presentation());
         }
 
-        $uploadtimeout = get_config('block_opencast', 'uploadtimeout');
+        $uploadtimeout = get_config('tool_opencast', 'uploadtimeout');
         if ($uploadtimeout !== false) {
             $timeout = intval($uploadtimeout);
             $response = $this->api->opencastapi->eventsApi->setRequestTimeout($timeout)->create(
@@ -1305,7 +1301,7 @@ class apibridge {
      * @throws dml_exception A DML specific exception is thrown for any errors.
      */
     public function getroles($permanent = null) {
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
         if (empty($roles)) {
             return [];
         }
@@ -1401,7 +1397,7 @@ class apibridge {
      * @return bool If acl group can be deleted
      */
     public function can_delete_acl_group_assignment($video, $courseid) {
-        $config = get_config('block_opencast', 'allowunassign_' . $this->ocinstanceid);
+        $config = get_config('tool_opencast', 'allowunassign_' . $this->ocinstanceid);
 
         if (!$config) {
             return false;
@@ -1413,7 +1409,7 @@ class apibridge {
 
         $context = context_course::instance($courseid);
 
-        return has_capability('block/opencast:unassignevent', $context);
+        return has_capability('tool/opencast:unassignevent', $context);
     }
 
     /**
@@ -1739,7 +1735,7 @@ class apibridge {
         if ($video->error === 0) {
             // Don't start workflow for scheduled videos.
             if ($video->video->processing_state !== "PLANNED") {
-                $workflow = get_config('block_opencast', 'workflow_roles_' . $this->ocinstanceid);
+                $workflow = get_config('tool_opencast', 'workflow_roles_' . $this->ocinstanceid);
 
                 if (!$workflow) {
                     return true;
@@ -1944,7 +1940,7 @@ class apibridge {
 
             $context = context_course::instance($courseid);
 
-            return has_capability('block/opencast:deleteevent', $context);
+            return has_capability('tool/opencast:deleteevent', $context);
         }
 
         return false;
@@ -1958,7 +1954,7 @@ class apibridge {
      */
     public function trigger_delete_event($eventidentifier) {
         global $DB;
-        $workflow = get_config("block_opencast", "deleteworkflow_" . $this->ocinstanceid);
+        $workflow = get_config("tool_opencast", "deleteworkflow_" . $this->ocinstanceid);
 
         if ($workflow) {
             if ($this->start_workflow($eventidentifier, $workflow)) {
@@ -1969,7 +1965,7 @@ class apibridge {
                     "timecreated" => time(),
                     "timemodified" => time(),
                 ];
-                $DB->insert_record("block_opencast_deletejob", $record);
+                $DB->insert_record("tool_opencast_deletejob", $record);
                 return true;
             }
             return false;
@@ -2091,7 +2087,7 @@ class apibridge {
                 $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
             if ($capabilitycheck) {
                 $context = context_course::instance($courseid);
-                return has_capability('block/opencast:addvideo', $context);
+                return has_capability('tool/opencast:addvideo', $context);
             } else {
                 return true;
             }
@@ -2110,12 +2106,12 @@ class apibridge {
 
         // We check if the basic editor integration configs are set, the video processing state is succeeded
         // (to avoid process failure) and there is internal publication status (to avoid error 400 in editor).
-        if (get_config('block_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
+        if (get_config('tool_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
             isset($video->processing_state) && in_array($video->processing_state, ["SUCCEEDED", "NEEDSCUTTING"])  &&
             isset($video->publication_status) && is_array($video->publication_status) &&
             in_array('internal', $video->publication_status)) {
             $context = context_course::instance($courseid);
-            return has_capability('block/opencast:addvideo', $context);
+            return has_capability('tool/opencast:addvideo', $context);
         }
 
         return false;
@@ -2196,8 +2192,8 @@ class apibridge {
         $event = new event();
         $event->set_json_acl($jsonacl);
 
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
             array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
@@ -2276,7 +2272,7 @@ class apibridge {
      * @return bool
      */
     public function has_owner($acls) {
-        $ownerrole = get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid);
+        $ownerrole = get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid);
         $ownerroleregex = false;
         foreach (self::$userplaceholders as $userplaceholder) {
             $r = str_replace($userplaceholder, '.*?', $ownerrole);
@@ -2310,12 +2306,12 @@ class apibridge {
      * @throws dml_exception
      */
     private function get_owner_role_for_user($userid, $courseid) {
-        if (empty(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
+        if (empty(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid))) {
             return null;
         }
 
-        $roles = json_decode(get_config('block_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('block_opencast', 'aclownerrole_' . $this->ocinstanceid),
+        $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
+        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
             array_column($roles, 'rolename'));
         $ownerrole = $roles[$ownerrole];
 
@@ -2451,7 +2447,7 @@ class apibridge {
         }
 
         // If we are not looking at a duplication workflow at all, return.
-        $duplicateworkflow = get_config('block_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
+        $duplicateworkflow = get_config('tool_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
         if (isset($workflowconfiguration->workflow_definition_identifier) &&
             $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
             return false;
@@ -2871,10 +2867,11 @@ class apibridge {
      */
     public function can_edit_event_transcription($video, $courseid) {
         // To edit transcriptions, we need that the video processing to be in succeeded state to avoid any conflict in workflows.
-        if (!empty(get_config('block_opencast', 'enablemanagetranscription_' . $this->ocinstanceid)) &&
+        // We would also need to make sure that workflow for transcription is configured.
+        if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
             isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             $context = context_course::instance($courseid);
-            return has_capability('block/opencast:addvideo', $context);
+            return has_capability('tool/opencast:addvideo', $context);
         }
 
         return false;
@@ -2944,11 +2941,10 @@ class apibridge {
     /**
      * Get the opencast version.
      *
-     * @param bool $nosnapshot flag that removes the SNAPSHOT part of the version.
      * @return string semantic version number of the opencast server.
      * @throws opencast_api_response_exception
      */
-    public function get_opencast_version($nosnapshot = true) {
+    public function get_opencast_version() {
         $response = $this->api->opencastapi->sysinfo->getVersion();
         $code = $response['code'];
 
@@ -2957,11 +2953,7 @@ class apibridge {
         }
 
         $versionobject = $response['body'];
-        $versionstr = $versionobject->version;
-        if ($nosnapshot) {
-            $versionstr = str_replace('.SNAPSHOT', '', $versionstr);
-        }
-        return $versionstr;
+        return $versionobject->version;
     }
 
     /**
@@ -2972,13 +2964,12 @@ class apibridge {
      * @param string $flavor the track flavor.
      * @param object $file the track filestream object.
      * @param boolean $overwrite whether to overwrite the existing one.
-     * @param ?array $tags the list of tags for the event track.
      *
      * @return boolean true, if the track is added.
      * @throws opencast_api_response_exception
      */
-    public function event_add_track($identifier, $flavor, $file, $overwrite = true, $tags = null) {
-        $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite, $tags);
+    public function event_add_track($identifier, $flavor, $file, $overwrite = true) {
+        $response = $this->api->opencastapi->eventsApi->addTrack($identifier, $flavor, $file, $overwrite);
         $code = $response['code'];
 
         if ($code != 200) {
@@ -2999,7 +2990,7 @@ class apibridge {
         if ($video->is_downloadable && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
                 $coursecontext = context_course::instance($courseid);
-                return has_capability('block/opencast:downloadvideo', $coursecontext);
+                return has_capability('tool/opencast:downloadvideo', $coursecontext);
             } else {
                 return true;
             }
@@ -3019,7 +3010,7 @@ class apibridge {
         if ($video->is_accessible && isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
             if ($capabilitycheck) {
                 $coursecontext = context_course::instance($courseid);
-                return has_capability('block/opencast:sharedirectaccessvideolink', $coursecontext);
+                return has_capability('tool/opencast:sharedirectaccessvideolink', $coursecontext);
             } else {
                 return true;
             }
@@ -3045,21 +3036,21 @@ class apibridge {
             'upload.seriesId=' . $seriesid,
         ];
         // Check if Studio return button is enabled.
-        if (get_config('block_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
+        if (get_config('tool_opencast', 'show_opencast_studio_return_btn_' . $this->ocinstanceid)) {
             // Initializing default label for studio return button.
             $studioreturnbtnlabel = $SITE->fullname;
             // Check if custom label is configured.
-            if (!empty(get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid))) {
-                $studioreturnbtnlabel = get_config('block_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid);
+            if (!empty(get_config('tool_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid))) {
+                $studioreturnbtnlabel = get_config('tool_opencast', 'opencast_studio_return_btn_label_' . $this->ocinstanceid);
             }
 
             // Initializing default studio return url.
             $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
                 ['courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid]);
             // Check if custom return url is configured.
-            if (!empty(get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
+            if (!empty(get_config('tool_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
                 // Prepare the custom url.
-                $customreturnurl = get_config('block_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid);
+                $customreturnurl = get_config('tool_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid);
                 // Slipt it into parts, to extract endpoint and query strings.
                 $customreturnurlarray = explode('?', $customreturnurl);
                 $customurl = $customreturnurlarray[0];
@@ -3093,7 +3084,7 @@ class apibridge {
         }
 
         // Checking if custom settings filename is set.
-        $customseetingsfilename = get_config('block_opencast', 'opencast_studio_custom_settings_filename_' . $this->ocinstanceid);
+        $customseetingsfilename = get_config('tool_opencast', 'opencast_studio_custom_settings_filename_' . $this->ocinstanceid);
         if (!empty($customseetingsfilename)) {
             $queryparams[] = 'settingsFile=' . $customseetingsfilename;
         }
@@ -3117,7 +3108,7 @@ class apibridge {
      */
     public function can_update_metadata_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:addvideo', $context);
+        return has_capability('tool/opencastaddvideo', $context);
     }
 
     /**
@@ -3130,7 +3121,7 @@ class apibridge {
      */
     public function can_delete_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:deleteevent', $context);
+        return has_capability('tool/opencast:deleteevent', $context);
     }
 
     /**
@@ -3143,7 +3134,7 @@ class apibridge {
      */
     public function can_change_visibility_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:addvideo', $context);
+        return has_capability('tool/opencast:addvideo', $context);
     }
 
     /**
@@ -3156,7 +3147,7 @@ class apibridge {
      */
     public function can_start_workflow_massaction($courseid) {
         $context = context_course::instance($courseid);
-        return has_capability('block/opencast:startworkflow', $context);
+        return has_capability('tool/opencast:startworkflow', $context);
     }
 
     /**
@@ -3188,7 +3179,7 @@ class apibridge {
         // to find out if the user is by any chance the capability to import series in any of the mapped courses.
         foreach ($mappings as $mapping) {
             $context = context_course::instance($mapping->get('courseid'));
-            if (has_capability('block/opencast:importseriesintocourse', $context, $userid)) {
+            if (has_capability('tool/opencast:importseriesintocourse', $context, $userid)) {
                 $isallowed = true;
                 break;
             }

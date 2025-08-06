@@ -27,10 +27,10 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-use block_opencast\local\apibridge;
-use block_opencast\local\event;
-use block_opencast\local\notifications;
-use block_opencast\local\importvideosmanager;
+use tool_opencast\local\apibridge;
+use tool_opencast\local\event;
+use tool_opencast\local\notifications;
+use tool_opencast\local\importvideosmanager;
 
 /**
  * Define all the restore steps that will be used by the restore opencast block task.
@@ -86,7 +86,7 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $apibridge = apibridge::get_instance($ocinstanceid);
 
         // Get the import mode to decide the way of importing opencast videos.
-        $importmode = get_config('block_opencast', 'importmode_' . $ocinstanceid);
+        $importmode = get_config('tool_opencast', 'importmode_' . $ocinstanceid);
         $this->importmode = $importmode;
 
         // If ACL Change is the mode.

@@ -29,11 +29,11 @@ use advanced_testcase;
 use backup;
 use backup_block_opencast_setting;
 use backup_controller;
-use block_opencast\local\apibridge;
-use block_opencast\task\process_duplicate_event;
-use block_opencast\task\process_duplicated_event_module_fix;
-use block_opencast\local\activitymodulemanager;
-use block_opencast\local\ltimodulemanager;
+use tool_opencast\local\apibridge;
+use tool_opencast\task\process_duplicate_event;
+use tool_opencast\task\process_duplicated_event_module_fix;
+use tool_opencast\local\activitymodulemanager;
+use tool_opencast\local\ltimodulemanager;
 use mod_opencast\local\opencasttype;
 use block_opencast_apibridge_testable;
 use coding_exception;
@@ -252,13 +252,13 @@ final class backup_test extends advanced_testcase {
         $seriessitetool['name'] = 'Opencast Series';
         $seriessitetoolrecord = (object) $seriessitetool;
         $seriestoolid = $DB->insert_record('lti_types', $seriessitetoolrecord);
-        set_config('addltipreconfiguredtool_1', $seriestoolid, 'block_opencast');
+        set_config('addltipreconfiguredtool_1', $seriestoolid, 'tool_opencast');
 
         $episodesitetool = $sitetoolinfo;
         $episodesitetool['name'] = 'Opencast Episode';
         $episodesitetoolrecord = (object) $episodesitetool;
         $episodetoolid = $DB->insert_record('lti_types', $episodesitetoolrecord);
-        set_config('addltiepisodepreconfiguredtool_1', $episodetoolid, 'block_opencast');
+        set_config('addltiepisodepreconfiguredtool_1', $episodetoolid, 'tool_opencast');
 
         // Get the id of the installed LTI plugin.
         // Series LTI module.
@@ -417,7 +417,7 @@ final class backup_test extends advanced_testcase {
     private function check_task_fail_with_error($expectederrortextkey, $expectedfailedcount) {
         global $DB;
 
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $a = json_decode($taskrecord->customdata);
         $course = $DB->get_record('course', ['id' => $a->courseid]);
@@ -430,7 +430,7 @@ final class backup_test extends advanced_testcase {
         $this->assertStringContainsString(get_string($expectederrortextkey, 'block_opencast', $a), $output);
 
         // Task is not deleted and countfailed sould be increased.
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($taskrecords));
 
         $taskrecord = array_shift($taskrecords);
@@ -454,11 +454,11 @@ final class backup_test extends advanced_testcase {
         $apibridge = apibridge::get_instance(1);
         set_config('apiurl_1', $this->apiurl, 'tool_opencast');
         set_config('keeptempdirectoriesonbackup', true);
-        set_config('importvideosenabled_1', true, 'block_opencast');
-        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+        set_config('importvideosenabled_1', true, 'tool_opencast');
+        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'tool_opencast');
         $apibridge->set_testdata('check_if_workflow_exists', $apibridge::DUPLICATE_WORKFLOW, true);
-        set_config('importvideoscoreenabled_1', true, 'block_opencast');
-        set_config('importmode_1', 'duplication', 'block_opencast');
+        set_config('importvideoscoreenabled_1', true, 'tool_opencast');
+        set_config('importmode_1', 'duplication', 'tool_opencast');
 
         // Create a course with block opencast.
         $generator = $this->getDataGenerator();
@@ -491,18 +491,18 @@ final class backup_test extends advanced_testcase {
         $this->assertNotEmpty($newcourse);
 
         // Check that a task was generated.
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($taskrecords));
 
         // Revert the duplicateworkflow setting to make sure that the generated task would fail in the case that the task was
         // created despite of all safety nets but then the workflow is not set (anymore).
-        set_config('duplicateworkflow_1', '', 'block_opencast');
+        set_config('duplicateworkflow_1', '', 'tool_opencast');
 
         // The workflow is now not properly set, so the task should fail.
         $this->check_task_fail_with_error('error_workflow_setup_missing', 1);
 
         // Configure the workflow again.
-        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'block_opencast');
+        set_config('duplicateworkflow_1', $apibridge::DUPLICATE_WORKFLOW, 'tool_opencast');
 
         // But delete the course series in Moodle.
         $mapping = seriesmapping::get_record(['courseid' => $newcourse->id, 'isdefault' => '1']);
@@ -551,26 +551,26 @@ final class backup_test extends advanced_testcase {
         $dummyworkflowid = 1234;
         $apibridge->set_testdata('start_workflow', $apibridge::DUPLICATE_WORKFLOW, $dummyworkflowid);
 
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $output = $this->execute_adhoc_task($taskrecord);
 
         // Run adhoc task to fix modules.
         $apibridge->set_testdata('get_duplicated_episodeid', $dummyworkflowid, $this->newepisodeid);
         $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Run adhoc task again to go to cleaup process.
         $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Check if the module fix adhoc task was successfully terminated.
         $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\block_opencast\\task\\process_duplicated_event_module_fix']);
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
         $this->assertEquals(0, count($modulefixtaskrecords));
 
         // Check if modules are fixed.
@@ -578,7 +578,7 @@ final class backup_test extends advanced_testcase {
         $this->assertEquals(true, $modulesfixed);
 
         // Check that the task is deleted.
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($taskrecords));
 
         // Test execution fails for 10 times.
@@ -588,7 +588,7 @@ final class backup_test extends advanced_testcase {
         $this->assertNotEmpty($newcourse2);
 
         // Check generated tasks.
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($taskrecords));
 
         $taskrecord = array_shift($taskrecords);
@@ -596,7 +596,7 @@ final class backup_test extends advanced_testcase {
         $customdata->countfailed = 9;
 
         $DB->set_field('task_adhoc', 'customdata', json_encode($customdata), ['id' => $taskrecord->id]);
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $taskrecord = array_shift($taskrecords);
         $output = $this->execute_adhoc_task($taskrecord);
 
@@ -604,7 +604,7 @@ final class backup_test extends advanced_testcase {
         $message = array_shift($messages);
         $this->assertEquals(get_string('erroremailsubj', 'block_opencast'), $message->subject);
 
-        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($taskrecords));
     }
 
@@ -640,7 +640,7 @@ final class backup_test extends advanced_testcase {
         $this->assertNotEmpty($newcourse);
 
         // Check generated tasks, should be none.
-        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($tasks));
 
         // Set supported api, but restore should fail because course series could not be created.
@@ -651,7 +651,7 @@ final class backup_test extends advanced_testcase {
         $newcourse = $this->restore_course($backupid, 0, true, $USER->id);
         $this->assertNotEmpty($newcourse);
 
-        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($tasks));
 
         $errormessage = ob_get_clean();
@@ -671,7 +671,7 @@ final class backup_test extends advanced_testcase {
         $newcourse = $this->restore_course($backupid, 0, true, $USER->id);
         $this->assertNotEmpty($newcourse);
 
-        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($tasks));
 
         $messages = $sink->get_messages();
@@ -686,7 +686,7 @@ final class backup_test extends advanced_testcase {
         $this->assertNotEmpty($newcourse);
 
         // Check generated tasks.
-        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\block_opencast\\task\\process_duplicate_event']);
+        $tasks = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(1, count($tasks));
     }
 

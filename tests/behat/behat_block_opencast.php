@@ -27,8 +27,8 @@
 
 use tool_opencast\local\api_testable;
 use tool_opencast\seriesmapping;
-use block_opencast\local\apibridge;
-use block_opencast\setting_default_manager;
+use tool_opencast\local\apibridge;
+use tool_opencast\setting_default_manager;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\ExpectationException;
 

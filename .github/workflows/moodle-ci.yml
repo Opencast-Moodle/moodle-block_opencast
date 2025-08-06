@@ -4,7 +4,7 @@ name: Moodle Plugin CI
 
 on: [ push, pull_request ]
 
-########################################################################################################################
+#######################################################################################################################
 
 jobs:
   call-moodle-ci-workflow:
@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: main
-      branch-mod-plugin: main
-      branch-opencast-docker-default: 17.1
+      branch-tool-plugin: issue-418-500
+      branch-mod-plugin: upgrade-500
+      branch-opencast-docker-default: 16.7

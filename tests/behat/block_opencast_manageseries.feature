@@ -25,12 +25,12 @@ Feature: Manage series as Teacher
       | apipassword_1       | opencast                                                      | tool_opencast  |
       | apiusername_1       | admin                                                         | tool_opencast  |
       | ocinstances         | [{"id":1,"name":"Default","isvisible":true,"isdefault":true}] | tool_opencast  |
-      | limituploadjobs_1   | 0                                                             | block_opencast |
-      | group_creation_1    | 0                                                             | block_opencast |
-      | group_name_1        | Moodle_course_[COURSEID]                                      | block_opencast |
-      | series_name_1       | Course_Series_[COURSEID]                                      | block_opencast |
-      | enablechunkupload_1 | 0                                                             | block_opencast |
-      | workflow_roles_1    | republish-metadata                                            | block_opencast |
+      | limituploadjobs_1   | 0                                                             | tool_opencast |
+      | group_creation_1    | 0                                                             | tool_opencast |
+      | group_name_1        | Moodle_course_[COURSEID]                                      | tool_opencast |
+      | series_name_1       | Course_Series_[COURSEID]                                      | tool_opencast |
+      | enablechunkupload_1 | 0                                                             | tool_opencast |
+      | workflow_roles_1    | republish-metadata                                            | tool_opencast |
     And I setup the opencast test api
     And I upload a testvideo
     And I log in as "admin"
@@ -73,7 +73,7 @@ Feature: Manage series as Teacher
   Scenario: Teachers should not be able to create/import series if the maximum number of series is reached
     Given the following config values are set as admin:
       | config      | value | plugin         |
-      | maxseries_1 | 1     | block_opencast |
+      | maxseries_1 | 1     | tool_opencast |
     When I am on the "C1" "Course" page logged in as "teacher1"
     And I click on "Go to overview..." "link"
     And I click on "Manage series" "link"
@@ -150,7 +150,7 @@ Feature: Manage series as Teacher
   Scenario: Import a series to a course is only possible when the teacher has the capability to do so in any of the mapped courses to a series
     Given the following config values are set as admin:
       | config      | value | plugin         |
-      | maxseries_1 | 2     | block_opencast |
+      | maxseries_1 | 2     | tool_opencast |
     And I am on "Course 2" course homepage with editing mode on
     And I add the "Opencast Videos" block
     And I click on "Go to overview..." "link"

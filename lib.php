@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_opencast\local\apibridge;
-use block_opencast\local\series_form;
+use tool_opencast\local\apibridge;
+use tool_opencast\local\series_form;
 use tool_opencast\seriesmapping;
 
 /**
@@ -61,9 +61,9 @@ function block_opencast_output_fragment_series_form($args) {
 
     list($ignored, $course) = get_context_info_array($context->id);
 
-    require_capability('block/opencast:createseriesforcourse', $context);
+    require_capability('tool/opencast:createseriesforcourse', $context);
 
-    $metadatacatalog = json_decode(get_config('block_opencast', 'metadataseries_' . $args->ocinstanceid));
+    $metadatacatalog = json_decode(get_config('tool_opencast', 'metadataseries_' . $args->ocinstanceid));
     // Make sure $metadatacatalog is array.
     $metadatacatalog = !empty($metadatacatalog) ? $metadatacatalog : [];
     if ($formdata) {
