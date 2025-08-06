@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: issue-418-500
+      branch-tool-plugin: main
       branch-mod-plugin: upgrade-500
-      branch-opencast-docker-default: 16.7
+      branch-opencast-docker-default: 17.1
