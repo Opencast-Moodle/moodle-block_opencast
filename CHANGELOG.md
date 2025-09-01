@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+5.0.1 (2025-09-01)
+------------------
+* [CHANGE] upgrade.php: make sure to run upgrade job for version 5.0
+
+
 5.0.0 (2025-08-01)
 ------------------
 * [FEATURE] The Opencast Course Overview is now accessible via the course navigation bar
