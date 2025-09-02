@@ -1001,10 +1001,20 @@ function xmldb_block_opencast_upgrade($oldversion) {
 
         // Changes for migrating most of the block admin setting to tool in version 5.
 
-        // Migrate settings.
-        $DB->execute("UPDATE {config_plugins} SET plugin='tool_opencast'
-            WHERE plugin = 'block_opencast' AND name != 'version' AND name NOT LIKE '%limitvideos%'
-            AND name NOT LIKE '%lticonsumerkey%' AND name NOT LIKE '%lticonsumersecret%' ");
+        // Migrate admin settings in config_plugin table.
+        // Loop through records and rename the setting if not done yet.
+        $records = $DB->get_records_select('config_plugins',
+            "plugin = 'block_opencast' AND name != 'version'");
+        foreach ($records as $record) {
+            if (!$existingrecord = $DB->get_record('config_plugins', ['name' => $record->name, 'plugin' => 'tool_opencast'])) {
+                $record->plugin = 'tool_opencast';
+                $DB->update_record('config_plugins', $record);
+            } else {
+                $existingrecord->value = $record->value;
+                $DB->update_record('config_plugins', $existingrecord);
+                $DB->delete_records('config_plugins', ['name' => $record->name, 'plugin' => 'block_opencast']);
+            }
+        }
 
         // Migrate tables.
         $tableuploadjob = new xmldb_table('block_opencast_uploadjob');
