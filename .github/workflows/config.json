@@ -1,11 +1,11 @@
 {
   "main-moodle": "MOODLE_405_STABLE",
   "main-php": "8.3",
-  "main-oc": "17.1",
-  "ocs": ["17.1", "16.7", "15.11"],
+  "main-oc": "17.8",
+  "ocs": ["18.1", "17.8", "16.7", "15.11"],
   "main-db": "mariadb",
   "moodle-php": {
     "MOODLE_405_STABLE": ["8.1", "8.2"]
   },
-  "moodle-plugin-ci": "4.4.5"
+  "moodle-plugin-ci": "4.5.8"
 }
