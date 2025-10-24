@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+4.5.6 (2025-10-24)
+------------------
+* [FIX] Fix unit test upload
+
+
 4.5.4 (2025-08-01)
 ------------------
 * [FIX] #421 Behat fixes: adding new parameters in api calls
