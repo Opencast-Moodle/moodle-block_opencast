@@ -146,6 +146,8 @@ final class upload_test extends advanced_testcase {
             }
         } while (!$isuploaded);
 
+        $this->assertEquals(true, $isuploaded, 'Video was not uploaded after reaching the maximum number of retries.');
+
         // Check if video was uploaded.
         $videos = $apibridge->get_course_videos($course->id);
 
@@ -229,7 +231,7 @@ final class upload_test extends advanced_testcase {
      */
     private function notest_ensure_video_processed($identifier, $apibridge) {
         $isprocessed = false;
-        $limiter = 15;
+        $limiter = 40;
         $counter = 0;
         do {
             $isprocessed = $this->notest_check_processed_video($identifier, $apibridge);
