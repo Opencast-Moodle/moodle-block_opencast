@@ -2,10 +2,9 @@
   "main-moodle": "MOODLE_500_STABLE",
   "main-php": "8.4",
   "main-oc": "17.8",
-  "ocs": ["18.1", "17.8", "16.7", "15.11"],
+  "ocs": ["19.0", "18.1", "17.8", "16.7"],
   "main-db": "mariadb",
   "moodle-php": {
-    "MOODLE_500_STABLE": ["8.2", "8.3", "8.4"],
     "MOODLE_501_STABLE": ["8.2", "8.3", "8.4"]
   },
   "moodle-plugin-ci": "4.5.8"
