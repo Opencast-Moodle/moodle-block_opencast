@@ -61,9 +61,8 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class apibridge {
-
     /** @var int Opencast instance id */
-    private $ocinstanceid;
+    protected $ocinstanceid;
 
     /** @var string[] Placeholders related to users. */
     private static $userplaceholders = ['[USERNAME]', '[USERNAME_LOW]', '[USERNAME_UP]', '[USER_EMAIL]', '[USER_EXTERNAL_ID]'];
@@ -363,6 +362,13 @@ class apibridge {
 
             $videos = $response['body'];
 
+            // JWT injection to the publication.
+            foreach ($videos as &$video) {
+                if (property_exists($video, 'publications')) {
+                    $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+                }
+            }
+
             if (!empty($videos)) {
                 $allvideos = array_merge($allvideos, $videos);
             }
@@ -473,6 +479,13 @@ class apibridge {
             }
         }
 
+        // JWT injection to the publication.
+        foreach ($videos as &$video) {
+            if (property_exists($video, 'publications')) {
+                $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+            }
+        }
+
         $result->videos = $videos;
 
         return $result;
@@ -572,6 +585,11 @@ class apibridge {
                 $media = $response['body'];
             }
             $video->media = $media;
+        }
+
+        // JWT injection to the publication.
+        if (property_exists($video, 'publications')) {
+            $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
         }
 
         $result->video = $video;
@@ -2380,6 +2398,13 @@ class apibridge {
         if ($response['code'] == 200) {
             if (!$videos = $response['body']) {
                 return $result;
+            }
+
+            // JWT injection to the publication.
+            foreach ($videos as &$video) {
+                if (property_exists($video, 'publications')) {
+                    $this->api->jwtservice->attach_jwt_to_event_publication_urls($video->publications, $video->identifier);
+                }
             }
 
             $result->videos = $videos;

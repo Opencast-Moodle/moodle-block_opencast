@@ -24,6 +24,12 @@
 
 namespace block_opencast;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/tool_opencast_test_type_helper.php');
+
 use advanced_testcase;
 use block_opencast\local\apibridge;
 use block_opencast\local\upload_helper;
@@ -32,10 +38,7 @@ use coding_exception;
 use context_course;
 use dml_exception;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
+use tool_opencast_test_type_helper;
 
 /**
  * Unit tests for the block_opencast implementation of the video upload.
@@ -46,8 +49,6 @@ global $CFG;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class upload_test extends advanced_testcase {
-
-
     /** @var string Test api url. */
     private $apiurl = 'http://127.0.0.1:8080';
     /** @var string Test api username. */
@@ -58,6 +59,16 @@ final class upload_test extends advanced_testcase {
     private $apitimeout = 2000;
     /** @var int the curl connecttimeout in milliseconds */
     private $apiconnecttimeout = 1000;
+
+    /**
+     * Overriding setUp() function to always check the test type.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        if (!tool_opencast_test_type_helper::is_legacy_test()) {
+            $this->markTestSkipped('Skipping upload tests because of the targeted test type does not match!');
+        }
+    }
 
     /**
      * Test, whether the plugin is properly installed.

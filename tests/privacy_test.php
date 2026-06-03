@@ -25,6 +25,12 @@
 
 namespace block_opencast;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/tool_opencast_test_type_helper.php');
+
 use block_opencast\local\upload_helper;
 use context_course;
 use core_privacy\local\metadata\collection;
@@ -35,6 +41,7 @@ use core_privacy\local\request\approved_contextlist;
 use block_opencast\privacy\provider;
 use core_privacy\tests\provider_testcase;
 use stdClass;
+use tool_opencast_test_type_helper;
 
 /**
  * Unit tests for the block_opencast implementation of the privacy API.
@@ -44,13 +51,15 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class privacy_test extends provider_testcase {
-
-
     /**
-     * Overriding setUp() function to always reset after tests.
+     * Overriding setUp() function to always reset after tests and check the test type.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest(true);
+        if (!tool_opencast_test_type_helper::is_legacy_test()) {
+            $this->markTestSkipped('Skipping privacy tests because of the targeted test type does not match!');
+        }
     }
 
     /**

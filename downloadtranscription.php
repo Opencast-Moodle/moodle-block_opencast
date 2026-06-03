@@ -115,7 +115,12 @@ foreach ($result->video->publications as $publication) {
 
 // Here in order to have the right downloadable url for media, we need to find it from video media data.
 // This case happens when using LTI and redirecting to assets/assets, otherwise it displays the file.
-if ($domain === 'media' && !empty($result->video->media) && !empty($publicationmedia)) {
+if (
+    $domain === 'media' &&
+    !empty($result->video->media) &&
+    !empty($publicationmedia) &&
+    !$apibridge->api->jwtservice->is_enabled()
+) {
     foreach ($result->video->media as $track) {
         if ($track->mimetype == $publicationmedia->mediatype &&
             $track->flavor == $publicationmedia->flavor &&
@@ -142,7 +147,8 @@ $consumersecret = $apibridge->get_lti_consumersecret();
 // We set a flag to determine whether we should perform LTI authentication.
 $performlti = true;
 // If no key is provided, we proceed with no LTI authentication.
-if (empty($consumerkey)) {
+// We also forcefully turn off the LTI when JWT is activated.
+if (empty($consumerkey) || $apibridge->api->jwtservice->is_enabled()) {
     $performlti = false;
 }
 
@@ -170,13 +176,14 @@ if ($performlti) {
     echo $OUTPUT->footer();
 } else {
     ob_clean();
-    $urlparts = explode('/', $downloadurl);
-    $filename = $urlparts[count($urlparts) - 1];
+    $filename = basename(parse_url($downloadurl, PHP_URL_PATH));
 
     header('Content-Description: Download Transcription File');
     header('Content-Type: ' . $mimetype);
     header('Content-Disposition: attachment; filename*=UTF-8\'\'' . rawurlencode($filename));
-    header('Content-Length: ' . $size);
+    if (is_numeric($size) && $size > 0) {
+        header('Content-Length: ' . $size);
+    }
 
     if (is_https()) { // HTTPS sites - watch out for IE! KB812935 and KB316431.
         header('Cache-Control: private, max-age=10, no-transform');
