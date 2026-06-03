@@ -29,7 +29,7 @@
  * @author     Farbod Zamani Boroujeni <zamani@elan-ev.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_opencast_test_type_helper {
+class block_opencast_test_type_helper {
     /** @var string JWT test type. */
     public const JWT_TEST_TYPE = 'jwt';
     /** @var string Legacy test type. */

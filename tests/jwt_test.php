@@ -28,13 +28,13 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/blocks/opencast/tests/helper/tool_opencast_test_type_helper.php');
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/block_opencast_test_type_helper.php');
 
 use advanced_testcase;
 use block_opencast\local\apibridge;
 use tool_opencast\local\jwt_service;
 use OpencastApi\Util\OcUtils;
-use tool_opencast_test_type_helper;
+use block_opencast_test_type_helper;
 use block_opencast_renderer;
 
 /**
@@ -70,7 +70,7 @@ AwEHoUQDQgAENN9jCcHjZ8pCxPeM+rYSDlZm0OCLvTYdldHfs0zG4pks/NASlitO
      */
     public function setUp(): void {
         parent::setUp();
-        if (!tool_opencast_test_type_helper::is_jwt_test()) {
+        if (!block_opencast_test_type_helper::is_jwt_test()) {
             $this->markTestSkipped('Skipping JWT tests because of the targeted test type does not match!');
         }
     }

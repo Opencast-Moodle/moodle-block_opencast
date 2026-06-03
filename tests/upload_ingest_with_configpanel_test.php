@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/blocks/opencast/tests/helper/tool_opencast_test_type_helper.php');
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/block_opencast_test_type_helper.php');
 
 use advanced_testcase;
 use block_opencast\local\apibridge;
@@ -38,7 +38,7 @@ use coding_exception;
 use context_course;
 use dml_exception;
 use stdClass;
-use tool_opencast_test_type_helper;
+use block_opencast_test_type_helper;
 
 /**
  * Test Upload video with ingest and user defined configuration panel.
@@ -64,7 +64,7 @@ final class upload_ingest_with_configpanel_test extends advanced_testcase {
      */
     public function setUp(): void {
         parent::setUp();
-        if (!tool_opencast_test_type_helper::is_legacy_test()) {
+        if (!block_opencast_test_type_helper::is_legacy_test()) {
             $this->markTestSkipped('Skipping upload with ingest tests because of the targeted test type does not match!');
         }
     }

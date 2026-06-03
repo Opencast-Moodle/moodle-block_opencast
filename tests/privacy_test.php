@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/blocks/opencast/tests/helper/tool_opencast_test_type_helper.php');
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/block_opencast_test_type_helper.php');
 
 use block_opencast\local\upload_helper;
 use context_course;
@@ -41,7 +41,7 @@ use core_privacy\local\request\approved_contextlist;
 use block_opencast\privacy\provider;
 use core_privacy\tests\provider_testcase;
 use stdClass;
-use tool_opencast_test_type_helper;
+use block_opencast_test_type_helper;
 
 /**
  * Unit tests for the block_opencast implementation of the privacy API.
@@ -57,7 +57,7 @@ final class privacy_test extends provider_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        if (!tool_opencast_test_type_helper::is_legacy_test()) {
+        if (!block_opencast_test_type_helper::is_legacy_test()) {
             $this->markTestSkipped('Skipping privacy tests because of the targeted test type does not match!');
         }
     }
