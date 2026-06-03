@@ -363,9 +363,11 @@ class apibridge {
             $videos = $response['body'];
 
             // JWT injection to the publication.
-            foreach ($videos as &$video) {
-                if (property_exists($video, 'publications')) {
-                    $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+            if ($this->api?->jwtservice?->is_enabled() ?? false) {
+                foreach ($videos as &$video) {
+                    if (property_exists($video, 'publications')) {
+                        $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+                    }
                 }
             }
 
@@ -480,9 +482,11 @@ class apibridge {
         }
 
         // JWT injection to the publication.
-        foreach ($videos as &$video) {
-            if (property_exists($video, 'publications')) {
-                $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+        if ($this->api?->jwtservice?->is_enabled() ?? false) {
+            foreach ($videos as &$video) {
+                if (property_exists($video, 'publications')) {
+                    $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
+                }
             }
         }
 
@@ -588,7 +592,10 @@ class apibridge {
         }
 
         // JWT injection to the publication.
-        if (property_exists($video, 'publications')) {
+        if (
+            property_exists($video, 'publications') &&
+            ($this->api?->jwtservice?->is_enabled() ?? false)
+        ) {
             $this->api->jwtservice->attach_jwt_to_event_publication_urls($video, $video->identifier);
         }
 
@@ -2401,9 +2408,11 @@ class apibridge {
             }
 
             // JWT injection to the publication.
-            foreach ($videos as &$video) {
-                if (property_exists($video, 'publications')) {
-                    $this->api->jwtservice->attach_jwt_to_event_publication_urls($video->publications, $video->identifier);
+            if ($this->api?->jwtservice?->is_enabled() ?? false) {
+                foreach ($videos as &$video) {
+                    if (property_exists($video, 'publications')) {
+                        $this->api->jwtservice->attach_jwt_to_event_publication_urls($video->publications, $video->identifier);
+                    }
                 }
             }
 

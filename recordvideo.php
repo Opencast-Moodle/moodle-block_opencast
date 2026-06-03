@@ -69,7 +69,7 @@ if (strpos($endpoint, 'http') !== 0) {
     $endpoint = 'http://' . $endpoint;
 }
 
-if ($apibridge->api->jwtservice->is_enabled()) {
+if ($apibridge->api?->jwtservice?->is_enabled() ?? false) {
     $targeturl = rtrim($endpoint, '/') . $studiourlpath;
     $jwt = $apibridge->api->jwtservice->issue_jwt_for_ext_service_studio();
     echo $apibridge->api->jwtservice->get_jwt_redirect_form($jwt, $targeturl);

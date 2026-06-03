@@ -86,7 +86,7 @@ if ((empty($editorbaseurl) || empty($editorendpoint) ||
     redirect($redirecturl, get_string('videoeditorinvalidconfig', 'block_opencast'), null, notification::NOTIFY_ERROR);
 }
 
-if ($opencast->api->jwtservice->is_enabled()) {
+if ($opencast->api?->jwtservice?->is_enabled() ?? false) {
     $jwt = $opencast->api->jwtservice->issue_jwt_for_ext_service_editor();
     $targeturl = $editorbaseurl . $editorendpoint;
     echo $opencast->api->jwtservice->get_jwt_redirect_form($jwt, $targeturl);

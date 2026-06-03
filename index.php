@@ -301,7 +301,10 @@ if (has_capability('block/opencast:addvideo', $coursecontext) && $SITE->id != $c
 
         // If LTI credentials are given or JWT is enabled, redirect ot recordvideo page.
         // If not, directly forward to Opencast studio.
-        if (empty($apibridge->get_lti_consumerkey()) || !$apibridge->api->jwtservice->is_enabled()) {
+        if (
+            empty($apibridge->get_lti_consumerkey()) ||
+            !($apibridge->api?->jwtservice?->is_enabled() ?? false)
+        ) {
             if (empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
                 $endpoint = settings_api::get_apiurl($ocinstanceid);
             } else {

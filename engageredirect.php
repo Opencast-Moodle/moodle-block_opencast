@@ -62,7 +62,7 @@ $url = $endpoint . '/play/' . $identifier;
 
 $opencast = apibridge::get_instance($ocinstanceid);
 
-if ($opencast->api->jwtservice->is_enabled()) {
+if ($opencast->api?->jwtservice?->is_enabled() ?? false) {
     $urlwithaccesstoken = $opencast->api->jwtservice->attach_jwt_url_param_event($url, $identifier);
     redirect($urlwithaccesstoken);
 }
