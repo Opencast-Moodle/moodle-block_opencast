@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ModalCancel from 'core/modal_canel';
+import ModalCancel from 'core/modal_cancel';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Prefetch from "core/prefetch";
