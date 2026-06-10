@@ -234,7 +234,7 @@ class block_opencast extends block_base {
                     $deleteaction->attributes['class'] .= ' block_opencast_delete';
                 }
                 $bc->controls[$index] = $deleteaction;
-                $deleteurl = new moodle_url('/course/view.php', [
+                $deleteurl = new moodle_url($this->page->url, [
                         'id' => $COURSE->id,
                         'bui_deleteid' => $this->instance->id,
                         'bui_confirm' => 1,
