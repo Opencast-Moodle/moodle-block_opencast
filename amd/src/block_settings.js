@@ -23,7 +23,7 @@
 
 import Tabulator from 'block_opencast/tabulator';
 import $ from 'jquery';
-import ModalFactory from 'core/modal_factory';
+import ModalSaveCancel from 'core/modal_save_cancel';
 import ModalEvents from 'core/modal_events';
 import * as str from 'core/str';
 import Notification from 'core/notification';
@@ -90,8 +90,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
                         cellClick: function(e, cell) {
-                            ModalFactory.create({
-                                type: ModalFactory.types.SAVE_CANCEL,
+                            ModalSaveCancel.create({
                                 title: jsstrings[17],
                                 body: jsstrings[18]
                             })
@@ -183,8 +182,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                         return '<i class="icon fa fa-trash fa-fw"></i>';
                     },
                     cellClick: function(e, cell) {
-                        ModalFactory.create({
-                            type: ModalFactory.types.SAVE_CANCEL,
+                        ModalSaveCancel.create({
                             title: jsstrings[3],
                             body: jsstrings[4]
                         })
@@ -365,8 +363,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
                     cellClick: function(e, cell) {
-                        ModalFactory.create({
-                            type: ModalFactory.types.SAVE_CANCEL,
+                        ModalSaveCancel.create({
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
@@ -529,8 +526,7 @@ export const init = (rolesinputid, metadatainputid, metadataseriesinputid, trans
                             return '<i class="icon fa fa-trash fa-fw"></i>';
                         },
                     cellClick: function(e, cell) {
-                        ModalFactory.create({
-                            type: ModalFactory.types.SAVE_CANCEL,
+                        ModalSaveCancel.create({
                             title: jsstrings[5],
                             body: jsstrings[6]
                         })
