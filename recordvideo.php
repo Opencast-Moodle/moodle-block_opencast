@@ -51,6 +51,14 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->set_title(get_string('recordvideo', 'block_opencast'));
 $PAGE->set_heading(get_string('pluginname', 'block_opencast'));
 
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
+
+$apibridge = apibridge::get_instance($ocinstanceid);
+// Get series ID, create a new one if necessary.
+$seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+// Get Studio url path to insert as studiourlpath.
+$studiourlpath = $apibridge->generate_studio_url_path($courseid, $seriesid);
 $endpoint = settings_api::get_apiurl($ocinstanceid);
 
 if (!empty(get_config('block_opencast', 'opencast_studio_baseurl_' . $ocinstanceid))) {
@@ -61,26 +69,22 @@ if (strpos($endpoint, 'http') !== 0) {
     $endpoint = 'http://' . $endpoint;
 }
 
-$ltiendpoint = rtrim($endpoint, '/') . '/lti';
+if ($apibridge->api?->jwtservice?->is_enabled() ?? false) {
+    $targeturl = rtrim($endpoint, '/') . $studiourlpath;
+    $jwt = $apibridge->api->jwtservice->issue_jwt_for_ext_service_studio();
+    echo $apibridge->api->jwtservice->get_jwt_redirect_form($jwt, $targeturl);
+} else {
+    $ltiendpoint = rtrim($endpoint, '/') . '/lti';
+    // Create parameters.
+    $consumerkey = $apibridge->get_lti_consumerkey();
+    $consumersecret = $apibridge->get_lti_consumersecret();
+    $params = lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $studiourlpath);
 
-$apibridge = apibridge::get_instance($ocinstanceid);
+    $renderer = $PAGE->get_renderer('block_opencast');
 
-// Get series ID, create a new one if necessary.
-$seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
+    echo $renderer->render_lti_form($ltiendpoint, $params);
 
-// Get Studio url path to insert as customtool.
-$customtool = $apibridge->generate_studio_url_path($courseid, $seriesid);
+    $PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
+}
 
-// Create parameters.
-$consumerkey = $apibridge->get_lti_consumerkey();
-$consumersecret = $apibridge->get_lti_consumersecret();
-$params = lti_helper::create_lti_parameters($consumerkey, $consumersecret, $ltiendpoint, $customtool);
-
-$renderer = $PAGE->get_renderer('block_opencast');
-
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('recordvideo', 'block_opencast'));
-echo $renderer->render_lti_form($ltiendpoint, $params);
-
-$PAGE->requires->js_call_amd('block_opencast/block_lti_form_handler', 'init');
 echo $OUTPUT->footer();

@@ -27,9 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/block_opencast_test_type_helper.php');
+
 use advanced_testcase;
 use block_opencast\local\file_deletionmanager;
 use block_opencast\local\file_system_filedir;
+use block_opencast_test_type_helper;
 
 /**
  * Test class for the block opencast.
@@ -40,7 +43,15 @@ use block_opencast\local\file_system_filedir;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class delete_file_test extends advanced_testcase {
-
+    /**
+     * Overriding setUp() function to always check the test type.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        if (!block_opencast_test_type_helper::is_legacy_test()) {
+            $this->markTestSkipped('Skipping delete file tests because of the targeted test type does not match!');
+        }
+    }
 
     /**
      * Test how trash deletion works.

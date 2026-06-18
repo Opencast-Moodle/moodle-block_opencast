@@ -71,7 +71,7 @@ class addtranscription_form extends moodleform {
             }
         }
 
-        // Preparing languages
+        // Preparing languages.
         $languagesconfig = get_config('block_opencast', 'transcriptionlanguages_' . $ocinstanceid);
         $languagesarray = json_decode($languagesconfig);
         foreach ($languagesarray as $language) {

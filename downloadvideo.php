@@ -75,7 +75,9 @@ if (!$result->error) {
             throw new coding_exception('Publication could not be found!');
         }
 
-        $filename = $video->title . '.' . pathinfo($downloadurl, PATHINFO_EXTENSION);
+        $basename = basename(parse_url($downloadurl, PHP_URL_PATH));
+
+        $filename = $video->title . '.' . pathinfo($basename, PATHINFO_EXTENSION);
 
         header('Content-Description: Download Video');
         header('Content-Type: ' . $mimetype);

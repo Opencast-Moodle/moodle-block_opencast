@@ -56,6 +56,9 @@ if ($CFG->version < 2023042400) {
     require_once($CFG->dirroot . '/lib/cronlib.php');
 }
 require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
+require_once($CFG->dirroot . '/blocks/opencast/tests/helper/block_opencast_test_type_helper.php');
+
+use block_opencast_test_type_helper;
 
 /**
  * Testcase for backup and restore of block_opencast.
@@ -89,6 +92,9 @@ final class backup_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         apibridge::set_testing(true);
+        if (!block_opencast_test_type_helper::is_legacy_test()) {
+            $this->markTestSkipped('Skipping backup tests because of the targeted test type does not match!');
+        }
     }
 
     public function tearDown(): void {
