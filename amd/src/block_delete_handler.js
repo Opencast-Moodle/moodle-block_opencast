@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import ModalFactory from 'core/modal_factory';
+import ModalCancel from 'core/modal_cancel';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Prefetch from "core/prefetch";
@@ -39,8 +39,7 @@ export const init = (contextid, deleteurl) => {
             deleteblockurl: deleteurl
         });
 
-        const modal = await ModalFactory.create({
-            type: ModalFactory.types.CANCEL,
+        const modal = await ModalCancel.create({
             body: html,
             title: await get_string('deletecheck_title_modal', 'block_opencast'),
             large: true
