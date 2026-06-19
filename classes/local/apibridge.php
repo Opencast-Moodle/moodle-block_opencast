@@ -1766,7 +1766,9 @@ class apibridge {
         $configuration = isset($params['configuration']) ? $params['configuration'] : [];
         $withoperations = isset($params['withoperations']) ? $params['withoperations'] : false;
         $withconfiguration = isset($params['withconfiguration']) ? $params['withconfiguration'] : false;
-        $response = $this->api->opencastapi->workflowsApi->run(
+        // The workflow might take awhile to start, especially if the Opencast system is under heavy load.
+        // Therefore, we set the timeout to 0 here to prevent timeouts of the request.
+        $response = $this->api->opencastapi->workflowsApi->setRequestTimeout(0)->run(
             $eventid,
             $workflow,
             $configuration,
