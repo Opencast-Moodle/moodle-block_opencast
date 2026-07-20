@@ -159,6 +159,7 @@ AwEHoUQDQgAENN9jCcHjZ8pCxPeM+rYSDlZm0OCLvTYdldHfs0zG4pks/NASlitO
         set_config('jwt_enabled_1', $jwtenabled ? 1 : 0, 'tool_opencast');
         set_config('jwt_privatekey_1', $this->jwtprivatekey, 'tool_opencast');
         set_config('jwt_algorithm_1', jwt_service::CONFIGS_DEFAULT_ALGORITHM, 'tool_opencast');
+        set_config('jwt_playeriframeurl_1', 'http://localhost:8080/paella7/ui/watch.html', 'tool_opencast');
         $config = get_config('tool_opencast');
         $this->assertNotEmpty($config);
     }
@@ -245,11 +246,17 @@ AwEHoUQDQgAENN9jCcHjZ8pCxPeM+rYSDlZm0OCLvTYdldHfs0zG4pks/NASlitO
         // Return the user back to Teacher.
         $this->setUser($teacher);
 
+        // First, test if the iframe url is valid and reachable.
+        $iframesrc = $apibridge->api->jwtservice->prepare_iframe_source_url(1, $video->identifier);
+        $srcheaders = @get_headers($iframesrc);
+        $issrcreachable = $srcheaders && str_contains($srcheaders[0], '200');
+        $this->assertTrue($issrcreachable, 'Generated iframe source is not reachable!');
+
+        // Then, we get the iframe player html.
         $iframehtml = $apibridge->api->jwtservice->get_jwt_iframe_player_html(
             1,
             $video->identifier,
-            [],
-            $this->apiurl
+            []
         );
         $this->assertNotEmpty($iframehtml, 'Unable to generate iframe html!');
 
@@ -343,11 +350,17 @@ AwEHoUQDQgAENN9jCcHjZ8pCxPeM+rYSDlZm0OCLvTYdldHfs0zG4pks/NASlitO
         // Return the user back to Teacher.
         $this->setUser($teacher);
 
+        // First, test if the iframe url is valid and reachable.
+        $iframesrc = $apibridge->api->jwtservice->prepare_iframe_source_url(1, $video->identifier);
+        $srcheaders = @get_headers($iframesrc);
+        $issrcreachable = $srcheaders && str_contains($srcheaders[0], '200');
+        $this->assertTrue($issrcreachable, 'Generated iframe source is not reachable!');
+
+        // Then, we get the iframe player html.
         $iframehtml = $apibridge->api->jwtservice->get_jwt_iframe_player_html(
             1,
             $video->identifier,
-            [],
-            $this->apiurl
+            []
         );
         $this->assertFalse($iframehtml, 'Iframe html must be false!');
 
