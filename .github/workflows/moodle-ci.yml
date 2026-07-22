@@ -12,7 +12,7 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: jwt_405 # To test only for this branch
+      branch-tool-plugin: MOODLE_405_STABLE
       branch-mod-plugin: MOODLE_405_STABLE
       branch-opencast-docker-default: 17.8
       perform-jwt-tests: true

@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+4.5.7 (2026-07-22)
+------------------
+* [FEATURE] #440 Integrate JWT authentication core and tests
+
+
 4.5.6 (2025-10-24)
 ------------------
 * [FIX] Fix unit test upload
