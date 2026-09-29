@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+5.2.0 (2026-09-29)
+------------------
+* Moodle 5.2 compatible version
+* Delete dead code and unused language strings
+* Use core hook api for deleted course hook
+
 5.1.0 (2026-01-17)
 ------------------
 * Moodle 5.1 compatible version
