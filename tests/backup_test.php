@@ -35,7 +35,6 @@ use tool_opencast\task\process_duplicated_event_module_fix;
 use tool_opencast\local\activitymodulemanager;
 use tool_opencast\local\ltimodulemanager;
 use mod_opencast\local\opencasttype;
-use block_opencast_apibridge_testable;
 use coding_exception;
 use context_course;
 use core\cron;
@@ -47,6 +46,7 @@ use restore_controller;
 use restore_dbops;
 use stdClass;
 use tool_opencast\seriesmapping;
+use tool_opencast_apibridge_testable;
 
 global $CFG;
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -55,7 +55,6 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 if ($CFG->version < 2023042400) {
     require_once($CFG->dirroot . '/lib/cronlib.php');
 }
-require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.php');
 
 /**
  * Testcase for backup and restore of block_opencast.
@@ -427,7 +426,7 @@ final class backup_test extends advanced_testcase {
         $course = $DB->get_record('course', ['id' => $a->courseid]);
         $a->coursefullname = $course->fullname;
         $a->taskid = $taskrecord->id;
-        $a->duplicateworkflow = block_opencast_apibridge_testable::DUPLICATE_WORKFLOW;
+        $a->duplicateworkflow = tool_opencast_apibridge_testable::DUPLICATE_WORKFLOW;
 
         $output = $this->execute_adhoc_task($taskrecord);
         $this->assertIsString($output);

@@ -34,15 +34,6 @@ use tool_opencast\local\settings_api;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
-    /** @var int Video is visible for students */
-    const VISIBLE = 1;
-    /** @var int Video is visible for some students */
-    const MIXED_VISIBILITY = 3;
-    /** @var int Video is hidden for students */
-    const HIDDEN = 0;
-    /** @var int Video is visible for groups of students. */
-    const GROUP = 2;
-
     /**
      * Render the icon for opencast processing state
      *
