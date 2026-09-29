@@ -59,7 +59,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'failed',
                     $tooltip,
                     'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'PLANNED':
                 $tooltip = get_string('planned', 'block_opencast');
@@ -67,7 +67,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'c/event',
                     get_string('planned', 'block_opencast'),
                     'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'CAPTURING':
                 $tooltip = get_string('ocstatecapturing', 'block_opencast');
@@ -75,7 +75,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'capturing',
                     get_string('ocstatecapturing', 'block_opencast'),
                     'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'NEEDSCUTTING':
                 $tooltip = get_string('ocstateneedscutting', 'block_opencast');
@@ -83,7 +83,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'e/cut',
                     get_string('ocstateneedscutting', 'block_opencast'),
                     'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'DELETING':
                 $tooltip = get_string('deleting', 'block_opencast');
@@ -91,7 +91,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     't/delete',
                     get_string('deleting', 'block_opencast'),
                     'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'RUNNING':
             case 'PAUSED':
@@ -100,7 +100,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'i/loading_small',
                     get_string('ocstateprocessing', 'block_opencast'),
                     'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
             case 'SUCCEEDED':
             default:
@@ -109,7 +109,7 @@ class block_opencast_renderer extends plugin_renderer_base {
                     'succeeded',
                     get_string('ocstatesucceeded', 'block_opencast'),
                     'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                    ['data-bs-toggle' => 'tooltip', 'data-bs-placement' => 'top', 'title' => $tooltip]
                 );
         }
     }
