@@ -12,6 +12,6 @@ jobs:
     with:
       requires-tool-plugin: true
       requires-mod-plugin: true
-      branch-tool-plugin: MOODLE_501_STABLE
+      branch-tool-plugin: MOODLE_502_STABLE
       branch-mod-plugin: MOODLE_501_STABLE
-      branch-opencast-docker-default: 17.1
+      branch-opencast-docker-default: 18.1
