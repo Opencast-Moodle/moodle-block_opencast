@@ -427,7 +427,7 @@ final class backup_test extends advanced_testcase {
 
         $output = $this->execute_adhoc_task($taskrecord);
         $this->assertIsString($output);
-        $this->assertStringContainsString(get_string($expectederrortextkey, 'block_opencast', $a), $output);
+        $this->assertStringContainsString(get_string($expectederrortextkey, 'tool_opencast', $a), $output);
 
         // Task is not deleted and countfailed sould be increased.
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
@@ -602,7 +602,7 @@ final class backup_test extends advanced_testcase {
 
         $messages = $sink->get_messages();
         $message = array_shift($messages);
-        $this->assertEquals(get_string('erroremailsubj', 'block_opencast'), $message->subject);
+        $this->assertEquals(get_string('erroremailsubj', 'tool_opencast'), $message->subject);
 
         $taskrecords = $DB->get_records('task_adhoc', ['classname' => '\\tool_opencast\\task\\process_duplicate_event']);
         $this->assertEquals(0, count($taskrecords));
@@ -655,12 +655,12 @@ final class backup_test extends advanced_testcase {
         $this->assertEquals(0, count($tasks));
 
         $errormessage = ob_get_clean();
-        $this->assertEquals(get_string('seriesnotcreated', 'block_opencast'), $errormessage);
+        $this->assertEquals(get_string('seriesnotcreated', 'tool_opencast'), $errormessage);
 
         $messages = $sink->get_messages();
         $message = array_shift($messages);
 
-        $this->assertEquals(get_string('errorrestoremissingseries_subj', 'block_opencast'), $message->subject);
+        $this->assertEquals(get_string('errorrestoremissingseries_subj', 'tool_opencast'), $message->subject);
 
         // Enable series creation, but delete existing events so restore should fail
         // events are not found on opencast server.
@@ -677,7 +677,7 @@ final class backup_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $message = array_shift($messages);
 
-        $this->assertEquals(get_string('errorrestoremissingevents_subj', 'block_opencast'), $message->subject);
+        $this->assertEquals(get_string('errorrestoremissingevents_subj', 'tool_opencast'), $message->subject);
 
         // Create events on opencast server, so they can be found during restore.
         $apibridge->set_testdata('get_course_videos', $course->id, 'file');
