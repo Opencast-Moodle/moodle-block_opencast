@@ -41,8 +41,6 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_block_opencast extends behat_base {
-
-
     /**
      * @var $directaccesslink string direct access link to be saved temporarily, and then be used when needed. (i.e. in the step
      * where student wants to access that link).
@@ -146,8 +144,10 @@ class behat_block_opencast extends behat_base {
             try {
                 $this->find('css', $csselement);
             } catch (ElementNotFoundException $e) {
-                throw new ExpectationException('Targeted Element to copy direct access link could not be found.',
-                    $this->getSession());
+                throw new ExpectationException(
+                    'Targeted Element to copy direct access link could not be found.',
+                    $this->getSession()
+                );
             }
             $element = $this->find('css', $csselement);
             $this->directaccesslink = $element->getAttribute('href');

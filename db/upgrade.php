@@ -33,7 +33,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
     if ($oldversion < 2017110708) {
-
         // Define table block_opencast_roles to be created.
         $table = new xmldb_table('block_opencast_roles');
 
@@ -54,7 +53,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2017110708, 'opencast');
     }
     if ($oldversion < 2018012500) {
-
         // Rename field actions on table block_opencast_roles to actions.
         $table = new xmldb_table('block_opencast_roles');
         $field = new xmldb_field('actionname', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'rolename');
@@ -69,7 +67,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018012501) {
-
         // Define table block_opencast_series to be created.
         $table = new xmldb_table('block_opencast_series');
 
@@ -92,7 +89,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018080300) {
-
         // Define table block_opencast_draftitemid to be created.
         $table = new xmldb_table('block_opencast_draftitemid');
 
@@ -118,7 +114,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018082800) {
-
         // Define table block_opencast_series to be created.
         $table = new xmldb_table('block_opencast_series');
 
@@ -159,7 +154,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018082802) {
-
         // Define table block_opencast_groupaccess to be created.
         $table = new xmldb_table('block_opencast_groupaccess');
 
@@ -183,7 +177,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019082100) {
-
         $table = new xmldb_table('block_opencast_uploadjob');
 
         // Changing nullability of field contenthash on table block_opencast_uploadjob to null.
@@ -351,7 +344,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020072101) {
-
         // Define field chunkupload_presenter to be added to block_opencast_uploadjob.
         $table = new xmldb_table('block_opencast_uploadjob');
         $field = new xmldb_field('chunkupload_presenter', XMLDB_TYPE_CHAR, '15', null, null, null, null, 'timemodified');
@@ -465,7 +457,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021051200) {
-
         // Define table block_opencast_roles to be dropped.
         $table = new xmldb_table('block_opencast_roles');
 
@@ -553,7 +544,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021062401) {
-
         // Define table block_opencast_series to be dropped.
         $table = new xmldb_table('block_opencast_series');
 
@@ -585,8 +575,10 @@ function xmldb_block_opencast_upgrade($oldversion) {
         $fieldsjoined = "('" . implode("','", $settingsfields) . "')";
 
         // Check if settings were upgraded without upgrading the plugin.
-        if ($DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles']) &&
-            $DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles_1'])) {
+        if (
+            $DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles']) &&
+            $DB->get_record('config_plugins', ['plugin' => 'block_opencast', 'name' => 'roles_1'])
+        ) {
             // Remove already upgraded settings and only keep old ones.
             $DB->execute("DELETE FROM {config_plugins} WHERE plugin='block_opencast' AND name != 'version' " .
                 "AND name not in " . $fieldsjoined);
@@ -689,7 +681,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021113000) {
-
         // Define field mediapackage to be added to block_opencast_uploadjob.
         $table = new xmldb_table('block_opencast_uploadjob');
         $field = new xmldb_field('mediapackage', XMLDB_TYPE_TEXT, null, null, null, null, null, 'chunkupload_presentation');
@@ -731,7 +722,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022022200) {
-
         // Define field id to be added to block_opencast_user_default.
         $table = new xmldb_table('block_opencast_user_default');
 
@@ -830,7 +820,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024061400) {
-
         // Define field id to be added to block_opencast_importmapping.
         $table = new xmldb_table('block_opencast_importmapping');
 
@@ -862,7 +851,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024093000) {
-
         $table = new xmldb_table('block_opencast_uploadjob');
 
         // Define field workflowconfiguration to be added to block_opencast_uploadjob.
@@ -886,7 +874,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024111103) {
-
         // Taking care of new dynamic file size limitation chunkuploader config settings.
         // First, we read all the current "uploadfilelimit" config settings if exist.
         $params = ['plugin' => 'block_opencast', 'configname' => 'uploadfilelimit%'];
@@ -998,13 +985,14 @@ function xmldb_block_opencast_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025080100) {
-
         // Changes for migrating most of the block admin setting to tool in version 5.
 
         // Migrate admin settings in config_plugin table.
         // Loop through records and rename the setting if not done yet.
-        $records = $DB->get_records_select('config_plugins',
-            "plugin = 'block_opencast' AND name != 'version'");
+        $records = $DB->get_records_select(
+            'config_plugins',
+            "plugin = 'block_opencast' AND name != 'version'"
+        );
         foreach ($records as $record) {
             if (!$existingrecord = $DB->get_record('config_plugins', ['name' => $record->name, 'plugin' => 'tool_opencast'])) {
                 $record->plugin = 'tool_opencast';
@@ -1100,7 +1088,6 @@ function xmldb_block_opencast_upgrade($oldversion) {
         }
 
         upgrade_block_savepoint(true, 2025080100, 'opencast');
-
     }
 
     return true;

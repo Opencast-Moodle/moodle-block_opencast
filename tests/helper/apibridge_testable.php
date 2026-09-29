@@ -28,8 +28,6 @@ use tool_opencast\seriesmapping;
  * Test apibridge.
  */
 class block_opencast_apibridge_testable extends apibridge {
-
-
     /** @var array register for possible function results. */
     private $register = [];
 
@@ -41,7 +39,6 @@ class block_opencast_apibridge_testable extends apibridge {
      * block_opencast_apibridge_testable constructor.
      */
     public function __construct() {
-
     }
 
     /**
@@ -148,8 +145,12 @@ class block_opencast_apibridge_testable extends apibridge {
      * @param bool $includingmedia If true, media files are included
      * @return stdClass Video
      */
-    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
-                                       bool $includingmedia = false) {
+    public function get_opencast_video(
+        $identifier,
+        bool $withpublications = false,
+        bool $withacl = false,
+        bool $includingmedia = false
+    ) {
         $result = new stdClass();
         $result->video = false;
         $result->error = 0;

@@ -27,8 +27,6 @@ use tool_opencast\local\upload_helper;
  * Generator for test data.
  */
 class block_opencast_generator extends testing_block_generator {
-
-
     /**
      * Creates a file.
      * @param null $record

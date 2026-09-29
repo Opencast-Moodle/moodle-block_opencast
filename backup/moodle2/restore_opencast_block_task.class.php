@@ -42,8 +42,6 @@ require_once($CFG->dirroot . '/blocks/opencast/backup/moodle2/settings/block_res
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_opencast_block_task extends restore_block_task {
-
-
     /**
      * Check, if it is possible to restore events into given target course.
      *
@@ -77,8 +75,11 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_settings() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new dml_exception('dmlreadexception', null,
-                "No Opencast instances are defined.");
+            throw new dml_exception(
+                'dmlreadexception',
+                null,
+                "No Opencast instances are defined."
+            );
         }
 
         foreach ($ocinstances as $ocinstance) {
@@ -114,8 +115,11 @@ class restore_opencast_block_task extends restore_block_task {
     protected function define_my_steps() {
         $ocinstances = settings_api::get_ocinstances();
         if (empty($ocinstances)) {
-            throw new dml_exception('dmlreadexception', null,
-                "No Opencast instances are defined.");
+            throw new dml_exception(
+                'dmlreadexception',
+                null,
+                "No Opencast instances are defined."
+            );
         }
 
         foreach ($ocinstances as $ocinstance) {
@@ -125,14 +129,18 @@ class restore_opencast_block_task extends restore_block_task {
                 continue;
             }
 
-            if (!$this->get_setting_value($settingname) &&
-                ($this->plan->get_mode() != backup::MODE_IMPORT)) {
+            if (
+                !$this->get_setting_value($settingname) &&
+                ($this->plan->get_mode() != backup::MODE_IMPORT)
+            ) {
                 continue;
             }
 
             // Add the restore step to collect the events, that should have been restored.
-            $this->add_step(new restore_opencast_block_structure_step('opencast_structure_' . $ocinstance->id,
-                'opencast_' . $ocinstance->id . '.xml'));
+            $this->add_step(new restore_opencast_block_structure_step(
+                'opencast_structure_' . $ocinstance->id,
+                'opencast_' . $ocinstance->id . '.xml'
+            ));
         }
     }
 
@@ -167,5 +175,4 @@ class restore_opencast_block_task extends restore_block_task {
     public static function define_decode_contents() {
         return [];
     }
-
 }

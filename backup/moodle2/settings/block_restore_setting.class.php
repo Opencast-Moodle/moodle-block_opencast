@@ -33,7 +33,6 @@ global $CFG;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_block_opencast_setting extends backup_setting {
-
     /**
      * Create an instance of this class. Note that this is used to control level and layout of this setting.
      *
@@ -45,8 +44,15 @@ class restore_block_opencast_setting extends backup_setting {
      * @param int $status Status of the setting with regards to the locking
      * @param array $attributes The arrtibutes of uisetting element
      */
-    public function __construct($name, $vtype, $value = null, $level = self::COURSE_LEVEL, $visibility = self::VISIBLE,
-        $status = self::NOT_LOCKED, $attributes = null) {
+    public function __construct(
+        $name,
+        $vtype,
+        $value = null,
+        $level = self::COURSE_LEVEL,
+        $visibility = self::VISIBLE,
+        $status = self::NOT_LOCKED,
+        $attributes = null
+    ) {
 
         // Set level.
         $this->level = $level;
@@ -81,5 +87,4 @@ class restore_block_opencast_setting extends backup_setting {
         // Set the setting ui component.
         $this->uisetting = $uisetting;
     }
-
 }
