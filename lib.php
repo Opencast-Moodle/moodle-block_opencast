@@ -59,7 +59,7 @@ function block_opencast_output_fragment_series_form($args) {
         }
     }
 
-    list($ignored, $course) = get_context_info_array($context->id);
+    [$ignored, $course] = get_context_info_array($context->id);
 
     require_capability('tool/opencast:createseriesforcourse', $context);
 

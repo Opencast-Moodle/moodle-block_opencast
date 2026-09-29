@@ -42,8 +42,6 @@ use tool_opencast\local\importvideosmanager;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_opencast_block_structure_step extends restore_structure_step {
-
-
     /** @var array Ids of the videos included in the backup. */
     private $backupeventids = [];
     /** @var array Ids of the videos that could not be found. */
@@ -133,8 +131,10 @@ class restore_opencast_block_structure_step extends restore_structure_step {
         $data = (object) $data;
 
         // Check if all required information is available.
-        if (empty($this->series) || !isset($data->import) || !isset($data->events) ||
-            empty($data->import[0]['series']) || empty($data->events['event'])) {
+        if (
+            empty($this->series) || !isset($data->import) || !isset($data->events) ||
+            empty($data->import[0]['series']) || empty($data->events['event'])
+        ) {
             // Nothing to do here, as the data is not enough.
             return;
         }
@@ -314,8 +314,11 @@ class restore_opencast_block_structure_step extends restore_structure_step {
                     }
 
                     if (!$aclchange->eventsaclchange && count($aclchange->eventsaclchange->failed) > 0) {
-                        notifications::notify_failed_events_acl_change($courseid, $this->sourcecourseid,
-                            $aclchange->eventsaclchange->failed);
+                        notifications::notify_failed_events_acl_change(
+                            $courseid,
+                            $this->sourcecourseid,
+                            $aclchange->eventsaclchange->failed
+                        );
                         return;
                     }
 

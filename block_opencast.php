@@ -31,8 +31,6 @@ use tool_opencast\seriesmapping;
  * Configuration of block_opencast.
  */
 class block_opencast extends block_base {
-
-
     /**
      * Initializes the block.
      * @throws coding_exception
@@ -78,7 +76,7 @@ class block_opencast extends block_base {
             return $this->content;
         }
 
-        $this->content = new stdClass;
+        $this->content = new stdClass();
         $this->content->text = '';
         $this->content->footer = '';
 
@@ -97,17 +95,24 @@ class block_opencast extends block_base {
         if ($parentcontext->contextlevel === CONTEXT_USER) {
             foreach ($ocinstances as $instance) {
                 if ($rendername) {
-                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
-                            ['ocinstanceid' => $instance->id]),
-                            get_string('seriesoverviewof', 'block_opencast', $instance->name)) . '<br>';
+                    $this->content->text .= html_writer::link(
+                        new moodle_url(
+                            '/admin/tool/opencast/overview.php',
+                            ['ocinstanceid' => $instance->id]
+                        ),
+                        get_string('seriesoverviewof', 'block_opencast', $instance->name)
+                    ) . '<br>';
                 } else {
-                    $this->content->text .= html_writer::link(new moodle_url('/admin/tool/opencast/overview.php',
-                        ['ocinstanceid' => $instance->id]),
-                        get_string('seriesoverview', 'block_opencast'));
+                    $this->content->text .= html_writer::link(
+                        new moodle_url(
+                            '/admin/tool/opencast/overview.php',
+                            ['ocinstanceid' => $instance->id]
+                        ),
+                        get_string('seriesoverview', 'block_opencast')
+                    );
                 }
             }
         } else {
-
             $coursecontext = context_course::instance($COURSE->id);
 
             if (!has_capability('tool/opencast:viewunpublishedvideos', $coursecontext)) {
@@ -146,8 +151,12 @@ class block_opencast extends block_base {
 
             foreach ($ocinstances as $instance) {
                 if ($instance->isvisible) {
-                    $this->content->text .= $renderer->render_block_content($COURSE->id, $videos[$instance->id],
-                        $instance, $rendername);
+                    $this->content->text .= $renderer->render_block_content(
+                        $COURSE->id,
+                        $videos[$instance->id],
+                        $instance,
+                        $rendername
+                    );
                 }
             }
         }
@@ -174,8 +183,10 @@ class block_opencast extends block_base {
         global $DB;
 
         if ($this->instance_allow_multiple() === false) {
-            $ocblockinstances = $DB->get_records('block_instances',
-                ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]);
+            $ocblockinstances = $DB->get_records(
+                'block_instances',
+                ['blockname' => 'opencast', 'parentcontextid' => $this->instance->parentcontextid]
+            );
             if (count($ocblockinstances) > 1) {
                 $idstoremove = array_keys($ocblockinstances);
                 sort($idstoremove);
@@ -211,7 +222,6 @@ class block_opencast extends block_base {
 
         // Check if the block_contents has controls.
         if (!empty($bc->controls)) {
-
             // We filter the controls to find the delete action link.
             $deleteactionfiltered = array_filter($bc->controls, function ($actionlink) {
                 // Using strpos in order to make the plugin PHP 7 backward compatible.
@@ -240,8 +250,11 @@ class block_opencast extends block_base {
                         'bui_confirm' => 1,
                         'sesskey' => sesskey(),
                 ]);
-                $this->page->requires->js_call_amd('block_opencast/block_delete_handler', 'init',
-                        [$this->context->id, $deleteurl->out(false)]);
+                $this->page->requires->js_call_amd(
+                    'block_opencast/block_delete_handler',
+                    'init',
+                    [$this->context->id, $deleteurl->out(false)]
+                );
             }
         }
         return $bc;

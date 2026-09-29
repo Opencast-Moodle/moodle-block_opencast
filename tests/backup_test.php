@@ -66,8 +66,6 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class backup_test extends advanced_testcase {
-
-
     /** @var string for the testcase, must NOT be a real server! */
     private $apiurl = 'http://server.opencast.testcase';
 
@@ -128,8 +126,14 @@ final class backup_test extends advanced_testcase {
      */
     protected function backup_course($courseid, $includevideos = false, $userid = 2) {
 
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
+        $bc = new backup_controller(
+            backup::TYPE_1COURSE,
+            $courseid,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_AUTOMATED,
+            $userid
+        );
         foreach ($bc->get_plan()->get_settings() as $setting) {
             if ($setting instanceof backup_block_opencast_setting) {
                 $setting->set_value($includevideos);
@@ -196,7 +200,7 @@ final class backup_test extends advanced_testcase {
      */
     private function restore_modules($courseid) {
         global $USER, $DB, $CFG;
-        require_once($CFG->dirroot.'/course/modlib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
         require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
         // Get plugin ids.
@@ -309,7 +313,7 @@ final class backup_test extends advanced_testcase {
         // LTI modules.
         if (!empty($this->seriesltimoduleid)) {
             $seriesmoduleobject = get_coursemodule_from_id('lti', $this->seriesltimoduleid, $this->newcourseid);
-            list($unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw) =
+            [$unusedcm, $unusedcontext, $unusedmodule, $seriesmoduledata, $unusedcw] =
                 get_moduleinfo_data($seriesmoduleobject, $courseobject);
 
             if (strpos($seriesmoduledata->instructorcustomparameters, $this->newseriesid) !== false) {
@@ -319,7 +323,7 @@ final class backup_test extends advanced_testcase {
 
         if (!empty($this->episodeltimoduleid)) {
             $episodemoduleobject = get_coursemodule_from_id('lti', $this->episodeltimoduleid, $this->newcourseid);
-            list($unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw) =
+            [$unusedcm, $unusedcontext, $unusedmodule, $episodemoduledata, $unusedcw] =
                 get_moduleinfo_data($episodemoduleobject, $courseobject);
 
             if (strpos($episodemoduledata->instructorcustomparameters, $this->newepisodeid) !== false) {
@@ -557,20 +561,26 @@ final class backup_test extends advanced_testcase {
 
         // Run adhoc task to fix modules.
         $apibridge->set_testdata('get_duplicated_episodeid', $dummyworkflowid, $this->newepisodeid);
-        $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records(
+            'task_adhoc',
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']
+        );
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Run adhoc task again to go to cleaup process.
-        $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records(
+            'task_adhoc',
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']
+        );
         $modulefixtaskrecord = array_shift($modulefixtaskrecords);
         $modulefixoutput = $this->execute_module_fix_adhoc_task($modulefixtaskrecord);
 
         // Check if the module fix adhoc task was successfully terminated.
-        $modulefixtaskrecords = $DB->get_records('task_adhoc',
-            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']);
+        $modulefixtaskrecords = $DB->get_records(
+            'task_adhoc',
+            ['classname' => '\\tool_opencast\\task\\process_duplicated_event_module_fix']
+        );
         $this->assertEquals(0, count($modulefixtaskrecords));
 
         // Check if modules are fixed.
@@ -748,5 +758,4 @@ final class backup_test extends advanced_testcase {
         }
         $this->assertEquals(0, count($coursevideos));
     }
-
 }

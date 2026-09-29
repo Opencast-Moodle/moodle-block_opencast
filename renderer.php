@@ -35,7 +35,6 @@ use tool_opencast\local\upload_helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_opencast_renderer extends plugin_renderer_base {
-
     /** @var int Video is visible for students */
     const VISIBLE = 1;
     /** @var int Video is visible for some students */
@@ -54,37 +53,64 @@ class block_opencast_renderer extends plugin_renderer_base {
      */
     public function render_processing_state_icon($processingstate) {
         switch ($processingstate) {
-
-            case 'FAILED' :
+            case 'FAILED':
                 $tooltip = get_string('ocstatefailed', 'block_opencast');
-                return $this->output->pix_icon('failed', $tooltip, 'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'PLANNED' :
+                return $this->output->pix_icon(
+                    'failed',
+                    $tooltip,
+                    'block_opencast',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'PLANNED':
                 $tooltip = get_string('planned', 'block_opencast');
-                return $this->output->pix_icon('c/event', get_string('planned', 'block_opencast'), 'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'CAPTURING' :
+                return $this->output->pix_icon(
+                    'c/event',
+                    get_string('planned', 'block_opencast'),
+                    'moodle',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'CAPTURING':
                 $tooltip = get_string('ocstatecapturing', 'block_opencast');
-                return $this->output->pix_icon('capturing', get_string('ocstatecapturing', 'block_opencast'), 'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'NEEDSCUTTING' :
+                return $this->output->pix_icon(
+                    'capturing',
+                    get_string('ocstatecapturing', 'block_opencast'),
+                    'block_opencast',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'NEEDSCUTTING':
                 $tooltip = get_string('ocstateneedscutting', 'block_opencast');
-                return $this->output->pix_icon('e/cut', get_string('ocstateneedscutting', 'block_opencast'), 'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'DELETING' :
+                return $this->output->pix_icon(
+                    'e/cut',
+                    get_string('ocstateneedscutting', 'block_opencast'),
+                    'moodle',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'DELETING':
                 $tooltip = get_string('deleting', 'block_opencast');
-                return $this->output->pix_icon('t/delete', get_string('deleting', 'block_opencast'), 'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'RUNNING' :
-            case 'PAUSED' :
+                return $this->output->pix_icon(
+                    't/delete',
+                    get_string('deleting', 'block_opencast'),
+                    'moodle',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'RUNNING':
+            case 'PAUSED':
                 $tooltip = get_string('ocstateprocessing', 'block_opencast');
-                return $this->output->pix_icon('i/loading_small', get_string('ocstateprocessing', 'block_opencast'), 'moodle',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
-            case 'SUCCEEDED' :
-            default :
+                return $this->output->pix_icon(
+                    'i/loading_small',
+                    get_string('ocstateprocessing', 'block_opencast'),
+                    'moodle',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
+            case 'SUCCEEDED':
+            default:
                 $tooltip = get_string('ocstatesucceeded', 'block_opencast');
-                return $this->output->pix_icon('succeeded', get_string('ocstatesucceeded', 'block_opencast'), 'block_opencast',
-                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]);
+                return $this->output->pix_icon(
+                    'succeeded',
+                    get_string('ocstatesucceeded', 'block_opencast'),
+                    'block_opencast',
+                    ['data-toggle' => 'tooltip', 'data-placement' => 'top', 'title' => $tooltip]
+                );
         }
     }
 
@@ -107,17 +133,24 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
 
         if (has_capability('tool/opencast:addvideo', $coursecontext) && $SITE->id != $courseid) {
-            $addvideourl = new moodle_url('/admin/tool/opencast/addvideo.php',
-                ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
+            $addvideourl = new moodle_url(
+                '/admin/tool/opencast/addvideo.php',
+                ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]
+            );
             $addvideobutton = $this->output->single_button($addvideourl, get_string('addvideo', 'block_opencast'), 'get');
             $html .= html_writer::div($addvideobutton, 'opencast-addvideo-wrap overview');
 
             // Show "Add videos (batch)" button.
             if (get_config('tool_opencast', 'batchuploadenabled_' . $ocinstance->id)) {
-                $batchuploadurl = new moodle_url('/admin/tool/opencast/batchupload.php',
-                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
-                $batchuploadbutton = $this->output->single_button($batchuploadurl,
-                    get_string('batchupload', 'block_opencast'), 'get');
+                $batchuploadurl = new moodle_url(
+                    '/admin/tool/opencast/batchupload.php',
+                    ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]
+                );
+                $batchuploadbutton = $this->output->single_button(
+                    $batchuploadurl,
+                    get_string('batchupload', 'block_opencast'),
+                    'get'
+                );
                 $html .= html_writer::div($batchuploadbutton, 'opencast-batchupload-wrap overview');
             }
 
@@ -143,14 +176,24 @@ class block_opencast_renderer extends plugin_renderer_base {
                     $seriesid = $apibridge->get_stored_seriesid($courseid, true, $USER->id);
                     $studiourlpath = $apibridge->generate_studio_url_path($courseid, $seriesid);
                     $url = $endpoint . $studiourlpath;
-                    $recordvideobutton = $this->output->action_link($url, get_string('recordvideo', 'block_opencast'),
-                        null, ['class' => 'btn btn-secondary', 'target' => $target]);
+                    $recordvideobutton = $this->output->action_link(
+                        $url,
+                        get_string('recordvideo', 'block_opencast'),
+                        null,
+                        ['class' => 'btn btn-secondary', 'target' => $target]
+                    );
                     $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
                 } else {
-                    $recordvideo = new moodle_url('/admin/tool/opencast/recordvideo.php',
-                        ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]);
-                    $recordvideobutton = $this->output->action_link($recordvideo, get_string('recordvideo', 'block_opencast'),
-                        null, ['class' => 'btn btn-secondary', 'target' => $target]);
+                    $recordvideo = new moodle_url(
+                        '/admin/tool/opencast/recordvideo.php',
+                        ['courseid' => $courseid, 'ocinstanceid' => $ocinstance->id]
+                    );
+                    $recordvideobutton = $this->output->action_link(
+                        $recordvideo,
+                        get_string('recordvideo', 'block_opencast'),
+                        null,
+                        ['class' => 'btn btn-secondary', 'target' => $target]
+                    );
                     $html .= html_writer::div($recordvideobutton, 'opencast-recordvideo-wrap overview');
                 }
             }
@@ -163,10 +206,8 @@ class block_opencast_renderer extends plugin_renderer_base {
         }
 
         if ($videodata->count == 0) {
-
             $html .= html_writer::div(get_string('novideosavailable', 'block_opencast'), 'opencast-bc-wrap');
         } else {
-
             // Videos available.
             $listitems = '';
             foreach ($videodata->videos as $video) {
@@ -227,5 +268,4 @@ class block_opencast_renderer extends plugin_renderer_base {
         // Return string.
         return $statusstring;
     }
-
 }

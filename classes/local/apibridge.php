@@ -61,7 +61,6 @@ require_once($CFG->dirroot . '/blocks/opencast/tests/helper/apibridge_testable.p
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class apibridge {
-
     /** @var int Opencast instance id */
     private $ocinstanceid;
 
@@ -483,15 +482,19 @@ class apibridge {
      * @param stdClass $video The video object, which should be checked.
      */
     private function extend_video_status(&$video) {
-        if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
-            && count($video->publication_status) == 1 && $video->publication_status[0] == "internal") {
+        if (
+            $video->status === "EVENTS.EVENTS.STATUS.PROCESSED" && $video->has_previews == true
+            && count($video->publication_status) == 1 && $video->publication_status[0] == "internal"
+        ) {
             $video->processing_state = "NEEDSCUTTING";
         } else if ($video->status === "EVENTS.EVENTS.STATUS.SCHEDULED") {
             $video->processing_state = "PLANNED";
         } else if ($video->status === "EVENTS.EVENTS.STATUS.RECORDING") {
             $video->processing_state = "CAPTURING";
-        } else if ($video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
-            $video->status === "EVENTS.EVENTS.STATUS.PENDING") {
+        } else if (
+            $video->status === "EVENTS.EVENTS.STATUS.INGESTING" ||
+            $video->status === "EVENTS.EVENTS.STATUS.PENDING"
+        ) {
             $video->processing_state = "RUNNING";
         } else if ($video->status === "EVENTS.EVENTS.STATUS.PROCESSED") {
             $video->processing_state = "SUCCEEDED";
@@ -530,8 +533,12 @@ class apibridge {
      * @param bool $includingmedia If true, media files are included
      * @return stdClass Video
      */
-    public function get_opencast_video($identifier, bool $withpublications = false, bool $withacl = false,
-                                       bool $includingmedia = false) {
+    public function get_opencast_video(
+        $identifier,
+        bool $withpublications = false,
+        bool $withacl = false,
+        bool $includingmedia = false
+    ) {
         $result = new stdClass();
         $result->video = false;
         $result->error = 0;
@@ -583,8 +590,10 @@ class apibridge {
      * @return object group object of NULL, if group does not exist.
      */
     protected function get_acl_group($courseid, $userid) {
-        $groupname = $this->replace_placeholders(get_config('tool_opencast',
-            'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
+        $groupname = $this->replace_placeholders(get_config(
+            'tool_opencast',
+            'group_name_' . $this->ocinstanceid
+        ), $courseid, null, $userid)[0];
         $groupidentifier = $this->get_course_acl_group_identifier($groupname);
 
         $response = $this->api->opencastapi->groupsApi->get($groupidentifier);
@@ -611,8 +620,10 @@ class apibridge {
      * @param int $userid
      */
     protected function create_acl_group($courseid, $userid) {
-        $name = $this->replace_placeholders(get_config('tool_opencast',
-            'group_name_' . $this->ocinstanceid), $courseid, null, $userid)[0];
+        $name = $this->replace_placeholders(get_config(
+            'tool_opencast',
+            'group_name_' . $this->ocinstanceid
+        ), $courseid, null, $userid)[0];
         $description = 'ACL for users in Course with id ' . $courseid . ' from site "Moodle"';
         $roles = [
             'ROLE_API_SERIES_VIEW',
@@ -803,8 +814,10 @@ class apibridge {
     public function get_course_series($courseid) {
         global $DB;
         // We do an intense look-up into the series records, to avoid redundancy.
-        $allcourseseries = $DB->get_records('tool_opencast_series',
-            ['ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid]);
+        $allcourseseries = $DB->get_records(
+            'tool_opencast_series',
+            ['ocinstanceid' => $this->ocinstanceid, 'courseid' => $courseid]
+        );
         $tempholder = [];
         $defaultseriesnum = 0;
         foreach ($allcourseseries as $courseserie) {
@@ -853,9 +866,11 @@ class apibridge {
 
         // Skip course related placeholders if courseid is site id.
         if (intval($courseid) === intval($SITE->id)) {
-            if (strpos($name, '[COURSENAME]') !== false ||
+            if (
+                strpos($name, '[COURSENAME]') !== false ||
                 strpos($name, '[COURSEID]') !== false ||
-                strpos($name, '[COURSEGROUPID]') !== false) {
+                strpos($name, '[COURSEGROUPID]') !== false
+            ) {
                 return [null];
             }
         }
@@ -1059,16 +1074,17 @@ class apibridge {
 
         $roles = $this->getroles();
         foreach ($roles as $role) {
-            if (strpos($role->rolename, '[USERNAME]') !== false ||
+            if (
+                strpos($role->rolename, '[USERNAME]') !== false ||
                 strpos($role->rolename, '[USERNAME_LOW]') !== false ||
-                strpos($role->rolename, '[USERNAME_UP]') !== false) {
+                strpos($role->rolename, '[USERNAME_UP]') !== false
+            ) {
                 // Add new user as well.
                 foreach ($role->actions as $action) {
                     $acl[] = (object)['allow' => true,
                         'role' => self::replace_placeholders($role->rolename, $courseid, null, $userid)[0],
                         'action' => $action, ];
                 }
-
             } else {
                 foreach ($role->actions as $action) {
                     foreach ($acl as $key => $aclval) {
@@ -1279,8 +1295,10 @@ class apibridge {
             if ($file->copy_content_to($tempfilepath)) {
                 $filestream = fopen($tempfilepath, 'r');
             }
-        } else if (class_exists('\local_chunkupload\local\chunkupload_file') &&
-            $file instanceof chunkupload_file) {
+        } else if (
+            class_exists('\local_chunkupload\local\chunkupload_file') &&
+            $file instanceof chunkupload_file
+        ) {
             if (copy($file->get_fullpath(), $tempfilepath)) {
                 $filestream = fopen($tempfilepath, 'r');
             }
@@ -1494,10 +1512,16 @@ class apibridge {
         // Remove acls.
         if ($oldvisibility === block_opencast_renderer::MIXED_VISIBILITY) {
             $oldacls = [];
-            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
-                block_opencast_renderer::GROUP, $oldgroupsarray));
-            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status($courseid,
-                block_opencast_renderer::VISIBLE, $oldgroupsarray));
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status(
+                $courseid,
+                block_opencast_renderer::GROUP,
+                $oldgroupsarray
+            ));
+            array_merge($oldacls, $this->get_non_permanent_acl_rules_for_status(
+                $courseid,
+                block_opencast_renderer::VISIBLE,
+                $oldgroupsarray
+            ));
         } else {
             $oldacls = $this->get_non_permanent_acl_rules_for_status($courseid, $oldvisibility, $oldgroupsarray);
         }
@@ -1535,7 +1559,6 @@ class apibridge {
             }
         }
         return false;
-
     }
 
     /**
@@ -1848,7 +1871,6 @@ class apibridge {
         }
 
         foreach ($returnedworkflows as $workflow) {
-
             if (object_property_exists($workflow, 'title') && !empty($workflow->title)) {
                 $workflows[$workflow->identifier] = $workflow->title;
             } else {
@@ -1935,9 +1957,10 @@ class apibridge {
      */
     public function can_delete_event_assignment($video, $courseid) {
 
-        if (isset($video->processing_state) &&
-            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')) {
-
+        if (
+            isset($video->processing_state) &&
+            ($video->processing_state !== 'RUNNING' && $video->processing_state !== 'PAUSED')
+        ) {
             $context = context_course::instance($courseid);
 
             return has_capability('tool/opencast:deleteevent', $context);
@@ -2082,9 +2105,11 @@ class apibridge {
      * @return bool the capability of updating!
      */
     public function can_update_event_metadata($video, $courseid, $capabilitycheck = true) {
-        if (isset($video->processing_state) &&
+        if (
+            isset($video->processing_state) &&
             ($video->processing_state == "SUCCEEDED" || $video->processing_state == "FAILED" ||
-                $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")) {
+                $video->processing_state == "PLANNED" || $video->processing_state == "STOPPED")
+        ) {
             if ($capabilitycheck) {
                 $context = context_course::instance($courseid);
                 return has_capability('tool/opencast:addvideo', $context);
@@ -2106,10 +2131,12 @@ class apibridge {
 
         // We check if the basic editor integration configs are set, the video processing state is succeeded
         // (to avoid process failure) and there is internal publication status (to avoid error 400 in editor).
-        if (get_config('tool_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
+        if (
+            get_config('tool_opencast', 'enable_opencast_editor_link_' . $this->ocinstanceid) &&
             isset($video->processing_state) && in_array($video->processing_state, ["SUCCEEDED", "NEEDSCUTTING"])  &&
             isset($video->publication_status) && is_array($video->publication_status) &&
-            in_array('internal', $video->publication_status)) {
+            in_array('internal', $video->publication_status)
+        ) {
             $context = context_course::instance($courseid);
             return has_capability('tool/opencast:addvideo', $context);
         }
@@ -2193,8 +2220,10 @@ class apibridge {
         $event->set_json_acl($jsonacl);
 
         $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
-            array_column($roles, 'rolename'));
+        $ownerrole = array_search(
+            get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
+            array_column($roles, 'rolename')
+        );
         $ownerrole = $roles[$ownerrole];
 
         // Create regex from role.
@@ -2311,8 +2340,10 @@ class apibridge {
         }
 
         $roles = json_decode(get_config('tool_opencast', 'roles_' . $this->ocinstanceid));
-        $ownerrole = array_search(get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
-            array_column($roles, 'rolename'));
+        $ownerrole = array_search(
+            get_config('tool_opencast', 'aclownerrole_' . $this->ocinstanceid),
+            array_column($roles, 'rolename')
+        );
         $ownerrole = $roles[$ownerrole];
 
         $roletosearch = self::replace_placeholders($ownerrole->rolename, $courseid, null, $userid);
@@ -2448,25 +2479,32 @@ class apibridge {
 
         // If we are not looking at a duplication workflow at all, return.
         $duplicateworkflow = get_config('tool_opencast', 'duplicateworkflow_' . $this->ocinstanceid);
-        if (isset($workflowconfiguration->workflow_definition_identifier) &&
-            $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow) {
+        if (
+            isset($workflowconfiguration->workflow_definition_identifier) &&
+            $workflowconfiguration->workflow_definition_identifier != $duplicateworkflow
+        ) {
             return false;
         }
 
         // If the workflow is not running anymore and there is no chance that there will be a (valid) episode ID anymore, return.
-        if (isset($workflowconfiguration->state) &&
+        if (
+            isset($workflowconfiguration->state) &&
             !($workflowconfiguration->state == 'instantiated' || $workflowconfiguration->state == 'running' ||
                 $workflowconfiguration->state == 'paused') &&
             (!isset($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
                 empty($workflowconfiguration->configuration->duplicate_media_package_1_id) ||
                 ltimodulemanager::is_valid_episode_id(
-                    $workflowconfiguration->configuration->duplicate_media_package_1_id) == false)) {
+                    $workflowconfiguration->configuration->duplicate_media_package_1_id
+                ) == false)
+        ) {
             return false;
         }
 
         // Now, regardless if the workflow has finished already or not, check if there is already a valid episode ID.
-        if (isset($workflowconfiguration->configuration->duplicate_media_package_1_id) &&
-            ltimodulemanager::is_valid_episode_id($workflowconfiguration->configuration->duplicate_media_package_1_id) == true) {
+        if (
+            isset($workflowconfiguration->configuration->duplicate_media_package_1_id) &&
+            ltimodulemanager::is_valid_episode_id($workflowconfiguration->configuration->duplicate_media_package_1_id) == true
+        ) {
             // Pick the episode ID from the workflow configuration and return it.
             return $workflowconfiguration->configuration->duplicate_media_package_1_id;
         }
@@ -2868,8 +2906,10 @@ class apibridge {
     public function can_edit_event_transcription($video, $courseid) {
         // To edit transcriptions, we need that the video processing to be in succeeded state to avoid any conflict in workflows.
         // We would also need to make sure that workflow for transcription is configured.
-        if (!empty(get_config('tool_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
-            isset($video->processing_state) && $video->processing_state == "SUCCEEDED") {
+        if (
+            !empty(get_config('tool_opencast', 'transcriptionworkflow_' . $this->ocinstanceid)) &&
+            isset($video->processing_state) && $video->processing_state == "SUCCEEDED"
+        ) {
             $context = context_course::instance($courseid);
             return has_capability('tool/opencast:addvideo', $context);
         }
@@ -3045,8 +3085,10 @@ class apibridge {
             }
 
             // Initializing default studio return url.
-            $studioreturnurl = new moodle_url('/blocks/opencast/index.php',
-                ['courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid]);
+            $studioreturnurl = new moodle_url(
+                '/blocks/opencast/index.php',
+                ['courseid' => $courseid, 'ocinstanceid' => $this->ocinstanceid]
+            );
             // Check if custom return url is configured.
             if (!empty(get_config('tool_opencast', 'opencast_studio_return_url_' . $this->ocinstanceid))) {
                 // Prepare the custom url.

@@ -45,7 +45,6 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
 
     // Create empty settings page structure to make the site administration work on non-admin pages.
     if (!$ADMIN->fulltree) {
-
         foreach ($ocinstances as $instance) {
             if (count($ocinstances) > 1) {
                 $instancecategory = new admin_category('block_opencast_instance_' . $instance->id, $instance->name);
@@ -56,18 +55,21 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Setting page: General.
-            $settingspage = new admin_settingpage('block_opencast_generalsettings_' . $instance->id,
-                get_string('general_settings', 'block_opencast'));
+            $settingspage = new admin_settingpage(
+                'block_opencast_generalsettings_' . $instance->id,
+                get_string('general_settings', 'block_opencast')
+            );
             $ADMIN->add($category, $settingspage);
         }
 
         // Because we are using the calls to get workflows actively in the setting, therefore we need to narrow it down only
         // when needed. So we check if this setting page is currently requested.
-    } else if ($ADMIN->fulltree &&
+    } else if (
+        $ADMIN->fulltree &&
         (strpos($PAGE->pagetype, 'block_opencast') !== false || // When only landing on the admin settings page for block_opencast.
             ($PAGE->pagetype == 'admin-upgradesettings' && $PAGE->pagelayout == 'maintenance') || // During upgrade or install.
-            (environment_util::is_cli_application() && !environment_util::is_moodle_plugin_ci_workflow()))) {
-
+            (environment_util::is_cli_application() && !environment_util::is_moodle_plugin_ci_workflow()))
+    ) {
         foreach ($ocinstances as $instance) {
             if (count($ocinstances) > 1) {
                 $instancecategory = new admin_category('block_opencast_instance_' . $instance->id, $instance->name);
@@ -78,17 +80,22 @@ if ($hassiteconfig) { // Needs this condition or there is error on login page.
             }
 
             // Setting page: General.
-            $generalsettings = new admin_settingpage('block_opencast_generalsettings_' . $instance->id,
-                get_string('general_settings', 'block_opencast'));
+            $generalsettings = new admin_settingpage(
+                'block_opencast_generalsettings_' . $instance->id,
+                get_string('general_settings', 'block_opencast')
+            );
             $ADMIN->add($category, $generalsettings);
 
 
             $generalsettings->add(
-                new admin_setting_configtext('block_opencast/limitvideos_' . $instance->id,
+                new admin_setting_configtext(
+                    'block_opencast/limitvideos_' . $instance->id,
                     get_string('limitvideos', 'block_opencast'),
-                    get_string('limitvideosdesc', 'block_opencast'), 5, PARAM_INT));
-
-
+                    get_string('limitvideosdesc', 'block_opencast'),
+                    5,
+                    PARAM_INT
+                )
+            );
         }
     }
 }
