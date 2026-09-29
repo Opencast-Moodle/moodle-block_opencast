@@ -24,7 +24,6 @@
 
 $string['addlti_defaulttitle'] = 'Opencast videos';
 $string['addvideo'] = 'Add video';
-$string['adminchoice_noworkflow'] = "-- No workflow --";
 $string['batchupload'] = 'Add videos (batch)';
 $string['cachedef_videodata'] = 'Caches the result of the opencast api for the opencast-block.';
 $string['delete_block_and_mapping'] = 'Delete block and series mapping';
@@ -34,13 +33,8 @@ $string['deleting'] = 'Going to be deleted';
 $string['errorgetblockvideos'] = 'List cannot be loaded (Error: {$a})';
 $string['general_settings'] = 'General settings';
 $string['gotooverview'] = 'Go to overview...';
-$string['invalidacldata'] = 'Invalid acl data';
-$string['invalidmetadatafield'] = 'Invalid metadata field found: {$a}';
 $string['limitvideos'] = 'Number of videos';
 $string['limitvideosdesc'] = 'Maximum number of videos to display in block';
-$string['missinggroup'] = 'Missing group in opencast';
-$string['missingseries'] = 'Missing series in opencast';
-$string['morethanonedefaultserieserror'] = 'This course has more than one default series. Please contact your system administrator.';
 $string['morevideos'] = 'More videos...';
 $string['novideosavailable'] = 'No videos available';
 $string['ocstatecapturing'] = 'Capturing';
@@ -63,4 +57,3 @@ $string['settings'] = 'Opencast Videos';
 $string['settings_page'] = 'Settings';
 $string['settings_page_url'] = '{$a} Settings';
 $string['tool_requirement_not_fulfilled'] = 'The required version of tool_opencast is not installed.';
-$string['uploadingeventfailed'] = 'Creating of event failed';
